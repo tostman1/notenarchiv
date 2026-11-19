@@ -1,255 +1,84 @@
 # Notenarchiv & Marschbuch-Generator
 
-Eine lokale Webanwendung zur Verwaltung digitalisierter Vereinsnoten und zur Erstellung von Marschbüchern, Konzertmappen, Unterhaltungsmappen und Notensammlungen für kleine Ensembles.
+A local, browser-based sheet music archive and personal music-folder generator for a music association. Digitize once, verify and organize the archive, then reuse the music for concert folders, marchbooks, entertainment folders and small ensembles.
 
-**Ziel:** Noten einmal digitalisieren, zuverlässig archivieren und für beliebig viele Projekte wiederverwenden. Notenarchivare können Stücke zusammenstellen, Stimmen flexibel zuweisen und vollständige, druckfertige Notenmappen erzeugen – direkt im Browser auf der Vereins-DiskStation.
+**Status:** Specification and implementation planning. The features, installation and container image described here are target deliverables, not claims of existing functionality.  
+**Target:** Synology DS224+, Docker Compose, Linux amd64.  
+**Interface:** German. Technical development and documentation: English.
 
-> **Projektstatus:** In Planung / Entwicklung. Die funktionalen Anforderungen und die technische Zielarchitektur sind dokumentiert. Die beschriebenen Funktionen, Container-Images und Installationsabläufe sind Entwicklungsziele und noch nicht als produktionsreife Software validiert.
+## What the application will do
 
-## Funktionsumfang
+- Index NAS PDF folders, compare filenames with actual PDF text and local OCR, propose part assignments, and require archivist visual approval. Search titles immediately, manage arrangements and confirmed versions, identify missing music, and export individual notes directly.
+- Keep real, byte-identical, standardized PDF copies in a separate CLEAN archive. RAW never changes. Optional scan enhancement produces separate derivatives, with visual review.
+- Maintain members, instrument variants, playable parts, replacement rules and ensemble roles.
+- Save, reopen, edit and duplicate projects. Each project has exactly one shared piece list, automatic numbering and optional reserved slots. Select participating musicians from the association, including guests.
+- Change personal part assignments quickly using the matrix. Pick confirmed editions with the correct notation, use project defaults and override individual pieces; batch changes and reset are direct actions.
+- Produce full **personal** folders, selected project excerpts/reprints, direct archive notes and separate contents sheets. Missing parts require explicit confirmation and placeholders. Never stamp piece numbers onto music pages.
+- Generate separate reading and print PDFs. Preserve native A3 pages; pair A4 portrait pages within pieces on A3 landscape. Marchbook default 170 × 120 mm. Preview and print on verified network printers, with explicit fallback if necessary.
 
-### Notenarchiv und OCR
+### Example assignment matrix
 
-- Zentrale, durchsuchbare Bibliothek mit sofortiger Titelsuche und Filtern.
-- Automatische Erkennung von Musikstücken, Arrangements, Instrumenten, Stimmungen und Stimmen mittels PDF-Text, OCR und Erkennungsregeln.
-- Inhaltliche Kontrolle jeder neuen oder geänderten PDF, auch bei eindeutigem Dateinamen wie `Posaune1.pdf`.
-- Unterstützung mehrerer Stimmen innerhalb einer PDF, z. B. `Trombone II/III`.
-- Prüfwarteschlange mit PDF-Vorschau, erkannten Zuordnungen und manueller Freigabe durch Archivare.
-- Erkennung unveränderter und geänderter Dateien anhand von SHA-256-Prüfsummen.
-- Vollständigkeitsmatrix zur Identifikation fehlender oder ungeprüfter Noten.
-- Separate Scanaufbereitung mit Deskew, Rauschreduktion, Zuschnitt und Formatnormalisierung unter Erhalt musikalischer Zeichen.
-
-### Mitglieder, Instrumente und Stimmen
-
-- Zentrale Verwaltung der Vereinsmitglieder und ihrer regulären Instrumenten- und Stimmenzuordnung.
-- Einheitliche Instrumentenbezeichnungen, Stimmungen, Notationsarten und Stimmen über definierte Auswahlfelder.
-- Konfigurierbare Ersatzstimmen und stückbezogene Ausnahmen.
-- Unterstützung kleiner Ensembles mit getrennten musikalischen und instrumentenspezifischen Stimmen, einschließlich passender transponierter Notenfassungen.
-
-### Projekte und Notensammlungen
-
-Projekte können erstellt, gespeichert, geladen, dupliziert, bearbeitet und archiviert werden, beispielsweise:
-
-- Marschbuch 2026
-- Weihnachtsensemble 2026
-- Unterhaltungsmappe
-- Konzertmappe
-
-Jedes Projekt besitzt genau eine gemeinsame Stückliste mit identischer Reihenfolge und Nummerierung für sämtliche Teilnehmer. Stücke lassen sich suchen, per Drag-and-drop sortieren und nummerieren; freie Nummern sind möglich. Die Teilnehmer werden projektspezifisch ausgewählt.
-
-Die Personalisierung erfolgt ausschließlich über die Instrumenten- und Stimmenzuordnung sowie ein optionales Deckblatt. Individuelle Zusatzstücke oder abweichende Stücklisten sind nicht vorgesehen.
-
-### Direkt bearbeitbare Stimmenmatrix
-
-Stimmenwechsel sind Bestandteil des regulären Workflows. Die Projektansicht bietet eine Matrix mit Stückpositionen als Zeilen und Teilnehmern als Spalten. Über Dropdowns können Stimmen direkt geändert, mehrere Zellen gemeinsam bearbeitet und Ausnahmen auf den Projektstandard zurückgesetzt werden.
-
-| Stück | Mathias | Sebi | Riccardo |
+| Piece | Mathias | Sebi | Riccardo |
 | --- | --- | --- | --- |
-| Böhmischer Traum | Pos. 1 | Pos. 2 | Pos. 3 |
-| ABBA Medley | Pos. 1 | Pos. 2 | **Pos. 2** |
-| Italo Pop Classics | Pos. 1 | Pos. 2 | Pos. 3 |
-| Abel Tasman | Pos. 1 | Pos. 2 | **Pos. 2** |
+| Böhmischer Traum | Posaune 1 | Posaune 2 | Posaune 3 |
+| ABBA Medley | Posaune 1 | Posaune 2 | **Posaune 2** |
+| Abel Tasman | Posaune 1 | Posaune 2 | **Posaune 2** |
 
-*Beispiel einer projektspezifischen Stimmenverteilung. Riccardos stückbezogene Ausnahmen bleiben beim erneuten Öffnen des Projekts erhalten; die Vereinsstammdaten werden nicht verändert.*
+Fictional example: Riccardo deliberately changes part on selected pieces; the other participants and shared piece list remain unchanged. A reprint for Riccardo uses the same effective assignment as his full folder.
 
-### PDF-Export und Druck
-
-- Ausgabe pro Instrumentenstimme oder pro Teilnehmer.
-- Einheitliches Inhaltsverzeichnis mit Stücknummern und Titeln, ohne Seitenzahlen.
-- Optionales personalisiertes Deckblatt.
-- Getrennte Lese-PDFs mit Original-Seitenformaten und Druck-PDFs mit optimierter Seitenanordnung.
-- Prüfbericht vor dem Export mit Ersatzstimmen, fehlenden Noten und individuellen Abweichungen.
-- Bei fehlenden Noten: deutliche Warnung, explizite Bestätigung und Platzhalterblatt mit Stücktitel.
-- Auswahl eines Netzwerkdruckers sowie Druckvorschau und automatische Papierformatwahl, soweit vom Drucker unterstützt.
-
-| Notenformat | Druckausgabe |
-| --- | --- |
-| 1 A4-Seite | 1 × A4 |
-| 2 A4-Seiten | 1 × A3 quer (links/rechts) |
-| 3 A4-Seiten | 1 × A3 quer + 1 × A4 |
-| 4 A4-Seiten | 2 × A3 quer |
-| Original A3 | A3, ohne Aufteilung |
-| Marschbuch | 170 × 120 mm quer (Standard, projektbezogen anpassbar) |
-
-A4-Seiten werden ausschließlich innerhalb eines Stücks gepaart. Bei fehlender A3-Unterstützung wird vor einer geeigneten A4-Ersatzausgabe eine Bestätigung eingeholt.
-
-## Archivprinzip: RAW / CLEAN
-
-**Originaldateien sind unveränderlich.** Die Anwendung erhält ausschließlich Lesezugriff auf das RAW-Archiv. Sie erstellt echte, standardisiert benannte PDF-Kopien in einem eigenständigen CLEAN-Archiv. Keine Originaldatei wird umbenannt, bearbeitet, verschoben oder gelöscht.
+## Data safety
 
 ```text
-/volume1/
-├── Notenarchiv/                         # RAW – read-only
-│   └── Böhmischer Traum/
-│       ├── scan001.pdf
-│       └── Trombone II-III.pdf
-├── Notenarchiv_Sortiert/                # CLEAN – eigenständige PDF-Kopien
-│   └── Böhmischer Traum [arr-a1b2c3d4]/
-│       ├── Klarinette_B_02.pdf
-│       └── Posaune_C_Bassschluessel_02-03.pdf
-├── Notenarchiv_Status/                  # Indizierungs- und Prüfstatus
-├── Notenmappen/                         # Generierte Projekt-PDFs
-└── docker/notenarchiv/
-    ├── compose.yaml
-    ├── .env
-    ├── secrets/
-    └── data/                            # Datenbank, Thumbnails, Logs
+RAW/        existing original PDFs, read-only
+CLEAN/      real byte-identical, organized copies, confirmed or clearly pending
+PROCESSED/  separately approved enhanced derivatives
+STATUS/     mirrored indexing/review markers, never stored in RAW
+EXPORT/     generated immutable PDFs and manifests
+DATA/       local SQLite database, job data, logs and cache
 ```
 
-Die Indizierung prüft Dateiname und PDF-Inhalt, erstellt eine Zielkopie und kennzeichnet den Quellordner über einen separat gespeicherten Status als indiziert. Archivare kontrollieren und bestätigen neue Zuordnungen. **Indiziert, geprüft und vollständig sind getrennte Zustände.** Projekt-PDFs werden ausschließlich aus freigegebenen CLEAN-Dateien erzeugt. Die Quellordner bleiben auch bei erneuter Indizierung und Scanaufbereitung unverändert.
+No automatic approval based on a filename or OCR confidence. Indexing is not review and review is not completeness. The application never modifies RAW. CLEAN is independently browsable as actual PDF files. See [requirements](REQUIREMENTS.md) for business rules and [architecture](ARCHITECTURE.md) for permissions, versioning and recovery.
 
-## Technische Zielarchitektur
+## Technology
 
-Die Anwendung ist als modularer Python-Monolith mit Weboberfläche und persistentem Hintergrundworker vorgesehen. Beide Dienste können dasselbe Container-Image verwenden. OCR, PDF-Verarbeitung und Speicherung erfolgen lokal auf dem NAS; keine Cloud, keine Telemetrie und kein externer OCR-Dienst.
+Python 3.12, Django 5.2 LTS, Gunicorn, WhiteNoise, HTMX, local CSS/JS, SQLite, one persistent background worker, pypdf, pypdfium2, ReportLab, OpenCV, Pillow, NumPy, Tesseract, pytest and Docker Compose. One image for web and worker, published in GitHub Container Registry after tests and approval. No external OCR, CDN, runtime cloud dependency or telemetry. Native library, licensing, NAS and printer checks remain pending.
 
-```mermaid
-flowchart TD
-    B[Browser] --> W[Django / Gunicorn]
-    W --> D[(SQLite)]
-    J[Hintergrundworker] <--> D
-    R[RAW – nur lesend] --> J
-    J --> C[CLEAN – PDF-Kopien]
-    J --> S[Statusarchiv]
-    C --> J
-    J --> E[PDF-Ausgaben]
-    J --> P[IPP / CUPS – optional]
-```
+## Documents
 
-| Bereich | Vorgesehene Technologien |
+| File | Purpose |
 | --- | --- |
-| Backend | Python 3.12/3.13, Django, Gunicorn |
-| Frontend | Django Templates, HTMX, Bootstrap/CSS, SortableJS, PDF.js |
-| Datenbank | SQLite, UUIDs und SHA-256 für Dateiidentität |
-| PDF-Verarbeitung | pypdf, pypdfium2, ReportLab |
-| Bildverarbeitung | OpenCV, NumPy, Pillow |
-| OCR | Tesseract, pytesseract, Regex, RapidFuzz |
-| Druck | IPP / CUPS |
-| Tests und Qualität | pytest, pytest-django, Playwright, Ruff, pip-audit, Trivy |
-| Deployment | Docker Compose, Synology Container Manager |
-| CI/CD | GitHub Actions, GitHub Container Registry (GHCR) |
+| [REQUIREMENTS.md](REQUIREMENTS.md) | Normative product behavior, business rules and requirement IDs |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Technical design, data model, configuration, security, deployment |
+| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Ordered milestones, work packages, acceptance and tests |
+| [AGENTS.md](AGENTS.md) | Instructions and approval workflow for coding agents |
+| [DECISIONS.md](DECISIONS.md) | Confirmed decisions, design defaults and pending evidence |
 
-Bibliotheksversionen und Lizenzstrategie werden vor dem ersten Release festgelegt. Die Zielplattform ist die Synology DS224+ (`linux/amd64`).
+## Delivery roadmap
 
-## Repository-Struktur (geplant)
+1. Foundation, authentication, navigation, jobs, CI, secure container smoke test.
+2. Manual archive: indexing, physical copies, review, search, direct note export.
+3. Local OCR, recognition and incremental reindexing.
+4. Projects, ensemble, matrix, immutable preflight and full personal/partial exports (MVP).
+5. Scan enhancement and marchbook layout.
+6. Printer support, backup/restore, security and release validation.
 
-```text
-notenarchiv/
-├── README.md
-├── REQUIREMENTS.md
-├── ARCHITECTURE.md
-├── pyproject.toml
-├── uv.lock
-├── Dockerfile
-├── compose.yaml
-├── .env.example
-├── .gitignore
-├── .dockerignore
-├── manage.py
-├── config/
-├── core/                  # PDF-, Bild- und OCR-Verarbeitung
-├── apps/
-│   ├── archive/           # Import, OCR und Freigabe
-│   ├── catalog/           # Stücke, Arrangements, Instrumente, Stimmen
-│   ├── members/
-│   ├── projects/
-│   ├── exports/
-│   ├── printing/
-│   └── jobs/
-├── templates/
-├── static/
-├── tests/
-└── .github/workflows/
-    ├── ci.yml
-    └── release.yml
-```
+See the implementation plan for dependencies and release gates. The MVP is a useful milestone, not the full product.
 
-## Deployment auf der Synology DiskStation (geplant)
+## Planned development and deployment
 
-Voraussetzungen: DSM mit Container Manager, freier Speicherplatz, getrennte Datenverzeichnisse und ein dediziertes Dienstkonto `svc_notenarchiv` ohne Administratorrechte. Die echte Linux-UID und -GID werden auf der NAS ermittelt und in der Container-Konfiguration verwendet.
+Once foundation work is implemented and approved, development uses `uv sync --locked`, `uv run pytest`, `uv run ruff check .` and `uv run ruff format --check .`. Follow the implementation plan before running commands that depend on files or services not yet created.
 
-Die folgenden Variablen bilden die zentrale Deployment-Konfiguration. Pfade und Werte sind Beispiele und müssen an die tatsächliche NAS angepasst werden.
+For NAS deployment, create a dedicated non-admin account `svc_notenarchiv`, determine UID/GID using `id`, prepare distinct roots and mount RAW read-only. The architecture includes the environment-variable contract and illustrative Compose configuration. Actual share paths, IDs, RAM, DSM version, DNS/HTTPS and printer support must be verified. Use an exact approved image tag/digest; never automatically deploy unreviewed changes. Installation/update/restore runbooks are deliverables of the plan.
 
-```dotenv
-APP_IMAGE=ghcr.io/OWNER/notenarchiv:0.1.0
-APP_UID=REPLACE_WITH_DSM_UID
-APP_GID=REPLACE_WITH_DSM_GID
-APP_PORT=8085
-APP_BIND=127.0.0.1
-TZ=Europe/Vienna
-APP_ALLOWED_HOSTS=notenarchiv.example.invalid,localhost
-APP_CSRF_TRUSTED_ORIGINS=https://notenarchiv.example.invalid
-SOURCE_HOST=/volume1/Notenarchiv
-CURATED_HOST=/volume1/Notenarchiv_Sortiert
-STATUS_HOST=/volume1/Notenarchiv_Status
-EXPORT_HOST=/volume1/Notenmappen
-DATA_HOST=/volume1/docker/notenarchiv/data
-SECRET_HOST=/volume1/docker/notenarchiv/secrets/django_secret_key
-```
-
-Verbindliche Volume-Trennung im Compose-Projekt:
-
-```yaml
-volumes:
-  - ${SOURCE_HOST}:/archive/source:ro
-  - ${CURATED_HOST}:/archive/curated:rw
-  - ${STATUS_HOST}:/archive/status:rw
-  - ${EXPORT_HOST}:/archive/export:rw
-  - ${DATA_HOST}:/data:rw
-```
-
-Das RAW-Archiv ist zusätzlich auf DSM-Ebene schreibgeschützt. Zugang zur Anwendung erfolgt authentifiziert über das lokale Netz bzw. einen privaten Fernzugriff, vorzugsweise über einen HTTPS-Reverse-Proxy. Bei `APP_BIND=127.0.0.1` ist für den Zugriff aus dem LAN ein Reverse-Proxy erforderlich. Anwendungsdaten und Geheimnisse bleiben außerhalb des Container-Images.
-
-Der vollständige Installations- und Updateablauf wird mit dem ersten getesteten Release bereitgestellt. Ein produktionsfähiges Image ist durch diese Beschreibung noch nicht verfügbar.
-
-### Debug-Modus
-
-Optional lässt sich die Anwendungsdiagnose für Web und Worker über die Compose-Umgebung einschalten:
+Deploy is default. To enable application diagnostics, set the following in the environment shared by web and worker in Compose, then recreate both containers:
 
 ```yaml
 environment:
   DEBUG_MODE: "TRUE"
 ```
 
-| Einstellung | Betriebsmodus |
-| --- | --- |
-| Nicht gesetzt | Deploy (Standard) |
-| `"FALSE"` | Deploy |
-| `"TRUE"` | Debug |
+Debug adds authenticated GUI logs and persistent rotating files; Django DEBUG remains False. `PRINT_ENABLED=0` until actual printer verification.
 
-Der Debug-Modus aktiviert eine zusätzliche GUI-Diagnose mit Live-Logs, OCR-Erkennungskandidaten, Verarbeitungsschritten und Laufzeiten. Web und Worker schreiben persistente, rotierende Debug-Logdateien unter `/data/logs/`. Im Standardbetrieb bleiben normale Container-Logs sowie fachliche Fortschritts- und Fehlermeldungen verfügbar.
+## Contributing and licensing
 
-Beide Modi nutzen dasselbe Container-Image. Django `DEBUG` bleibt deaktiviert, und alle Sicherheitsmechanismen bleiben aktiv.
-
-## Entwicklung und Releases
-
-Geplant ist ein automatisierter GitHub-Actions-Workflow mit Linting, Tests, Sicherheitsprüfungen und Container-Builds. Freigegebene, versionierte Images werden nach erfolgreicher CI in GHCR veröffentlicht. Updates auf der DiskStation erfolgen kontrolliert auf einen konkreten Release-Tag, mit Datensicherung, Migrationen und anschließendem Funktionstest.
-
-Entwicklungsphasen:
-
-1. Projektgrundgerüst, Datenbank, Login, CI und Containerbetrieb.
-2. RAW/CLEAN-Import, Archivsuche, Vorschau und manuelle Stimmenzuordnung.
-3. OCR, Erkennungsregeln, Prüfwarteschlange und Vollständigkeitsprüfung.
-4. Mitglieder, Projekte, Ensemble-Zuordnung, Stimmenmatrix und PDF-Export.
-5. Scanaufbereitung und Marschbuch-Pipeline.
-6. Intelligentes Drucklayout und Netzwerkdruck.
-7. Backup/Restore, Release-Prozess und Abnahmetests auf der DiskStation.
-
-## Sicherheit und Datenschutz
-
-- Ausschließlich authentifizierter Zugriff durch Notenarchivare; kein öffentliches Musikerportal.
-- Kein privilegierter Container und kein Zugriff auf den Docker-Socket.
-- Originalarchiv immer read-only; alle Schreibbereiche strikt getrennt.
-- Keine realen Vereinsnoten, Mitgliederdaten, OCR-Rohtexte, Datenbanken, Tokens oder Zugangsdaten in GitHub, CI-Artefakten oder Issues.
-- Tests ausschließlich mit synthetischen bzw. ausdrücklich geeigneten Testdaten.
-- Regelmäßige Sicherung von Archiv, Projektdatenbank und bestätigten Zuordnungen. RAW und CLEAN auf derselben NAS ersetzen kein unabhängiges Backup.
-
-## Dokumentation
-
-| Datei | Inhalt |
-| --- | --- |
-| [REQUIREMENTS.md](REQUIREMENTS.md) | Verbindliche funktionale Anforderungen, Workflows und Abgrenzungen |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Technische Zielarchitektur, Bibliotheken, Datenmodell, Deployment, CI/CD und Tests |
-
-## Lizenz
-
-Die Lizenz des Projekts ist noch festzulegen. Vor einer Veröffentlichung sind die Rechte am Quellcode sowie die Lizenzbedingungen der eingesetzten Bibliotheken und Abhängigkeiten zu klären. Die Rechte an Musikwerken und Notenmaterial sind davon unabhängig.
+Follow [AGENTS.md](AGENTS.md). Use small reviewed work packages, meaningful commits and approved release/deployment steps. Test with synthetic fixtures; never put real association notes, member data, database files or secrets in the repository or external CI/AI systems. The application license and third-party notice inventory must be finalized with the owner; private use is not an exemption from dependency obligations.

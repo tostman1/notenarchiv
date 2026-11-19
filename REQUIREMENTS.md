@@ -1,299 +1,155 @@
-# Notenarchiv & Marschbuch-Generator
+# Notenarchiv & Marschbuch-Generator — Requirements
 
-**Funktionales Konzept – Version 1.1**  
-**Stand:** 19.11.2026  
-**Status:** Funktionale Anforderungen weitgehend definiert; technische Architektur separat dokumentiert.
+**Specification revision:** 2.0 — 2026-11-19  
+**Status:** Product specification; functionality is not claimed to be implemented.  
+**Audience:** Developers, coding agents and project owner.
 
-## 1. Zielsetzung
+## 1. Purpose and scope
 
-Eine zentrale Anwendung zur Verwaltung digitalisierter Vereinsnoten und zur Erstellung von Marschbüchern, Konzertmappen und individuellen Notensammlungen.
+Build an independent, locally hosted web application for the music archivists of a music association. The target deployment is a Synology DS224+ running Docker Compose. Digitize sheet music once, archive it reliably and reuse it for any number of projects, including marchbooks, concert folders, entertainment folders and small ensembles.
 
-Digitalisierte Noten werden einmalig archiviert und anschließend für beliebig viele Projekte verwendet. Die Anwendung soll den Arbeitsaufwand der Notenarchivare reduzieren, Fehlzuordnungen vermeiden und die Erstellung sowie den Druck vollständiger Notenmappen vereinfachen.
+The application has four main workflows: (1) archive and review scanned music, (2) maintain musical and member master data, (3) create reusable projects and assign music to participants, and (4) generate, download and print sheet music. Scan enhancement is a separate, optional processing workflow.
 
-Die Anwendung umfasst die Scanaufbereitung, das zentrale Notenarchiv, die projektbasierte Notensammlungsverwaltung und die Ausgabe von Marschbüchern und regulären Notenmappen. Sie wird als eigenständige Webanwendung für die Anforderungen des Musikvereins entwickelt.
+All technical documentation, code, identifiers, comments, tests, logs and commit messages are English. The user interface and archivist-facing user manuals are German. Use translatable UI strings.
 
-Als spätere Laufzeitumgebung ist ein Container auf einer Synology DiskStation vorgesehen. Die technische Architektur ist im separaten Dokument `ARCHITECTURE.md` beschrieben.
+Requirement IDs below are stable. `ARCHITECTURE.md` defines technical implementation; `IMPLEMENTATION_PLAN.md` defines delivery order. Requirements take precedence over architectural convenience. Proposed defaults and unresolved hardware details are listed in `DECISIONS.md` and must not be mistaken for verified facts.
 
-## 2. Scanaufbereitung und Marschbuch-Erstellung
+## 2. Non-negotiable business rules
 
-### Eingabe und Formate
-
-- Digitalisierte Stücke aus dem NAS-Quellarchiv; pro Stück können mehrere Stimmen-PDFs vorhanden sein.
-- Optionaler Import nummerierter Stimmenordner, beispielsweise `Altsax-1/01_Radetzkymarsch.pdf`; Nummern werden als Vorschläge für die Projektstückliste interpretiert und bestätigt.
-- Schwarz-Weiß-Scans sowie digital erzeugte PDFs, insbesondere A4, A3 und Marschbuch-Sonderformat 170 × 120 mm quer.
-
-### Anforderungen an die Scanaufbereitung
-
-- Anzeige der PDF-Seiten und Vorschaubilder; Original und Verarbeitungsergebnis vergleichbar darstellen.
-- Automatische Korrektur leichter Schieflagen anhand der Notenlinien (Deskew), Reduzierung von Scanrauschen und Randschatten, Zuschnitt und Formatnormalisierung, soweit nötig.
-- Notenlinien, Vorzeichen, Dynamik- und sonstige musikalische Zeichen dürfen nicht durch Filter beschädigt oder abgeschnitten werden.
-- Aufbereitung als separat abrufbare Funktion, mit anpassbaren Parametern und Vorschau; keine Veränderung von Originaldateien oder unveränderten Archivkopien.
-- Marschbuch-Druckausgaben auf das projektbezogen definierte Sonderformat (Standard 170 × 120 mm quer) normieren; Seitenverhältnis und Lesbarkeit erhalten.
-- Stücke gemäß gemeinsamer Projektstückliste und Nummerierung zusammenführen, Inhaltsverzeichnis erzeugen und maßstabsgetreue Druckausgabe ermöglichen.
-- Hintergrundverarbeitung mit sichtbarem Fortschritt, Abbruchmöglichkeit und nachvollziehbaren Fehlern.
-
-## 3. Zentrales Notenarchiv
-
-- Ein Ordner pro Musikstück mit den vorhandenen Stimmen-PDFs.
-- Unterstützung uneinheitlicher Datei- und Stimmenbezeichnungen, einschließlich generischer Scannernamen.
-- Schnellsuche über Titel und Teilzeichenfolgen, auch innerhalb von Wörtern.
-- Filter nach Instrument, Stimme und Archivvollständigkeit.
-- Unterstützung verschiedener Arrangements desselben Stücks; der Arrangeur dient als Unterscheidungsmerkmal.
-- Automatische Erkennung von Stücktiteln und Instrumentenstimmen anhand Dateiname, PDF-Text und OCR mit Erkennungsregeln für unterschiedliche Schreibweisen; Indizierung und OCR sind separat startbare Archivfunktionen.
-- Bei jeder Erstindizierung und jeder geänderten PDF-Datei wird der tatsächliche PDF-Inhalt kontrolliert, auch bei bereits eindeutig benannten Dateien wie `Posaune1.pdf` oder `Trombone II-III.pdf`. Der Dateiname ist ein starkes Indiz, aber kein Beweis.
-- Stimmen Dateiname und PDF-Inhalt überein, wird die Zuordnung als plausibler Vorschlag angezeigt. Widersprüche und nicht eindeutig lesbare Beschriftungen werden besonders hervorgehoben. Alle neuen Zuordnungen benötigen eine manuelle Freigabe; keine automatische Freigabe aufgrund des Dateinamens.
-- Ein PDF kann unverändert mehreren Stimmen zugeordnet werden, beispielsweise `Trombone II/III`.
-- Unsichere oder unbekannte Erkennungen erhalten einen Prüfhinweis und müssen manuell überprüft bzw. zugeordnet werden.
-- Vollständigkeitsmatrix für fehlende und ungeprüfte Noten.
-- Originalscans bleiben unverändert.
-
-### Getrenntes Original- und Zielarchiv (RAW / CLEAN)
-
-**Verbindliche Grundregel:** Das RAW-Archiv ist eine ausschließlich lesbare Quelle für die Anwendung. Das CLEAN-Archiv ist eine eigenständige, vollständig strukturierte Dateisammlung mit echten PDF-Kopien, nicht nur ein Index oder eine Verknüpfung. Beide Wurzelordner sind getrennt; Projektgenerierung verwendet ausschließlich freigegebene CLEAN-Dateien.
-
-- CLEAN besitzt Unterordner pro Stück und Arrangement sowie standardisierte PDF-Namen mit Instrument, Stimmung/Notation und Stimme. Die Zuordnung zur Originaldatei bleibt nachvollziehbar. Auch bei bereits korrekt benannten Originaldateien wird eine separate Kopie angelegt.
-- Die Anwendung erhält keine Schreibrechte auf RAW; keine Umbenennung, Löschung, Verschiebung, Überschreibung oder Scanaufbereitung an der Quelle. Statusmarker werden standardmäßig außerhalb von RAW gespiegelt. Eine physische Markierung in RAW ist nur als getrennte, nachweislich abgesicherte Ausnahme zulässig; niemals den RAW-Mount beschreibbar machen.
-
-- Originalordner und Original-PDFs werden nicht umbenannt, überschrieben oder gelöscht.
-- Die Anwendung kopiert die PDF-Dateien in ein separates, strukturiertes Zielarchiv und benennt ausschließlich die Zielkopien nach einem einheitlichen Stück-/Instrumenten-/Stimmenschema.
-- Nicht eindeutig zuordenbare PDFs werden zur manuellen Prüfung separat gekennzeichnet; mehrere Stimmen können auf dieselbe Ziel-PDF verweisen.
-- Nach der Indizierung wird der Originalordner sichtbar als indiziert markiert. Die konkrete technische Umsetzung (separater Statusmarker oder geschützter Marker im Originalordner) muss den Schreibschutz der Original-PDFs gewährleisten.
-- Indizierung und fachliche Prüfung sind getrennte Status. Archivare erhalten einen auffälligen Hinweis, dass erkannte Stimmen kontrolliert und bestätigt werden müssen.
-- Die Anwendung zeigt erkannte Zuordnungen und Originalnamen neben einer PDF-Vorschau. Korrekturen erfolgen ausschließlich im Zielarchiv.
-- Bestätigte Zuordnungen werden für die Projekterstellung verwendet. Neue oder geänderte Dateien werden erneut zur Prüfung vorgelegt; unveränderte, bereits bestätigte Zuordnungen bleiben bei identischem Dateiinhalt (Hash) erhalten.
-- Die Vollständigkeit eines Stücks ist unabhängig davon, ob seine vorhandenen Dateien bereits geprüft wurden.
-
-### Beispiel des Quellarchivs
-
-```text
-Notenarchiv/
-├── Böhmischer Traum/
-│   ├── Klarinette 1.pdf
-│   ├── Posaune 2.pdf
-│   └── scan001.pdf
-├── ABBA Medley/
-│   ├── Flöte 1.pdf
-│   └── Trombone II-III.pdf
-└── Italo Pop Classics/
-    └── ...
-```
-
-### Beispiel des CLEAN-Archivs
-
-```text
-Notenarchiv_Sortiert/
-├── Böhmischer Traum [Arrangement-ID]/
-│   ├── Klarinette_B_01.pdf
-│   ├── Posaune_02.pdf
-│   └── _Ungeprueft/
-│       └── scan001.pdf
-└── ABBA Medley [Arrangement-ID]/
-    ├── Floete_01.pdf
-    └── Posaune_02-03.pdf
-```
-
-Die Dateinamen dienen lediglich als illustrative Beispiele. Die tatsächliche Archivstruktur enthält uneinheitlich benannte PDFs, die nicht zwingend eine eindeutige Zuordnung erlauben.
-
-## 4. Vereinsverwaltung
-
-Zentrale Verwaltung von:
-
-- Vereinsmitgliedern und ihrer regulären Instrumenten-/Stimmenzuordnung.
-- Instrumenten und zugehörigen Stimmen.
-- Instrumentenstimmungen und speziellen Notationsarten (z. B. Es-Klarinette, B-Klarinette oder Posaune im Bassschlüssel).
-- Ersatzstimmenregeln.
-
-Instrumente und Stimmen werden aus zentral definierten Auswahlfeldern ausgewählt. Freie, uneinheitliche Bezeichnungen in den Projekteinstellungen werden vermieden.
-
-Jedes Mitglied hat vorerst genau eine reguläre Instrumenten-/Stimmenzuordnung. Projektspezifische und stückbezogene Abweichungen sind möglich. Aushilfen können für einzelne Projekte aufgenommen werden, ohne den regulären Vereinsbestand dauerhaft verändern zu müssen.
-
-## 5. Projektverwaltung
-
-Projekte können erstellt, gespeichert, geladen, verändert, dupliziert und archiviert werden.
-
-Beispiele:
-
-- Marschbuch 2026
-- Weihnachtsensemble 2026
-- Unterhaltungsmappe
-- Konzertmappe
-
-**Jedes Projekt besitzt genau eine gemeinsame Notensammlung mit identischer Stückliste, Reihenfolge und Nummerierung für alle Ausgaben.** Personalisierung betrifft ausschließlich die Instrumenten-/Stimmenzuordnung sowie das optionale Deckblatt.
-
-Ein Projekt speichert:
-
-- Projektname
-- Gemeinsame Stückliste und Reihenfolge
-- Nummerierung einschließlich reservierter Leerpositionen
-- Teilnehmende Musiker (eine frei wählbare Teilmenge des Vereins)
-- Projektbezogene Instrumenten- und Stimmenzuweisungen
-- Individuelle Änderungen pro Person und Stück
-- Ersatzstimmenregeln und Ausnahmen
-- Ausgabeformat und Druckeinstellungen
-
-Die Projekteinstellungen bleiben nach der PDF-Generierung erhalten. Eine Änderung, beispielsweise von Marinas Stimme, erfordert keine erneute Einrichtung des Projekts. Projekte können später geöffnet und gezielt neu generiert werden.
-
-## 6. Zusammenstellung der Notensammlung
-
-- Musikstücke über Suche und Filter auswählen; die Trefferliste aktualisiert sich unmittelbar während der Eingabe.
-- Reihenfolge per Drag-and-drop festlegen.
-- Stücknummern projektweit verwalten.
-- Einzelne Positionen im Inhaltsverzeichnis freilassen.
-- Ein Musikstück darf mehrfach vorkommen.
-- Alle Teilnehmer und Stimmen erhalten dieselbe projektweite Stückliste. Individuelle Stückauswahl, Auslassungen oder Zusatzstücke sind nicht vorgesehen.
-- Stimmen bzw. Teilnehmer einzeln auswählen oder über „Alle auswählen“ / „Alle abwählen“ verwalten.
-
-**Die gemeinsame Projektnummerierung bleibt in allen persönlichen Ausgaben erhalten.**
-
-Beispiel: Ist die Projektnummer 5 reserviert, folgt in jeder Ausgabe nach Stück Nr. 4 das Stück Nr. 6. Die Nummerierung bleibt für alle Teilnehmer gleich. Fehlt eine Stimme, bleibt die Stückposition erhalten und wird nach Bestätigung durch ein Platzhalterblatt repräsentiert.
-
-Freie Nummern werden im Inhaltsverzeichnis berücksichtigt, erzeugen jedoch keine leeren Notenseiten.
-
-## 7. Instrumenten- und Stimmenzuordnung
-
-Die reguläre Instrumentenstimme eines Mitglieds kann projektbezogen und für einzelne Musikstücke geändert werden. Die reguläre Vereinsstimme bleibt unverändert.
-
-Priorität der Zuordnung:
-
-1. Individuelle Einstellung für einen Musiker bei einem bestimmten Stück.
-2. Projektbezogene Stimmenzuweisung.
-3. Reguläre Vereinsstimme.
-
-### Schnelle manuelle Stimmenwechsel (verbindliche Bedienanforderung)
-
-In der Projekt-Hauptansicht steht eine direkt bearbeitbare Stimmenmatrix zur Verfügung: Zeilen sind Projektpositionen, Spalten sind ausgewählte Musiker. Die Matrix zeigt die effektiv verwendete Stimme und die Herkunft der Zuordnung (Vereinsstandard, Projektstandard, persönliche Stückausnahme oder Ersatzregel). Filter nach Instrument/Person und eine fixierte Stückspalte erleichtern die Bedienung großer Projekte.
-
-- Projektstandard je Teilnehmer direkt im Spaltenkopf oder in der Teilnehmerliste ändern.
-- Einzelne Stimme direkt in der Zelle über ein Dropdown ändern, ohne Dialogkette oder Wechsel in die Vereinsverwaltung. Nur passende, tatsächlich verfügbare und bestätigte Notenfassungen werden angeboten; nicht verfügbare Zuordnungen müssen klar als solche erkennbar sein.
-- Mehrere ausgewählte Zellen eines Teilnehmers in einem Schritt auf dieselbe Stimme setzen; vorhandene Ausnahmen gezielt auf den Projektstandard zurücksetzen. Massenänderungen dürfen andere Teilnehmer nicht unbeabsichtigt verändern.
-- Abweichungen vom Standard sichtbar kennzeichnen; Änderungen speichern und beim erneuten Öffnen des Projekts wiederherstellen. Änderungen am Projektstandard überschreiben keine expliziten Stückausnahmen ohne ausdrückliche Bestätigung.
-- Die tatsächliche PDF-Stimme bei Verwendung einer Ersatzregel und fehlende Noten deutlich anzeigen. Manuelle Auswahl einer vorhandenen Stimme darf auch dann erfolgen, wenn die Standardstimme vorhanden ist.
-- Ein einzelnes geändertes Mitglied kann gezielt neu exportiert werden; weder Archivzuordnung noch gemeinsame Stückliste, Nummerierung oder reguläre Vereinsstimme ändern sich.
-
-Beispiel: Mathias spielt alle Stücke Posaune 1, Sebi Posaune 2, Riccardo im Projekt standardmäßig Posaune 3. Für einzelne Stücke wählt der Archivar bei Riccardo Posaune 2. Alle übrigen Zuordnungen bleiben erhalten. Es handelt sich um gleichwertige musikalische Entscheidungen, nicht ausschließlich um Ersatz bei fehlenden Noten.
-
-Fehlt die benötigte PDF-Datei, wird eine passende definierte Ersatzstimme gesucht. Auch die Ersatzregel kann stückbezogen angepasst werden.
-
-Beispiel: Wenn die Posaune 3 nicht verfügbar ist, kann die Posaune 2 als Ersatz definiert werden.
-
-Bei vollständig fehlendem passenden Notenmaterial:
-
-- Deutlich sichtbare Warnung.
-- Explizite Bestätigung vor der Generierung.
-- Platzhalterblatt mit Stücktitel und „Noten fehlen“.
-
-## 8. Besondere Unterstützung kleiner Ensembles
-
-Musikalische Ensemble-Stimmen und instrumentenspezifische Notenstimmen werden unterschieden.
-
-Beispiel Weihnachtsensemble: Es existieren vier musikalische Stimmen, die von sieben Musikern auf unterschiedlichen Instrumenten gespielt werden. Mehrere Instrumente können dieselbe musikalische Stimme übernehmen, benötigen dafür aber gegebenenfalls unterschiedlich transponierte oder notierte PDFs.
-
-| Musikalische Stimme | Instrument | Verwendete Noten |
-| --- | --- | --- |
-| Stimme 1 | Flöte | Flöte 1 |
-| Stimme 2 | Klarinette in B | Passende Klarinettenstimme |
-| Stimme 3 | Posaune | Posaune 3 |
-| Stimme 3 | Tenorhorn in B | Passende Tenorhornstimme |
-| Stimme 4 | Tuba | Passende Tubastimme |
-
-Gerade beim Weihnachtsensemble entspricht die dritte musikalische Stimme für Posaune häufig direkt der spielbaren Posaunenstimme 3. Die Zuordnung darf jedoch nicht ausschließlich aus gleichen Stimmnummern abgeleitet werden. Entscheidend ist, welche Notenfassung tatsächlich zur musikalischen Stimme und zum Instrument passt.
-
-Projektspezifische Standardzuordnungen und Ausnahmen für einzelne Musikstücke sind vorgesehen. Die genaue Bedienung dieser Zuordnungen ist noch auszuarbeiten.
-
-## 9. Inhaltsverzeichnis und PDF-Erstellung
-
-- Automatisch gestaltetes Inhaltsverzeichnis mit Stücknummern und Titeln.
-- Keine Seitenzahlen im Inhaltsverzeichnis.
-- Reservierte Nummern bleiben frei.
-- Ohne Deckblatt steht das Inhaltsverzeichnis am Anfang des PDFs.
-- Bei personalisierter Ausgabe kann ein Deckblatt mit Name und Stimme vorangestellt werden.
-- Ausgabe pro Instrumentenstimme oder pro Person.
-- Identische Stückliste in allen Ausgaben; Unterschiede ausschließlich bei Instrumentenstimmen und optionalem Deckblatt.
-- Gezielt einzelne oder sämtliche PDFs neu generieren.
-- Unterstützung für A4, A3 und das Marschbuch-Sonderformat 170 × 120 mm; Ausgabeformat projektbezogen anpassbar.
-
-Zwei getrennte Ausgabearten stehen zur Verfügung: Lese-PDF (mit Original-Seitenformaten) und Druck-PDF (mit projektspezifischer A3/A4-/Marschbuch-Anordnung). A3-Originalseiten bleiben im Lese-PDF als ganze A3-Seiten erhalten und werden nicht geteilt. Das Deckblatt ist pro Projekt optional.
-
-## 10. Intelligente Druckausgabe
-
-Der Archivar wählt innerhalb der Anwendung einen verfügbaren Netzwerkdrucker.
-
-Für reguläre A4-Noten gilt:
-
-| Anzahl Notenseiten eines Stücks | Druckanordnung |
+| ID | Rule |
 | --- | --- |
-| 1 | 1 × A4 |
-| 2 | 1 × A3 quer, zwei A4-Seiten nebeneinander |
-| 3 | 1 × A3 quer + 1 × A4 |
-| 4 | 2 × A3 quer |
-| 5 | 2 × A3 quer + 1 × A4 |
-| 6 | 3 × A3 quer |
+| GR-01 | RAW is read-only both at the NAS permission boundary and in the container. No application operation may create, rename, move, modify or delete anything in RAW, including status markers. |
+| GR-02 | CLEAN is a separate, independently usable file collection containing real, SHA-256-verified, byte-identical copies. Even a correctly named source PDF is copied. Enhanced PDFs are separate derivatives, never replacements for original copies. |
+| GR-03 | Every new or content-changed PDF requires content inspection, even if its filename appears definitive. Filename, PDF text and OCR are evidence, not authority. |
+| GR-04 | Every new or changed musical assignment requires explicit human confirmation after visual inspection. Batch confirmation is permitted only for individually inspected versions. No automatic approval. |
+| GR-05 | Indexing, review and completeness are distinct states. A fully reviewed piece may still be incomplete. |
+| GR-06 | An unchanged, already confirmed source version is not routinely OCR-processed or reviewed again. A changed version needs new review; old referenced versions survive. |
+| GR-07 | Each project contains exactly one common ordered list of positions and numbers. All full folders have the same list; there are no personal additions, omissions or numbering schemes. |
+| GR-08 | Full folders are personal, one per selected project participant. Independent archive-note exports and project excerpts are separate output types, not alternate full folders. |
+| GR-09 | Missing playable music never disappears silently. Warn, require explicit acknowledgement, and include a placeholder for each missing requested position in project output. Never substitute an unconfirmed PDF. |
+| GR-10 | Personal position override > saved project assignment; project assignment initially copies the member default. Explicit available selections win; substitution is only for unavailable desired playable parts, never a way to override a deliberate available selection. |
+| GR-11 | Never split a native A3 sheet. Only consecutive compatible A4 portrait pages of the same piece can be paired. Preserve reading order. |
+| GR-12 | Piece numbers appear only in the contents, UI and export metadata (or filenames). Never stamp numbers onto note pages, including marchbooks. |
+| GR-13 | `DEBUG_MODE` never enables Django `DEBUG`. Authentication and security remain enabled in both modes. |
+| GR-14 | Local processing only; no telemetry, external OCR or runtime cloud dependency. No real association music, members, secrets or sensitive OCR content in Git, external AI services, CI artifacts or technical logs. |
+| GR-15 | Generated files are tied to an immutable, validated snapshot; later edits never change an already generated file in place. Referenced archive versions are protected. |
 
-Die Seiten werden stückweise in normaler Lesereihenfolge angeordnet: links zuerst, rechts danach. Bei ungerader Seitenzahl wird die letzte Seite auf A4 gedruckt. Es ist keine spezielle Broschüren- oder Heftseitenanordnung vorgesehen.
+## 3. Users and navigation
 
-Die automatische Umschaltung zwischen A4 und A3 wird abhängig von den Fähigkeiten des ausgewählten Druckers umgesetzt. Eine Druckvorschau soll vor dem Druck möglich sein.
+- **UI-01:** Only archivists use the application. Individual authenticated accounts with identical functional rights are sufficient; no musician self-service, differentiated business roles or public sharing links.
+- **UI-02:** German navigation: Übersicht, Notenbibliothek, Indizierung, Prüfwarteschlange, Projekte, Scanaufbereitung, Mitglieder, Instrumente und Stimmen, Aufträge, Einstellungen; Debug / Logs only in Debug mode. Home shows archive review counts, recent projects and job progress using real data.
+- **UI-03:** Prioritize practical desktop browser workflows, keyboard-accessible controls, clear labels and error states, few clicks and immediate feedback. Do not rely on color alone for status. Browser reload restores saved state. Show progress, cancellation and actionable errors for long-running jobs.
+- **UI-04:** Use controlled instrument/part/notation dropdowns everywhere assignments are made. Free text is permitted for descriptive master data and aliases, not as an alternative to a valid reference.
 
-Bereits als A3 vorliegende Noten werden nicht in A4-Seiten zerlegt. Die Paarung von A4-Seiten darf keine Stückgrenze überschreiten. Unterstützt der gewählte Drucker A3 nicht, wird nach Bestätigung eine geeignete A4-Ausgabe angeboten; die Originalseiten im Lese-PDF bleiben unverändert. Für Marschbücher gelten die projektspezifischen Sonderformate, insbesondere der maßstabsgetreue Ausdruck im Format 170 × 120 mm.
+## 4. Central archive
 
-## 11. Qualitäts- und Vollständigkeitsprüfung
+### 4.1 Physical archive and indexing
 
-Vor der Generierung erscheint ein Prüfbericht mit:
+- **AR-01:** Accept existing NAS folders organized primarily by piece, with multiple PDF files per folder. Names may include the title, instrument, part, generic scanner identifiers or combinations. Support scanned monochrome PDFs and digital/vector PDFs, portrait/landscape A4, A3 and marchbook dimensions. Digitization and source placement happen outside the app.
+- **AR-02:** Keep RAW and CLEAN physically separate. Organize CLEAN by human-readable piece title and arrangement where needed, with standardized PDF filenames including instrument, part number(s), and relevant transposition/notation. Use a stable collision suffix only if human-readable names cannot distinguish files. File-system-safe names; preserve display metadata independently. Real PDFs, not links. CLEAN is browsable through File Station/SMB without the app.
+- **AR-03:** Record source-relative path, source version, SHA-256, page metadata, destination, arrangement and assignment history. Copies must be verified before publication. Do not overwrite existing unrelated files; do not publish partial copies. Flag duplicate content, but do not automatically merge distinct musical identities.
+- **AR-04:** Index the whole archive or a selected folder on demand. Show progress and errors. Mirror source-folder status in a separate STATUS tree and in the UI, e.g. `_INDIZIERT_BITTE_PRUEFEN.txt` plus machine-readable metadata. This is the visible mark for the source folder; nothing is written into RAW. Indexing prompts the archivist to check the parts.
+- **AR-05:** Recognize added, changed and missing sources. New content creates a new pending version and requires review. A deleted/missing RAW file never triggers automatic deletion of CLEAN or historical versions. Detect unchanged confirmed versions by hash. Offer a full, manually triggered integrity check that recomputes hashes and verifies file/DB relationships; routine scans may use size/mtime as a performance hint, never as definitive proof of equality.
+- **AR-06:** Import unknown or conflicting PDFs into a clearly marked pending area of CLEAN (e.g. `_Ungeprueft`) with a reversible association to their source. Manual correction can rename/move only CLEAN copies and must keep all references valid. Confirmed canonical copies are protected from accidental replacement. Multiple versions may coexist.
+- **AR-07:** Support multiple arrangements of a piece (arranger is an important discriminator; edition/label can disambiguate further). Different works can share a title. Multiple source folders may contribute to one arrangement; grouping by source folder is a proposal, not proof.
 
-- Anzahl der Stücke und Teilnehmer.
-- Anzahl der zu erzeugenden Dokumente.
-- Fehlenden Instrumentenstimmen.
-- Verwendeten Ersatzstimmen.
-- Ungeprüften PDF-Zuordnungen.
-- Individuellen Abweichungen.
-- Gegebenenfalls fehlendem Notenmaterial.
+### 4.2 Content recognition and review
 
-Relevante Fehler müssen vor dem Fortfahren explizit bestätigt werden. Die Anwendung soll Fehlzuordnungen nicht stillschweigend übernehmen.
+- **AR-08:** Analyze filenames and extract relevant text from PDF content on every new/changed version. For scans or insufficient/unreliable text use local OCR of the heading and, where necessary, additional regions/pages. OCR must not be skipped merely because the filename is clear. The early manual-only workflow must still show the actual PDF for mandatory human inspection.
+- **AR-09:** Indexing and OCR are independently startable functions. The index workflow can request OCR for appropriate files; OCR can also be launched explicitly for chosen unreviewed files or after a rule change. Explicit reanalysis of a confirmed unchanged file does not silently revoke its approval or replace its assignment; changed proposals require review.
+- **AR-10:** Detect title, instrument, part numbers, transposition and notation, including aliases, Roman numerals, abbreviations and combined labels. Arrangeur recognition is useful when evidence is available, but advanced automatic arranger recognition is not necessary for first delivery. Example: `Trombone II/III` is one PDF assigned to both Posaune 2 and Posaune 3; keep the entire PDF for either part. No splitting of a combined part is required.
+- **AR-11:** Compare filename evidence and actual content. Agreement yields a plausible proposal; disagreement is a prominently marked conflict; missing/illegible evidence is uncertain. OCR confidence is not musical correctness. Maintain editable aliases/recognition rules, rule versions and provenance. A fuzzy match alone must not confirm an assignment.
+- **AR-12:** Review queue: show source filename, actual PDF with navigation/zoom, relevant recognized region or text excerpt, proposed work/arrangement/parts, method, confidence and conflict reasons. Provide quick previous/next navigation and direct correction using master-data selections. Confirm only after visual inspection. Support multiple assignments to one PDF. Never make unreviewed music automatically available for generation.
+- **AR-13:** Support a review workflow that records an explicit per-file-version inspected action for the current reviewer, followed by individual or batch confirmation. Opening a thumbnail, high confidence or selecting all is not proof of inspection. Batch confirmation may only include inspected, valid, unchanged versions. Editing proposed assignments or changing file version invalidates the relevant inspection as necessary. Track reviewer, timestamp and approved assignments in the local audit record.
+- **AR-14:** Separate file recognition/review status, source-folder indexing status and arrangement completeness. A changed version or an incomplete scan cannot make the previously confirmed version silently disappear. Show new/changed, unknown, conflict, failed, pending and confirmed states, plus missing source separately.
 
-Eine zusätzliche archivweite Vollständigkeitsmatrix ermöglicht eine gezielte Nachdigitalisierung fehlender Stimmen.
+### 4.3 Search, completeness and editions
 
-## 12. Typischer Workflow
+- **AR-15:** Live library search matches case-insensitive substrings anywhere in titles (e.g. `ab` finds `ABBA Medley` and `Abel Tasman`, and interior matches such as `Fuchsgraben Polka`). Support aliases and reasonable Unicode normalization; use filtering by instrument, part, arrangement and review/completeness status.
+- **AR-16:** Show an arrangement × part completeness view distinguishing confirmed available, unreviewed, missing, not required and unknown expectation. Expected parts are configurable per arrangement, required or optional; allow reusable instrumentation templates to accelerate setup. Do not assume all association instruments are required for all arrangements. Without expectation data, completeness is unknown. The project preflight is an additional independent, participant-specific completeness check.
+- **AR-17:** Several confirmed playable versions of one arrangement/part can coexist (e.g. older/newer scans, different editions or approved enhanced derivative). Allow one archive-wide preferred version per arrangement and compatible instrument part. Explicit project/position/participant choices override the preference. A changed preference never silently replaces a pinned choice or old output; identify affected outputs as stale where relevant. If no unambiguous suitable version exists, prompt for selection or use the missing-note workflow rather than guessing.
+- **AR-18:** Directly from the library select a work, arrangement, one or more confirmed parts and concrete versions where necessary, preview, download or print the selected PDF(s), without creating a project or member. Shared combined-part PDFs are not split. If the same physical PDF is selected more than once, clearly show how many copies will be exported/printed; avoid accidental duplicates.
 
-1. Noten digitalisieren und im NAS-Archiv ablegen.
-2. Originalarchiv einlesen, PDF-Kopien im sortierten Zielarchiv ablegen, Originalordner als indiziert markieren und die erkannten Stimmen in der Prüfwarteschlange kontrollieren und bestätigen.
-3. Ein neues Projekt erstellen oder ein gespeichertes Projekt öffnen bzw. duplizieren.
-4. Stücke suchen, auswählen, sortieren und nummerieren.
-5. Projektteilnehmer bzw. gewünschte Stimmen auswählen.
-6. Standardzuweisungen übernehmen und individuelle Stimmenwechsel direkt in der Stimmenmatrix (einzeln oder gesammelt) festlegen.
-7. Prüfbericht kontrollieren und fehlende Noten bzw. Ersatzstimmen bestätigen oder korrigieren.
-8. Stimmbezogene oder personalisierte PDFs mit Inhaltsverzeichnis und gegebenenfalls Deckblatt generieren.
-9. PDFs exportieren oder über den ausgewählten Netzwerkdrucker ausgeben.
-10. Projekt speichern und später bei Bedarf ändern oder erneut generieren.
+## 5. Association and musical catalog
 
-## 13. Betriebsmodi und Diagnose
+- **CAT-01:** Maintain members, instruments, instrument-specific parts, transposition/key, notation/clef and aliases. Instrument display names are not unique identifiers: variants such as B-flat vs C or treble vs bass clef must be distinguishable. Allow equal human names and equal piece titles without merging records. UUIDs provide identity.
+- **CAT-02:** Each regular active member has exactly one regular instrument-part assignment. Multiple regular instruments or unassigned regular members are out of scope. Store active/inactive status; referenced records are deactivated rather than destructively deleted. Allow project-specific guest musicians with a valid part without permanently changing the regular membership list.
+- **CAT-03:** Maintain explicit replacement rules: e.g. Posaune 3 → Posaune 2, with global, project and position-level scope. Validate musical suitability and avoid implicit cross-instrument substitutions. Rules and aliases are editable without a new image build. No automatic musical transposition or score arrangement.
+- **CAT-04:** Distinguish a musical ensemble role from its playable instrument part. Same musical role may be performed by several instruments using different notated PDFs. Instrument families and notation variants are distinct from actual musical roles.
 
-- Standardbetrieb (Deploy), wenn `DEBUG_MODE` nicht gesetzt oder auf `"FALSE"` gesetzt ist. Die reguläre Oberfläche zeigt weiterhin verständliche Job-Fortschritte, Warnungen und Fehler; normale Container-Logs bleiben verfügbar.
-- Optionaler Debug-Modus durch `DEBUG_MODE: "TRUE"` in der Compose-Umgebung. Derselbe Container-Build wird für beide Modi eingesetzt; Änderungen erfordern eine Neuerstellung der betroffenen Container, keinen Image-Neubau.
-- Im Debug-Modus erscheint eine zusätzliche, ausführliche Diagnoseansicht im GUI mit Live-Logs, Verarbeitungsschritten, Laufzeiten, OCR-Erkennungskandidaten und Fehlerdetails. Filter nach Job, Komponente, Schweregrad und Zeitraum sowie ein manueller Log-Download sind vorgesehen.
-- Web- und Hintergrundworker schreiben bei aktivem Debug-Modus zusätzlich persistente, rotierende Debug-Logdateien in das Anwendungsdatenverzeichnis auf der DiskStation. Die Logs bleiben nach Container-Neuerstellung erhalten. Alte Dateien werden begrenzt aufbewahrt.
-- Debug-Modus darf weder Zugriffsrechte noch sonstige Sicherheitsmaßnahmen ändern. Keine Secrets, vollständigen OCR-Rohtexte, PDF-Inhalte oder unnötigen Mitgliederdaten in allgemeinen Logs. Diagnoseansicht und Log-Download nur für angemeldete Archivare.
-- Debug-Modus und fachlicher Prüfstatus sind unabhängig: Eine automatische Erkennung muss auch ohne Debug-Modus überprüfbar und manuell bestätigbar bleiben.
+## 6. Projects and shared piece list
 
-## 14. Benutzerkreis und Abgrenzung
+- **PR-01:** Create, name, save, reopen, edit, duplicate and archive projects. Persist all configuration across sessions/restarts. One project = one collection. Example projects: Marschbuch 2026, Weihnachtsensemble 2026, Unterhaltungsmappe, Konzertmappe.
+- **PR-02:** Select pieces from the live-searchable library. Use drag-and-drop to order the positions. A specific arrangement is selected for each piece; an arrangement can occur multiple times and every occurrence has its own stable position ID. Replacing the arrangement in an existing position preserves that position and number; revalidate associated overrides.
+- **PR-03:** Automatically renumber after insertion, removal or reordering. The number is derived from the ordered list of positions, including explicit empty reserve slots. A reserve slot consumes a number but produces no sheet page. Example: position 5 reserved, next piece is 6. Moving a piece may shift numbers; preserve explicit reserves as slots and show the resulting contents before saving/printing. See DEC-03 for the precise proposed reserve behavior. Never add numbers to music pages.
+- **PR-04:** Select any subset of association members or valid project guests, including select all/deselect all and instrument filtering. Not every project represents the full orchestra. At addition, copy the member's regular part into the participant's saved project assignment. Later master-data changes do not automatically change existing assignments. Offer explicit adoption of updated defaults; preserve deliberate personal overrides unless reset.
+- **PR-05:** Persist project name, participant assignments, shared positions and reserves, arrangement references, ensemble mappings, part and edition overrides, replacement rules, cover/layout options and revision. Project duplication creates new identities for project/positions/participants and remaps its overrides. Project edits do not modify association master data or archive assignments.
+- **PR-06:** No personal selection, skip, additional pieces or individualized numbering in full folders. A participant may have a different playable part for any piece; if unavailable, that position remains represented by a placeholder.
+- **PR-07:** Protect against concurrent lost updates. Show a clear conflict and refresh/retry rather than silently overwriting another archivist's changes. Save and display project revision; outputs remain available after edits, with relevant stale indicators.
 
-Die Anwendung wird ausschließlich durch Notenarchivare bedient.
+## 7. Assignment and interactive matrix
 
-Nicht Teil des derzeit vorgesehenen Funktionsumfangs sind:
+- **AS-01:** Save a project default assignment per participant. A personal position override takes precedence, including when the normal part exists. Use the saved project default when no override exists; this default originates from the member's regular part, not a live fallback.
+- **AS-02:** The matrix is a primary project view: rows are common piece positions, columns are participants. Display effective part, concrete edition when relevant, notation/key, and provenance (saved default, ensemble, personal override, substitution, missing). Reserved rows are not assignable. Fixed piece column/header where useful; filter by instrument, participant and deviations.
+- **AS-03:** Change the participant default directly in the column heading or participant list. Edit a cell directly with a dropdown; show relevant confirmed playable alternatives and allow deliberate choice of other valid parts/notation. Do not require separate dialogs for normal changes. Show unresolved desired assignments as such, not as confirmed choices.
+- **AS-04:** Select multiple cells of a participant and set a part in one action, with per-position availability checks and clear failure handling. Reset individual or selected overrides to the saved default. Explicit overrides survive default changes. Visually highlight deviations. Persist across reloads. A change must never affect unrelated participants, master data, source data or shared numbering.
+- **AS-05:** Separate desired part from concrete edition. Use the most specific explicit compatible edition selection (participant/position, project position, project default for arrangement/part), then the archive preference, then a sole compatible confirmed edition. If alternatives are ambiguous without a preference, report unresolved and let the archivist choose. Expose the source of both part and edition resolution. Exact choices are version-specific; never silently switch an explicit selection. Define clear reset/inherit controls.
+- **AS-06:** If the desired playable part is unavailable and no explicit available edition has been selected, evaluate explicit replacement rules from most specific (position) to project to global. Never infer a playable substitute solely from an instrument or part number. Show the actual substituted part and its origin. If no compatible confirmed part is available, report missing. Avoid cyclic substitution; do not silently walk arbitrary fallback chains.
+- **AS-07:** Small ensembles: define project musical roles (e.g. 1–4), assign participants to roles, and map (role, instrument/notation variant) to a playable part as a project default. Support a mapping exception per piece position. For example role 3 maps to Posaune 3 for a trombonist and a matching Tenorhorn part for another player. Same role number does not establish compatibility. A personal position choice wins over ensemble mapping. No auto-transposition.
+- **AS-08:** Example acceptance scenario: Mathias normally plays Posaune 1, Sebi Posaune 2, Riccardo Posaune 3. Set Riccardo to Posaune 2 for ABBA Medley and several other pieces, even where Posaune 3 exists. Reload, verify persistence, reset one cell and check the others are unchanged. Choose a confirmed bass-clef or treble-clef variant deliberately. All example names are test-only fictional labels.
 
-- Unterschiedliche Benutzerrollen und ein separates Musikerportal.
-- Musiker-Self-Service.
-- Mehrere eigenständige Notensammlungen innerhalb eines Projekts.
-- Individuelle Stücklisten und Zusatzstücke pro Teilnehmer.
-- Mehrere reguläre Instrumenten-/Stimmenzuordnungen pro Vereinsmitglied.
-- Broschüren- oder Heftseitenanordnung beim A3-Druck.
+## 8. Output types and generation
 
-## 15. Noch offene Detailentscheidungen
+| ID | Output | Scope |
+| --- | --- | --- |
+| EX-01 | Full personal folder | One PDF per selected project participant, all shared non-reserve positions, optional personal cover, common contents. |
+| EX-02 | Project excerpt / reprint | Selected existing positions × selected participants, using the same effective assignments as a full folder. No change to the shared collection. |
+| EX-03 | Direct archive-note export | Selected confirmed editions, independent of project or person; single or multiple selections. |
+| EX-04 | Contents-only export | Updated common table of contents for a project, independent of complete folders. |
 
-- Genaue Regeln für die Übernahme von Ensemble-Stimmenzuordnungen in einzelne Musikstücke.
-- Gestaltung von Deckblättern und Inhaltsverzeichnissen.
-- Verhalten bei nicht unterstützten A3-Druckfunktionen.
-- Konkrete Exportablage und gegebenenfalls Aufbewahrung erzeugter PDFs.
-- Erkennung nachträglich ausgetauschter Archivscans, sofern ohne zusätzliche Bedienkomplexität umsetzbar.
-- Weitere Details der Benutzeroberfläche über die bereits verbindlich definierte Stimmenmatrix hinaus.
-- Technische Architektur und Implementierung für den Containerbetrieb auf der Synology DiskStation.
+- **EX-05:** Full folders use a common table of contents with piece numbers and titles, no page numbers. Reserved numbers are visible with no note page. With no cover, the contents begin the PDF; an optional personal cover precedes it and contains member name, project and assigned part/role (avoid a misleading claim that all pieces use the same part). Contents may span multiple pages. Excerpts and direct notes default to no extra cover or contents.
+- **EX-06:** Export/print one or multiple selected positions for one or multiple participants, e.g. Riccardo lost ABBA Medley and needs the assigned Posaune 2 sheet, or a replaced piece needs reprinting at the same number. Offer this directly from the project/matrix and library as applicable. Reprint may use the current configuration; previously generated outputs/snapshots remain available for exact historical reprints. No full-folder regeneration required.
+- **EX-07:** Reading PDF preserves the selected note pages' original dimensions, orientation and visual content (native A3 remains whole). Print PDF is a separate layout artifact; regular A3/A4 or configurable marchbook format. Generated cover, contents and placeholder pages follow project settings. Do not unnecessarily rasterize vector music. No overlay of piece numbers on note pages.
+- **EX-08:** Preflight for project outputs displays selected participants/positions/documents, missing parts, substitutions, unreviewed candidates, explicit overrides, ambiguous editions and layout issues. Allow correction before generation. Require explicit acknowledgement of missing parts; place a page with the title and `Noten fehlen` in German at each missing requested position. Invalid/corrupt/unreadable input or invalid selection is an actionable error, not silently treated as valid music. Direct archive exports require confirmed valid selections.
+- **EX-09:** Bind the report and acknowledgement to an immutable generation snapshot (project revision, positions, selected people, resolved parts and exact file versions/hashes, edition/layout/cover options, missing decisions). Invalidate the report if relevant data changes before enqueue. All documents in a generation run use the same snapshot. Editing the project during generation does not mutate the run. Archive changes must not silently affect existing exports.
+- **EX-10:** Store manifests, generation status and output paths. Only fully generated verified artifacts are downloadable/printable. Mark affected outputs stale after relevant edits or preference changes; retain previous outputs and source versions according to a defined retention policy. Targeted regeneration must be possible. Human-readable output names and folders; protect same-name collisions. Download and optionally ZIP batches. Do not require printing to generate or download a print PDF.
 
-Dieses Dokument definiert die funktionalen Anforderungen. Die technische Zielarchitektur, Bibliotheken, Implementierungsphasen und Deployment-Vorgaben sind in `ARCHITECTURE.md` dokumentiert.
+## 9. Scan enhancement and marchbooks
+
+- **SC-01:** Separately accessible enhancement feature with before/after preview, adjustable parameters, and per-stage enable/disable. Input is a selected archived copy, output a new linked derivative in PROCESSED (or a clearly separated area); never alter RAW or CLEAN bytes.
+- **SC-02:** Detect slight skew using staff lines; deskew, conservatively reduce noise and edge shadows, crop excess margins and normalize page format as needed. Preserve staff lines, accidentals, dynamics and every other musical mark. Avoid destructive default filters, warn on uncertain crop/skew, allow bypass. Recheck derivative visual quality before approving it for use. Retain its source, settings, algorithm version and hash.
+- **SC-03:** Marchbook is a project format, default 170 × 120 mm landscape, adjustable per project. Normalize print pages to that physical size, preserve aspect ratio and legibility, avoid cropping and allow accurate printing at scale. Reading PDF retains selected input page formats; contents/cover use chosen project format. No printed numbers on music pages.
+- **SC-04:** Optional later adapter for already numbered folders by part (e.g. `Altsax-1/01_Radetzkymarsch.pdf`): safely index files into CLEAN and propose a common numbered project list, resolve mismatches, require confirmation. It does not create a separate full-folder mode or bypass review.
+
+## 10. Print layout and printer integration
+
+- **PT-01:** For a run of consecutive A4 portrait pages within one piece, place pairs side by side, left then right, on A3 landscape (420 × 297 mm). Odd remaining page stays A4 portrait. Applies for arbitrary page count, not just the examples. A4 portrait = 210 × 297 mm.
+
+| A4 pages in one piece | Print sheets |
+| ---: | --- |
+| 1 | A4 |
+| 2 | A3 |
+| 3 | A3 + A4 |
+| 4 | A3 + A3 |
+| 5 | A3 + A3 + A4 |
+| 6 | A3 + A3 + A3 |
+
+- **PT-02:** Never pair across position/piece boundaries, including repeated appearances of the same arrangement. Do not pair covers, contents or placeholders with note pages. A3 original sheets stay whole; for A4-only fallback a native A3 sheet may be scaled as a whole, never split. A4 landscape, mixed/custom sizes and printable margins need explicit safe layout behavior and preview; never silently crop or distort. No booklet imposition. Default single-sided physical sheets.
+- **PT-03:** Choose an available/configured network printer in the UI, display capabilities/media, provide print preview, copy count and job status. Use IPP/CUPS where verified. Automatically select A4/A3/custom media only when supported and tested. Preserve page order across mixed formats; if a mixed-media job is unreliable, use consecutive media blocks with an interleaving warning. Do not globally sort sheets by paper size.
+- **PT-04:** If A3 or a custom size is unsupported, show a suitable A4 alternative and preview; require explicit confirmation before creating/submitting the fallback. No silent shrinking or clipping. For marchbook custom media, require explicit alternative if actual-size output cannot be achieved. Reading PDFs remain unchanged.
+- **PT-05:** Direct archive notes, project excerpts, full folders and contents-only outputs can be printed when supported. Print submission is never automatically repeated after a failure or uncertain acceptance. Show the printer job ID/status when known and request an intentional retry after checking the printer.
+
+## 11. Operations, safety and quality
+
+- **OP-01:** Local DS224+ deployment, Linux amd64, browser interface, authenticated access over private LAN/approved private remote access. No cloud OCR/telemetry/CDN, no privileged containers. Actual RAM, DSM version and paths must be verified before real-data deployment.
+- **OP-02:** One resource-intensive background job at a time, persistent queue, progress, safe cancellation, bounded retries for safe operations and recovery after restarts. Staging and idempotent operations prevent partial/doubled publication. Printing is never retried automatically. Keep memory, PDF sizes, rendering pixels, timeouts and scratch usage bounded; normal browser operations remain responsive.
+- **OP-03:** Least-privilege NAS service identity (numeric UID/GID determined on NAS) and read-only RAW at both layers. Secure file operations, no path traversal/symlink escape, no arbitrary request paths, PDF inputs treated as untrusted. Secrets mounted from protected files. No public access. All business routes require login; CSRF and host validation remain active.
+- **OP-04:** Deploy is default when `DEBUG_MODE` absent or `FALSE`; `TRUE` enables detailed application diagnostics. Trim and case-normalize; explicitly empty or other values fail clearly. Same image for both services and modes. Django `DEBUG=False` always. Shared Compose setting; recreate services to switch, no build. Debug mode includes authenticated GUI live logs, filtering by job/level/time/component, downloadable sanitized logs and persistent rotating web/worker files. Existing debug logs are not automatically deleted on switching back. Ordinary progress, warnings and OCR review are always available. No runtime GUI switch for this setting.
+- **OP-05:** Back up DB and all necessary CLEAN/PROCESSED versions, config/secrets and non-regenerable state consistently; RAW has independent NAS backup. Generated outputs optionally backed up; regenerate only where referenced versions and settings still exist. Restore to isolated environment and verify. Controlled image updates and rollback; no automatic production deployment.
+- **OP-06:** Reproducible builds and locked dependencies, local assets, automated tests, synthetic fixtures, verified third-party licenses and notices, versioned container images, clear install/update/restore runbooks. Real-data validation is performed privately on NAS without uploading actual music or members to external services.
+
+## 12. Explicit exclusions and delivery
+
+No musician portal, multi-tenancy, differentiated business roles, individual full-folder piece lists, complete part-only folders, multiple regular parts per member, automatic transcription/transposition, booklet imposition, write access to RAW, automatic print retry or external AI/OCR service. No assumption that all printers support automatic media switching.
+
+Deliver a useful manual archive workflow first; then OCR, personal project folders and excerpts, scan enhancement and marchbooks, printer integration, and operational validation. The full product includes ensemble support, direct note exports and printing; deferred implementation is not removal from scope. See `IMPLEMENTATION_PLAN.md` for release gates. See `DECISIONS.md` for explicit defaults and actual outstanding validation items.
