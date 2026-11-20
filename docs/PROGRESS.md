@@ -8,7 +8,8 @@ reflect actual completed work only.
 | --- | --- | --- | --- | --- | --- | --- |
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
 | WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
-| WP-03 | Authentication and session baseline | Implemented, CI green | PR #3 open (run 44736049991 success, head `8734c93`) | Local checks (below) + GitHub Actions run 44736049991 success (earlier run 44733254176 failed at Ruff lint; fixed by `8734c93`) | None | Merge PR #3, then WP-03a |
+| WP-03 | Authentication and session baseline | Merged | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed | Follow-up auth corrections in WP-03a | WP-03a |
+| WP-03a | Application shell and navigation | Implemented, verification blocked | Local feature branch | See below | Dependency download and remote write access | Run acceptance and PR CI |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -189,3 +190,21 @@ owner-approved.
   test-only fast hasher. Fixed by `8734c93`
   (`fix(tests): sort test settings import block`); CI run 44736049991 on
   `8734c93` passed (job "Foundation (ruff + pytest)" success).
+
+## WP-03a — Application shell and navigation
+
+- UI-02/UI-03: German, translatable navigation, current page and visibly grouped
+  unavailable modules. The home view explains availability for review, projects
+  and jobs. Debug / Logs appears as a placeholder only in diagnostics mode.
+  Keyboard skip link, visible focus, labelled inputs and login/logout feedback.
+- Django collects the local stylesheet under its public static URL. No runtime
+  asset dependencies. The browser test blocks external requests while retaining
+  loopback access and checks applied CSS, keyboard navigation, failed and
+  successful login, reload, disabled modules and logout.
+- WP-03 follow-up: logout requires POST; throttling uses the direct peer and
+  avoids validating credentials during lockout. Behind a proxy, attempts for
+  the same username through that proxy share one limit.
+- Local evidence: Python 3.12 compilation, Node smoke-script syntax and Git
+  whitespace checks. Dependency downloads failed at DNS resolution during
+  locked sync. Ruff, pytest and end-to-end browser acceptance remain pending.
+  GitHub rejected branch creation (403); no PR CI result or NAS evidence.

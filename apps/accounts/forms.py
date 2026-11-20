@@ -5,22 +5,23 @@ from __future__ import annotations
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 
 class GermanAuthenticationForm(AuthenticationForm):
     """AuthenticationForm with German field labels and error text."""
 
-    username = forms.CharField(label="Benutzername", max_length=150, strip=False)
+    username = forms.CharField(label=_("Benutzername"), max_length=150, strip=False)
     password = forms.CharField(
-        label="Passwort",
+        label=_("Passwort"),
         strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
     )
 
     error_messages = {
         **AuthenticationForm.error_messages,
-        "invalid_login": "Benutzername oder Passwort ist falsch.",
-        "inactive": "Dieses Konto ist nicht aktiv.",
+        "invalid_login": _("Benutzername oder Passwort ist falsch."),
+        "inactive": _("Dieses Konto ist nicht aktiv."),
     }
 
 

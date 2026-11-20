@@ -137,6 +137,11 @@ class TestCSRF:
         assert response.url == "/"
         assert csrf_client.get("/").status_code == 200
 
+    def test_get_logout_preserves_session(self, csrf_client, archivist) -> None:
+        csrf_client.force_login(archivist)
+        assert csrf_client.get(reverse("logout")).status_code == 405
+        assert csrf_client.get("/").status_code == 200
+
     def test_logout_requires_csrf_token(self, csrf_client, archivist) -> None:
         csrf_client.force_login(archivist)
         response = csrf_client.post(reverse("logout"))
@@ -154,6 +159,7 @@ class TestRateLimiting:
         response = client.post(
             reverse("login"),
             {"username": "archivar1", "password": "Korrekt!1234"},
+            HTTP_X_FORWARDED_FOR="192.0.2.10",
         )
         assert response.status_code == 200
         assert "Zu viele fehlgeschlagene Anmeldeversuche" in response.content.decode("utf-8")

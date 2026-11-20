@@ -1,33 +1,47 @@
+{% load static i18n %}
+{% get_current_language as language %}
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ language }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Notenarchiv{% endblock %}</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
+<a class="skip-link" href="#inhalt">{% translate "Zum Inhalt" %}</a>
 <header class="site-header">
     <a class="brand" href="{% url 'home' %}">Notenarchiv</a>
-    <nav aria-label="Hauptnavigation" class="main-nav">
-        {% if user.is_authenticated %}
-            <a href="{% url 'home' %}">Übersicht</a>
-            <span class="nav-placeholder" title="Noch nicht umgesetzt">Notenbibliothek</span>
-            <span class="nav-placeholder" title="Noch nicht umgesetzt">Projekte</span>
-            <span class="nav-placeholder" title="Noch nicht umgesetzt">Mitglieder</span>
-            <span class="nav-placeholder" title="Noch nicht umgesetzt">Aufträge</span>
-            <span class="nav-user">{{ user.username }}</span>
-            <form method="post" action="{% url 'logout' %}" class="inline-form">
-                {% csrf_token %}
-                <button type="submit" class="link-button">Abmelden</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}">Anmelden</a>
-        {% endif %}
-    </nav>
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" class="session">
+            <span>{{ user.username }}</span>
+            {% csrf_token %}
+            <button type="submit" class="link-button">{% translate "Abmelden" %}</button>
+        </form>
+    {% endif %}
 </header>
-<main class="site-main">
+<div class="layout">
+{% if user.is_authenticated %}
+    <nav aria-label="{% translate 'Hauptnavigation' %}">
+        <a class="current" href="{% url 'home' %}" aria-current="page">{% translate "Übersicht" %}</a>
+        <p id="planned">{% translate "In Vorbereitung" %}</p>
+        <ul aria-labelledby="planned">
+            <li aria-disabled="true">{% translate "Notenbibliothek" %}</li>
+            <li aria-disabled="true">{% translate "Indizierung" %}</li>
+            <li aria-disabled="true">{% translate "Prüfwarteschlange" %}</li>
+            <li aria-disabled="true">{% translate "Projekte" %}</li>
+            <li aria-disabled="true">{% translate "Scanaufbereitung" %}</li>
+            <li aria-disabled="true">{% translate "Mitglieder" %}</li>
+            <li aria-disabled="true">{% translate "Instrumente und Stimmen" %}</li>
+            <li aria-disabled="true">{% translate "Aufträge" %}</li>
+            <li aria-disabled="true">{% translate "Einstellungen" %}</li>
+            {% if diagnostics_enabled %}
+                <li aria-disabled="true">{% translate "Debug / Logs" %}</li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+<main id="inhalt" tabindex="-1">
     {% if messages %}
         <ul class="messages" aria-live="polite">
             {% for message in messages %}
@@ -37,5 +51,6 @@
     {% endif %}
     {% block content %}{% endblock %}
 </main>
+</div>
 </body>
 </html>

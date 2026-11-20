@@ -22,6 +22,9 @@ Transitive dependencies (asgiref, colorama, iniconfig, packaging, pluggy,
 pygments, sqlparse, tzdata) are recorded in `uv.lock`; their licenses are
 accounted for in WP-51 when the full inventory is finalized.
 
+The browser smoke uses playwright-core 1.62.1 (Apache-2.0, verified from its
+package.json). This test-only Node dependency runs outside the application.
+
 ## Policy
 
 - Every new dependency added by a later work package is added to this table

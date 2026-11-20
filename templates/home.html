@@ -1,12 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Übersicht — Notenarchiv{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Übersicht" %} — Notenarchiv{% endblock %}
 {% block content %}
-<section class="card">
-    <h1>Übersicht</h1>
-    <p>Sie sind angemeldet als <strong>{{ user.username }}</strong>.</p>
-    <p class="hint">
-        Die Arbeitsbereiche (Notenbibliothek, Indizierung, Projekte, Mitglieder)
-        folgen in den nächsten Entwicklungsabschnitten.
-    </p>
-</section>
+<h1>{% translate "Übersicht" %}</h1>
+<div class="dashboard">
+    <section class="card">
+        <h2>{% translate "Offene Prüfungen" %}</h2>
+        <p>{% translate "Die Prüfwarteschlange ist in Vorbereitung." %}</p>
+    </section>
+    <section class="card">
+        <h2>{% translate "Letzte Projekte" %}</h2>
+        <p>{% translate "Die Projektverwaltung ist in Vorbereitung." %}</p>
+    </section>
+    <section class="card">
+        <h2>{% translate "Laufende Aufträge" %}</h2>
+        <p>{% translate "Der Auftragsstatus ist in Vorbereitung." %}</p>
+    </section>
+</div>
 {% endblock %}

@@ -35,31 +35,29 @@ body {
     text-decoration: none;
 }
 
-.main-nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
 }
-
-.main-nav a {
-    color: var(--ink);
-    text-decoration: none;
-}
-
-.main-nav a:hover,
-.main-nav a:focus {
-    text-decoration: underline;
-}
-
-/* Not-yet-implemented modules must not look selectable (D-13). */
-.nav-placeholder {
-    color: var(--muted);
-    opacity: 0.6;
-}
-
-.nav-user {
-    color: var(--muted);
+.skip-link { position: absolute; left: 1rem; top: -5rem; background: white; padding: .5rem; }
+.skip-link:focus { top: .5rem; }
+.session { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.layout { max-width: 76rem; margin: 2rem auto; padding: 0 1.5rem; display: flex; gap: 2rem; }
+.layout nav { flex: 0 0 15rem; }
+.layout nav p { font-weight: 600; margin: 1.5rem 0 .5rem; }
+.layout nav ul { list-style: none; padding: 0; margin: 0; color: var(--muted); }
+.layout nav li { padding: .3rem .75rem; }
+.current { display: block; border-left: 4px solid var(--accent); padding: .5rem; font-weight: 700; }
+main { min-width: 0; flex: 1; }
+main:only-child { max-width: 32rem; margin: 0 auto; }
+h1 { margin-top: 0; }
+h2 { font-size: 1.15rem; margin: 0; }
+.dashboard { display: grid; gap: 1rem; }
+.dashboard p { margin-bottom: 0; }
+@media (max-width: 46rem) {
+    .layout { flex-direction: column; }
+    .layout nav { flex-basis: auto; }
+    .layout nav ul { display: flex; flex-wrap: wrap; }
 }
 
 .link-button {
@@ -70,12 +68,6 @@ body {
     color: var(--ink);
     cursor: pointer;
     text-decoration: underline;
-}
-
-.site-main {
-    max-width: 56rem;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
 }
 
 .card {
@@ -148,8 +140,4 @@ ul.errorlist {
     color: #8a2b2b;
     margin: 0.25rem 0 0;
     padding-left: 1rem;
-}
-
-.inline-form {
-    display: inline;
 }
