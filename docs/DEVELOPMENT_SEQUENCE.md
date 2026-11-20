@@ -13,16 +13,13 @@ commits or estimated effort; a partial package is still unfinished.
 - Preview work touches **8 further existing WP IDs**: five deployment IDs
   (WP-09/06/07/08/10) plus three early safety/operator slices
   (WP-47a/48/49). No extra administrative WPs are invented.
-- Current preview source `4aa216506f1fd4a37dfa3a35de519ed40e25ec34` passed
-  the complete CI run `44797427059`: WP-09 and WP-08 are software-verified.
-  This brings the verified total to **9 complete, 62 unfinished** (61 required
-  plus optional WP-43). PR #8 carries their integration; verify its merge state.
+- Current published preview: **10 complete, 61 unfinished** (60 required plus
+  optional WP-43). WP-09/08 integrated through PR #8 and WP-10 is verified by
+  approved `v0.1.0-preview.1` publication. See [release evidence](RELEASES.md).
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
-  application. WP-09 and WP-08 have passed actual green container CI;
-  WP-10 additionally needs approved, verified registry publication.
-- Conditional result after those preview gates: **10 complete, 61 unfinished**
-  (60 required plus optional WP-43). Before publication, do not count WP-10
-  complete. Installation on the actual NAS still needs the separately
+  application. The software preview publication gates are complete.
+- No further package blocks pulling the published preview. Installation on
+  the actual NAS still needs the separately
   approved WP-22 preview check; full WP-22 also validates the later worker/UI.
 
 The first installation is an authenticated technical preview with honest
@@ -32,9 +29,9 @@ already included via PR #5. No implementation is duplicated from those clones.
 
 ## Delivery order and genuine dependencies
 
-1. Finish the preview branch's real image/Compose/security/restore CI, merge
-   after review, approve a prerelease tag, publish/pull its exact GHCR digest.
-   The owner then validates new synthetic roots privately on DSM (WP-22 slice).
+1. The preview image is published, pulled and attested at its exact GHCR digest.
+   The next deployment step is separately authorized private DSM validation
+   with new synthetic roots (WP-22 slice); no live NAS deployment has occurred.
 2. In parallel, build WP-05b→05c (durable recovery/cancellation/UI), WP-11→12
    (musical/member master data), and WP-17 (pure PDF foundation). These start
    from already satisfied foundations and do not depend on OCR/printing.
@@ -80,7 +77,7 @@ claims that agents have been dispatched or unimplemented prerequisites exist.
 
 ## Complete package register
 
-Current snapshot after preview CI run `44797427059`. Original dependency IDs below
+Current snapshot after approved preview publication run `44817372155`. Original dependency IDs below
 apply to the full package; DEC-09 only scopes the documented early slices.
 
 | WP | Scope | Full-scope dependencies | Verified status / remaining gate |
@@ -98,7 +95,7 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-06 | Minimal hardened container image | WP-02, WP-03a, WP-04a, WP-05b, WP-09 | Web-image slice; full worker gate pending |
 | WP-07 | Compose services and data roots | WP-06, WP-09 | Web/tools Compose slice; worker integration pending |
 | WP-08 | Extended CI and container verification | WP-07, WP-03a | Software verified, CI 44797427059 / PR #8 |
-| WP-10 | Versioned container release pipeline | WP-08 | Release pipeline prepared; publication pending |
+| WP-10 | Versioned container release pipeline | WP-08 | Verified; v0.1.0-preview.1 published, pulled and attested; RELEASES.md |
 | WP-22 | Early NAS synthetic smoke | WP-07, WP-08, WP-04b, WP-05c | Planned |
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
 | WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Planned |
