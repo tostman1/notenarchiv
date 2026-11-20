@@ -25,6 +25,7 @@ from pathlib import Path
 from config.db import _apply_sqlite_pragmas  # noqa: F401 - registers the connection_created signal
 from config.diagnostics import logging_config
 from config.env import env
+from config.runtime import file_logging_enabled
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -172,5 +173,5 @@ OMP_THREAD_LIMIT = env.omp_thread_limit
 
 PRINT_ENABLED = env.print_enabled
 
-LOGGING = logging_config(env.debug_mode, env.service, env.log_dir)
+LOGGING = logging_config(env.debug_mode, env.service, env.log_dir, file_logging=file_logging_enabled())
 DIAGNOSTIC_LOG_DIR = env.log_dir

@@ -8,6 +8,9 @@ import sys
 
 
 def main() -> None:
+    from config import runtime
+
+    runtime.management_command = sys.argv[1] if len(sys.argv) > 1 else None
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         from django.core.management import execute_from_command_line

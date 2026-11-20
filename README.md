@@ -114,3 +114,30 @@ per download; live polling is sequential at two-second intervals with at most
 retained files across rotation. Missing rotation history is reported explicitly.
 Stored fields are validated again, and symlinks / non-regular files are excluded.
 See the [German archivist guide](docs/archivist-diagnostics.de.md).
+
+### Durable worker baseline (WP-05a)
+
+Run migrations before starting `python manage.py run_worker` with
+`NOTENARCHIV_SERVICE=worker`. `--once` inspects the queue once; the default
+keeps polling. `python manage.py worker_healthcheck` requires a fresh worker
+heartbeat and unexpired lease, independently of the current job.
+
+The worker holds `worker.lock` beside the local SQLite database for its full
+lifetime. A singleton database lease, a unique RUNNING constraint, atomic
+conditional claims and attempt/generation fencing additionally protect state
+changes. Leases last 30 seconds and renew every five seconds, also while idle.
+Expiry is checked against database time when the SQL statement executes, so
+waiting for a SQLite write lock cannot revive an expired owner.
+Payloads require a registered domain validator, schema version 1 and at most
+16 KiB of JSON. Real job handlers arrive with their domain packages; no dummy
+production handler is installed by this baseline.
+
+SIGINT/SIGTERM stop new claims and allow the active handler to finish. A lost
+lease rejects progress/completion; an unfinished RUNNING job blocks takeover.
+Recovery, cancellation, retry policy and filesystem publication are WP-05b;
+this package does not expose a requeue/recovery command. PRINT handler
+acceptance uncertainty is retained as REVIEW_REQUIRED and never auto-retried.
+
+Auxiliary management commands (including healthchecks) use sanitized stdout
+only, even in Debug. They preserve DEBUG_MODE and Django DEBUG=False without
+competing for the running web/worker's rotating log file.
