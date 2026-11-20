@@ -4,14 +4,15 @@ Update this file when the owner says **handoff / Übergabe**. On **takeover / Ü
 
 ## Git checkpoint
 
-- Date (UTC): 2026-11-20 ~11:30 UTC (observed at handoff)
+- Date (UTC): 2026-11-20 ~11:45 UTC (observed at handoff)
 - Outgoing agent: OpenCode
 - Branch / upstream: `feature/wp-03-auth-session` / `origin/feature/wp-03-auth-session`
 - Comparison base (full SHA): `89c4777d80df0c511190339271f3445961450308` (merge commit of PR #2, tip of `main`)
-- Head before this handoff (full SHA): `8734c93908dc3ce4fda8916a3684de9f4a984899`
+- Code head (full SHA, CI-verified): `8734c93908dc3ce4fda8916a3684de9f4a984899`
+- Handoff docs commits: `6b551e9839bcd168dc38bdf5bb79ce41923a717f` (this snapshot, first version) and the final snapshot commit whose SHA is reported after push (a commit cannot contain its own SHA).
 - Intended transfer ref: `origin/feature/wp-03-auth-session`
 - Working tree: clean (no staged, unstaged or untracked files)
-- PR / merge status: https://github.com/tostman1/notenarchiv/pull/3 — **open, CI green** (run 44736049991, job "Foundation (ruff + pytest)" success, head `8734c93`). **Not yet merged.**
+- PR / merge status: https://github.com/tostman1/notenarchiv/pull/3 — **open, CI green**, **not yet merged**.
 
 ## Work status
 
@@ -36,10 +37,12 @@ Update this file when the owner says **handoff / Übergabe**. On **takeover / Ü
   - `uv run pytest -q` — 78 passed (~3.5s)
   - `uv run python manage.py check` — 0 issues (WP-03 time)
   - Live runserver (curl, real socket): `/healthz` 200 public; `/` 302 → `/login/?next=/`; `/login/` 200 with CSRF token; bad Host header 400
-- GitHub CI: run 44736049991 on `8734c93` — **success** (earlier run 44733254176 on `e3e8632` failed at Ruff lint; fixed by `8734c93`)
+- GitHub CI: run 44736049991 on `8734c93` — **success**; run 44737425748 on
+  `6b551e9` (handoff docs) — **success**; earlier run 44733254176 on `e3e8632`
+  failed at Ruff lint (fixed by `8734c93`)
 - NAS / hardware checks: not run
 
 ## Continuation
 
 - Next concrete action: merge PR #3 into `main` (owner approval), then start WP-03a — early application shell and navigation (German base template exists already as part of WP-03; WP-03a adds the full UI-02 navigation set, empty states, accessibility, local-asset offline check, i18n mechanism and the initial Playwright smoke).
-- Transfer status: **ready after verified push** — `origin/feature/wp-03-auth-session` head is `8734c93908dc3ce4fda8916a3684de9f4a984899`, CI green, working tree clean.
+- Transfer status: **ready after verified push** — `origin/feature/wp-03-auth-session` is pushed and CI green on every head since `8734c93` (runs 44736049991 and 44737425748 success); final head SHA is reported after the final snapshot commit.
