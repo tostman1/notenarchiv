@@ -88,12 +88,12 @@ class DebugFileHandler(RotatingFileHandler):
             self._writer.close()
 
 
-def logging_config(debug_mode, service, directory):
+def logging_config(debug_mode, service, directory, *, file_logging=True):
     level = "DEBUG" if debug_mode else "INFO"
     handlers = {
         "stdout": {"()": SafeStreamHandler, "stream": "ext://sys.stdout", "formatter": "technical", "level": level},
     }
-    if debug_mode:
+    if debug_mode and file_logging:
         handlers["debug_file"] = {
             "()": DebugFileHandler,
             "directory": directory,

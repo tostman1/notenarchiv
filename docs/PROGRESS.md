@@ -11,7 +11,8 @@ reflect actual completed work only.
 | WP-03 | Authentication and session baseline | Merged, audited | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed; auth follow-ups merged with WP-03a | None | Complete |
 | WP-03a | Application shell and navigation | Merged, CI verified | PR #4; merge `e913d706d869de14f2e063eb0fb8b2835d548e98` | 90 tests, Ruff lint/format, local Playwright and combined CI run 44747734412 passed | None | Complete |
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
-| WP-04b | Authenticated debug UI | Implemented, locally verified | Current feature branch from `e913d70` | 110 unit/integration tests, Ruff lint/format and 2 Playwright tests passed locally | CI and NAS acceptance pending | PR, CI, merge; then WP-05a |
+| WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
+| WP-05a | Durable queue, claim and singleton worker | Implemented, locally verified | `codex/wp-05a-durable-queue`, base `ec705b2` | 141 pytest tests, 2 Playwright tests, Ruff lint/format, lockfile and Django checks passed; details below | Linux CI and NAS acceptance pending | Commit, push and stop as requested; WP-05b remains planned |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -261,3 +262,45 @@ owner-approved.
   the Deploy shell and direct-route denial. Synthetic data only.
 - German archivist guide added. CI and NAS acceptance remain pending at
   this commit; no real association data or NAS operation was used.
+- Final implementation head `e9df607b39d1f80409abf98e3b5d77717dd9b0a6`
+  passed GitHub Actions `44749299835`, including both browser tests. PR #6
+  merged as `ec705b29bc56d212cad1c34369cc5ba9dd9821c5`.
+
+## WP-05a — Durable queue, claim and singleton worker
+
+- OP-02: Job model and migration, payload version/size/domain validation,
+  QUEUED/RUNNING/terminal transitions, progress, timestamps, cancellation
+  intent and sanitized error codes. A migration seeds the unique worker lease.
+- Atomic conditional ORM UPDATEs use short SQLite write transactions before
+  reading candidates; no reliance on select_for_update. A partial unique
+  RUNNING index and global lease prevent concurrent heavy claims. Worker
+  generations and attempt numbers fence progress and completion.
+- Lease expiry uses SQL execution time, not a timestamp captured before
+  waiting for a write lock. An actual locked-connection expiry regression
+  test verifies that a waiting claimant cannot revive an expired worker.
+- Stable OS process lock beside the DB remains held even after lease expiry.
+  Independent idle/busy heartbeat, 30-second leases, five-second renewal,
+  freshness health command and bounded polling. SIGINT/SIGTERM stop new claims.
+- Domain processors are deliberately installed by their own packages; only
+  registered/validated payloads can enter the queue. No synthetic production
+  jobs. No automatic retry or takeover of unfinished RUNNING jobs. Recovery,
+  cancellation and fenced publication remain WP-05b; uncertain PRINT failures
+  are REVIEW_REQUIRED and cannot re-enter the queue automatically.
+- Integration uncovered that a Debug healthcheck would otherwise contend
+  with the running worker's rotating log. Entry-point context now gives
+  auxiliary management commands sanitized stdout only, preserving the shared
+  mode and all security settings. The worker/web keep their file-writer rules.
+- Synthetic acceptance: 30/30 competing Django-ORM claims over independent
+  file-backed SQLite connections had exactly one winning worker/job. Also
+  exercised duplicate same-lease claims, stale attempt/generation/expiry,
+  idle/busy heartbeats, real worker CLI process-lock ownership, payload
+  rejection, sanitized handler errors and PRINT uncertainty without retry.
+- Final local checks (Windows, Python 3.12.14): `pytest -q` — 141 passed;
+  Playwright browser suite — 2 passed; Ruff lint/format — passed (67 files);
+  offline locked-dependency verification, Django system check, migration drift
+  check and whitespace check — passed. Applied the migration and ran the real
+  worker command against synthetic local storage. A separate real Debug worker
+  and healthcheck coexist successfully without log-file writer contention.
+- Owner requested completion, commit, push and then stop on 2026-11-20.
+  Do not begin WP-05b or merge this branch without continuation. Linux CI
+  and NAS/hardware acceptance are not claimed by local results.
