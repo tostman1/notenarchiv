@@ -384,3 +384,28 @@ owner-approved.
   this evidence before the standing-authorized integration. No GHCR publication
   or NAS deployment has occurred. Nine packages are now software-verified;
   62 remain unfinished until WP-10's approved publication (then 10 / 61).
+
+## WP-10 — First approved preview publication
+
+- Owner explicitly approved `v0.1.0-preview.1` and GHCR publication on
+  2026-11-20, following the reviewed PR #8 integration. No NAS deployment
+  or real-data attachment was approved.
+- Release source: `62d85b36189293a59df2ef39729a538f5c53ad3b` on main;
+  final PR CI `44798017241` and main CI `44798414658` both passed.
+- Annotated tag `v0.1.0-preview.1` was pushed and remotely verified against
+  that exact source commit. Release run `44815669883` is the publication
+  evidence checkpoint; completion and actual digest are recorded below only
+  after registry/release verification.
+- Original run `44815669883` passed all checks and pushed/pulled image digest
+  `sha256:e6e01416737702598458af8c9167f2353e09074c445281d640eaa34f10658f4d`.
+  Publication then stopped because `.RepoDigests[0]` still referred to the
+  loaded `notenarchiv-ci` repository. Attestations/install release had not run.
+- The correction selects the GHCR digest by repository and fails on absent
+  or ambiguous results. Explicit recovery validates the original approved tag
+  source, original workflow and all required successful check jobs; downloads
+  the retained candidate with mandatory archive SHA-256 validation; and requires
+  the existing registry version to match the candidate. It cannot rebuild,
+  create a missing version, move a tag or overwrite a different image.
+  Recovery signs a factual original-build/promotion predicate and the original
+  SBOM; it does not mislabel the recovery commit as the application's build source.
+  Local regression/policy checks: 27 tests passed, Ruff and actionlint passed.

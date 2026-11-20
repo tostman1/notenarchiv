@@ -2,44 +2,87 @@ name: Publish approved preview
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Previously approved tag whose checked image was already published
+        required: true
+        type: string
+      candidate_run_id:
+        description: Original tag workflow run containing the verified image artifact
+        required: true
+        type: string
 
 permissions:
   contents: read
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions: {contents: read, actions: read}
+    outputs:
+      tag: ${{ steps.source.outputs.tag }}
+      source: ${{ steps.source.outputs.source }}
+      run_id: ${{ steps.source.outputs.run_id }}
+      artifact_id: ${{ steps.source.outputs.artifact_id }}
+      artifact_digest: ${{ steps.source.outputs.artifact_digest }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {fetch-depth: 0}
       - name: Require an approved preview tag on main
+        id: source
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+          CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id || github.run_id }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python3 scripts/check_release.py "$RELEASE_TAG"
-          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+          python3 -m scripts.verify_release_source
   checks:
     needs: validate
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ci.yml
     with: {export-image: true}
     permissions: {contents: read}
   publish:
-    needs: checks
+    needs: [validate, checks]
+    if: >-
+      always() && needs.validate.result == 'success' &&
+      (needs.checks.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && needs.checks.result == 'skipped'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
       packages: write
       id-token: write
       attestations: write
     env:
       IMAGE: ghcr.io/tostman1/notenarchiv
-      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+      SOURCE_SHA: ${{ needs.validate.outputs.source }}
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: github.event_name == 'push'
         with: {name: verified-container}
+      - name: Recover the original verified artifact with mandatory archive hash validation
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.validate.outputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.validate.outputs.artifact_digest }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > candidate.zip
+          printf '%s  candidate.zip\n' "${ARTIFACT_DIGEST#sha256:}" | sha256sum --check
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('candidate.zip') as archive:
+              assert set(archive.namelist()) == {'verified-image.tar', 'image-sbom.cdx.json', 'image-metadata.json'}
+              archive.extractall('.')
+          PY
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -48,32 +91,62 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish the tested image without rebuilding or overwriting a version
         id: publish
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
         run: |
           VERSION="${RELEASE_TAG#v}"
           docker load -i verified-image.tar
           ACTUAL=$(docker image inspect notenarchiv-ci:verified --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
-          test "$ACTUAL" = "$GITHUB_SHA"
+          test "$ACTUAL" = "$SOURCE_SHA"
+          test "$(docker image inspect notenarchiv-ci:verified --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION"
           CANDIDATE=$(docker image inspect notenarchiv-ci:verified --format '{{.Id}}')
           if docker buildx imagetools inspect "$IMAGE:$VERSION" >/dev/null 2>&1; then
             docker pull "$IMAGE:$VERSION"
             EXISTING=$(docker image inspect "$IMAGE:$VERSION" --format '{{.Id}}')
             test "$CANDIDATE" = "$EXISTING" || { echo 'Immutable version differs; refusing overwrite.' >&2; exit 1; }
           else
+            test "$RELEASE_EVENT" = push || { echo 'Recovery requires the already published image.' >&2; exit 1; }
             docker tag notenarchiv-ci:verified "$IMAGE:$VERSION"
             docker push "$IMAGE:$VERSION"
           fi
           docker pull "$IMAGE:$VERSION"
-          REFERENCE=$(docker image inspect "$IMAGE:$VERSION" --format '{{index .RepoDigests 0}}')
+          REFERENCE=$(docker image inspect "$IMAGE:$VERSION" | python3 -m scripts.registry_digest "$IMAGE")
           case "$REFERENCE" in "$IMAGE"@sha256:*) ;; *) exit 1;; esac
           printf '%s\n' "$REFERENCE" > release-digest.txt
           printf 'digest=%s\n' "${REFERENCE#*@}" >> "$GITHUB_OUTPUT"
           docker image inspect "$IMAGE:$VERSION" > published-image-metadata.json
-          printf 'Published `%s` from `%s`. No NAS deployment was performed.\n' "$REFERENCE" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Published `%s` from `%s`. No NAS deployment was performed.\n' "$REFERENCE" "$SOURCE_SHA" >> "$GITHUB_STEP_SUMMARY"
       - name: Attest source provenance
+        if: github.event_name == 'push'
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-name: ghcr.io/tostman1/notenarchiv
           subject-digest: ${{ steps.publish.outputs.digest }}
+          push-to-registry: true
+          create-storage-record: false
+      - name: Record original build and recovery provenance
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          CANDIDATE_RUN_ID: ${{ needs.validate.outputs.run_id }}
+          ARTIFACT_ID: ${{ needs.validate.outputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.validate.outputs.artifact_digest }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          evidence = {key: os.environ[key] for key in (
+              'SOURCE_SHA', 'RELEASE_TAG', 'CANDIDATE_RUN_ID', 'ARTIFACT_ID', 'ARTIFACT_DIGEST',
+              'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_SHA')}
+          with open('release-origin.json', 'w') as stream:
+              json.dump(evidence, stream)
+          PY
+      - name: Attest verified original build promotion
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ghcr.io/tostman1/notenarchiv
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          predicate-type: https://github.com/tostman1/notenarchiv/attestations/verified-release/v1
+          predicate-path: release-origin.json
           push-to-registry: true
           create-storage-record: false
       - name: Attest the image SBOM
@@ -91,19 +164,22 @@ jobs:
             release-digest.txt
             published-image-metadata.json
             image-sbom.cdx.json
+            release-origin.json
           retention-days: 90
   announce:
-    needs: publish
+    needs: [validate, publish]
+    if: always() && needs.publish.result == 'success'
     runs-on: ubuntu-latest
     permissions: {contents: write}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: {ref: '${{ needs.validate.outputs.source }}'}
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with: {name: preview-release-evidence}
       - name: Package installation files and create a prerelease
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
         run: |
           tar -czf notenarchiv-preview-install.tar.gz compose.yaml compose.debug.yaml .env.example \
             scripts/preflight-host.sh docs/INSTALL.md docs/INSTALL.de.md docs/UPDATE.md \
@@ -111,3 +187,6 @@ jobs:
           gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "$RELEASE_TAG" \
             --notes-file docs/PREVIEW_RELEASE.md notenarchiv-preview-install.tar.gz \
             release-digest.txt image-sbom.cdx.json published-image-metadata.json
+          if [ -f release-origin.json ]; then
+            gh release upload "$RELEASE_TAG" release-origin.json
+          fi
