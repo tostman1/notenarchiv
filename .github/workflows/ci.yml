@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
+    inputs:
+      export-image:
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,6 +31,7 @@ jobs:
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
         with:
           python-version: "3.12"
+          version: "0.13.1"
 
       - name: Verify lockfile is up to date
         run: uv lock --check
@@ -42,7 +48,67 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
+      - name: Audit locked runtime dependencies
+        run: |
+          uv export --locked --no-dev --no-emit-project --no-hashes -o "$RUNNER_TEMP/runtime-requirements.txt"
+          uv tool run --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r "$RUNNER_TEMP/runtime-requirements.txt"
+
       - name: Run local-only Playwright smoke
         run: |
           npm install --prefix "$RUNNER_TEMP/browser" --no-audit --no-fund --ignore-scripts playwright-core@1.62.1
           NODE_PATH="$RUNNER_TEMP/browser/node_modules" uv run pytest browser/
+
+  container:
+    name: Container (amd64 + security + synthetic smoke)
+    needs: foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build pinned non-root image
+        env:
+          REVISION: ${{ github.sha }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION=preview-ci
+          if [ "$REF_TYPE" = tag ]; then VERSION="${REF_NAME#v}"; fi
+          docker buildx build --platform linux/amd64 --load --provenance=false \
+            --build-arg VCS_REF="$REVISION" --build-arg APP_VERSION="$VERSION" --tag notenarchiv-ci:verified .
+      - name: Validate Compose configurations
+        run: python3 scripts/check_compose.py
+      - name: Exercise real container and isolated restore
+        run: sudo python3 scripts/container_smoke.py --image notenarchiv-ci:verified
+      - name: Verify pinned scanner
+        run: |
+          curl --fail --location --retry 3 -o "$RUNNER_TEMP/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
+          echo "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf  $RUNNER_TEMP/trivy.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/trivy.tar.gz" -C "$RUNNER_TEMP" trivy
+      - name: Scan image vulnerabilities and secrets
+        run: |
+          "$RUNNER_TEMP/trivy" image --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 --no-progress notenarchiv-ci:verified
+          "$RUNNER_TEMP/trivy" image --format cyclonedx --output image-sbom.cdx.json --no-progress notenarchiv-ci:verified
+      - name: Record verified image metadata
+        run: docker image inspect notenarchiv-ci:verified > image-metadata.json
+      - name: Export verified candidate for release
+        if: inputs.export-image == true
+        run: docker save notenarchiv-ci:verified -o verified-image.tar
+      - name: Upload verified release candidate
+        if: inputs.export-image == true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-container
+          path: |
+            verified-image.tar
+            image-sbom.cdx.json
+            image-metadata.json
+          retention-days: 7
+      - name: Upload SBOM and image metadata
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: container-evidence
+          path: |
+            image-sbom.cdx.json
+            image-metadata.json
+          retention-days: 30

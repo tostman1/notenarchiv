@@ -33,8 +33,19 @@ class Command(BaseCommand):
     def handle(self, *args, **options) -> None:
         from config.env import env
 
-        if env.profile == "nas" and not env.secret_key_file.is_file():
-            raise CommandError(f"secret key file is missing: {env.secret_key_file}")
+        if env.profile == "nas":
+            from apps.jobs.services.storage import StorageError, validate_storage
+
+            try:
+                validate_storage(env, options["service"] or env.service)
+            except (StorageError, OSError):
+                raise CommandError(
+                    "NAS storage validation failed; check mount topology and service permissions"
+                ) from None
+            self.stdout.write("profile: nas")
+            self.stdout.write(f"DEBUG_MODE: {'TRUE' if env.debug_mode else 'FALSE'} (Django DEBUG is always False)")
+            self.stdout.write("configuration OK")
+            return
 
         self.stdout.write(f"profile: {env.profile}")
         self.stdout.write(f"DEBUG_MODE: {'TRUE' if env.debug_mode else 'FALSE'} (Django DEBUG is always False)")

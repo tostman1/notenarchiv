@@ -1,0 +1,8 @@
+# Apply alongside compose.yaml; switching mode requires recreation, never rebuild.
+services:
+  web:
+    environment: {DEBUG_MODE: "TRUE"}
+  migrate:
+    environment: {DEBUG_MODE: "TRUE"}
+  admin:
+    environment: {DEBUG_MODE: "TRUE"}

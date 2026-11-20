@@ -20,6 +20,7 @@ Rules:
 from __future__ import annotations
 
 import os
+import re
 import secrets
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,6 +53,7 @@ class EnvSettings:
 
     profile: str
     debug_mode: bool
+    release: str
     service: str
     log_dir: Path
     # Core Django contract
@@ -176,6 +178,9 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         raise ConfigError("; ".join(errors))
 
     debug_mode = parse_debug_mode(env.get("DEBUG_MODE"))
+    release = _string(env, "NOTENARCHIV_RELEASE", default="0.1.0-preview.1")
+    if not re.fullmatch(r"[A-Za-z0-9.+-]{1,64}", release):
+        raise ConfigError("NOTENARCHIV_RELEASE is invalid")
 
     service = _string(env, "NOTENARCHIV_SERVICE", default="web")
     if service not in {"web", "worker"}:
@@ -246,6 +251,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
     return EnvSettings(
         profile=profile,
         debug_mode=debug_mode,
+        release=release,
         service=service,
         log_dir=log_dir,
         secret_key=secret_key,

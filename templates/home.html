@@ -3,18 +3,27 @@
 {% block title %}{% translate "Übersicht" %} — Notenarchiv{% endblock %}
 {% block content %}
 <h1>{% translate "Übersicht" %}</h1>
+<section class="preview-intro" aria-labelledby="preview-title">
+    <p class="eyebrow">{{ release_version }}</p>
+    <h2 id="preview-title">{% translate "Ihr Notenarchiv nimmt Gestalt an." %}</h2>
+    <p>{% translate "Diese technische Vorschau dient dem sicheren Einrichten und Prüfen Ihrer Installation. Anmeldung und Oberfläche sind verfügbar. Archivimport, Projekte und Ausgabe folgen in den nächsten Versionen." %}</p>
+    <p class="preview-warning">{% translate "Bitte verwenden Sie ausschließlich leere Ordner oder synthetische Testdaten. Ihr echtes Notenarchiv bleibt vorerst getrennt." %}</p>
+</section>
 <div class="dashboard">
     <section class="card">
         <h2>{% translate "Offene Prüfungen" %}</h2>
-        <p>{% translate "Die Prüfwarteschlange ist in Vorbereitung." %}</p>
+        <p><span class="availability">{% translate "Noch nicht verfügbar" %}</span></p>
+        <p>{% translate "Hier prüfen und bestätigen Sie künftig neue oder geänderte Noten nach Sichtkontrolle." %}</p>
     </section>
     <section class="card">
         <h2>{% translate "Letzte Projekte" %}</h2>
-        <p>{% translate "Die Projektverwaltung ist in Vorbereitung." %}</p>
+        <p><span class="availability">{% translate "Noch nicht verfügbar" %}</span></p>
+        <p>{% translate "Eine gemeinsame Stückliste, persönliche Zuordnungen und fertige Notenmappen an einem Ort." %}</p>
     </section>
     <section class="card">
         <h2>{% translate "Laufende Aufträge" %}</h2>
-        <p>{% translate "Der Auftragsstatus ist in Vorbereitung." %}</p>
+        <p><span class="availability">{% translate "Noch nicht verfügbar" %}</span></p>
+        <p>{% translate "Der Hintergrunddienst wird in dieser Vorschau noch nicht gestartet. Es werden keine Archivdateien verarbeitet." %}</p>
     </section>
 </div>
 {% endblock %}

@@ -12,7 +12,12 @@ reflect actual completed work only.
 | WP-03a | Application shell and navigation | Merged, CI verified | PR #4; merge `e913d706d869de14f2e063eb0fb8b2835d548e98` | 90 tests, Ruff lint/format, local Playwright and combined CI run 44747734412 passed | None | Complete |
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
-| WP-05a | Durable queue, claim and singleton worker | Implemented, locally verified | `codex/wp-05a-durable-queue`, base `ec705b2` | 141 pytest tests, 2 Playwright tests, Ruff lint/format, lockfile and Django checks passed; details below | Linux CI and NAS acceptance pending | Commit, push and stop as requested; WP-05b remains planned |
+| WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
+| WP-09 | Service-aware mount and startup validation | Implemented, local tests verified | First-preview branch from `5e6bacc` | 15 storage/mount negatives passed locally; real Linux container/host checks prepared | Actual container CI and NAS acceptance pending | Run container CI |
+| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices implemented | First-preview branch | Digest-pinned amd64 image, non-root/read-only profile, explicit migrate/admin tools; no worker deployed | Actual build/smoke pending; full worker gate remains WP-05b | Container CI; full packages remain partial |
+| WP-08 | Extended CI and container verification | Implemented, run pending | First-preview branch | Locked audit, browser, build, real mount/auth/mode/restore smoke, Trivy/SBOM | Actual workflow evidence pending; main is not branch-protected (API 404) | Enforce manual green-PR gate |
+| WP-10 | Versioned container release pipeline | Prepared, not published | Proposed `v0.1.0-preview.1` | Preview-only policy tests; publish reuses verified artifact and records pulled digest/provenance/SBOM | Approved tag/publication and actual registry verification pending | Release milestone after green CI |
+| WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices prepared | First-preview branch | Install/restore/update/debug guides; isolated container restore acceptance prepared | Full archive/NAS/two-version acceptance remains outstanding | Validate preview; retain full package gates |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -304,3 +309,38 @@ owner-approved.
 - Owner requested completion, commit, push and then stop on 2026-11-20.
   Do not begin WP-05b or merge this branch without continuation. Linux CI
   and NAS/hardware acceptance are not claimed by local results.
+- Later owner priority shift on 2026-11-20 explicitly resumed work for the first
+  deployable preview. PR #7 head `960201c337ea1e0ae5095938dd7f6e330edcdee3`
+  passed full Linux CI `44757097570` and merged as `5e6bacc816f69999bbe88eae11536cc2dee71da2`.
+
+## First deployable technical preview — DEC-09
+
+- Baseline inspection: clean WP-05a branch and clean `.dev/wp03a` / `.dev/wp04a`
+  clones; all prior code preserved. WP-03a's browser transaction fix is already
+  pushed, CI-verified and merged. No duplicate logging/UI implementation.
+- 71 original packages (70 required, one optional). Seven are now fully
+  software-verified/merged. Five deployment IDs and three early safety/operator
+  slices form the preview path. Full worker/archive/hardware gates are retained;
+  see DEVELOPMENT_SEQUENCE.md for the complete register and independent lanes.
+- Implemented a web-only container/Compose candidate with protected empty or
+  synthetic mounts, loopback-only HTTPS-proxy backend, explicit migration and
+  interactive provisioning, persistent SQLite and a maintenance lock. Runtime
+  does not auto-migrate or launch unfinished job processors. Placeholder UI is
+  responsive, German, visibly unavailable and unable to modify archive data.
+- Python image and build-only uv are digest-pinned; runtime Django updated to
+  the verified 5.2.19 LTS security patch and Gunicorn 27.0.1 added/locked. Local
+  locked runtime audit (pip-audit 2.10.1): no known vulnerabilities. Runtime and
+  build/CI dependency notices updated from actual package metadata/license files.
+- Local Windows checks at this snapshot: 165 pytest tests, two Playwright tests,
+  Ruff lint/format and diff whitespace checks passed. Desktop/mobile screenshots
+  visually inspected; no horizontal overflow. No local Docker executable exists;
+  actual Linux image build, container smoke and image scan are pending GitHub CI.
+- Workflow prepares checked image-artifact publication to GHCR, immutable version
+  policy, registry pull/digest verification, signed provenance/SBOM and an install
+  bundle/GitHub prerelease. No image availability, release or live NAS deployment
+  is claimed before actual evidence. Actual main protection is absent; manual
+  reviewed green-PR gate remains in force, without unapproved repository settings.
+- Operator runbooks and German quickstart included. Actual DSM version, ACLs,
+  certificate/proxy, resources and backup destination still require private
+  authorized synthetic NAS acceptance. Real archive/member attachment is forbidden
+  in this preview and has not been attempted.

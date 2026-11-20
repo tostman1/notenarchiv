@@ -39,6 +39,7 @@ CSRF_TRUSTED_ORIGINS = env.csrf_trusted_origins
 
 # OP-04: application diagnostics flag, independent of Django DEBUG.
 DEBUG_MODE = env.debug_mode
+RELEASE_VERSION = env.release
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_NAME = "notenarchiv_sessionid"
@@ -50,6 +51,8 @@ CSRF_COOKIE_NAME = "notenarchiv_csrftoken"
 # say otherwise; this is a data-location difference, not a weakening of
 # production settings (they are exactly what the nas profile ships).
 SECURE_SSL_REDIRECT = env.secure_transport_required
+# Public liveness reveals no data and must work directly inside the private backend.
+SECURE_REDIRECT_EXEMPT = [r"^healthz$"]
 SESSION_COOKIE_SECURE = env.secure_transport_required
 CSRF_COOKIE_SECURE = env.secure_transport_required
 SECURE_HSTS_SECONDS = 0  # HSTS requires HTTPS at the proxy; configured there, not here.

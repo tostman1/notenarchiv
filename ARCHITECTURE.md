@@ -285,6 +285,12 @@ Deployment variables are parsed/validated centrally; business settings (printer,
 
 ### 9.2 Compose design (illustrative, implementation and NAS checks pending)
 
+DEC-09 (2026-11-20) permits an initial web-only technical preview. The shipped
+`compose.yaml` starts web and provides explicit one-shot migrate/admin tools;
+it does not deploy the worker or processing actions. The full two-service
+target below is retained for later WP-05b/WP-07 integration. The preview uses
+a loopback-only private HTTPS proxy backend and requires empty/synthetic roots.
+
 ```yaml
 x-app: &app
   image: ${APP_IMAGE:?set APP_IMAGE}

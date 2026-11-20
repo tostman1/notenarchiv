@@ -1,0 +1,113 @@
+name: Publish approved preview
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: {fetch-depth: 0}
+      - name: Require an approved preview tag on main
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 scripts/check_release.py "$RELEASE_TAG"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+  checks:
+    needs: validate
+    uses: ./.github/workflows/ci.yml
+    with: {export-image: true}
+    permissions: {contents: read}
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    env:
+      IMAGE: ghcr.io/tostman1/notenarchiv
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with: {name: verified-container}
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish the tested image without rebuilding or overwriting a version
+        id: publish
+        run: |
+          VERSION="${RELEASE_TAG#v}"
+          docker load -i verified-image.tar
+          ACTUAL=$(docker image inspect notenarchiv-ci:verified --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+          test "$ACTUAL" = "$GITHUB_SHA"
+          CANDIDATE=$(docker image inspect notenarchiv-ci:verified --format '{{.Id}}')
+          if docker buildx imagetools inspect "$IMAGE:$VERSION" >/dev/null 2>&1; then
+            docker pull "$IMAGE:$VERSION"
+            EXISTING=$(docker image inspect "$IMAGE:$VERSION" --format '{{.Id}}')
+            test "$CANDIDATE" = "$EXISTING" || { echo 'Immutable version differs; refusing overwrite.' >&2; exit 1; }
+          else
+            docker tag notenarchiv-ci:verified "$IMAGE:$VERSION"
+            docker push "$IMAGE:$VERSION"
+          fi
+          docker pull "$IMAGE:$VERSION"
+          REFERENCE=$(docker image inspect "$IMAGE:$VERSION" --format '{{index .RepoDigests 0}}')
+          case "$REFERENCE" in "$IMAGE"@sha256:*) ;; *) exit 1;; esac
+          printf '%s\n' "$REFERENCE" > release-digest.txt
+          printf 'digest=%s\n' "${REFERENCE#*@}" >> "$GITHUB_OUTPUT"
+          docker image inspect "$IMAGE:$VERSION" > published-image-metadata.json
+          printf 'Published `%s` from `%s`. No NAS deployment was performed.\n' "$REFERENCE" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Attest source provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ghcr.io/tostman1/notenarchiv
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          push-to-registry: true
+          create-storage-record: false
+      - name: Attest the image SBOM
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ghcr.io/tostman1/notenarchiv
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          sbom-path: image-sbom.cdx.json
+          push-to-registry: true
+          create-storage-record: false
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: preview-release-evidence
+          path: |
+            release-digest.txt
+            published-image-metadata.json
+            image-sbom.cdx.json
+          retention-days: 90
+  announce:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with: {name: preview-release-evidence}
+      - name: Package installation files and create a prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          tar -czf notenarchiv-preview-install.tar.gz compose.yaml compose.debug.yaml .env.example \
+            scripts/preflight-host.sh docs/INSTALL.md docs/INSTALL.de.md docs/UPDATE.md \
+            docs/RESTORE.md docs/DEBUG_MODE.md docs/archivist-diagnostics.de.md docs/LICENSES.md release-digest.txt
+          gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "$RELEASE_TAG" \
+            --notes-file docs/PREVIEW_RELEASE.md notenarchiv-preview-install.tar.gz \
+            release-digest.txt image-sbom.cdx.json published-image-metadata.json

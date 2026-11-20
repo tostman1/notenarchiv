@@ -4,4 +4,4 @@ from django.conf import settings
 
 
 def diagnostics(_request):
-    return {"diagnostics_enabled": settings.DEBUG_MODE}
+    return {"diagnostics_enabled": settings.DEBUG_MODE, "release_version": settings.RELEASE_VERSION}
