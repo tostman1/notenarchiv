@@ -9,6 +9,7 @@ reflect actual completed work only.
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
 | WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
 | WP-03 | Authentication and session baseline | Implemented, CI green | PR #3 open (run 44736049991 success, head `8734c93`) | Local checks (below) + GitHub Actions run 44736049991 success (earlier run 44733254176 failed at Ruff lint; fixed by `8734c93`) | None | Merge PR #3, then WP-03a |
+| WP-04a | Technical logging and mode contract | Implemented, CI verified | PR #5; implementation `4ad1a389cb76f4c566835e24a281122fa6443572` | Windows unittest: 5 passed; Linux CI run 44746685234: lockfile, Ruff lint/format and pytest passed | NAS acceptance outstanding | Merge after final-head CI |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -200,5 +201,13 @@ owner-approved.
   sanitized stdout/files and failure with an unusable output directory.
   Direct configuration probes passed for roles, paths and invalid settings.
 - Python compilation and whitespace checks passed. The repository pytest
-  suite and Ruff are pending because these packages are absent locally.
-  Linux lock behavior, CI and NAS acceptance have not been exercised.
+  suite and Ruff could not run locally because these packages are absent.
+- GitHub Actions run `44746685234` on implementation commit
+  `4ad1a389cb76f4c566835e24a281122fa6443572` passed on Linux: locked
+  dependency sync, Ruff lint/format and the full pytest suite (including
+  diagnostic tests and the Linux lock implementation). NAS acceptance
+  remains outstanding.
+- Owner authorization on 2026-11-20: merge PR #5 after successful checks;
+  routine Git milestones within agreed scope no longer require repeated
+  approval when checks/CI pass and no unresolved findings remain. Recorded
+  in AGENTS.md and DEC-08. Documentation-only follow-up is included in PR #5.
