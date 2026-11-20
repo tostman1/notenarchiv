@@ -28,7 +28,7 @@ Verify Git repository root (`git rev-parse --show-toplevel`) before writing. Wor
 
 Documentation can be updated as part of an approved documentation task or to reflect an approved implementation. For a meaningful next implementation package, commit, push, PR, merge, branch deletion, release or deployment, propose the action, explain what is ready, give the commit message/tag where relevant, and request approval. After approval, execute the specified action directly without redundant confirmation. A previously approved action within the same scope does not need repeated permission. Do not treat these operations as permanently prohibited. Approval for a documentation task is not approval for unrelated implementation, external infrastructure changes or deployment.
 
-Use feature branches from `main` unless the owner selects another active branch. Small English Conventional Commits. Never force-push or discard user changes without explicit approval. Report if CI or branch protection is unavailable rather than fabricating it.
+Use feature branches from `main` unless the owner selects another active branch. Use small English Conventional Commits in the form `type(scope): imperative summary` (scope optional); types: `feat`, `fix`, `test`, `docs`, `refactor`, `perf`, `chore` (e.g. `feat(archive): implement RAW/CLEAN indexing`, `chore(ci): add container build workflow`). Never force-push or discard user changes without explicit approval. Report if CI or branch protection is unavailable rather than fabricating it.
 
 ## Invariants (must survive every change)
 
@@ -47,3 +47,25 @@ English technical documentation, code, comments, identifiers, tests, log message
 ## Definition of done
 
 For each package: relevant requirements implemented; acceptance tests exercised and recorded; lint/test results actual; docs/traceability updated; Git diff reviewed; no unrelated changes, private data, secrets or unverified claims. Report status as planned / in progress / implemented / verified / blocked. Distinguish local success from NAS/hardware acceptance and CI success. Then recommend the next milestone and ask for approval where needed.
+
+## Cross-agent handoff and takeover
+
+These rules apply equally to OpenCode and Codex. **"handoff" / "Übergabe"** and **"takeover" / "Übernahme"** trigger the corresponding procedure. Git and repository files, not previous chat history, are the source of truth.
+
+The two local clones are normally:
+- OpenCode: `C:\Users\fritz\OneDrive - IMT AG\Documents\OpenCode Projects\notenarchiv-software`
+- Codex: `C:\Users\Dani\Documents\CODEX-Projects\notenarchiv-software`
+
+These paths are informational only: always verify the actual repository root; use relative paths and never embed machine-specific paths in application files.
+
+**On handoff:**
+1. Inspect branch/upstream, Git status (including untracked files), commits and full diff since the previous documented checkpoint or feature-branch base. Review staged and unstaged changes; preserve unrelated work.
+2. Run relevant checks, verify available CI, and update `docs/PROGRESS.md` plus `docs/HANDOFF.md` with factual work status, comparison-base SHA, target branch, tests, open issues and next step. Do not record an uncommitted future SHA as fact.
+3. Propose the appropriate commit/push/PR/merge under the existing approval rules; after approval, execute and verify the remote. Report the **full pushed SHA and branch**. If not pushed, explicitly state that remote takeover is not yet possible.
+
+**On takeover:**
+1. Check the local Git status **before** switching, pulling or modifying files; do not overwrite local changes. Fetch remote refs and select the intended branch safely.
+2. Read `AGENTS.md`, `docs/HANDOFF.md`, `docs/PROGRESS.md` and relevant specification/work-package sections. Verify the actual branch and remote HEAD; review **all commits and diffs since the recorded base**, not only the latest commit. If histories diverged or a PR was merged, establish the correct comparison via Git/PR history rather than assuming a linear range.
+3. Check tests/CI and outstanding changes, summarize verified progress and the next action. Continue already approved work; request approval only where the existing milestone rules require it.
+
+`docs/HANDOFF.md` stores the latest transfer snapshot, while `docs/PROGRESS.md` stores ongoing work-package history. Incomplete work may be transferred on a pushed feature branch; do not represent it as complete or merge it automatically. Never include secrets, actual music PDFs or personal data in either file.
