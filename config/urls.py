@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.urls import path
 
 from apps.accounts import views as account_views
+from apps.jobs import views as job_views
 
 
 def healthz(_request) -> JsonResponse:
@@ -29,4 +30,7 @@ urlpatterns = [
     path("", account_views.home_view, name="home"),
     path("login/", account_views.login_view, name="login"),
     path("logout/", account_views.logout_view, name="logout"),
+    path("diagnostics/", job_views.debug_logs, name="debug_logs"),
+    path("diagnostics/records/", job_views.debug_logs, {"output": "records"}, name="debug_records"),
+    path("diagnostics/download/", job_views.debug_logs, {"output": "download"}, name="debug_download"),
 ]

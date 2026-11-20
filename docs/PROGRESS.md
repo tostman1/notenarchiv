@@ -8,9 +8,10 @@ reflect actual completed work only.
 | --- | --- | --- | --- | --- | --- | --- |
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
 | WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
-| WP-03 | Authentication and session baseline | Merged | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed | Follow-up auth corrections in WP-03a | WP-03a |
-| WP-03a | Application shell and navigation | Implemented, locally verified | PR #4; browser DB fix `400c44d` pushed | Combined main: 90 tests, Ruff lint/format and Playwright smoke passed | None | Final combined CI, then merge |
+| WP-03 | Authentication and session baseline | Merged, audited | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed; auth follow-ups merged with WP-03a | None | Complete |
+| WP-03a | Application shell and navigation | Merged, CI verified | PR #4; merge `e913d706d869de14f2e063eb0fb8b2835d548e98` | 90 tests, Ruff lint/format, local Playwright and combined CI run 44747734412 passed | None | Complete |
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
+| WP-04b | Authenticated debug UI | Implemented, locally verified | Current feature branch from `e913d70` | 110 unit/integration tests, Ruff lint/format and 2 Playwright tests passed locally | CI and NAS acceptance pending | PR, CI, merge; then WP-05a |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -217,6 +218,9 @@ owner-approved.
   sandbox to reach its loopback-only synthetic Django test server. PR CI
   previously could not run on the conflicting branch; the progress-record
   conflict is resolved by preserving both packages' evidence.
+- Final PR #4 head `557c1f517c14ca51458b6e1ddb73e4159c39a3df` passed
+  GitHub Actions run `44747734412`, including the browser smoke. Merged as
+  `e913d706d869de14f2e063eb0fb8b2835d548e98`; local main updated by fast-forward.
 
 ## WP-04a - Technical logging and mode contract
 
@@ -238,3 +242,22 @@ owner-approved.
   routine Git milestones within agreed scope no longer require repeated
   approval when checks/CI pass and no unresolved findings remain. Recorded
   in AGENTS.md and DEC-08. Documentation-only follow-up is included in PR #5.
+
+## WP-04b — Authenticated debug UI
+
+- OP-04: authenticated Debug-only page, JSON and download routes; Deploy
+  rejects access even with historical files. Mode badge and usable navigation
+  replace the former Debug placeholder. All responses disable caching.
+- Fixed web/worker source IDs, validated job/level/component/time filters,
+  source-bound signed cursors, rotation tracking and explicit lost-history
+  reset. No arbitrary file path parameter or file mutation.
+- Reader limits: 64 KiB / 100 records per page, 1 MiB / 1000 per download,
+  4096-byte record fragments. Polling is sequential every two seconds,
+  can be stopped, and retains at most 200 DOM rows. Files are re-sanitized;
+  malformed, oversized, partial and non-regular/symlink inputs are handled.
+- Local Windows / Python 3.12.14: Ruff lint/format, 110 pytest tests and
+  2 Playwright tests passed. Browser coverage includes Debug auth/filters,
+  live append, sanitized download, logout and offline local assets, plus
+  the Deploy shell and direct-route denial. Synthetic data only.
+- German archivist guide added. CI and NAS acceptance remain pending at
+  this commit; no real association data or NAS operation was used.

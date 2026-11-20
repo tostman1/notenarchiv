@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Debug / Logs" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Debug / Logs" %}</h1>
+<p>{% translate "Technische Diagnosemeldungen. Der aktuelle Ausschnitt ist begrenzt; ältere Meldungen können schrittweise geladen werden." %}</p>
+<form method="get" class="diagnostic-filters">
+    {{ form.as_p }}
+    <button type="submit" class="primary">{% translate "Filtern" %}</button>
+</form>
+<p><a href="{% url 'debug_download' %}?{{ download_query }}">{% translate "Bereinigten Ausschnitt herunterladen (max. 1000 Meldungen)" %}</a></p>
+<section id="diagnostics" data-api="{% url 'debug_records' %}?{{ filters_query }}" data-cursor="{{ page.cursor }}"
+    data-running="{% translate 'Live-Aktualisierung stoppen' %}" data-stopped="{% translate 'Live-Aktualisierung starten' %}"
+    data-error="{% translate 'Aktualisierung fehlgeschlagen. Bitte neu laden.' %}"
+    data-reset="{% translate 'Die bisherige Leseposition ist nicht mehr vorhanden; der aktuelle Ausschnitt wird angezeigt.' %}">
+    <button type="button" id="live-toggle" aria-pressed="false">{% translate "Live-Aktualisierung starten" %}</button>
+    <p id="log-status" role="status">{% if page.reset %}{% translate "Die bisherige Leseposition ist nicht mehr vorhanden; der aktuelle Ausschnitt wird angezeigt." %}{% endif %}</p>
+    <div class="log-table">
+    <table>
+        <caption>{% translate "Bis zu 200 Meldungen in der Live-Ansicht" %}</caption>
+        <thead><tr><th scope="col">{% translate "Zeit (UTC)" %}</th><th scope="col">{% translate "Stufe" %}</th><th scope="col">{% translate "Komponente" %}</th><th scope="col">{% translate "Ereignis" %}</th><th scope="col">{% translate "Auftrags-ID" %}</th></tr></thead>
+        <tbody id="log-records">
+        {% for record in page.records %}
+            <tr><td>{{ record.timestamp }}</td><td>{{ record.level }}</td><td>{{ record.component }}</td><td>{{ record.event }}</td><td>{{ record.job_id|default:"—" }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% if not page.records %}<p>{% translate "Keine passenden Meldungen in diesem Ausschnitt." %}</p>{% endif %}
+</section>
+{% if page.more %}<p><a href="?{{ next_query }}">{% translate "Weitere Meldungen laden" %}</a></p>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/diagnostics.js' %}" defer></script>{% endblock %}
