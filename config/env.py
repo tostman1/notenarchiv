@@ -52,6 +52,8 @@ class EnvSettings:
 
     profile: str
     debug_mode: bool
+    service: str
+    log_dir: Path
     # Core Django contract
     secret_key: str
     allowed_hosts: list[str]
@@ -99,7 +101,7 @@ def parse_debug_mode(raw: str | None) -> bool:
         return False
     normalized = raw.strip().upper()
     if normalized not in {"TRUE", "FALSE"}:
-        raise ConfigError(f"DEBUG_MODE must be TRUE or FALSE, got {raw!r}")
+        raise ConfigError("DEBUG_MODE must be TRUE or FALSE")
     return normalized == "TRUE"
 
 
@@ -175,7 +177,12 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
 
     debug_mode = parse_debug_mode(env.get("DEBUG_MODE"))
 
+    service = _string(env, "NOTENARCHIV_SERVICE", default="web")
+    if service not in {"web", "worker"}:
+        raise ConfigError("NOTENARCHIV_SERVICE must be web or worker")
+
     if profile == "nas":
+        log_dir = Path("/data/logs")
         secret_key_file = Path(_string(env, "DJANGO_SECRET_KEY_FILE", required=True))
         secret_key = _read_secret_key(secret_key_file)
         allowed_hosts = _list(env, "APP_ALLOWED_HOSTS")
@@ -192,6 +199,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         export_dir = Path(_string(env, "EXPORT_DIR", required=True))
     else:  # local
         local_root = Path(_string(env, "NOTENARCHIV_LOCAL_ROOT", default=str(LOCAL_DEV_ROOT)))
+        log_dir = local_root / "logs"
         secret_file = local_root / "secret.key"
         secret_key = _read_local_secret(secret_file)
         allowed_hosts = _list(env, "APP_ALLOWED_HOSTS") or ["localhost", "127.0.0.1"]
@@ -228,9 +236,18 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         for path in (*roots.values(), database_path.parent):
             path.mkdir(parents=True, exist_ok=True)
 
+    if debug_mode:
+        target = log_dir.resolve()
+        for root in (source_dir, curated_dir, processed_dir, status_dir, export_dir):
+            archive = root.resolve()
+            if target.is_relative_to(archive) or archive.is_relative_to(target):
+                raise ConfigError("Debug log directory must be separate from archive roots")
+
     return EnvSettings(
         profile=profile,
         debug_mode=debug_mode,
+        service=service,
+        log_dir=log_dir,
         secret_key=secret_key,
         allowed_hosts=allowed_hosts,
         csrf_trusted_origins=_list(env, "APP_CSRF_TRUSTED_ORIGINS"),

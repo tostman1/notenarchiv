@@ -189,3 +189,16 @@ owner-approved.
   test-only fast hasher. Fixed by `8734c93`
   (`fix(tests): sort test settings import block`); CI run 44736049991 on
   `8734c93` passed (job "Foundation (ruff + pytest)" success).
+
+## WP-04a - Technical logging and mode contract
+
+- Status: implemented locally on the WP-03 main baseline. OP-04 and GR-13
+  use the shared mode parser and fixed web/worker roles. Both sinks encode
+  allowlisted structured fields. Debug adds bounded, process-locked rotation.
+- Five Python 3.12 unittest cases passed on Windows with synthetic logs,
+  including restart persistence, retention, concurrent writer rejection,
+  sanitized stdout/files and failure with an unusable output directory.
+  Direct configuration probes passed for roles, paths and invalid settings.
+- Python compilation and whitespace checks passed. The repository pytest
+  suite and Ruff are pending because these packages are absent locally.
+  Linux lock behavior, CI and NAS acceptance have not been exercised.

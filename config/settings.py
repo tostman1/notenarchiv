@@ -23,6 +23,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from config.db import _apply_sqlite_pragmas  # noqa: F401 - registers the connection_created signal
+from config.diagnostics import logging_config
 from config.env import env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -170,16 +171,4 @@ OMP_THREAD_LIMIT = env.omp_thread_limit
 
 PRINT_ENABLED = env.print_enabled
 
-# --- Logging (WP-04a replaces this with the full contract) ----------------
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {"format": "[{asctime}] {levelname} {name}: {message}", "style": "{"},
-    },
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
-    },
-    "root": {"handlers": ["console"], "level": "INFO"},
-}
+LOGGING = logging_config(env.debug_mode, env.service, env.log_dir)
