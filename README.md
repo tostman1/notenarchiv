@@ -7,15 +7,16 @@ printing remain unavailable; the preview does not deploy a worker. No real
 archive attachment or NAS deployment is performed by CI.
 
 Start with [the German installation quickstart](docs/INSTALL.de.md) and
-[technical installation instructions](docs/INSTALL.md). Use a GHCR digest only
-after an approved prerelease actually publishes and verifies it; proposed tags
-and local candidate IDs are not pullable release references. The [full package
+[technical installation instructions](docs/INSTALL.md). The approved
+[0.1.0-preview.1 release](https://github.com/tostman1/notenarchiv/releases/tag/v0.1.0-preview.1)
+is published; use its install bundle and immutable digest. [Publication and
+signature evidence](docs/RELEASES.md) records actual verification. The [full package
 register and development sequence](docs/DEVELOPMENT_SEQUENCE.md) retain all
 71 original work packages and distinguish partial preview slices.
 
 A local, browser-based sheet music archive and personal music-folder generator for a music association. Digitize once, verify and organize the archive, then reuse the music for concert folders, marchbooks, entertainment folders and small ensembles.
 
-**Status:** Specification and implementation planning. The features, installation and container image described here are target deliverables, not claims of existing functionality.  
+**Status:** Published web-only technical preview. The business features below remain target deliverables; unavailable UI actions are disabled.
 **Target:** Synology DS224+, Docker Compose, Linux amd64.  
 **Interface:** German. Technical development and documentation: English.
 

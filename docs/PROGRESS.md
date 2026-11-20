@@ -13,10 +13,10 @@ reflect actual completed work only.
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
-| WP-09 | Service-aware mount and startup validation | Software verified | PR #8; source `4aa2165` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Merge reviewed PR; retain NAS gate |
+| WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
-| WP-08 | Extended CI and container verification | Software verified | PR #8; CI 44797427059 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
-| WP-10 | Versioned container release pipeline | Prepared, not published | Proposed `v0.1.0-preview.1` | Preview-only policy tests; publish reuses verified artifact and records pulled digest/provenance/SBOM | Approved tag/publication and actual registry verification pending | Release milestone after green CI |
+| WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
+| WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 
 ## WP-01 — Repository, development tooling and minimal CI
@@ -409,3 +409,21 @@ owner-approved.
   Recovery signs a factual original-build/promotion predicate and the original
   SBOM; it does not mislabel the recovery commit as the application's build source.
   Local regression/policy checks: 27 tests passed, Ruff and actionlint passed.
+- PR #9 source `6e3ce21e4230116d36557e0d44a2571e8ca5e43b` passed complete
+  CI `44816957849` and merged at `24c3c8ea175b5c9d39df0813182cdbd39f55075b`;
+  main CI `44817342191` also passed. Original tag and image stayed unchanged.
+- Recovery run `44817372155` succeeded, including mandatory original artifact
+  archive hash, equality with the existing GHCR image, authenticated image pull,
+  signed original-build/promotion predicate, signed CycloneDX SBOM and GitHub
+  prerelease/install assets. The exact reference is
+  `ghcr.io/tostman1/notenarchiv@sha256:e6e01416737702598458af8c9167f2353e09074c445281d640eaa34f10658f4d`.
+- Independent checks: anonymous registry manifest returned the same digest;
+  all five downloaded release asset hashes matched GitHub metadata; all 12
+  installation bundle files matched the original tag or digest file. Linux/
+  amd64, non-root, version and source image metadata verified. `gh attestation
+  verify` cryptographically verified both predicate types with the exact signer
+  workflow/commit; their signed origin/SBOM claims match the release files.
+- WP-10 is complete for this preview. Current count: 71 total, 10 software
+  packages verified, 61 unfinished (60 required plus optional WP-43). Full
+  worker/archive/operations gates remain; no NAS or real-data action occurred.
+  See RELEASES.md for immutable digest, release/install URLs and evidence.
