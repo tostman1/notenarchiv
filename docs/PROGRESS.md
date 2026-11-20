@@ -9,7 +9,8 @@ reflect actual completed work only.
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
 | WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
 | WP-03 | Authentication and session baseline | Merged | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed | Follow-up auth corrections in WP-03a | WP-03a |
-| WP-03a | Application shell and navigation | Implemented, verification blocked | Local feature branch | See below | Dependency download and remote write access | Run acceptance and PR CI |
+| WP-03a | Application shell and navigation | Implemented, locally verified | PR #4; browser DB fix `400c44d` pushed | Combined main: 90 tests, Ruff lint/format and Playwright smoke passed | None | Final combined CI, then merge |
+| WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -204,7 +205,36 @@ owner-approved.
 - WP-03 follow-up: logout requires POST; throttling uses the direct peer and
   avoids validating credentials during lockout. Behind a proxy, attempts for
   the same username through that proxy share one limit.
-- Local evidence: Python 3.12 compilation, Node smoke-script syntax and Git
-  whitespace checks. Dependency downloads failed at DNS resolution during
-  locked sync. Ruff, pytest and end-to-end browser acceptance remain pending.
-  GitHub rejected branch creation (403); no PR CI result or NAS evidence.
+- Follow-up audit (2026-11-20): confirmed PR #3 head and merge against GitHub,
+  including successful CI run `44738003509`. Pushed the previously local
+  browser database fix `400c44dc93fb6b953ee8c0fc45f4690b0ac6482a` to PR #4.
+  Restored locked development dependencies locally: Ruff lint/format and
+  82 unit tests passed on that head. Integrated current main without
+  discarding either work package's progress record. Combined checks and
+  browser acceptance are recorded after execution; NAS acceptance is open.
+- After main integration: 90 unit tests, Ruff lint/format and the Playwright
+  smoke passed locally. The browser test needed execution outside the network
+  sandbox to reach its loopback-only synthetic Django test server. PR CI
+  previously could not run on the conflicting branch; the progress-record
+  conflict is resolved by preserving both packages' evidence.
+
+## WP-04a - Technical logging and mode contract
+
+- Status: implemented locally on the WP-03 main baseline. OP-04 and GR-13
+  use the shared mode parser and fixed web/worker roles. Both sinks encode
+  allowlisted structured fields. Debug adds bounded, process-locked rotation.
+- Five Python 3.12 unittest cases passed on Windows with synthetic logs,
+  including restart persistence, retention, concurrent writer rejection,
+  sanitized stdout/files and failure with an unusable output directory.
+  Direct configuration probes passed for roles, paths and invalid settings.
+- Python compilation and whitespace checks passed. The repository pytest
+  suite and Ruff could not run locally because these packages are absent.
+- GitHub Actions run `44746685234` on implementation commit
+  `4ad1a389cb76f4c566835e24a281122fa6443572` passed on Linux: locked
+  dependency sync, Ruff lint/format and the full pytest suite (including
+  diagnostic tests and the Linux lock implementation). NAS acceptance
+  remains outstanding.
+- Owner authorization on 2026-11-20: merge PR #5 after successful checks;
+  routine Git milestones within agreed scope no longer require repeated
+  approval when checks/CI pass and no unresolved findings remain. Recorded
+  in AGENTS.md and DEC-08. Documentation-only follow-up is included in PR #5.

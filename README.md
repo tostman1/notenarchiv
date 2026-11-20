@@ -84,3 +84,19 @@ Debug adds authenticated GUI logs and persistent rotating files; Django DEBUG re
 ## Contributing and licensing
 
 Follow [AGENTS.md](AGENTS.md). Use small reviewed work packages, meaningful commits and approved release/deployment steps. Test with synthetic fixtures; never put real association notes, member data, database files or secrets in the repository or external CI/AI systems. The application license and third-party notice inventory must be finalized with the owner; private use is not an exemption from dependency obligations.
+
+### Technical diagnostics (WP-04a)
+
+Both services read the same `DEBUG_MODE`. The web service defaults to
+`NOTENARCHIV_SERVICE=web`. Set `NOTENARCHIV_SERVICE=worker` on the worker.
+Deploy sends structured INFO and higher events to stdout. Debug also writes
+DEBUG and higher events under `/data/logs` (local profile: `logs/` under the
+development root). Each service retains its current file and five 10 MiB
+backups. Only one process can own each service file. For local debugging use
+`python manage.py runserver --noreload` to run a single web process.
+An unavailable output directory or occupied writer slot fails Debug startup.
+Changing back to Deploy preserves existing diagnostics.
+
+Use named diagnostic events and typed fields for application logging. Raw
+messages, exception details, request paths, cookies and subprocess output are
+excluded from the JSON format. Request diagnostics can include the HTTP status.
