@@ -16,6 +16,7 @@ def shell_server(settings, tmp_path, request):
     return request.getfixturevalue("live_server")
 
 
+@pytest.mark.django_db(transaction=True)
 def test_navigation_and_authentication(shell_server):
     get_user_model().objects.create_user("smoke-archivist", password="Synthetic-smoke-135")
     subprocess.run(
