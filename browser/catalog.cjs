@@ -76,7 +76,19 @@ async function check(origin) {
             await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, "catalog-members-desktop.png"), fullPage: true });
         }
         await page.setViewportSize({ width: 390, height: 844 });
-        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        const geometry = await page.evaluate(() => ({
+            viewport: innerWidth, document: document.documentElement.scrollWidth,
+            outside: [...document.querySelectorAll("body *")].filter(element => {
+                const rect = element.getBoundingClientRect();
+                const scroller = element.closest(".log-table, .catalog-tabs");
+                return rect.right > innerWidth && (!scroller || scroller === element);
+            }).slice(0, 15).map(element => ({
+                tag: element.tagName, id: element.id, class: element.className,
+                right: element.getBoundingClientRect().right, width: element.getBoundingClientRect().width,
+                minWidth: getComputedStyle(element).minWidth,
+            })),
+        }));
+        assert.ok(geometry.document <= geometry.viewport, JSON.stringify(geometry));
         if (process.env.SCREENSHOT_DIR) {
             await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, "catalog-members-mobile.png"), fullPage: true });
         }
