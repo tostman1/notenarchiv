@@ -1,8 +1,9 @@
 """Pytest fixtures for the Notenarchiv test suite.
 
+The deterministic test environment (local profile, synthetic roots) is
+configured in the root conftest.py before Django settings are imported.
 Synthetic fixtures only: no real association music, member records or
-database files may ever be committed (GR-14). Deterministic, generated
-fixtures live in tests/fixtures/ when a test package needs them.
+database files may ever be committed (GR-14).
 """
 
 from __future__ import annotations
@@ -12,11 +13,11 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-FIXTURES_DIR = PROJECT_ROOT / "tests" / "fixtures"
 
 
 @pytest.fixture()
 def fixtures_dir() -> Path:
     """Path of the checked-in synthetic fixture directory (created lazily)."""
-    FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    return FIXTURES_DIR
+    fixtures = PROJECT_ROOT / "tests" / "fixtures"
+    fixtures.mkdir(parents=True, exist_ok=True)
+    return fixtures

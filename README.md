@@ -66,7 +66,7 @@ See the implementation plan for dependencies and release gates. The MVP is a use
 
 ## Planned development and deployment
 
-Once foundation work is implemented and approved, development uses `uv sync --locked`, `uv run pytest`, `uv run ruff check .` and `uv run ruff format --check .`. Follow the implementation plan before running commands that depend on files or services not yet created.
+Development uses `uv sync --locked`, `uv run pytest`, `uv run ruff check .` and `uv run ruff format --check .`. Local development selects the `local` profile explicitly (loopback-only, synthetic roots under `.dev/`): `source scripts/dev_env.sh` (POSIX) or `. ./scripts/dev_env.ps1` (PowerShell), then `uv run python manage.py migrate && uv run python manage.py runserver`. The deployment (`nas`) profile is the default and requires the full environment contract (see `.env.example`); validate it with `uv run python manage.py validate_config --service web|worker`. Follow the implementation plan before running commands that depend on files or services not yet created.
 
 For NAS deployment, create a dedicated non-admin account `svc_notenarchiv`, determine UID/GID using `id`, prepare distinct roots and mount RAW read-only. The architecture includes the environment-variable contract and illustrative Compose configuration. Actual share paths, IDs, RAM, DSM version, DNS/HTTPS and printer support must be verified. Use an exact approved image tag/digest; never automatically deploy unreviewed changes. Installation/update/restore runbooks are deliverables of the plan.
 

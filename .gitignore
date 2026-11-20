@@ -25,6 +25,9 @@ logs/
 scratch/
 thumbnails/
 
+# Local dev profile root (synthetic data of NOTENARCHIV_PROFILE=local)
+.dev/
+
 # Build artifacts
 dist/
 build/

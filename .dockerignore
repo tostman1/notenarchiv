@@ -25,6 +25,7 @@ data/
 logs/
 scratch/
 thumbnails/
+.dev/
 
 # Build artifacts
 dist/
