@@ -5,7 +5,8 @@ description = "Local sheet music archive and personal folder generator for a mus
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "Django==5.2.10",
+    "django==5.2.19",
+    "gunicorn==27.0.1",
     "whitenoise==6.12.0",
 ]
 

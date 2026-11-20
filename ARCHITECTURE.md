@@ -285,6 +285,18 @@ Deployment variables are parsed/validated centrally; business settings (printer,
 
 ### 9.2 Compose design (illustrative, implementation and NAS checks pending)
 
+DEC-09 (2026-11-20) permits an initial web-only technical preview. The shipped
+`compose.yaml` starts web and provides explicit one-shot migrate/admin tools;
+it does not deploy the worker or processing actions. The full two-service
+target below is retained for later WP-05b/WP-07 integration. The preview uses
+a loopback-only private HTTPS proxy backend and requires empty/synthetic roots.
+Actual container CI exposed that an internal-only bridge cannot publish host
+ports. A bounded mount-free TCP gateway from the same image joins the frontend
+and internal backend, publishing only loopback. Web retains its internal-only
+network and all private mounts; the gateway has no data/archive/secret mounts
+and forwards only to the fixed web service. No external proxy image or worker
+is added to the preview.
+
 ```yaml
 x-app: &app
   image: ${APP_IMAGE:?set APP_IMAGE}

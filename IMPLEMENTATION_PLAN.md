@@ -27,6 +27,40 @@ M3 is the useful personal-folder MVP. M4–M6 remain required for the full produ
 - A package that needs new dependencies updates the lockfile and license inventory. Add browser tests when UI behavior is implemented. Hardware-specific validation runs locally using synthetic and separately approved representative real inputs; no real data enters CI.
 - Approval procedure: follow the owner authorization recorded in AGENTS.md and DEC-08 (2026-11-20). Routine commits, pushes, PRs and merges within agreed implementation scope proceed after successful checks/CI and review without repeated approval. Escalate genuinely blocking decisions and actions beyond the authorized scope.
 
+### First deployable technical preview — owner priority shift, 2026-11-20
+
+DEC-09 authorizes implementation of a web-only, empty/synthetic-data preview
+before the complete M0/manual-archive product. Existing WP IDs and full-scope
+dependencies below remain authoritative; no feature is removed.
+
+Execution: integrate/CI-verify existing WP-05a, then group the tightly related
+WP-09 → WP-06 (web image slice) → WP-07 (web/tools Compose slice) → WP-08 →
+WP-10. In the same bounded delivery, prepare the preview-specific backup,
+installation and rollback slices of WP-47a/WP-48/WP-49. Do not claim those
+full packages complete before their original archive/NAS acceptance is met.
+
+WP-05b is a genuine prerequisite for deploying the processing worker, not
+for the existing authenticated web shell. Therefore the preview omits worker
+deployment and all enqueue/processing actions; WP-06/WP-07 remain partial
+against the full web+worker baseline. The container still contains the shared
+code/image foundation. No OCR/print/PDF native tools are added just for startup.
+
+Preview release gate: green locked lint/unit/browser checks, real Linux/amd64
+non-root image build, strict mount/identity/secret/config startup checks,
+read-only root, synthetic host+mount RAW negatives, migrations, actual HTTP
+login/logout/CSRF/host/HTTPS-proxy behavior, persistence, Debug switching,
+isolated DB/secret/config restore, image/dependency/secret scans, SBOM and
+reviewed install/update/rollback instructions. Publish only an approved
+prerelease tag on main and report the verified GHCR digest; never label a
+candidate as published or a preview as the completed application.
+
+Physical installation and DSM ACL/TLS/hardware evidence are the separately
+authorized WP-22 preview slice. Full WP-22 still needs worker/job UI validation.
+No live NAS operation or real music/member data is authorized by this priority
+shift. Full WP-47a and the original RAW/backup gates precede real ingestion.
+
+See docs/DEVELOPMENT_SEQUENCE.md for all 71 packages, counts and parallel lanes.
+
 ## 2. Work packages by execution phase
 ## M0 — Foundation and deployment baseline
 

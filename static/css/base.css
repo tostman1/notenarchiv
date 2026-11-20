@@ -150,3 +150,13 @@ select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .log-table { overflow-x: auto; }
 .log-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
 .log-table th, .log-table td { padding: .4rem; border-bottom: 1px solid var(--line); text-align: left; }
+
+.preview-label { font-size: .72rem; font-weight: 500; padding: .2rem .45rem; background: #e9f3f2; border-radius: 4px; }
+.preview-intro { padding: 1.6rem 1.8rem; margin-bottom: 1.5rem; background: #e9f3f2; border: 1px solid #c8dedb; border-radius: 8px; }
+.preview-intro h2 { font-size: 1.55rem; line-height: 1.3; }
+.eyebrow { margin-top: 0; color: var(--muted); font-size: .8rem; }
+.preview-warning { border-left: 3px solid #287f75; padding-left: .8rem; }
+.availability { font-size: .78rem; font-weight: 600; color: #5b6b7b; }
+.layout nav > a { display: block; padding: .5rem; }
+@media (min-width: 60rem) { .dashboard { grid-template-columns: repeat(3, minmax(0, 1fr)); } .dashboard .card { padding: 1.2rem; } }
+@media (max-width: 46rem) { .site-header { flex-wrap: wrap; padding: .75rem 1rem; } .layout { margin-top: 1rem; padding: 0 1rem; gap: 1rem; } .preview-intro { padding: 1rem; } }

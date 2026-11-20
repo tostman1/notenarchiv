@@ -11,7 +11,7 @@
 <body>
 <a class="skip-link" href="#inhalt">{% translate "Zum Inhalt" %}</a>
 <header class="site-header">
-    <a class="brand" href="{% url 'home' %}">Notenarchiv</a>
+    <a class="brand" href="{% url 'home' %}">Notenarchiv <span class="preview-label">{% translate "Vorschau" %}</span></a>
     {% if user.is_authenticated %}
         <span class="mode-badge">{% if diagnostics_enabled %}{% translate "Diagnosemodus" %}{% else %}{% translate "Deploy" %}{% endif %}</span>
         <form method="post" action="{% url 'logout' %}" class="session">
@@ -28,7 +28,7 @@
         {% if diagnostics_enabled %}
             <a {% if request.resolver_match.url_name == 'debug_logs' %}class="current" aria-current="page"{% endif %} href="{% url 'debug_logs' %}">{% translate "Debug / Logs" %}</a>
         {% endif %}
-        <p id="planned">{% translate "In Vorbereitung" %}</p>
+        <p id="planned">{% translate "In Entwicklung" %}</p>
         <ul aria-labelledby="planned">
             <li aria-disabled="true">{% translate "Notenbibliothek" %}</li>
             <li aria-disabled="true">{% translate "Indizierung" %}</li>

@@ -12,7 +12,12 @@ reflect actual completed work only.
 | WP-03a | Application shell and navigation | Merged, CI verified | PR #4; merge `e913d706d869de14f2e063eb0fb8b2835d548e98` | 90 tests, Ruff lint/format, local Playwright and combined CI run 44747734412 passed | None | Complete |
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
-| WP-05a | Durable queue, claim and singleton worker | Implemented, locally verified | `codex/wp-05a-durable-queue`, base `ec705b2` | 141 pytest tests, 2 Playwright tests, Ruff lint/format, lockfile and Django checks passed; details below | Linux CI and NAS acceptance pending | Commit, push and stop as requested; WP-05b remains planned |
+| WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
+| WP-09 | Service-aware mount and startup validation | Software verified | PR #8; source `4aa2165` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Merge reviewed PR; retain NAS gate |
+| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
+| WP-08 | Extended CI and container verification | Software verified | PR #8; CI 44797427059 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
+| WP-10 | Versioned container release pipeline | Prepared, not published | Proposed `v0.1.0-preview.1` | Preview-only policy tests; publish reuses verified artifact and records pulled digest/provenance/SBOM | Approved tag/publication and actual registry verification pending | Release milestone after green CI |
+| WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -304,3 +309,78 @@ owner-approved.
 - Owner requested completion, commit, push and then stop on 2026-11-20.
   Do not begin WP-05b or merge this branch without continuation. Linux CI
   and NAS/hardware acceptance are not claimed by local results.
+- Later owner priority shift on 2026-11-20 explicitly resumed work for the first
+  deployable preview. PR #7 head `960201c337ea1e0ae5095938dd7f6e330edcdee3`
+  passed full Linux CI `44757097570` and merged as `5e6bacc816f69999bbe88eae11536cc2dee71da2`.
+
+## First deployable technical preview — DEC-09
+
+- Baseline inspection: clean WP-05a branch and clean `.dev/wp03a` / `.dev/wp04a`
+  clones; all prior code preserved. WP-03a's browser transaction fix is already
+  pushed, CI-verified and merged. No duplicate logging/UI implementation.
+- 71 original packages (70 required, one optional). Seven are now fully
+  software-verified/merged. Five deployment IDs and three early safety/operator
+  slices form the preview path. Full worker/archive/hardware gates are retained;
+  see DEVELOPMENT_SEQUENCE.md for the complete register and independent lanes.
+- Implemented a web-only container/Compose candidate with protected empty or
+  synthetic mounts, loopback-only HTTPS-proxy backend, explicit migration and
+  interactive provisioning, persistent SQLite and a maintenance lock. Runtime
+  does not auto-migrate or launch unfinished job processors. Placeholder UI is
+  responsive, German, visibly unavailable and unable to modify archive data.
+- Python image and build-only uv are digest-pinned; runtime Django updated to
+  the verified 5.2.19 LTS security patch and Gunicorn 27.0.1 added/locked. Local
+  locked runtime audit (pip-audit 2.10.1): no known vulnerabilities. Runtime and
+  build/CI dependency notices updated from actual package metadata/license files.
+- Local Windows checks at this snapshot: 165 pytest tests, two Playwright tests,
+  Ruff lint/format and diff whitespace checks passed. Desktop/mobile screenshots
+  visually inspected; no horizontal overflow. No local Docker executable exists;
+  actual Linux image build, container smoke and image scan are pending GitHub CI.
+- Workflow prepares checked image-artifact publication to GHCR, immutable version
+  policy, registry pull/digest verification, signed provenance/SBOM and an install
+  bundle/GitHub prerelease. No image availability, release or live NAS deployment
+  is claimed before actual evidence. Actual main protection is absent; manual
+  reviewed green-PR gate remains in force, without unapproved repository settings.
+- Operator runbooks and German quickstart included. Actual DSM version, ACLs,
+  certificate/proxy, resources and backup destination still require private
+  authorized synthetic NAS acceptance. Real archive/member attachment is forbidden
+  in this preview and has not been attempted.
+- PR #8 implementation `0c2ff1d9487ae846e8d4826970904f6ad7c656ba`: CI run
+  `44792816290` passed all Foundation checks and the actual Linux/amd64 image
+  build. Compose validation failed at its model assertion: inactive tool
+  services are correctly omitted by default. The follow-up explicitly checks
+  both the web-only default and enabled tools profile; no safety/test is removed.
+  Container runtime/restore/image scan remain pending this correction.
+- Runs `44793166558` / `44793924558` passed Compose but showed no published
+  port on the internal-only bridge while the web process was running. Docker's
+  default-gateway port publication behavior requires a frontend attachment.
+  The implementation preserves web's internal-only network and adds a bounded,
+  mount-free TCP gateway from the same image; it has no private storage access
+  and only forwards to fixed web:8000. CI now asserts that web has no default
+  route and the gateway has no bind mounts; operator commands recreate both.
+- CI run `44795938169` on `04c17e4895be6bea7ff806215d768279856e2f2c`
+  passed Foundation, amd64 image build, Compose validation and the complete
+  real-container/isolated-restore smoke. Trivy blocked publication with 101
+  HIGH/CRITICAL findings in Debian 12 OS packages (zero Python-package findings).
+  The follow-up uses the official Python 3.12.16 Alpine 3.24 base, pinned by
+  registry-verified digest. Both build/runtime use the same musl base; all
+  current runtime Python dependencies are pure Python. Future native packages
+  must re-verify compatibility. No vulnerability exclusions or weakened scan.
+- Startup now rejects known network/FUSE SQLite DATA filesystems before write
+  probing; host preflight also rejects non-canonical secret paths.
+- Alpine CI `44797068444` also passed build, Compose and complete runtime/restore
+  smoke. Its scan found 16 HIGH findings, all in inherited `krb5-libs` 1.22.2-r1;
+  Alpine's official 3.24 package index supplies the fixed 1.22.3-r0. The shared
+  build/runtime base now installs that exact fixed version. Local checks after
+  the storage changes: 170 pytest tests, Ruff (82 files), actionlint and diff
+  whitespace checks passed. No scan finding is ignored.
+- Final preview source `4aa216506f1fd4a37dfa3a35de519ed40e25ec34` passed
+  CI `44797427059`: locked environment, Ruff, 170 Linux pytest tests, two
+  Playwright tests, runtime audit, actual amd64 image build, default/tools/Debug
+  Compose models, complete synthetic container/isolated-restore smoke, image
+  vulnerability/secret scan and uploaded CycloneDX SBOM/image metadata.
+  Trivy reported zero HIGH/CRITICAL OS/Python findings and no secrets. The
+  full branch diff was reviewed; PR #8 has no submitted reviews or unresolved
+  review threads at this checkpoint. Documentation-only follow-up records
+  this evidence before the standing-authorized integration. No GHCR publication
+  or NAS deployment has occurred. Nine packages are now software-verified;
+  62 remain unfinished until WP-10's approved publication (then 10 / 61).

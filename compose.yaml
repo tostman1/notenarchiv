@@ -1,0 +1,108 @@
+name: notenarchiv-preview
+x-runtime: &runtime
+  image: ${APP_IMAGE:?Set the published image digest}
+  platform: linux/amd64
+  user: "${APP_UID:?Set the service UID}:${APP_GID:?Set the service GID}"
+  init: true
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 512m
+  cpus: 1.0
+  tmpfs:
+    - /tmp:size=64m,mode=1777
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+x-app: &app
+  <<: *runtime
+  environment:
+    NOTENARCHIV_PROFILE: nas
+    NOTENARCHIV_SERVICE: web
+    APP_BIND: ${APP_BIND:-127.0.0.1}
+    APP_ALLOWED_HOSTS: ${APP_ALLOWED_HOSTS:?Set allowed hosts}
+    APP_CSRF_TRUSTED_ORIGINS: ${APP_CSRF_TRUSTED_ORIGINS:?Set HTTPS origin}
+    TZ: ${TZ:-Europe/Vienna}
+    DJANGO_SECRET_KEY_FILE: /run/secrets/django_secret_key
+    DATABASE_PATH: /data/notenarchiv.sqlite3
+    SOURCE_DIR: /archive/raw
+    CURATED_DIR: /archive/clean
+    PROCESSED_DIR: /archive/processed
+    STATUS_DIR: /archive/status
+    EXPORT_DIR: /archive/export
+    PRINT_ENABLED: "0"
+    # DEBUG_MODE intentionally absent. See compose.debug.yaml.
+  volumes:
+    - type: bind
+      source: ${SOURCE_HOST:?Set an empty or synthetic RAW directory}
+      target: /archive/raw
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${CURATED_HOST:?Set CLEAN directory}
+      target: /archive/clean
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${PROCESSED_HOST:?Set PROCESSED directory}
+      target: /archive/processed
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${STATUS_HOST:?Set STATUS directory}
+      target: /archive/status
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${EXPORT_HOST:?Set EXPORT directory}
+      target: /archive/export
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${DATA_HOST:?Set DATA directory}
+      target: /data
+      bind: {create_host_path: false}
+    - type: bind
+      source: ${SECRET_HOST:?Set protected secret file}
+      target: /run/secrets/django_secret_key
+      read_only: true
+      bind: {create_host_path: false}
+  networks: [backend]
+
+services:
+  web:
+    <<: *app
+    command: [web]
+    restart: unless-stopped
+  gateway:
+    <<: *runtime
+    command: [gateway]
+    restart: unless-stopped
+    mem_limit: 64m
+    pids_limit: 64
+    cpus: 0.25
+    networks: [backend, frontend]
+    depends_on:
+      web: {condition: service_healthy}
+    ports: ["127.0.0.1:${APP_PORT:-8085}:8000"]
+  migrate:
+    <<: *app
+    profiles: [tools]
+    command: [migrate]
+    restart: "no"
+    healthcheck: {disable: true}
+  admin:
+    <<: *app
+    profiles: [tools]
+    command: [provision]
+    stdin_open: true
+    tty: true
+    restart: "no"
+    healthcheck: {disable: true}
+    logging: {driver: none}
+
+networks:
+  backend:
+    internal: true
+  frontend: {}

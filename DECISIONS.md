@@ -16,6 +16,7 @@ This register distinguishes binding product decisions from recommended implement
 | DEC-06 | Native A3 stays whole; pair A4 portrait only within a piece; regular reading order; A4 fallback only after approval; marchbook default 170 × 120 mm. | GR-11, PT-01–05, SC-03 |
 | DEC-07 | Deploy default; optional `DEBUG_MODE="TRUE"` enables application GUI and file diagnostics, never Django DEBUG. | OP-04 |
 | DEC-08 | All development instructions/docs English; GUI and archivist manuals German. Owner update 2026-11-20: routine commits, pushes, PRs and merges within agreed implementation scope proceed without repeated approval after successful relevant checks/CI and diff review, with no unresolved errors, review findings or conflicts. Blocking decisions and actions beyond this scope retain their approval requirements. | UI-02, OP-06, AGENTS.md |
+| DEC-09 | Owner priority shift 2026-11-20: first deliver an empty/synthetic-data web-only technical preview on DS224+. Advance deployment-compatible WP-09/06/07/08/10 and preview backup/install/rollback slices of WP-47a/48/49. Worker recovery, OCR, printing and generation do not block this web-only variant; their original requirements and full-scope dependencies remain. Actual GHCR release/tag and NAS deployment retain their applicable approval gates; no real archive attachment or live NAS deployment is authorized. | OP-01–06, UI-01–03, GR-01/13/14; IMPLEMENTATION_PLAN.md preview gate |
 
 ## Recommended defaults for owner acceptance
 

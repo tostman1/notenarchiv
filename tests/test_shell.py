@@ -13,7 +13,7 @@ def test_diagnostics_navigation(client, django_user_model, settings, enabled):
     body = client.get("/").content.decode()
     assert ("Debug / Logs" in body) is enabled
     assert 'aria-current="page"' in body
-    assert "In Vorbereitung" in body
+    assert "In Entwicklung" in body
 
 
 def test_collected_stylesheet_served_by_whitenoise(settings, tmp_path):

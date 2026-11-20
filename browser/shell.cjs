@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const { chromium } = require("playwright-core");
 
 async function smoke(origin) {
@@ -42,6 +44,15 @@ async function smoke(origin) {
         assert.equal(await nav.getByText("Debug / Logs").count(), 0);
         assert.equal((await page.request.get(`${origin}/diagnostics/`)).status(), 404);
         assert.equal(await page.locator(".dashboard").evaluate(el => getComputedStyle(el).display), "grid");
+        if (process.env.SCREENSHOT_DIR) {
+            fs.mkdirSync(process.env.SCREENSHOT_DIR, { recursive: true });
+            await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, "preview-desktop.png"), fullPage: true });
+        }
+        await page.setViewportSize({ width: 390, height: 844 });
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        if (process.env.SCREENSHOT_DIR) {
+            await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, "preview-mobile.png"), fullPage: true });
+        }
         await page.getByRole("button", { name: "Abmelden" }).click();
         await page.getByText("Sie wurden abgemeldet.").waitFor();
         await page.goto(origin);
