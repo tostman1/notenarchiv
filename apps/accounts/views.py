@@ -7,6 +7,7 @@ per (username, client IP) pair before any password check is performed.
 
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -14,42 +15,33 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from apps.accounts.forms import GermanAuthenticationForm
 from apps.accounts.services import login_throttled, record_login_failure, record_login_success
 
 
-def _client_ip(request: HttpRequest) -> str:
-    """Client IP from the direct connection.
-
-    Behind the reverse proxy the leftmost X-Forwarded-For entry is the
-    originating client; the proxy is trusted because it is the only inbound
-    path (ARCHITECTURE.md: never trust arbitrary forwarded headers from
-    untrusted clients — only the first entry, and only when present).
-    """
-    forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "")
-
-
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         return redirect(reverse("home"))
+    destination = _safe_next(request)
     if request.method == "POST":
-        form = GermanAuthenticationForm(request, data=request.POST)
+        peer = request.META["REMOTE_ADDR"]
         username = (request.POST.get("username") or "").strip()
-        if login_throttled(username, _client_ip(request)):
-            form.add_error(None, "Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie einige Minuten.")
-            return render(request, "accounts/login.html", {"form": form})
+        if login_throttled(username, peer):
+            messages.error(request, _("Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie einige Minuten."))
+            form = GermanAuthenticationForm(initial={"username": username})
+            return render(request, "accounts/login.html", {"form": form, "next": destination})
+        form = GermanAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            record_login_success(username, _client_ip(request))
+            record_login_success(username, peer)
             login(request, form.get_user())
-            return redirect(_safe_next(request))
-        record_login_failure(username, _client_ip(request))
+            return redirect(destination)
+        record_login_failure(username, peer)
     else:
         form = GermanAuthenticationForm()
-    return render(request, "accounts/login.html", {"form": form, "next": request.GET.get("next", "")})
+    return render(request, "accounts/login.html", {"form": form, "next": destination})
 
 
 def _safe_next(request: HttpRequest) -> str:
@@ -64,13 +56,14 @@ def _safe_next(request: HttpRequest) -> str:
     return reverse("home")
 
 
+@require_POST
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
-    messages.info(request, "Sie wurden abgemeldet.")
+    messages.info(request, _("Sie wurden abgemeldet."))
     return redirect(reverse("login"))
 
 
 @login_required
 def home_view(request: HttpRequest) -> HttpResponse:
     """Business root (UI-02 Übersicht placeholder; real dashboard later)."""
-    return render(request, "home.html")
+    return render(request, "home.html", {"diagnostics_enabled": settings.DEBUG_MODE})

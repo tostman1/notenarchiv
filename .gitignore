@@ -29,6 +29,8 @@ thumbnails/
 .dev/
 
 # Build artifacts
+staticfiles/*
+!staticfiles/.gitkeep
 dist/
 build/
 

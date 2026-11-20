@@ -8,8 +8,9 @@ reflect actual completed work only.
 | --- | --- | --- | --- | --- | --- | --- |
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
 | WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
-| WP-03 | Authentication and session baseline | Implemented, CI green | PR #3 open (run 44736049991 success, head `8734c93`) | Local checks (below) + GitHub Actions run 44736049991 success (earlier run 44733254176 failed at Ruff lint; fixed by `8734c93`) | None | Merge PR #3, then WP-03a |
-| WP-04a | Technical logging and mode contract | Implemented, CI verified | PR #5; implementation `4ad1a389cb76f4c566835e24a281122fa6443572` | Windows unittest: 5 passed; Linux CI run 44746685234: lockfile, Ruff lint/format and pytest passed | NAS acceptance outstanding | Merge after final-head CI |
+| WP-03 | Authentication and session baseline | Merged | PR #3, merge `245c258` | PR head `7cca167`, CI run 44738003509 passed | Follow-up auth corrections in WP-03a | WP-03a |
+| WP-03a | Application shell and navigation | Implemented, locally verified | PR #4; browser DB fix `400c44d` pushed | Combined main: 90 tests, Ruff lint/format and Playwright smoke passed | None | Final combined CI, then merge |
+| WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -190,6 +191,32 @@ owner-approved.
   test-only fast hasher. Fixed by `8734c93`
   (`fix(tests): sort test settings import block`); CI run 44736049991 on
   `8734c93` passed (job "Foundation (ruff + pytest)" success).
+
+## WP-03a — Application shell and navigation
+
+- UI-02/UI-03: German, translatable navigation, current page and visibly grouped
+  unavailable modules. The home view explains availability for review, projects
+  and jobs. Debug / Logs appears as a placeholder only in diagnostics mode.
+  Keyboard skip link, visible focus, labelled inputs and login/logout feedback.
+- Django collects the local stylesheet under its public static URL. No runtime
+  asset dependencies. The browser test blocks external requests while retaining
+  loopback access and checks applied CSS, keyboard navigation, failed and
+  successful login, reload, disabled modules and logout.
+- WP-03 follow-up: logout requires POST; throttling uses the direct peer and
+  avoids validating credentials during lockout. Behind a proxy, attempts for
+  the same username through that proxy share one limit.
+- Follow-up audit (2026-11-20): confirmed PR #3 head and merge against GitHub,
+  including successful CI run `44738003509`. Pushed the previously local
+  browser database fix `400c44dc93fb6b953ee8c0fc45f4690b0ac6482a` to PR #4.
+  Restored locked development dependencies locally: Ruff lint/format and
+  82 unit tests passed on that head. Integrated current main without
+  discarding either work package's progress record. Combined checks and
+  browser acceptance are recorded after execution; NAS acceptance is open.
+- After main integration: 90 unit tests, Ruff lint/format and the Playwright
+  smoke passed locally. The browser test needed execution outside the network
+  sandbox to reach its loopback-only synthetic Django test server. PR CI
+  previously could not run on the conflicting branch; the progress-record
+  conflict is resolved by preserving both packages' evidence.
 
 ## WP-04a - Technical logging and mode contract
 

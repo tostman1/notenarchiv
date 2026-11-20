@@ -41,3 +41,8 @@ jobs:
 
       - name: Run tests
         run: uv run pytest
+
+      - name: Run local-only Playwright smoke
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser" --no-audit --no-fund --ignore-scripts playwright-core@1.62.1
+          NODE_PATH="$RUNNER_TEMP/browser/node_modules" uv run pytest browser/test_shell.py

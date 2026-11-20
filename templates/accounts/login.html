@@ -1,13 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Anmelden — Notenarchiv{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Anmelden" %} — Notenarchiv{% endblock %}
 {% block content %}
 <section class="card">
-    <h1>Anmelden</h1>
-    <p class="hint">Nur für Archivare. Zugang über Ihre Accounts.</p>
+    <h1>{% translate "Anmelden" %}</h1>
+    <p class="hint">{% translate "Melden Sie sich mit Ihrem Archivkonto an." %}</p>
     <form method="post" action="{% url 'login' %}" novalidate>
         {% csrf_token %}
         {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-        {{ form.non_field_errors }}
+        {% if form.non_field_errors %}<div role="alert">{{ form.non_field_errors }}</div>{% endif %}
         <div class="field">
             {{ form.username.label_tag }}
             {{ form.username }}
@@ -18,7 +19,7 @@
             {{ form.password }}
             {{ form.password.errors }}
         </div>
-        <button type="submit" class="primary">Anmelden</button>
+        <button type="submit" class="primary">{% translate "Anmelden" %}</button>
     </form>
 </section>
 {% endblock %}
