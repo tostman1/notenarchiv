@@ -45,10 +45,11 @@ v2.0 spec baseline):
 | `uv run pytest` | 8 passed |
 | CI workflow YAML | parsed OK (local check; GitHub run not yet observed) |
 
-**Not yet verified (honest status):** the CI workflow has not run on
-GitHub; the branch is not pushed yet. `gh` CLI token on this machine is
-invalid (plain Git credentials work), so PR creation must be done via
-direct push / merge or a repaired token.
+**GitHub status:** branch pushed as `bf0b826254adcb81a95665035a1aa625ba6ad967`
+(2026-11-20). The CI workflow triggers on `push` to `main` and on
+`pull_request`; no run is expected until the pull request is opened
+(`gh` CLI token on the dev machine is invalid, so the PR is created in the
+browser). CI results: pending PR.
 
 **Notes:**
 
