@@ -11,6 +11,7 @@ class Mount:
     device: str
     root: str
     readonly: bool
+    filesystem: str = ""
 
 
 def _unescape(value):
@@ -24,7 +25,12 @@ def parse_mountinfo(text):
         if len(fields) < 10 or "-" not in fields[6:]:
             raise ValueError("Invalid mount metadata")
         target = Path(_unescape(fields[4]))
-        mounts[target] = Mount(target, fields[2], _unescape(fields[3]), "ro" in fields[5].split(","))
+        separator = fields.index("-", 6)
+        if len(fields) < separator + 4:
+            raise ValueError("Invalid mount metadata")
+        mounts[target] = Mount(
+            target, fields[2], _unescape(fields[3]), "ro" in fields[5].split(","), fields[separator + 1]
+        )
     return mounts
 
 

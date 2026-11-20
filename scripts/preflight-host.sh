@@ -44,4 +44,5 @@ done
 secret=$(value SECRET_HOST) || fail 'SECRET_HOST is required.'
 [ -f "$secret" ] && [ -r "$secret" ] && [ ! -L "$secret" ] || fail 'Protected secret file is missing or unreadable.'
 [ ! -w "$secret" ] || fail 'The service identity must not be able to replace its secret.'
+[ "$(readlink -f "$secret")" = "$secret" ] || fail 'The secret path must be canonical without symlinks.'
 printf '%s\n' 'Host preflight passed. No RAW writes were attempted. DSM ACL and synthetic negative tests remain mandatory.'

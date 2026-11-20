@@ -65,6 +65,10 @@ def validate_storage(env, service, *, mounts=None):
         mount = mounts.get(path)
         if mount is None:
             raise StorageError("Each storage root needs an explicit bind mount")
+        if index == 5 and (
+            mount.filesystem in {"nfs", "nfs4", "cifs", "smb3", "9p"} or mount.filesystem.startswith("fuse")
+        ):
+            raise StorageError("SQLite DATA must use a local filesystem, not network or FUSE storage")
         for previous in selected:
             if path.is_relative_to(previous.target) or previous.target.is_relative_to(path):
                 raise StorageError("Storage roots overlap")

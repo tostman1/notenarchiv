@@ -357,3 +357,13 @@ owner-approved.
   mount-free TCP gateway from the same image; it has no private storage access
   and only forwards to fixed web:8000. CI now asserts that web has no default
   route and the gateway has no bind mounts; operator commands recreate both.
+- CI run `44795938169` on `04c17e4895be6bea7ff806215d768279856e2f2c`
+  passed Foundation, amd64 image build, Compose validation and the complete
+  real-container/isolated-restore smoke. Trivy blocked publication with 101
+  HIGH/CRITICAL findings in Debian 12 OS packages (zero Python-package findings).
+  The follow-up uses the official Python 3.12.16 Alpine 3.24 base, pinned by
+  registry-verified digest. Both build/runtime use the same musl base; all
+  current runtime Python dependencies are pure Python. Future native packages
+  must re-verify compatibility. No vulnerability exclusions or weakened scan.
+- Startup now rejects known network/FUSE SQLite DATA filesystems before write
+  probing; host preflight also rejects non-canonical secret paths.

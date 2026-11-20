@@ -29,7 +29,7 @@ the non-endorsement clause). tzdata 2026.6 is Windows-only in the Python lock
 (Apache-2.0 metadata and bundled data notices); Linux zone data comes from the
 pinned base image. Runtime wheel license files remain installed under
 `/opt/venv/lib/python3.12/site-packages/*.dist-info/`. The official Python image
-retains Python and Debian package notices. CI generates a CycloneDX image SBOM;
+retains Python notices and Alpine's installed package/license metadata. CI generates a CycloneDX image SBOM;
 release evidence records its exact source revision and registry digest.
 
 Build-only uv 0.13.1 is copied from its digest-pinned official image; it is not

@@ -42,6 +42,7 @@ def test_mountinfo_escapes_and_flags():
     mounts = parse_mountinfo("25 22 8:1 /example\\040path /archive/raw ro,relatime - ext4 /dev/sda rw\n")
     assert mounts[Path("/archive/raw")].root == "/example path"
     assert mounts[Path("/archive/raw")].readonly
+    assert mounts[Path("/archive/raw")].filesystem == "ext4"
     with pytest.raises(ValueError):
         parse_mountinfo("invalid")
 
@@ -113,3 +114,15 @@ def test_unsafe_secret_modes_are_rejected(topology, monkeypatch, mode):
     monkeypatch.setattr(storage, "_secret_mode", lambda path: mode)
     with pytest.raises(storage.StorageError, match="private"):
         storage.validate_storage(env, "web", mounts=mounts)
+
+
+@pytest.mark.parametrize("filesystem", ["cifs", "nfs", "nfs4", "fuse.sshfs"])
+def test_network_database_storage_is_rejected_without_probe(topology, monkeypatch, filesystem):
+    env, mounts = topology
+    path = env.database_path.parent
+    mounts[path] = replace(mounts[path], filesystem=filesystem)
+    probes = []
+    monkeypatch.setattr(storage, "_writable", probes.append)
+    with pytest.raises(storage.StorageError, match="local filesystem"):
+        storage.validate_storage(env, "web", mounts=mounts)
+    assert not probes
