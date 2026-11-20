@@ -4,6 +4,12 @@ Owner priority shift: 2026-11-20 (DEC-09). Stable WP identifiers and original
 full-scope dependencies are preserved. This document counts packages, not
 commits or estimated effort; a partial package is still unfinished.
 
+Current owner-authorized session: strictly integrate WP-05b/05c, then WP-11/12,
+then WP-17 on the three explicitly named feature branches, each from verified
+main with complete acceptance and green CI before advancing. Stop after WP-17;
+the independent lanes below are future coordination guidance, not authorization
+to dispatch agents or begin WP-13/OCR during this session.
+
 ## Counts and preview boundary
 
 - Total: **71 packages**, including optional WP-43; **70 required**.

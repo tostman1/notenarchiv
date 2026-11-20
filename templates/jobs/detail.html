@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Auftrag" %} — Notenarchiv{% endblock %}
+{% block content %}
+<p><a href="{% url 'job_list' %}">{% translate "Alle Aufträge" %}</a></p>
+<h1>{{ job.kind_label }}</h1>
+{% include "jobs/_worker.html" %}
+<p>{% translate "Auftrags-ID" %}: {{ job.pk }}</p>
+<p id="job-status" role="status">{{ job.status_label }}</p>
+<progress value="{{ job.progress }}" max="100" aria-label="{% translate 'Fortschritt' %}">{{ job.progress }} %</progress> {{ job.progress }} %
+{% if job.error_message %}<p role="alert">{{ job.error_message }}</p>{% endif %}
+<p>{% translate "Versuch" %}: {{ job.attempt }}</p>
+{% if job.can_cancel %}<form method="post" action="{% url 'job_cancel' job.pk %}">{% csrf_token %}<button type="submit">{% translate "Abbrechen" %}</button></form>{% endif %}
+<p><a href="{% url 'job_detail' job.pk %}">{% translate "Aktualisieren" %}</a></p>
+<h2>{% translate "Verarbeitungsversuche" %}</h2>
+<ul>{% for entry in history %}<li>{{ entry.number }}: {{ entry.status_label }}{% if entry.error_message %} — {{ entry.error_message }}{% endif %}</li>{% empty %}<li>{% translate "Noch kein Versuch gestartet." %}</li>{% endfor %}</ul>
+<p>{% translate "Es werden höchstens die letzten 20 Versuche angezeigt. Ein Abbruch macht bereits abgeschlossene Änderungen nicht rückgängig." %}</p>
+{% endblock %}

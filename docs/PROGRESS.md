@@ -13,6 +13,7 @@ reflect actual completed work only.
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
+| WP-05b / WP-05c | Recovery, cancellation and job UI | Implemented; local acceptance verified | `feature/wp-05b-05c-job-management`, base `0be8e44` | 218 local tests and 3 browser tests; Ruff/system/migration/whitespace checks passed | Full Linux CI and reviewed merge pending | Complete this milestone before WP-11/12 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -427,3 +428,38 @@ owner-approved.
   packages verified, 61 unfinished (60 required plus optional WP-43). Full
   worker/archive/operations gates remain; no NAS or real-data action occurred.
   See RELEASES.md for immutable digest, release/install URLs and evidence.
+
+## Owner-authorized autonomous sequence — 2026-11-20
+
+Three separate, sequential integration milestones: WP-05b/05c on
+`feature/wp-05b-05c-job-management`, WP-11/12 on
+`feature/wp-11-12-catalog-members`, then WP-17 on
+`feature/wp-17-pdf-foundation`. Each starts from latest verified main after the
+predecessor's complete acceptance, reviewed diff, green PR CI and verified
+merge. Commit/push/PR/merge are authorized under the standing rules. Stop
+after those three; no WP-13, archive/OCR expansion, release or NAS deployment.
+
+### WP-05b / WP-05c local implementation
+
+- Canonical OS-lock ownership authorizes successor recovery and worker-generation
+  fencing, even when a dead predecessor's DB lease is still fresh. Old attempts
+  cannot update state or enter the publication interface. Attempt history and
+  delayed bounded retry policy persist in SQLite. PRINT never retries.
+- Durable generic operation intents and domain reconciliation hooks surround
+  short fenced final-publication callbacks. PENDING uncertainty requires evidence;
+  unresolved effects block retries. No archive model/copy implementation is added.
+- Cooperative cancellation, TERM/KILL POSIX groups and race-free Windows Job
+  Objects stop owned descendants before terminal cancellation. Unverified cleanup
+  requires review and stops the worker. PRINT cancellation/acceptance races remain
+  REVIEW_REQUIRED without re-submission.
+- Authenticated German paginated list/detail, progress, attempt history, explicit
+  refresh, worker availability and CSRF-protected POST cancellation. No arbitrary
+  submission, demo processors, raw payloads or exception text. Debug mode is not
+  required. The published 0.1.0-preview.1 image is unchanged.
+- Acceptance: actual worker process death between file effect and DB acknowledgement,
+  reconciliation without duplicate publication, stale attempts, retry/backoff,
+  PRINT uncertainty, 20 independent SQLite claim/cancel races, actual owned child/
+  grandchild termination, and real browser cancellation of a running child process.
+- Local Windows checks: 218 pytest tests, 3 browser tests; Ruff lint/format, Django
+  system check, migration-drift check and diff whitespace checks passed. Actual
+  Linux container CI and integration status are recorded in the subsequent checkpoint.

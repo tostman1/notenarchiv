@@ -3,6 +3,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from apps.jobs.presentation import KINDS, STATUSES
 from apps.jobs.services.diagnostics import LEVELS, SOURCES
 from config.diagnostics import COMPONENTS
 
@@ -31,3 +32,8 @@ class DiagnosticFilters(forms.Form):
         if cleaned.get("since") and cleaned.get("until") and cleaned["since"] > cleaned["until"]:
             raise forms.ValidationError(_("Der Beginn muss vor dem Ende liegen."))
         return cleaned
+
+
+class JobFilters(forms.Form):
+    status = forms.ChoiceField(label=_("Status"), choices=[("", _("Alle")), *STATUSES.items()], required=False)
+    kind = forms.ChoiceField(label=_("Auftragsart"), choices=[("", _("Alle")), *KINDS.items()], required=False)

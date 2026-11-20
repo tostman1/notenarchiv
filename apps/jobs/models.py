@@ -4,6 +4,7 @@ import uuid
 
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 class Job(models.Model):
@@ -38,6 +39,7 @@ class Job(models.Model):
     attempt = models.PositiveBigIntegerField(default=0)
     lease_owner = models.UUIDField(null=True)
     lease_expires_at = models.DateTimeField(null=True)
+    available_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:
         ordering = ["created_at", "id"]
@@ -51,6 +53,45 @@ class Job(models.Model):
             models.CheckConstraint(
                 condition=Q(status__in=["QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED", "REVIEW_REQUIRED"]),
                 name="jobs_valid_status",
+            ),
+        ]
+
+
+class AttemptRecord(models.Model):
+    job = models.ForeignKey(Job, on_delete=models.PROTECT, related_name="history")
+    number = models.PositiveBigIntegerField()
+    started_at = models.DateTimeField()
+    finished_at = models.DateTimeField(null=True)
+    status = models.CharField(max_length=24, choices=Job.Status)
+    error_code = models.CharField(max_length=32, blank=True)
+
+    class Meta:
+        ordering = ["number"]
+        constraints = [models.UniqueConstraint(fields=["job", "number"], name="jobs_unique_attempt")]
+
+
+class OperationIntent(models.Model):
+    class State(models.TextChoices):
+        PENDING = "PENDING"
+        APPLIED = "APPLIED"
+        ABANDONED = "ABANDONED"
+        REVIEW_REQUIRED = "REVIEW_REQUIRED"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    job = models.ForeignKey(Job, on_delete=models.PROTECT, related_name="operations")
+    key = models.CharField(max_length=80)
+    attempt = models.PositiveBigIntegerField()
+    payload = models.JSONField(default=dict)
+    result = models.JSONField(default=dict)
+    state = models.CharField(max_length=24, choices=State, default=State.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["job", "key"], name="jobs_unique_operation"),
+            models.CheckConstraint(
+                condition=Q(state__in=["PENDING", "APPLIED", "ABANDONED", "REVIEW_REQUIRED"]),
+                name="jobs_valid_operation_state",
             ),
         ]
 

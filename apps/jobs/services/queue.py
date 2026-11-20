@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.models import Exists, F, Q
 from django.db.models.functions import Now
 
-from apps.jobs.models import Job, WorkerLease
+from apps.jobs.models import AttemptRecord, Job, OperationIntent, WorkerLease
 
 LEASE_SECONDS = 30
 HEARTBEAT_SECONDS = 5
@@ -29,6 +29,15 @@ class StaleAttempt(RuntimeError):
 class Handler:
     validate: Callable[[dict], dict]
     run: Callable
+    idempotent: bool = False
+    max_attempts: int = 1
+    reconcile: Callable | None = None
+
+    def __post_init__(self):
+        if type(self.idempotent) is not bool or type(self.max_attempts) is not int or not 1 <= self.max_attempts <= 5:
+            raise ValueError("Invalid bounded retry policy")
+        if self.max_attempts > 1 and not self.idempotent:
+            raise ValueError("Retries require an explicitly idempotent handler")
 
 
 # Domain packages install real handlers as they are implemented. No demo jobs.
@@ -119,7 +128,7 @@ def claim_next(lease, *, using="default"):
         jobs = Job.objects.using(using)
         if jobs.filter(status=Job.Status.RUNNING).exists():
             return None
-        job = jobs.filter(status=Job.Status.QUEUED).first()
+        job = jobs.filter(status=Job.Status.QUEUED, cancel_requested=False, available_at__lte=Now()).first()
         if job is None:
             return None
         changed = jobs.filter(pk=job.pk, status=Job.Status.QUEUED).update(
@@ -131,6 +140,9 @@ def claim_next(lease, *, using="default"):
         )
         if changed != 1:
             return None
+        AttemptRecord.objects.using(using).create(
+            job=job, number=job.attempt + 1, started_at=jobs.get(pk=job.pk).started_at, status=Job.Status.RUNNING
+        )
         return Attempt(job.id, lease, job.attempt + 1, job.kind, job.payload, job.payload_version)
 
 
@@ -162,8 +174,19 @@ def heartbeat(lease, attempt=None, *, progress=None, using="default"):
 
 
 def finish(attempt, *, status=Job.Status.SUCCEEDED, error_code="", using="default"):
-    allowed_errors = {"HANDLER_FAILED", "PAYLOAD_INVALID", "HANDLER_UNAVAILABLE", "PRINT_ACCEPTANCE_UNKNOWN"}
-    if status not in {Job.Status.SUCCEEDED, Job.Status.FAILED, Job.Status.REVIEW_REQUIRED}:
+    allowed_errors = {
+        "HANDLER_FAILED",
+        "PAYLOAD_INVALID",
+        "HANDLER_UNAVAILABLE",
+        "PRINT_ACCEPTANCE_UNKNOWN",
+        "INTERRUPTED",
+        "RETRY_EXHAUSTED",
+        "OPERATION_UNCERTAIN",
+        "CANCELLED",
+        "RECOVERY_UNSAFE",
+        "PROCESS_CLEANUP_UNCERTAIN",
+    }
+    if status not in {Job.Status.SUCCEEDED, Job.Status.FAILED, Job.Status.REVIEW_REQUIRED, Job.Status.CANCELLED}:
         raise ValueError("Unsupported completion transition")
     if (status == Job.Status.SUCCEEDED and error_code) or (
         status != Job.Status.SUCCEEDED and error_code not in allowed_errors
@@ -171,11 +194,34 @@ def finish(attempt, *, status=Job.Status.SUCCEEDED, error_code="", using="defaul
         raise ValueError("Invalid completion error code")
     with transaction.atomic(using=using):
         _touch_lease(attempt.lease, using)
+        row = _attempt_rows(attempt, using).first()
+        if row is None:
+            raise StaleAttempt("Attempt is no longer valid")
+        if (
+            OperationIntent.objects.using(using)
+            .filter(job_id=row.pk, state__in=["PENDING", "REVIEW_REQUIRED"])
+            .exists()
+        ):
+            status, error_code = Job.Status.REVIEW_REQUIRED, "OPERATION_UNCERTAIN"
+        elif row.cancel_requested and status != Job.Status.REVIEW_REQUIRED:
+            if row.kind == Job.Kind.PRINT:
+                status, error_code = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN"
+            else:
+                status, error_code = Job.Status.CANCELLED, "CANCELLED"
         changes = {"status": status, "finished_at": Now(), "lease_expires_at": None, "error_code": error_code}
         if status == Job.Status.SUCCEEDED:
             changes["progress"] = 100
         if _attempt_rows(attempt, using).update(**changes) != 1:
             raise StaleAttempt("Attempt is no longer valid")
+        record, _created = AttemptRecord.objects.using(using).get_or_create(
+            job_id=row.pk,
+            number=attempt.number,
+            defaults={"started_at": row.started_at, "status": Job.Status.RUNNING},
+        )
+        record.status, record.error_code = status, error_code
+        record.finished_at = Now()
+        record.save(using=using, update_fields=["status", "error_code", "finished_at"])
+        return status
 
 
 def release_worker(lease, *, using="default"):

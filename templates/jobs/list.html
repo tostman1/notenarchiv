@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Aufträge" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Aufträge" %}</h1>
+<p>{% translate "Verfolgen Sie Verarbeitung und Fortschritt. Fachfunktionen legen ihre Aufträge an, sobald sie verfügbar sind." %}</p>
+<form method="get" class="filters">{{ form.as_p }}<button type="submit">{% translate "Filtern" %}</button></form>
+{% if page != None %}
+{% include "jobs/_worker.html" %}
+<p><a href="?{{ filters }}">{% translate "Aktualisieren" %}</a></p>
+<div class="log-table"><table>
+<thead><tr><th>{% translate "Auftragsart" %}</th><th>{% translate "Status" %}</th><th>{% translate "Fortschritt" %}</th><th>{% translate "Erstellt" %}</th></tr></thead>
+<tbody>{% for job in page %}<tr>
+<td><a href="{% url 'job_detail' job.pk %}">{{ job.kind_label }} · {{ job.pk|truncatechars:12 }}</a></td>
+<td>{{ job.status_label }}</td><td>{{ job.progress }} %</td><td>{{ job.created_at|date:"d.m.Y H:i" }}</td>
+</tr>{% empty %}<tr><td colspan="4">{% translate "Keine Aufträge vorhanden." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p>{% blocktranslate with number=page.number total=page.paginator.num_pages %}Seite {{ number }} von {{ total }}{% endblocktranslate %}</p>
+{% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Zurück" %}</a>{% endif %}
+{% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Weiter" %}</a>{% endif %}
+{% endif %}
+{% endblock %}

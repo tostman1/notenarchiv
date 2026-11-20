@@ -1,0 +1,80 @@
+# Job recovery, cancellation and publication contract (WP-05b/05c)
+
+The queue is application code, not a deployed domain processor. The published
+0.1.0-preview.1 image remains unchanged. No worker/NAS deployment or new image
+release is part of this milestone. Later domain packages register real handlers;
+there are no production demo jobs or arbitrary command/payload submission routes.
+
+## Ownership and restart
+
+`run_worker` holds DATA's canonical `worker.lock` for its entire lifetime.
+SQLite lease expiry alone never authorizes recovery. After obtaining that same
+OS lock, the successor increments the worker generation, fences the predecessor,
+starts an independent heartbeat and inspects interrupted attempts. A fresh DB
+lease can outlive a crashed process; the OS lock, not elapsed wall time, proves
+that the old publisher no longer owns the boundary.
+
+Each claim creates an immutable-numbered attempt record. Final outcomes remain
+in history when the queue row is retried. Handler defaults are one attempt and
+no retries. Retrying requires explicit idempotence and a bounded `max_attempts`
+(1–5). Only explicit `RetryableFailure`, cooperative shutdown or reconciled
+crash recovery can retry; unexpected exceptions fail without blind repetition.
+Automatic retries have persisted exponential backoff. PRINT never retries,
+regardless of handler policy; uncertain acceptance requires human review.
+
+## Durable external effects
+
+Call `context.publish(key, payload, apply)` only for a short final no-clobber
+publication primitive. Stage, hash and inspect outside the transaction. The
+key is stable per logical job effect, and its bounded JSON payload cannot change
+meaning. Payload/result metadata stays in the local DB, never technical logs.
+
+The service first persists PENDING intent, then validates OS ownership, worker
+generation, job attempt, lease and cancellation under a short SQLite write
+transaction before invoking `apply`. A successful callback returns bounded JSON;
+the lease is checked again before recording APPLIED. Returning to an already
+APPLIED key reuses its stored result. Domain code must not perform long copies,
+OCR, network submission or arbitrary file writes inside this callback.
+
+SQLite cannot atomically commit filesystem/network effects. A crash or callback
+exception may leave PENDING after an actual external change. A registered
+`reconcile(context, intent)` hook must inspect evidence and report APPLIED with
+its verified result, ABANDONED when no effect exists, or REVIEW_REQUIRED. Hooks
+must not blindly repeat effects. Missing/failed/ambiguous reconciliation requires
+review and blocks retries. Concrete archive copy/path rules belong to WP-14;
+this package exposes the fenced contract without implementing archive ingestion.
+
+## Cancellation and child processes
+
+Queued cancellation is an atomic terminal transition. Running cancellation
+only records a request; the UI says "Abbruch angefordert" until the processor
+and owned children have stopped. Handlers call checkpoints regularly and use
+`context.run_process` for subprocesses. Pure Python handlers must cooperate;
+an unresponsive handler is not falsely declared cancelled. Stop the worker
+process through its service manager if necessary, then use the recovery policy.
+
+The helper uses explicit arguments, no shell, bounded deadlines and discarded
+stdout/stderr. POSIX groups receive TERM followed by KILL and live-group checks;
+Windows uses a waiting launcher assigned to a non-breakaway Job Object before
+the target can spawn. Cleanup waits for zero active processes. An unverified
+stop becomes REVIEW_REQUIRED and stops the worker; it cannot become CANCELLED
+or automatically retry. This containment is not a security sandbox for arbitrary
+untrusted executables. Native PDF limits are added by WP-17.
+
+Cancellation preserves already completed effects. Uncertain PRINT acceptance,
+including a cancellation/completion race, always needs review and never claims
+that already submitted paper was recalled.
+
+## UI and evidence
+
+Authenticated business routes `/jobs/` and `/jobs/<uuid>/` work in both modes.
+Lists paginate 25 rows; detail shows the last 20 attempts, progress, a fixed
+German error message and fresh worker availability. Refresh is explicit.
+Cancellation is POST-only with CSRF. No job payload, raw exception or log text
+is rendered. Domain processors remain unavailable until their own packages land.
+
+Synthetic acceptance includes real worker process death between external effect
+and intent acknowledgement, idempotent reconciliation, old-attempt rejection,
+bounded retry/backoff, PRINT uncertainty, 20 independent SQLite claim/cancel
+races, actual child/grandchild cleanup, and a real browser-to-worker cancellation.
+NAS filesystem/hardware acceptance is separately tracked, not inferred from CI.
