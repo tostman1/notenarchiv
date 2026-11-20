@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Löschen" %} — {{ screen.title }}{% endblock %}
+{% block content %}
+<h1>{% translate "Datensatz löschen" %}</h1><p>{{ record }}</p>
+<p>{% translate "Verwendete Datensätze sind geschützt. Deaktivieren Sie diese über Bearbeiten, damit bestehende Zuordnungen erhalten bleiben." %}</p>
+<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button type="submit">{% translate "Löschen" %}</button></form>
+<p><a href="{% url 'catalog_edit' entity record.pk %}">{% translate "Stattdessen bearbeiten / deaktivieren" %}</a></p>
+{% endblock %}

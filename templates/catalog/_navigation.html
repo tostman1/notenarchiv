@@ -1,0 +1,4 @@
+{% load i18n %}
+<nav class="catalog-tabs" aria-label="{% translate 'Stammdaten' %}">
+{% for key, item in screens.items %}<a {% if key == entity %}aria-current="page"{% endif %} href="{% url 'catalog_list' key %}">{{ item.title }}</a>{% endfor %}
+</nav>

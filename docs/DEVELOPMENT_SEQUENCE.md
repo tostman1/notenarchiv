@@ -4,11 +4,13 @@ Owner priority shift: 2026-11-20 (DEC-09). Stable WP identifiers and original
 full-scope dependencies are preserved. This document counts packages, not
 commits or estimated effort; a partial package is still unfinished.
 
-Current owner-authorized session: strictly integrate WP-05b/05c, then WP-11/12,
-then WP-17 on the three explicitly named feature branches, each from verified
-main with complete acceptance and green CI before advancing. Stop after WP-17;
-the independent lanes below are future coordination guidance, not authorization
-to dispatch agents or begin WP-13/OCR during this session.
+Owner extension 2026-11-21: finish current WP-11/12 (WP-05b/05c is merged), then
+WP-17, then separate feature/synology-simple-install with standalone configuration.yaml
+and a concise German guide. Each starts from verified main and integrates fully
+before advancing. Afterwards select a bounded, dependency-ready manual archive
+slice when it can be completed and tested; the earlier stop after WP-17 is revoked.
+Do not infer authorization for additional releases, real data or NAS deployment.
+The independent lanes below are coordination guidance, not dispatched agents.
 
 ## Counts and preview boundary
 
@@ -107,8 +109,8 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-10 | Versioned container release pipeline | WP-08 | Verified; v0.1.0-preview.1 published, pulled and attested; RELEASES.md |
 | WP-22 | Early NAS synthetic smoke | WP-07, WP-08, WP-04b, WP-05c | Planned |
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
-| WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Planned |
-| WP-12 | Membership and regular assignments | WP-11 | Planned |
+| WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Implemented; local acceptance verified, CI/integration pending |
+| WP-12 | Membership and regular assignments | WP-11 | Implemented with complete German UI; CI/integration pending |
 | WP-13 | Archive versions and state model | WP-11 | Planned |
 | WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
 | WP-17 | PDF processing foundation | WP-01 | Planned |
