@@ -123,7 +123,12 @@ def request(port, method, path, *, cookies=None, form=None, secure=True, host=HO
 
 def start(image, paths, network, name, *, debug=False):
     docker("run", "-d", "--name", name, *arguments(paths, network, debug=debug), "-p", "127.0.0.1::8000", image)
-    port = int(docker("port", name, "8000/tcp").stdout.strip().rsplit(":", 1)[1])
+    binding = docker("port", name, "8000/tcp", check=False)
+    if binding.returncode:
+        state = docker("inspect", "--format", "{{json .State}}", name, check=False)
+        logs = docker("logs", name, check=False)
+        raise RuntimeError(f"Synthetic web port unavailable\n{state.stdout}\n{logs.stdout}\n{logs.stderr}")
+    port = int(binding.stdout.strip().rsplit(":", 1)[1])
     deadline = time.monotonic() + 40
     while time.monotonic() < deadline:
         try:
@@ -317,6 +322,13 @@ def smoke(image, root):
             "PASS: amd64/non-root/read-only mounts, independent RAW rights, startup negatives, "
             "migrations, login/CSRF/logout, persistence, Debug switch, backup/isolated restore\n"
         )
+    except Exception:
+        # These containers contain deterministic synthetic fixtures only.
+        for name in names:
+            logs = docker("logs", name, check=False)
+            if logs.returncode == 0:
+                sys.stderr.write(f"Synthetic container {name}:\n{logs.stdout}\n{logs.stderr}\n")
+        raise
     finally:
         for name in names:
             docker("rm", "--force", name, check=False)
