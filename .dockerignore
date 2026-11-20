@@ -1,0 +1,31 @@
+# Git metadata and source control internals
+.git
+.gitattributes
+.gitignore
+
+# Local agent/tooling configuration
+opencode.json
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Local environment, secrets and application data (GR-14)
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.sqlite3
+data/
+logs/
+scratch/
+thumbnails/
+
+# Build artifacts
+dist/
+build/

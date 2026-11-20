@@ -1,0 +1,33 @@
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Local environment and secrets (never commit real values; GR-14)
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# Local application data: databases, logs, cache, scratch, thumbnails
+# (GR-14: no real archive data, member data or DB files in the repository)
+*.sqlite3
+*.sqlite3-*
+data/
+logs/
+scratch/
+thumbnails/
+
+# Build artifacts
+dist/
+build/
+
+# Local agent/tooling configuration (per-workspace, not project state)
+opencode.json
