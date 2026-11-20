@@ -141,3 +141,12 @@ ul.errorlist {
     margin: 0.25rem 0 0;
     padding-left: 1rem;
 }
+
+.mode-badge { border: 1px solid var(--line); border-radius: 4px; padding: .2rem .5rem; }
+.diagnostic-filters { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
+.diagnostic-filters label { display: block; }
+.diagnostic-filters input, .diagnostic-filters select { max-width: 100%; font: inherit; }
+select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.log-table { overflow-x: auto; }
+.log-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.log-table th, .log-table td { padding: .4rem; border-bottom: 1px solid var(--line); text-align: left; }

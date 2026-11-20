@@ -100,3 +100,17 @@ Changing back to Deploy preserves existing diagnostics.
 Use named diagnostic events and typed fields for application logging. Raw
 messages, exception details, request paths, cookies and subprocess output are
 excluded from the JSON format. Request diagnostics can include the HTTP status.
+
+### Authenticated diagnostics (WP-04b)
+
+In Debug, authenticated users can open `/diagnostics/`, filter fixed web/worker
+sources by level, component, job UUID and time, and start bounded live polling.
+All three routes (page, JSON records, sanitized NDJSON download) return 404 in
+Deploy, including when old files remain. Responses are not cacheable.
+
+The reader scans at most 64 KiB / 100 records per page and 1 MiB / 1000 records
+per download; live polling is sequential at two-second intervals with at most
+200 visible rows. Signed, source-bound cursors expire after one hour and follow
+retained files across rotation. Missing rotation history is reported explicitly.
+Stored fields are validated again, and symlinks / non-regular files are excluded.
+See the [German archivist guide](docs/archivist-diagnostics.de.md).

@@ -40,6 +40,7 @@ async function smoke(origin) {
         ]);
         assert.equal(await nav.locator("li :is(a, button, [tabindex])").count(), 0);
         assert.equal(await nav.getByText("Debug / Logs").count(), 0);
+        assert.equal((await page.request.get(`${origin}/diagnostics/`)).status(), 404);
         assert.equal(await page.locator(".dashboard").evaluate(el => getComputedStyle(el).display), "grid");
         await page.getByRole("button", { name: "Abmelden" }).click();
         await page.getByText("Sie wurden abgemeldet.").waitFor();

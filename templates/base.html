@@ -13,6 +13,7 @@
 <header class="site-header">
     <a class="brand" href="{% url 'home' %}">Notenarchiv</a>
     {% if user.is_authenticated %}
+        <span class="mode-badge">{% if diagnostics_enabled %}{% translate "Diagnosemodus" %}{% else %}{% translate "Deploy" %}{% endif %}</span>
         <form method="post" action="{% url 'logout' %}" class="session">
             <span>{{ user.username }}</span>
             {% csrf_token %}
@@ -23,7 +24,10 @@
 <div class="layout">
 {% if user.is_authenticated %}
     <nav aria-label="{% translate 'Hauptnavigation' %}">
-        <a class="current" href="{% url 'home' %}" aria-current="page">{% translate "Übersicht" %}</a>
+        <a {% if request.resolver_match.url_name == 'home' %}class="current" aria-current="page"{% endif %} href="{% url 'home' %}">{% translate "Übersicht" %}</a>
+        {% if diagnostics_enabled %}
+            <a {% if request.resolver_match.url_name == 'debug_logs' %}class="current" aria-current="page"{% endif %} href="{% url 'debug_logs' %}">{% translate "Debug / Logs" %}</a>
+        {% endif %}
         <p id="planned">{% translate "In Vorbereitung" %}</p>
         <ul aria-labelledby="planned">
             <li aria-disabled="true">{% translate "Notenbibliothek" %}</li>
@@ -35,9 +39,6 @@
             <li aria-disabled="true">{% translate "Instrumente und Stimmen" %}</li>
             <li aria-disabled="true">{% translate "Aufträge" %}</li>
             <li aria-disabled="true">{% translate "Einstellungen" %}</li>
-            {% if diagnostics_enabled %}
-                <li aria-disabled="true">{% translate "Debug / Logs" %}</li>
-            {% endif %}
         </ul>
     </nav>
 {% endif %}
@@ -52,5 +53,6 @@
     {% block content %}{% endblock %}
 </main>
 </div>
+{% block scripts %}{% endblock %}
 </body>
 </html>

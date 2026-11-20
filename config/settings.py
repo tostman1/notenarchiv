@@ -110,6 +110,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "config.context_processors.diagnostics",
             ],
         },
     },
@@ -172,3 +173,4 @@ OMP_THREAD_LIMIT = env.omp_thread_limit
 PRINT_ENABLED = env.print_enabled
 
 LOGGING = logging_config(env.debug_mode, env.service, env.log_dir)
+DIAGNOSTIC_LOG_DIR = env.log_dir

@@ -25,7 +25,7 @@ M3 is the useful personal-folder MVP. M4–M6 remain required for the full produ
 - Start with WP-01 after owner approval; no further broad redesign required. For subsequent packages, inspect actual Git state, read relevant IDs and satisfy listed dependencies. Work on one approved package or tightly related subset at a time.
 - Each row below defines **implementation scope**, **dependencies**, **acceptance/test** and **requirements**. Scope estimates S/M/L describe relative complexity only, not agent time guarantees. Required unless marked Optional or validation-only. All packages include relevant unit/integration tests, actual lint/test results, traceability updates and diff review as applicable. If a tool or environment is unavailable, document the missing verification instead of marking done.
 - A package that needs new dependencies updates the lockfile and license inventory. Add browser tests when UI behavior is implemented. Hardware-specific validation runs locally using synthetic and separately approved representative real inputs; no real data enters CI.
-- Approval procedure: propose meaningful commit/PR/push/merge, next package or deployment; request owner approval and execute once granted, without redundant confirmations. See AGENTS.md.
+- Approval procedure: follow the owner authorization recorded in AGENTS.md and DEC-08 (2026-11-20). Routine commits, pushes, PRs and merges within agreed implementation scope proceed after successful checks/CI and review without repeated approval. Escalate genuinely blocking decisions and actions beyond the authorized scope.
 
 ## 2. Work packages by execution phase
 ## M0 — Foundation and deployment baseline
