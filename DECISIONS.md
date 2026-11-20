@@ -15,7 +15,7 @@ This register distinguishes binding product decisions from recommended implement
 | DEC-05 | Small ensembles map musical roles to playable instrument parts; no automatic transposition. | CAT-04, AS-07 |
 | DEC-06 | Native A3 stays whole; pair A4 portrait only within a piece; regular reading order; A4 fallback only after approval; marchbook default 170 × 120 mm. | GR-11, PT-01–05, SC-03 |
 | DEC-07 | Deploy default; optional `DEBUG_MODE="TRUE"` enables application GUI and file diagnostics, never Django DEBUG. | OP-04 |
-| DEC-08 | All development instructions/docs English; GUI and archivist manuals German. Git/implementation/deployment milestones proposed and executed on approval, not categorically prohibited. | UI-02, OP-06, AGENTS.md |
+| DEC-08 | All development instructions/docs English; GUI and archivist manuals German. Owner update 2026-11-20: routine commits, pushes, PRs and merges within agreed implementation scope proceed without repeated approval after successful relevant checks/CI and diff review, with no unresolved errors, review findings or conflicts. Blocking decisions and actions beyond this scope retain their approval requirements. | UI-02, OP-06, AGENTS.md |
 
 ## Recommended defaults for owner acceptance
 

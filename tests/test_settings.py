@@ -75,6 +75,19 @@ class TestDebugMode:
         with pytest.raises(ConfigError, match="DEBUG_MODE"):
             parse_debug_mode(raw)
 
+    def test_worker_and_local_log_directory(self, tmp_path) -> None:
+        parsed = parse_env(local_env(tmp_path, NOTENARCHIV_SERVICE="worker"))
+        assert parsed.service == "worker"
+        assert parsed.log_dir == tmp_path / "logs"
+
+    def test_invalid_service(self, tmp_path) -> None:
+        with pytest.raises(ConfigError, match="NOTENARCHIV_SERVICE"):
+            parse_env(local_env(tmp_path, NOTENARCHIV_SERVICE="../raw"))
+
+    def test_debug_log_directory_must_be_separate(self, tmp_path) -> None:
+        with pytest.raises(ConfigError, match="separate"):
+            parse_env(local_env(tmp_path, DEBUG_MODE="TRUE", SOURCE_DIR=str(tmp_path / "logs")))
+
     def test_test_session_settings_are_deploy_safe(self) -> None:
         """The running settings module (test session) keeps DEBUG False."""
         assert settings.DEBUG is False
