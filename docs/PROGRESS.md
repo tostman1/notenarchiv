@@ -367,3 +367,9 @@ owner-approved.
   must re-verify compatibility. No vulnerability exclusions or weakened scan.
 - Startup now rejects known network/FUSE SQLite DATA filesystems before write
   probing; host preflight also rejects non-canonical secret paths.
+- Alpine CI `44797068444` also passed build, Compose and complete runtime/restore
+  smoke. Its scan found 16 HIGH findings, all in inherited `krb5-libs` 1.22.2-r1;
+  Alpine's official 3.24 package index supplies the fixed 1.22.3-r0. The shared
+  build/runtime base now installs that exact fixed version. Local checks after
+  the storage changes: 170 pytest tests, Ruff (82 files), actionlint and diff
+  whitespace checks passed. No scan finding is ignored.
