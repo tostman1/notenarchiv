@@ -30,8 +30,17 @@ for debug in (False, True):
     command = ["docker", "compose", "--env-file", "/dev/null", "-f", "compose.yaml"]
     if debug:
         command.extend(["-f", "compose.debug.yaml"])
-    result = subprocess.run(
+    default = subprocess.run(
         [*command, "config", "--format", "json"],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert set(json.loads(default.stdout)["services"]) == {"web"}
+    result = subprocess.run(
+        [*command, "--profile", "tools", "config", "--format", "json"],
         env=environment,
         check=True,
         capture_output=True,

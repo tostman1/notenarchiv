@@ -344,3 +344,9 @@ owner-approved.
   certificate/proxy, resources and backup destination still require private
   authorized synthetic NAS acceptance. Real archive/member attachment is forbidden
   in this preview and has not been attempted.
+- PR #8 implementation `0c2ff1d9487ae846e8d4826970904f6ad7c656ba`: CI run
+  `44792816290` passed all Foundation checks and the actual Linux/amd64 image
+  build. Compose validation failed at its model assertion: inactive tool
+  services are correctly omitted by default. The follow-up explicitly checks
+  both the web-only default and enabled tools profile; no safety/test is removed.
+  Container runtime/restore/image scan remain pending this correction.
