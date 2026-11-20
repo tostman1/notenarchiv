@@ -13,7 +13,9 @@ CPython 3.12.13):
 | Package | Pinned version | License (from package metadata) | Status |
 | --- | --- | --- | --- |
 | Django | 5.2.10 | BSD-3-Clause | Verified from metadata |
+| whitenoise | 6.12.0 | MIT | Verified from metadata (WP-02) |
 | pytest | 8.4.1 (dev) | MIT | Verified from metadata |
+| pytest-django | 4.14.0 (dev) | BSD-3-Clause | Verified from metadata (WP-02) |
 | ruff | 0.14.5 (dev) | MIT | Verified from metadata (classifier) |
 
 Transitive dependencies (asgiref, colorama, iniconfig, packaging, pluggy,

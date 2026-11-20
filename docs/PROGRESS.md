@@ -6,7 +6,8 @@ reflect actual completed work only.
 
 | WP | Scope | Status | Commit / PR | Test evidence | Blockers | Next |
 | --- | --- | --- | --- | --- | --- | --- |
-| WP-01 | Repository, development tooling and minimal CI | Implemented (local) | pending approval | See notes below | GitHub Actions run not yet observed (unpushed branch) | WP-02 |
+| WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
+| WP-02 | Django skeleton and configuration | Implemented (local) | pending PR | See notes below | CI run pending on PR | WP-03 |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -45,11 +46,12 @@ v2.0 spec baseline):
 | `uv run pytest` | 8 passed |
 | CI workflow YAML | parsed OK (local check; GitHub run not yet observed) |
 
-**GitHub status:** branch pushed as `bf0b826254adcb81a95665035a1aa625ba6ad967`
-(2026-11-20). The CI workflow triggers on `push` to `main` and on
-`pull_request`; no run is expected until the pull request is opened
-(`gh` CLI token on the dev machine is invalid, so the PR is created in the
-browser). CI results: pending PR.
+**GitHub status:** branch pushed (`bf0b826` + `e8e7a95`), pull request #1
+opened (`gh` CLI token on the dev machine is invalid; PR created via the
+GitHub API with the stored Git credential). GitHub Actions CI on the PR
+**passed**: run `44694745130`, job "Foundation (ruff + pytest)" success.
+PR #1 merged into `main` (merge commit `bcdf272`) after CI success,
+owner-approved.
 
 **Notes:**
 
@@ -58,3 +60,67 @@ browser). CI results: pending PR.
 - Spec docs v2.0 were committed as `docs: commit specification revision 2.0
   baseline` on `feature/project-setup` and fast-forward merged to `main`
   before this work package started (owner-approved).
+
+## WP-02 — Django skeleton and configuration
+
+**Delivered** (branch `feature/wp-02-django-skeleton`, from `main`):
+
+- `manage.py`, `config/` package: `settings.py` (DEBUG always False,
+  security defaults, static/WhiteNoise, i18n de, domain roots, processing
+  limits, logging baseline), `urls.py` (public `/healthz`), `wsgi.py`,
+  `db.py` (SQLite foreign-keys + busy-timeout pragmas via
+  `connection_created`), `env.py` (single source for environment parsing;
+  full ARCHITECTURE.md §9.1 contract, typed and validated).
+- Profiles: `nas` = deployment default (explicit env contract, secret from
+  protected file, no auto-creation); `local` = explicitly selected dev
+  profile (loopback-only bind enforced, synthetic roots under `.dev/`,
+  dev secret generated 0600, roots auto-created). No production security
+  setting is weakened by the local profile.
+- App boundaries `apps/{accounts,catalog,members,archive,projects,exports,
+  printing,jobs}` (registered, empty), `core/` (pure-processing boundary),
+  `config/management/commands/validate_config.py` (moved to
+  `apps/jobs/management/commands/` — Django discovers commands in installed
+  apps; `--service web|worker` writability checks, RAW never probed).
+- `.env.example` (no real secrets), `scripts/dev_env.{sh,ps1}`,
+  `static/` + `staticfiles/` placeholders, README dev section updated.
+- Tests (51): parser contract (profile default/invalid, DEBUG_MODE
+  absent/TRUE/FALSE/mixed-case/whitespace/empty/invalid, secret file
+  missing/empty/read, hosts required, loopback-only local bind, duplicate
+  local roots, int/bool validation, architecture defaults), session
+  settings (app boundaries, DEBUG=False, DB path, static/i18n), HTTP
+  (healthz public 200 + loopback host, sanitized 500 without traceback,
+  bad Host rejected 400), SQLite pragmas (foreign_keys ON, busy_timeout
+  5000), `validate_config` subprocess tests (web/worker happy path,
+  nas missing config fails loudly, DEBUG_MODE=TRUE still reports Django
+  DEBUG False).
+- Dependencies added and locked: whitenoise 6.12.0 (MIT),
+  pytest-django 4.14.0 (BSD-3-Clause); `uv.lock` updated;
+  `docs/LICENSES.md` verified from installed metadata.
+
+**Actual local results** (Windows, uv 0.12.5, CPython 3.12.13):
+
+| Check | Result |
+| --- | --- |
+| `uv lock --check` | pass (14 packages) |
+| `uv sync --locked` | pass |
+| `uv run ruff check .` | pass, 0 findings |
+| `uv run ruff format --check .` | pass, 38 files |
+| `uv run pytest` | 51 passed |
+| `manage.py migrate` (local profile) | pass (auth/contenttypes/sessions) |
+| `manage.py check` | 0 issues |
+| `manage.py validate_config --service worker` (local) | pass, all roots writable |
+| Live `runserver` 127.0.0.1:8765 | `/healthz` 200 `{"status": "ok"}`; bad Host header 400 |
+| CI workflow | pending on PR (not yet run) |
+
+**Notes / deviations:**
+
+- Management commands are discovered from installed apps, so
+  `validate_config` lives in `apps/jobs` (operations app), not `config/`.
+- Tests run through `tests.settings` (re-exports `config.settings` after
+  preparing a deterministic local test environment) because
+  pytest-django imports settings before any conftest executes;
+  `pyproject.toml` sets `DJANGO_SETTINGS_MODULE = "tests.settings"`.
+- `Django OPTIONS` does not accept `foreign_keys` on the 5.2 SQLite
+  backend; the pragma is enforced in `config/db.py` instead (tested).
+- CI has not run yet (branch unpushed); results to be recorded here when
+  the PR checks are observed.
