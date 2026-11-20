@@ -8,9 +8,19 @@ import sys
 
 def main():
     os.umask(0o077)
+    command = sys.argv[1:] or ["web"]
     try:
         if os.geteuid() == 0 or os.getegid() == 0:
             raise RuntimeError("A non-root service identity is required")
+        if command == ["gateway"]:
+            from pathlib import Path
+
+            from core.mounts import parse_mountinfo
+            from scripts.gateway import main as gateway_main
+
+            if not parse_mountinfo(Path("/proc/self/mountinfo").read_text())[Path("/")].readonly:
+                raise RuntimeError("The gateway root filesystem must be read-only")
+            return gateway_main()
         from config.env import env
 
         if env.profile != "nas" or env.bind != "127.0.0.1" or env.print_enabled:
@@ -30,7 +40,6 @@ def main():
             json.dumps({"event": "startup_rejected", "error": "Invalid identity, storage or configuration"}) + "\n"
         )
         return 1
-    command = sys.argv[1:] or ["web"]
     if command == ["web"]:
         os.execvp("gunicorn", ["gunicorn", "--config", "config/gunicorn.conf.py", "config.wsgi:application"])
     if command not in (["migrate"], ["provision"], ["provision", "--set-password"], ["check"]):

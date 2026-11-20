@@ -21,10 +21,19 @@ bind syntax to work around an old version. DS224+ must run the amd64 image.
 Actual NAS/ACL, reverse-proxy and hardware validation remain WP-22; no NAS
 deployment is performed by CI or by the release workflow.
 
+Check the actual Docker engine/vendor fixes and NAS firewall privately. Docker
+documents that versions older than 28.0.0 can expose localhost-published ports
+to specially routed same-L2 clients. A private host-port/TLS boundary must be
+verified from another LAN host (including the gateway/container route), or
+protected with an effective, tested host firewall/vendor fix before installation.
+Do not assume DSM's generic firewall page automatically filters Docker traffic.
+See [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/).
+
 Extract the installation bundle into a private project folder, for example
 `/volume1/docker/notenarchiv-preview/config`. Keep `.env` and secrets out of Git.
-Only the web service starts normally; migrate/admin have the `tools` profile.
-The backend is published on **127.0.0.1:8085 only**. Do not publish it directly
+Web and its mount-free TCP gateway start normally; migrate/admin have the
+`tools` profile. The gateway is published on **127.0.0.1:8085 only**; web has
+no published port and stays on an internal network. Do not publish either directly
 to the LAN or Internet. No router port forwarding is part of this preview.
 
 ## Dedicated identity and synthetic roots
@@ -137,8 +146,8 @@ stopped, use `... run --rm admin provision --set-password`.
 In DSM **Container Manager → Project**, create/import a project from the
 extracted folder and `compose.yaml`, using `.env` beside it. Keep it stopped
 until the preceding one-shot steps finish. Start the project normally; only
-web starts. Exact wizard labels vary by installed DSM/package version. The
-equivalent command is `docker compose --env-file .env up -d web`.
+web plus the gateway start. Exact wizard labels vary by installed DSM/package version.
+The equivalent command is `docker compose --env-file .env up -d web gateway`.
 An uninitialized database causes safe startup failure; web never auto-migrates.
 Migrations and provisioning refuse to run while web holds its maintenance lock.
 
@@ -152,10 +161,18 @@ access. Use a certificate trusted by your browser (private CA or an appropriate
 NAS-managed certificate). Do not disable secure cookies, CSRF or Django security
 to work around a certificate/proxy error.
 
-The backend trusts this private proxy header because the host port is loopback
-only and its Docker network is isolated. Do not attach untrusted containers to
-that network. Direct HTTP business requests redirect to HTTPS. `/healthz` is
+The backend trusts this private proxy header because only the mount-free
+gateway bridges its internal network to the loopback host port. Do not attach
+untrusted containers to those networks. The gateway uses the same image, has
+no data/secret/archive mounts, forwards only to fixed `web:8000`, and bounds
+connections/time/buffer use. Direct HTTP business requests redirect to HTTPS. `/healthz` is
 the only non-sensitive redirect exemption; it returns no DB or personal data.
+
+This transport is necessary because an internal-only Docker network has no
+default gateway and does not publish host ports. Web remains internally
+isolated; the gateway alone joins a separate frontend bridge. See the
+[Docker maintainer explanation](https://github.com/moby/moby/discussions/53256).
+It is not a processing worker or an additional image dependency.
 
 ## First-start acceptance (record privately)
 

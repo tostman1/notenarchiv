@@ -8,7 +8,7 @@ Before real ingestion, complete the full backup/restore and RAW gates.
 
 ## Consistent backup
 
-1. Stop web gracefully (`docker compose stop -t 35 web`); confirm it stopped.
+1. Stop web/gateway gracefully (`docker compose stop -t 35 gateway web`); confirm both stopped.
    No migrate/admin tool may run concurrently. There is no deployed worker.
 2. Choose a **new**, administrator-only directory on a privately managed
    backup destination outside DATA and the archive roots. Never reuse a live

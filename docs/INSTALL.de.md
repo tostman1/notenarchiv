@@ -30,7 +30,9 @@ Verbinden Sie Ihr echtes Notenarchiv noch nicht.**
    `admin` über das Compose-Profil `tools` aus. Der Benutzer wird interaktiv
    angelegt, das Passwort verdeckt eingegeben und nicht in Containerlogs gespeichert.
 8. Importieren Sie in Container Manager ein Projekt aus `compose.yaml` und
-   starten Sie danach den Webdienst. Die Werkzeugdienste starten nicht automatisch.
+   starten Sie danach Webdienst und Gateway. Das kleine Gateway verwendet dasselbe
+   Image, hat keine Daten-/Schlüssel-Mounts und macht nur den Loopback-Zugang
+   erreichbar. Die Werkzeugdienste starten nicht automatisch.
 9. Richten Sie in DSM den privaten HTTPS-Reverse-Proxy auf
    `http://127.0.0.1:8085` ein. Er muss `X-Forwarded-Proto` fest auf `https`
    setzen. Verwenden Sie ein vom Browser akzeptiertes Zertifikat.

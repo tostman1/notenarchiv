@@ -28,7 +28,7 @@ COPY core ./core
 COPY templates ./templates
 COPY static ./static
 COPY manage.py ./manage.py
-COPY scripts/container_entrypoint.py scripts/healthcheck.py ./scripts/
+COPY scripts/container_entrypoint.py scripts/healthcheck.py scripts/gateway.py ./scripts/
 COPY docs/LICENSES.md ./THIRD_PARTY_NOTICES.md
 RUN mkdir -p /data /archive/raw /archive/clean /archive/processed /archive/status /archive/export /run/secrets
 USER 65532:65532

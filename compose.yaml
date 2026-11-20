@@ -1,5 +1,5 @@
 name: notenarchiv-preview
-x-app: &app
+x-runtime: &runtime
   image: ${APP_IMAGE:?Set the published image digest}
   platform: linux/amd64
   user: "${APP_UID:?Set the service UID}:${APP_GID:?Set the service GID}"
@@ -12,6 +12,11 @@ x-app: &app
   cpus: 1.0
   tmpfs:
     - /tmp:size=64m,mode=1777
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+x-app: &app
+  <<: *runtime
   environment:
     NOTENARCHIV_PROFILE: nas
     NOTENARCHIV_SERVICE: web
@@ -64,16 +69,23 @@ x-app: &app
       read_only: true
       bind: {create_host_path: false}
   networks: [backend]
-  logging:
-    driver: json-file
-    options: {max-size: 10m, max-file: "3"}
 
 services:
   web:
     <<: *app
     command: [web]
     restart: unless-stopped
-    ports: ["${APP_BIND:-127.0.0.1}:${APP_PORT:-8085}:8000"]
+  gateway:
+    <<: *runtime
+    command: [gateway]
+    restart: unless-stopped
+    mem_limit: 64m
+    pids_limit: 64
+    cpus: 0.25
+    networks: [backend, frontend]
+    depends_on:
+      web: {condition: service_healthy}
+    ports: ["127.0.0.1:${APP_PORT:-8085}:8000"]
   migrate:
     <<: *app
     profiles: [tools]
@@ -93,3 +105,4 @@ services:
 networks:
   backend:
     internal: true
+  frontend: {}

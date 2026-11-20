@@ -122,8 +122,44 @@ def request(port, method, path, *, cookies=None, form=None, secure=True, host=HO
 
 
 def start(image, paths, network, name, *, debug=False):
-    docker("run", "-d", "--name", name, *arguments(paths, network, debug=debug), "-p", "127.0.0.1::8000", image)
-    binding = docker("port", name, "8000/tcp", check=False)
+    backend, gateway = name + "-backend", name + "-gateway"
+    docker("network", "create", "--internal", backend)
+    docker("run", "-d", "--name", name, *arguments(paths, backend, debug=debug), "--network-alias", "web", image)
+    docker(
+        "run",
+        "-d",
+        "--name",
+        gateway,
+        "--read-only",
+        "--init",
+        "--user",
+        f"{UID}:{GID}",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--memory",
+        "64m",
+        "--pids-limit",
+        "64",
+        "--network",
+        network + "-front",
+        "-p",
+        "127.0.0.1::8000",
+        image,
+        "gateway",
+    )
+    docker("network", "connect", backend, gateway)
+    gateway_info = json.loads(docker("inspect", gateway).stdout)[0]
+    assert not any(mount["Type"] == "bind" for mount in gateway_info["Mounts"])
+    assert gateway_info["HostConfig"]["ReadonlyRootfs"]
+    docker(
+        "exec",
+        name,
+        "python",
+        "-c",
+        "from pathlib import Path; rows=Path('/proc/net/route').read_text().splitlines()[1:]; "
+        "assert not any(row.split()[1]=='00000000' for row in rows)",
+    )
+    binding = docker("port", gateway, "8000/tcp", check=False)
     if binding.returncode:
         state = docker("inspect", "--format", "{{json .State}}", name, check=False)
         logs = docker("logs", name, check=False)
@@ -254,6 +290,7 @@ def smoke(image, root):
     assert metadata["Architecture"] == "amd64" and metadata["Os"] == "linux"
     assert metadata["Config"]["User"] not in ("", "root", "0", "0:0")
     docker("network", "create", "--internal", network)
+    docker("network", "create", network + "-front")
     try:
         host_preflight(paths, root)
         raw_negatives(image, paths, network)
@@ -324,14 +361,17 @@ def smoke(image, root):
         )
     except Exception:
         # These containers contain deterministic synthetic fixtures only.
-        for name in names:
+        for name in names + [name + "-gateway" for name in names]:
             logs = docker("logs", name, check=False)
             if logs.returncode == 0:
                 sys.stderr.write(f"Synthetic container {name}:\n{logs.stdout}\n{logs.stderr}\n")
         raise
     finally:
-        for name in names:
+        for name in [name + "-gateway" for name in names] + names:
             docker("rm", "--force", name, check=False)
+        for name in names:
+            docker("network", "rm", name + "-backend", check=False)
+        docker("network", "rm", network + "-front", check=False)
         docker("network", "rm", network, check=False)
 
 

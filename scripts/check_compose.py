@@ -38,7 +38,7 @@ for debug in (False, True):
         text=True,
         timeout=30,
     )
-    assert set(json.loads(default.stdout)["services"]) == {"web"}
+    assert set(json.loads(default.stdout)["services"]) == {"web", "gateway"}
     result = subprocess.run(
         [*command, "--profile", "tools", "config", "--format", "json"],
         env=environment,
@@ -48,10 +48,16 @@ for debug in (False, True):
         timeout=30,
     )
     config = json.loads(result.stdout)
-    assert set(config["services"]) == {"web", "migrate", "admin"}
+    assert set(config["services"]) == {"web", "gateway", "migrate", "admin"}
     assert config["networks"]["backend"]["internal"]
     for name, service in config["services"].items():
         assert service["read_only"] and service["user"] == "10001:10001"
+        if name == "gateway":
+            assert not service.get("volumes")
+            assert set(service["networks"]) == {"backend", "frontend"}
+            assert service["ports"][0]["host_ip"] == "127.0.0.1"
+            assert service["depends_on"]["web"]["condition"] == "service_healthy"
+            continue
         assert service["environment"].get("DEBUG_MODE") == ("TRUE" if debug else None)
         assert service["environment"]["PRINT_ENABLED"] == "0"
         for mount in service["volumes"]:
@@ -59,4 +65,4 @@ for debug in (False, True):
             assert mount.get("read_only", False) == (mount["target"] != "/data")
         if name != "web":
             assert service["profiles"] == ["tools"] and not service.get("ports")
-    assert config["services"]["web"]["ports"][0]["host_ip"] == "127.0.0.1"
+    assert not config["services"]["web"].get("ports")

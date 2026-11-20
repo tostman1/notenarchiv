@@ -9,6 +9,10 @@ non-root and mount validation; persistent SQLite; explicit one-shot migrations
 and interactive archivist provisioning; private HTTPS-proxy backend; scoped
 container CI, security scans, SBOM and versioned release evidence.
 
+Web and a small mount-free TCP gateway use the same image. Web stays on an
+internal network; only the gateway publishes NAS loopback and it has no
+data/archive/secret access. No processing worker is deployed.
+
 Not available: archive import/review, catalog/member editing, project workflows,
 OCR, PDF generation, scan processing, marchbooks and printing. No worker is
 deployed; the existing job framework remains in the common codebase for later

@@ -350,3 +350,10 @@ owner-approved.
   services are correctly omitted by default. The follow-up explicitly checks
   both the web-only default and enabled tools profile; no safety/test is removed.
   Container runtime/restore/image scan remain pending this correction.
+- Runs `44793166558` / `44793924558` passed Compose but showed no published
+  port on the internal-only bridge while the web process was running. Docker's
+  default-gateway port publication behavior requires a frontend attachment.
+  The implementation preserves web's internal-only network and adds a bounded,
+  mount-free TCP gateway from the same image; it has no private storage access
+  and only forwards to fixed web:8000. CI now asserts that web has no default
+  route and the gateway has no bind mounts; operator commands recreate both.

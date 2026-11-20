@@ -7,13 +7,17 @@ validation, non-root identity and read-only filesystems remain active.
 To enable diagnostics, stop/recreate the web project with both files:
 
 ```sh
-docker compose -f compose.yaml -f compose.debug.yaml up -d --force-recreate web
+docker compose -f compose.yaml -f compose.debug.yaml up -d --force-recreate web gateway
 ```
 
 Use the same pair for one-shot tools when needed. Container Manager must apply
 the equivalent merged Compose configuration; validate it first. There is no
 runtime GUI toggle. This preview deploys no worker; when a worker is introduced,
 both services must share the same mode and be recreated together.
+
+The mount-free TCP gateway has no application file diagnostics in either mode;
+it only forwards to fixed `web:8000`. Recreate it alongside web when applying
+the project configuration. It is not a worker and has no private storage mounts.
 
 Debug writes sanitized stdout and `/data/logs/web.debug.log`, with a 10 MiB
 file and five backups. Only one web process owns this file. Auxiliary management
