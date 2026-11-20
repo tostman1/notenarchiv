@@ -29,5 +29,17 @@ os.environ["APP_ALLOWED_HOSTS"] = "localhost,127.0.0.1,testserver"
 for _sub in ("raw", "clean", "processed", "status", "export"):
     (_TEST_LOCAL_ROOT / _sub).mkdir(parents=True, exist_ok=True)
 
+# Test speed only: a low-iteration PBKDF2 hasher for the in-memory test DB,
+# referenced by dotted path (Django imports it from this module). Production
+# settings keep Django's default hasher/iteration count untouched.
+from django.contrib.auth.hashers import PBKDF2PasswordHasher  # noqa: E402
+
 from config.settings import *  # noqa: E402,F401,F403
 from config.settings import env  # noqa: E402,F401
+
+
+class FastPBKDF2Hasher(PBKDF2PasswordHasher):
+    iterations = 10_000
+
+
+PASSWORD_HASHERS = ["tests.settings.FastPBKDF2Hasher"]

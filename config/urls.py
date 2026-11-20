@@ -11,6 +11,8 @@ from __future__ import annotations
 from django.http import JsonResponse
 from django.urls import path
 
+from apps.accounts import views as account_views
+
 
 def healthz(_request) -> JsonResponse:
     """Minimal liveness probe.
@@ -24,4 +26,7 @@ def healthz(_request) -> JsonResponse:
 
 urlpatterns = [
     path("healthz", healthz, name="healthz"),
+    path("", account_views.home_view, name="home"),
+    path("login/", account_views.login_view, name="login"),
+    path("logout/", account_views.logout_view, name="logout"),
 ]

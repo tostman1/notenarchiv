@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Anmelden — Notenarchiv{% endblock %}
+{% block content %}
+<section class="card">
+    <h1>Anmelden</h1>
+    <p class="hint">Nur für Archivare. Zugang über Ihre Accounts.</p>
+    <form method="post" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        {{ form.non_field_errors }}
+        <div class="field">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+        <div class="field">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+        <button type="submit" class="primary">Anmelden</button>
+    </form>
+</section>
+{% endblock %}

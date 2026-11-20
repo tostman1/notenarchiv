@@ -7,7 +7,8 @@ reflect actual completed work only.
 | WP | Scope | Status | Commit / PR | Test evidence | Blockers | Next |
 | --- | --- | --- | --- | --- | --- | --- |
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |
-| WP-02 | Django skeleton and configuration | Implemented (local) | pending PR | See notes below | CI run pending on PR | WP-03 |
+| WP-02 | Django skeleton and configuration | Verified | PR #2 merged (run 44724272495 success) | Local checks (below) + GitHub Actions run 44724272495, job "Foundation (ruff + pytest)" success | None | WP-03 |
+| WP-03 | Authentication and session baseline | Implemented, CI green | PR #3 open (run 44736049991 success, head `8734c93`) | Local checks (below) + GitHub Actions run 44736049991 success (earlier run 44733254176 failed at Ruff lint; fixed by `8734c93`) | None | Merge PR #3, then WP-03a |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -110,7 +111,7 @@ owner-approved.
 | `manage.py check` | 0 issues |
 | `manage.py validate_config --service worker` (local) | pass, all roots writable |
 | Live `runserver` 127.0.0.1:8765 | `/healthz` 200 `{"status": "ok"}`; bad Host header 400 |
-| CI workflow | pending on PR (not yet run) |
+| CI workflow | run 44724272495 success (job "Foundation (ruff + pytest)") |
 
 **Notes / deviations:**
 
@@ -122,5 +123,69 @@ owner-approved.
   `pyproject.toml` sets `DJANGO_SETTINGS_MODULE = "tests.settings"`.
 - `Django OPTIONS` does not accept `foreign_keys` on the 5.2 SQLite
   backend; the pragma is enforced in `config/db.py` instead (tested).
-- CI has not run yet (branch unpushed); results to be recorded here when
-  the PR checks are observed.
+- CI: run 44724272495 on the merged head passed (recorded in the table
+  above).
+
+## WP-03 — Authentication and session baseline
+
+**Delivered** (branch `feature/wp-03-auth-session`, from `main`):
+
+- `apps/accounts`: `models.LoginAttempt` (persistent rate-limit records,
+  pruned after 24h) + migration 0001; `services.py` (login throttling:
+  10 failures per (username, IP) in 15 min, case-insensitive username,
+  per-pair, success clears history); `forms.py` (German labels/errors);
+  `views.py` (login/logout/home; client IP from first X-Forwarded-For or
+  REMOTE_ADDR; open-redirect guard via `url_has_allowed_host_and_scheme`);
+  `management/commands/create_archivist.py` (interactive/random-password
+  provisioning, no --password argument, username validation, password
+  policy enforced).
+- `config/settings.py`: explicit `AUTH_PASSWORD_VALIDATORS`
+  (similarity/min-8/common/numeric); secure-cookie + SSL-redirect flags now
+  derived from the new `env.secure_transport_required` (True in nas, False
+  in local loopback) — a data-transport property of the profile, never a
+  runtime toggle; `LOGIN_URL`.
+- `tests/test_auth.py` (16 tests): unauthenticated root redirected to
+  login with `next`, authenticated root available, healthz stays public,
+  German login page; valid/invalid login (German error, session state);
+  password stored PBKDF2-hashed; relative `next` honored, external `next`
+  dropped (open redirect); logout; CSRF enforced on login and logout
+  (403 without token, token round-trip succeeds); rate limiting
+  (throttle after 10 failures even with correct password, success clears,
+  old attempts ignored, per username+IP, case-insensitive); cookie
+  contract (local flags off, nas env `secure_transport_required` True,
+  always-on HTTPOnly/nosniff/DENY/LOGIN_URL/host validation).
+- `tests/test_create_archivist.py` (6 tests): random-password creation with
+  hashed storage and one-time display, duplicate rejection,
+  set-password requires existing account, invalid username and weak
+  password rejected (no account written).
+- Test speed: `tests/settings.py` uses a low-iteration PBKDF2 hasher
+  (dotted path, test module only) so the suite runs in ~3.5s; production
+  settings keep Django defaults.
+
+**Actual local results** (Windows, uv 0.12.5, CPython 3.12.13):
+
+| Check | Result |
+| --- | --- |
+| `uv run ruff check .` | pass, 0 findings |
+| `uv run ruff format --check .` | pass, 47 files |
+| `uv run pytest` | 78 passed in 3.39s |
+| `manage.py makemigrations --check` | no changes detected |
+| `manage.py check` | 0 issues |
+| Live runserver (real socket, curl) | `/healthz` 200 public; `/` 302 -> `/login/?next=/`; `/login/` 200 with CSRF token; bad Host header 400 |
+| CI workflow | run 44736049991 on `8734c93` success (earlier run 44733254176 on `e3e8632` failed at Ruff lint; fixed by `8734c93`) |
+
+**Notes / deviations:**
+
+- Migrations are excluded from Ruff lint/format (`extend-exclude =
+  ["*/migrations/*"]`) because Django's generated serializer does not
+  follow the project style; this is standard Django practice.
+- "Authorized browser login works" acceptance point is exercised through
+  Django's test client (full middleware stack) here; a real browser smoke
+  is the stated acceptance of WP-03a (Playwright), which will build on
+  this baseline.
+- No Playwright yet: browser tests arrive with WP-03a per the plan.
+- CI run 44733254176 (head `e3e8632`) failed at the Ruff lint step: an
+  unsorted import block in `tests/settings.py` introduced together with the
+  test-only fast hasher. Fixed by `8734c93`
+  (`fix(tests): sort test settings import block`); CI run 44736049991 on
+  `8734c93` passed (job "Foundation (ruff + pytest)" success).

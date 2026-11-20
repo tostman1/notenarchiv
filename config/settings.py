@@ -41,10 +41,30 @@ DEBUG_MODE = env.debug_mode
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_NAME = "notenarchiv_sessionid"
 CSRF_COOKIE_NAME = "notenarchiv_csrftoken"
+# Secure-cookie/redirect enforcement is part of the deployment contract: in
+# the nas profile the app is always behind the private HTTPS reverse proxy
+# (OP-03). The local development profile is plain HTTP on loopback, so the
+# flags are only applied there if the explicit APP_BIND/APP_CSRF settings
+# say otherwise; this is a data-location difference, not a weakening of
+# production settings (they are exactly what the nas profile ships).
+SECURE_SSL_REDIRECT = env.secure_transport_required
+SESSION_COOKIE_SECURE = env.secure_transport_required
+CSRF_COOKIE_SECURE = env.secure_transport_required
 SECURE_HSTS_SECONDS = 0  # HSTS requires HTTPS at the proxy; configured there, not here.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")  # honored behind the reverse proxy.
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+LOGIN_URL = "login"
+
+# Explicit password policy (OP-03; do not rely on framework defaults for a
+# security-sensitive deployment). Applied by create_archivist and Django's
+# auth forms alike.
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 # --- Application ----------------------------------------------------------
 

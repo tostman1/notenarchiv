@@ -1,0 +1,155 @@
+/* Notenarchiv base styles (local asset, no external dependencies — OP-06). */
+
+:root {
+    --ink: #1c2733;
+    --muted: #5b6b7b;
+    --line: #d7dee5;
+    --bg: #f5f7f9;
+    --accent: #205081;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.main-nav a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.main-nav a:hover,
+.main-nav a:focus {
+    text-decoration: underline;
+}
+
+/* Not-yet-implemented modules must not look selectable (D-13). */
+.nav-placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+}
+
+.nav-user {
+    color: var(--muted);
+}
+
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.site-main {
+    max-width: 56rem;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+}
+
+.field {
+    margin-bottom: 1rem;
+    max-width: 20rem;
+}
+
+.field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.field input {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: inherit;
+}
+
+button.primary {
+    background: var(--accent);
+    border: none;
+    color: #ffffff;
+    padding: 0.55rem 1.4rem;
+    border-radius: 4px;
+    font: inherit;
+    cursor: pointer;
+}
+
+button.primary:hover,
+button.primary:focus {
+    filter: brightness(1.1);
+}
+
+.hint {
+    color: var(--muted);
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+}
+
+.message {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    background: #eef4fa;
+}
+
+.message-error,
+.form-error {
+    color: #8a2b2b;
+    background: #fbeeee;
+    border-color: #e5b9b9;
+}
+
+ul.errorlist {
+    color: #8a2b2b;
+    margin: 0.25rem 0 0;
+    padding-left: 1rem;
+}
+
+.inline-form {
+    display: inline;
+}

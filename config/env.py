@@ -80,6 +80,11 @@ class EnvSettings:
     omp_thread_limit: int
     # Feature flags
     print_enabled: bool
+    # The deployment (nas) profile is always served over the private HTTPS
+    # reverse proxy, so secure-cookie and SSL-redirect flags are forced on.
+    # The local profile is plain HTTP on loopback. This is a data-transport
+    # property of the profile, not a security weakening in production.
+    secure_transport_required: bool
 
 
 def parse_debug_mode(raw: str | None) -> bool:
@@ -179,6 +184,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         bind = _string(env, "APP_BIND", default="127.0.0.1")
         port = _int(env, "APP_PORT", default=DEFAULT_PORT, minimum=1)
         database_path = Path(_string(env, "DATABASE_PATH", required=True))
+        secure_transport_required = True
         source_dir = Path(_string(env, "SOURCE_DIR", required=True))
         curated_dir = Path(_string(env, "CURATED_DIR", required=True))
         processed_dir = Path(_string(env, "PROCESSED_DIR", required=True))
@@ -194,6 +200,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         if bind not in {"127.0.0.1", "localhost", "::1"}:
             raise ConfigError(f"local profile may only bind to loopback, got APP_BIND={bind!r}")
         secret_key_file = secret_file
+        secure_transport_required = False
         database_path = Path(_string(env, "DATABASE_PATH", default=str(local_root / "datenarchiv.sqlite3")))
         source_dir = Path(_string(env, "SOURCE_DIR", default=str(local_root / "raw")))
         curated_dir = Path(_string(env, "CURATED_DIR", default=str(local_root / "clean")))
@@ -245,6 +252,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         ocr_workers=_int(env, "OCR_WORKERS", default=DEFAULT_OCR_WORKERS),
         omp_thread_limit=_int(env, "OMP_THREAD_LIMIT", default=DEFAULT_OMP_THREAD_LIMIT),
         print_enabled=_bool_flag(env, "PRINT_ENABLED", default=False),
+        secure_transport_required=secure_transport_required,
     )
 
 
