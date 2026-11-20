@@ -13,7 +13,7 @@ import pytest
 from django.db import connections, transaction
 from django.utils import timezone
 
-from apps.jobs.models import Job, WorkerLease
+from apps.jobs.models import AttemptRecord, Job, OperationIntent, WorkerLease
 from apps.jobs.services import queue, worker
 from core.locking import ProcessLock
 from tests.test_queue import validate_synthetic
@@ -36,6 +36,8 @@ def sqlite_queue(tmp_path, django_db_blocker, monkeypatch):
             with connections[aliases[0]].schema_editor() as editor:
                 editor.create_model(Job)
                 editor.create_model(WorkerLease)
+                editor.create_model(AttemptRecord)
+                editor.create_model(OperationIntent)
             WorkerLease.objects.using(aliases[0]).create(pk=1)
             yield aliases
         finally:
@@ -49,6 +51,7 @@ def test_thirty_independent_connection_races_have_exactly_one_worker_and_job(sql
     first, second = sqlite_queue
     with ThreadPoolExecutor(max_workers=2) as pool:
         for _round in range(30):
+            AttemptRecord.objects.using(first).all().delete()
             Job.objects.using(first).all().delete()
             for value in (1, 2):
                 queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": value}, using=first)

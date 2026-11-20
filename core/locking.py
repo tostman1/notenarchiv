@@ -2,12 +2,14 @@
 
 import os
 import stat
+import threading
 
 
 class ProcessLock:
     def __init__(self, path):
         self.path = path
         self.stream = None
+        self.owner = None
 
     def __enter__(self):
         flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
@@ -28,7 +30,13 @@ class ProcessLock:
         except BaseException:
             self.stream.close()
             raise
+        self.owner = (os.getpid(), threading.get_ident())
         return self
 
+    def assert_owned(self):
+        if self.owner != (os.getpid(), threading.get_ident()) or self.stream is None or self.stream.closed:
+            raise RuntimeError("Publisher process ownership is required")
+
     def __exit__(self, *exception):
+        self.owner = None
         self.stream.close()

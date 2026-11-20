@@ -22,8 +22,8 @@
     </section>
     <section class="card">
         <h2>{% translate "Laufende Aufträge" %}</h2>
-        <p><span class="availability">{% translate "Noch nicht verfügbar" %}</span></p>
-        <p>{% translate "Der Hintergrunddienst wird in dieser Vorschau noch nicht gestartet. Es werden keine Archivdateien verarbeitet." %}</p>
+        <p><a href="{% url 'job_list' %}">{% translate "Aufträge anzeigen" %}</a></p>
+        <p>{% translate "Hier sehen Sie den tatsächlichen Status und können Aufträge abbrechen. Fachverarbeitungen werden mit ihren jeweiligen Funktionen verfügbar." %}</p>
     </section>
 </div>
 {% endblock %}

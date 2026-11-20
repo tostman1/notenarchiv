@@ -7,8 +7,9 @@ import time
 from django.db import connections
 
 from apps.jobs.models import Job
-from apps.jobs.services import queue
+from apps.jobs.services import lifecycle, queue
 from core.locking import ProcessLock
+from core.processes import ProcessCleanupError, run_process
 
 log = logging.getLogger(__name__)
 
@@ -18,9 +19,11 @@ class WorkerUnavailable(RuntimeError):
 
 
 class Heartbeats:
-    def __init__(self, lease, using):
+    def __init__(self, lease, using, shutdown=None, authority=None):
         self.lease, self.using = lease, using
         self.attempt = None
+        self.shutdown = shutdown or threading.Event()
+        self.authority = authority
         self.guard = threading.Lock()
         self.stop = threading.Event()
         self.lost = threading.Event()
@@ -68,8 +71,9 @@ class Heartbeats:
     def finish(self, attempt, **outcome):
         with self.guard:
             self.ensure_alive()
-            queue.finish(attempt, using=self.using, **outcome)
+            status = lifecycle.complete(attempt, using=self.using, **outcome)
             self.attempt = None
+            return status
 
 
 class JobContext:
@@ -77,16 +81,31 @@ class JobContext:
         self.job_id = attempt.job_id
         self.payload = payload
         self._attempt, self._monitor = attempt, monitor
+        self._authority = monitor.authority
 
     def checkpoint(self, progress=None):
         self._monitor.checkpoint(self._attempt, progress)
+        self.check_cancelled()
+
+    def check_cancelled(self):
+        self._monitor.ensure_alive()
+        lifecycle.check_cancelled(self._attempt, using=self._monitor.using)
+        if self._monitor.shutdown.is_set():
+            raise lifecycle.Interrupted("Worker is stopping")
+
+    def publish(self, key, payload, apply):
+        self.check_cancelled()
+        return lifecycle.publish(self, key, payload, apply)
+
+    def run_process(self, arguments, *, timeout):
+        return run_process(arguments, timeout=timeout, checkpoint=self.check_cancelled)
 
 
 def execute(attempt, monitor):
     monitor.begin(attempt)
     started = time.monotonic()
     log.info("Job started", extra={"event": "job_started", "job_id": attempt.job_id})
-    status, error = Job.Status.SUCCEEDED, ""
+    status, error, retry = Job.Status.SUCCEEDED, "", False
     if attempt.kind not in queue.HANDLERS:
         status, error = Job.Status.FAILED, "HANDLER_UNAVAILABLE"
     else:
@@ -96,14 +115,28 @@ def execute(attempt, monitor):
             status, error = Job.Status.FAILED, "PAYLOAD_INVALID"
         else:
             try:
-                queue.HANDLERS[attempt.kind].run(JobContext(attempt, monitor, payload))
+                context = JobContext(attempt, monitor, payload)
+                context.check_cancelled()
+                queue.HANDLERS[attempt.kind].run(context)
+                context.check_cancelled()
             except queue.StaleAttempt:
                 raise
+            except ProcessCleanupError:
+                monitor.finish(attempt, status=Job.Status.REVIEW_REQUIRED, error_code="PROCESS_CLEANUP_UNCERTAIN")
+                raise WorkerUnavailable("Process termination was not verified") from None
+            except lifecycle.Cancelled:
+                status, error = Job.Status.CANCELLED, "CANCELLED"
+                if attempt.kind == Job.Kind.PRINT:
+                    status, error = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN"
+            except (lifecycle.Interrupted, lifecycle.RetryableFailure):
+                status, error, retry = Job.Status.FAILED, "INTERRUPTED", True
+                if attempt.kind == Job.Kind.PRINT:
+                    status, error, retry = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN", False
             except Exception:
                 status, error = Job.Status.FAILED, "HANDLER_FAILED"
                 if attempt.kind == Job.Kind.PRINT:
                     status, error = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN"
-    monitor.finish(attempt, status=status, error_code=error)
+    status = monitor.finish(attempt, status=status, error_code=error, retry=retry)
     log.info(
         "Job finished",
         extra={
@@ -117,8 +150,7 @@ def execute(attempt, monitor):
 def run_worker(lock_path, *, once=False, poll_seconds=1, shutdown=None, using="default"):
     """Hold the OS lock for the full worker lifetime, even after lease expiry.
 
-    Expired RUNNING jobs are never automatically reclaimed here. WP-05b owns
-    recovery, cancellation, retries and fenced filesystem publication.
+    Recovery requires this canonical OS lock, not a lease-expiry assumption.
     """
     shutdown = shutdown or threading.Event()
     try:
@@ -127,11 +159,10 @@ def run_worker(lock_path, *, once=False, poll_seconds=1, shutdown=None, using="d
     except OSError:
         raise WorkerUnavailable("Worker process lock is unavailable") from None
     try:
-        lease = queue.acquire_worker(using=using)
-        if lease is None:
-            raise WorkerUnavailable("Worker lease unavailable; unfinished jobs may require recovery")
+        lease = lifecycle.acquire_owned(lock, using=using)
         try:
-            with Heartbeats(lease, using) as monitor:
+            with Heartbeats(lease, using, shutdown, lock) as monitor:
+                lifecycle.recover_interrupted(monitor, lock)
                 log.info("Worker started", extra={"event": "service_started"})
                 while not shutdown.is_set():
                     monitor.ensure_alive()

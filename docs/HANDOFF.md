@@ -1,89 +1,73 @@
-# Agent handoff — latest preview snapshot
+# Agent handoff — autonomous milestone session
 
-This snapshot supersedes the old WP-03 transfer record. Repository files/Git
-remain authoritative; inspect the complete comparison on takeover (AGENTS.md).
+Date: 2026-11-20. Repository files and Git remain authoritative.
 
-## Git checkpoint
+## Scope and stopping point
 
-- Date: 2026-11-20; agent: Codex.
-- Current documentation branch: `codex/preview-publication-record`; target: main.
-- Comparison base:
-  `5e6bacc816f69999bbe88eae11536cc2dee71da2` (PR #7 merged into main).
-- Released application/tag source: `62d85b36189293a59df2ef39729a538f5c53ad3b`
-  (PR #8 merged; final PR/main CI `44798017241` / `44798414658` passed).
-- Verified release-pipeline integration/main checkpoint:
-  `24c3c8ea175b5c9d39df0813182cdbd39f55075b` (PR #9; PR CI `44816957849`
-  and main CI `44817342191` passed).
-- Intended transfer ref: `origin/main` after the final documentation PR.
-  Verify Git/PR history for the later documentation commit and merge; neither
-  source checkpoint includes this snapshot's own future commit.
-- Other clones: `.dev/wp03a` and `.dev/wp04a` are clean and their implementations
-  are already integrated. Preserve them; no branch/worktree deletion is approved.
+The owner authorized three complete, separate integrations in this order:
 
-## Verified baseline
+1. WP-05b/05c: feature/wp-05b-05c-job-management.
+2. WP-11/12: feature/wp-11-12-catalog-members.
+3. WP-17: feature/wp-17-pdf-foundation.
 
-WP-01/02/03/03a/04a/04b/05a are software-verified and merged. WP-03a's original
-Playwright DB-access failure was fixed by `400c44d`, integrated at `557c1f5`,
-verified in CI run `44747734412` and merged in PR #4. WP-04a is in PR #5;
-WP-04b in PR #6 (CI `44749299835`). WP-05a is in PR #7 (CI `44757097570`).
-No worker is deployed by the published first preview. WP-05b remains planned.
+Start each from latest verified main. Require complete acceptance, reviewed
+full diff, green CI, merge and verified merged result before advancing. Stop
+after WP-17. No WP-13, extra archive/OCR work, new release or NAS deployment.
+Routine commit/push/PR/merge authorization remains active under AGENTS.md.
 
-## Current authorized work
+## Current Git checkpoint
 
-The owner's latest priority shift authorizes the first empty/synthetic-data
-web-only technical preview, not real archive access or a live NAS deployment.
-The owner separately approved tag `v0.1.0-preview.1` and GHCR publication;
-both are now complete. This authorization does not cover live NAS deployment.
-DEC-09 and IMPLEMENTATION_PLAN.md record its scoped dependency/order changes.
-WP-09/06/07/08/10 and early WP-47a/48/49 slices are grouped into one coherent
-preview branch. Full package gates remain in DEVELOPMENT_SEQUENCE.md.
+- Active implementation branch: feature/wp-05b-05c-job-management.
+- Full comparison base: 0be8e44b4333d74fc38be8fdbe424c80d13c4612 (main).
+- Main integration CI 44819635852 passed. Original checkout was clean.
+- All three requested branches/worktrees were checked before starting; none
+  existed. The current checkout is reused. Preserve existing branches and the
+  clean, already integrated .dev/wp03a / .dev/wp04a clones.
+- Pushed implementation: 77d4f60d92c828ba407a89a180437e46ad72c0eb; PR #11.
+- Full Linux CI 44823399459 passed. The full diff was reviewed; no submitted
+  reviews/unresolved threads at this checkpoint. This documentation follow-up
+  precedes final CI/merge; verify subsequent Git/PR history and actual main.
 
-Implemented: Dockerfile, Compose web/tools, root/mount/secret/identity guards,
-explicit migration/provisioning, guarded Gunicorn, honest responsive preview
-UI, extended CI/security/SBOM, approved-tag GHCR pipeline and operator runbooks.
-Web is internal-only; the bounded fixed-destination TCP gateway has no private
-mounts and alone publishes loopback. The image uses pinned Python 3.12.16 /
-Alpine 3.24 plus the exact Kerberos security patch. Published image:
-`ghcr.io/tostman1/notenarchiv@sha256:e6e01416737702598458af8c9167f2353e09074c445281d640eaa34f10658f4d`.
-See RELEASES.md for the actual install bundle, release and attestation URLs.
+## WP-05b/05c implementation and local evidence
 
-## Actual checks and open gates
+Canonical OS publisher ownership, predecessor fencing/recovery, bounded explicit
+idempotent retry/backoff, attempt history, durable operation intents and domain
+reconciliation hooks are implemented. Unresolved external effects require review.
+Concrete archive copy/path operations remain WP-14, not silently implemented here.
 
-- Local Windows / Python 3.12.14: 170 pytest tests and two Playwright tests
-  passed; Ruff lint/format and diff whitespace checks passed. Mobile/desktop
-  screenshots were inspected. Runtime audit: no known vulnerabilities.
-- Docker is unavailable locally. Full Linux CI `44797427059` passed on the
-  recorded implementation head: 170 tests, two browser tests, Ruff, lock/audit,
-  actual amd64 build, Compose default/tools/Debug validation, real container
-  mount/startup/auth/mode/persistence/isolated-restore smoke, Trivy vulnerability
-  and secret scan, uploaded CycloneDX SBOM/image metadata. Zero HIGH/CRITICAL
-  OS/Python findings; no secret findings. Earlier CI failures and their actual
-  fixes remain in PROGRESS.md; no scan/test was disabled.
-- Original tag run `44815669883` passed all required checks and pushed/pulled
-  the image; digest selection then failed before attestations/release creation.
-  PR #9 fixed the selection and added constrained recovery with 18 regression/
-  trust-boundary cases. No original check was disabled or falsely counted.
-- Completion run `44817372155` succeeded using the retained original artifact,
-  mandatory archive hash and exact existing-image match. No rebuild, retag or
-  image overwrite. Signed origin/promotion and CycloneDX SBOM were published.
-  Independent local cryptographic verification bound both claims to the exact
-  signer workflow/commit. Signed claims match the downloaded release assets.
-- All five asset hashes, all 12 install bundle files, source/version/amd64/
-  non-root metadata and anonymous registry digest retrieval were verified.
-  Docker remains unavailable locally; actual Docker pulls ran in Actions.
-- Ten packages software-verified, 61 unfinished (60 required plus optional
-  WP-43). WP-06/07 and WP-47a/48/49 retain full worker/archive/NAS gates.
-- Main has no branch protection (API returned Branch not protected, 404).
-  No repository settings were changed. Require a reviewed, green PR manually.
-- Actual NAS/DSM/ACL/TLS/hardware/backup validation and all real-data operations
-  remain unperformed and unauthorized. No secrets or real music/member data
-  belong in handoff files, CI or artifacts.
+Running cancellation stays a request until processor/owned children stop. POSIX
+process groups and a Windows Job Object launcher provide actual descendant
+cleanup. Unverified stop and uncertain PRINT acceptance require review; PRINT
+never automatically retries. German business job list/detail, bounded paging,
+progress/history, refresh, worker freshness and CSRF-protected cancellation work
+in both modes. No payload/raw exception is exposed or production demo job added.
+See JOB_FRAMEWORK.md and auftraege.de.md.
 
-## Continuation
+Local Windows checks passed: 218 pytest tests, 3 Playwright tests, Ruff lint and
+format, Django system check, migration drift and diff whitespace. Acceptance
+includes real worker process death between external effect and acknowledgement,
+recovery without duplicate effect, old-attempt rejection, bounded retry/backoff,
+20 independent SQLite claim/cancel races, child/grandchild termination and actual
+browser cancellation of a running subprocess. Linux CI 44823399459 also passed
+all Foundation/browser, amd64 build, Compose, real container/restore and image
+security gates. Final documentation CI/merge and main verification remain.
 
-Verify the final publication-record PR/CI and use RELEASES.md / INSTALL.de.md.
-The requested preview release is complete. The next deployment milestone is
-separately authorized synthetic NAS acceptance (WP-22 slice), with no real
-archive attachment. Future independent software lanes and their real
-dependencies remain in DEVELOPMENT_SEQUENCE.md. Do not silently begin unrelated
-packages or treat release authorization as NAS deployment approval.
+## Published baseline and remaining gates
+
+The unchanged 0.1.0-preview.1 image is already published and verified; application
+source/tag is 62d85b36189293a59df2ef39729a538f5c53ad3b. Exact digest, successful
+completion 44817372155 and signatures/assets are recorded in RELEASES.md.
+This session changes source, not the published image or NAS installation.
+Published baseline: 10 software-verified WPs, 61 unfinished. Current verified
+source adds WP-05b/05c (12 verified, 59 unfinished); verify PR #11 integration.
+Main protection is unavailable (actual API 404),
+so enforce the manual reviewed-green-PR gate. No repository settings changed.
+Actual NAS/DSM/ACL/TLS/hardware tests remain unperformed and unauthorized. No
+real music/member data or secrets may enter Git, CI, logs or handoff documents.
+
+## Next action
+
+Verify final documentation CI and merge PR #11 under standing authorization.
+Confirm main integration before starting
+WP-11/12. Preserve the complete acceptance criteria and separate branch/PR
+boundaries. Continue through WP-17, then provide the consolidated report and stop.

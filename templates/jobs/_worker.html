@@ -1,0 +1,2 @@
+{% load i18n %}
+<p role="status">{% if worker_available %}{% translate "Hintergrunddienst verfügbar" %}{% else %}{% translate "Hintergrunddienst nicht verfügbar. Wartende Aufträge bleiben gespeichert." %}{% endif %}</p>
