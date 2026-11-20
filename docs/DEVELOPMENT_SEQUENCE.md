@@ -22,6 +22,9 @@ to dispatch agents or begin WP-13/OCR during this session.
 - Current published preview: **10 complete, 61 unfinished** (60 required plus
   optional WP-43). WP-09/08 integrated through PR #8 and WP-10 is verified by
   approved `v0.1.0-preview.1` publication. See [release evidence](RELEASES.md).
+- Current source after verified WP-05b/05c acceptance: **12 complete, 59 unfinished**
+  (58 required plus optional WP-43); CI `44823399459`, PR #11. The published
+  preview image is unchanged; verify the PR merge before starting WP-11/12.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
@@ -95,8 +98,8 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-04a | Technical logging and mode contract | WP-02 | Verified and merged |
 | WP-04b | Authenticated debug UI | WP-04a, WP-03a | Verified and merged |
 | WP-05a | Durable queue, claim and singleton worker | WP-02 | Verified and merged |
-| WP-05b | Job recovery, cancellation and operation contract | WP-05a | Planned |
-| WP-05c | Job UI and progress | WP-05b, WP-03a | Planned |
+| WP-05b | Job recovery, cancellation and operation contract | WP-05a | Software verified; CI 44823399459 / PR #11 |
+| WP-05c | Job UI and progress | WP-05b, WP-03a | Software verified; real browser cancellation, CI 44823399459 / PR #11 |
 | WP-09 | Service-aware mount and startup validation | WP-02, WP-04a | Software verified, CI 44797427059 / PR #8; NAS gate separate |
 | WP-06 | Minimal hardened container image | WP-02, WP-03a, WP-04a, WP-05b, WP-09 | Web-image slice; full worker gate pending |
 | WP-07 | Compose services and data roots | WP-06, WP-09 | Web/tools Compose slice; worker integration pending |

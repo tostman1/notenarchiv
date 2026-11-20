@@ -23,9 +23,10 @@ Routine commit/push/PR/merge authorization remains active under AGENTS.md.
 - All three requested branches/worktrees were checked before starting; none
   existed. The current checkout is reused. Preserve existing branches and the
   clean, already integrated .dev/wp03a / .dev/wp04a clones.
-- This snapshot accompanies the first implementation commit; verify actual
-  commit/upstream and complete staged/unstaged diff before takeover. Linux CI
-  and PR/merge evidence must be added after they actually run.
+- Pushed implementation: 77d4f60d92c828ba407a89a180437e46ad72c0eb; PR #11.
+- Full Linux CI 44823399459 passed. The full diff was reviewed; no submitted
+  reviews/unresolved threads at this checkpoint. This documentation follow-up
+  precedes final CI/merge; verify subsequent Git/PR history and actual main.
 
 ## WP-05b/05c implementation and local evidence
 
@@ -47,8 +48,9 @@ format, Django system check, migration drift and diff whitespace. Acceptance
 includes real worker process death between external effect and acknowledgement,
 recovery without duplicate effect, old-attempt rejection, bounded retry/backoff,
 20 independent SQLite claim/cancel races, child/grandchild termination and actual
-browser cancellation of a running subprocess. Linux/container CI remains the
-next integration gate; never infer its success from local results.
+browser cancellation of a running subprocess. Linux CI 44823399459 also passed
+all Foundation/browser, amd64 build, Compose, real container/restore and image
+security gates. Final documentation CI/merge and main verification remain.
 
 ## Published baseline and remaining gates
 
@@ -56,15 +58,16 @@ The unchanged 0.1.0-preview.1 image is already published and verified; applicati
 source/tag is 62d85b36189293a59df2ef39729a538f5c53ad3b. Exact digest, successful
 completion 44817372155 and signatures/assets are recorded in RELEASES.md.
 This session changes source, not the published image or NAS installation.
-Baseline: 10 software-verified WPs, 61 unfinished; this milestone adds two only
-after full verified integration. Main protection is unavailable (actual API 404),
+Published baseline: 10 software-verified WPs, 61 unfinished. Current verified
+source adds WP-05b/05c (12 verified, 59 unfinished); verify PR #11 integration.
+Main protection is unavailable (actual API 404),
 so enforce the manual reviewed-green-PR gate. No repository settings changed.
 Actual NAS/DSM/ACL/TLS/hardware tests remain unperformed and unauthorized. No
 real music/member data or secrets may enter Git, CI, logs or handoff documents.
 
 ## Next action
 
-Finish full diff review and first milestone commit/push/PR. Verify actual Linux
-CI; resolve every defect before merge. Confirm main integration before starting
+Verify final documentation CI and merge PR #11 under standing authorization.
+Confirm main integration before starting
 WP-11/12. Preserve the complete acceptance criteria and separate branch/PR
 boundaries. Continue through WP-17, then provide the consolidated report and stop.

@@ -13,7 +13,7 @@ reflect actual completed work only.
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
-| WP-05b / WP-05c | Recovery, cancellation and job UI | Implemented; local acceptance verified | `feature/wp-05b-05c-job-management`, base `0be8e44` | 218 local tests and 3 browser tests; Ruff/system/migration/whitespace checks passed | Full Linux CI and reviewed merge pending | Complete this milestone before WP-11/12 |
+| WP-05b / WP-05c | Recovery, cancellation and job UI | Software verified; integration pending | PR #11; source `77d4f60`, base `0be8e44` | 218 local tests, 3 browser tests; full Linux CI 44823399459 passed including real container/restore/security | Final documentation CI and merge pending | Verify main before WP-11/12 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -463,3 +463,9 @@ after those three; no WP-13, archive/OCR expansion, release or NAS deployment.
 - Local Windows checks: 218 pytest tests, 3 browser tests; Ruff lint/format, Django
   system check, migration-drift check and diff whitespace checks passed. Actual
   Linux container CI and integration status are recorded in the subsequent checkpoint.
+- Source `77d4f60d92c828ba407a89a180437e46ad72c0eb`, PR #11: full Linux
+  CI `44823399459` passed Foundation, all browser checks, actual amd64 image
+  build, Compose validation, real container/restore and vulnerability/secret scan.
+  Full diff reviewed; no submitted PR reviews/unresolved threads at this checkpoint.
+  Documentation-only follow-up records verified acceptance before integration.
+  Current software-verified total: 12 WPs, 59 unfinished. No new image release.
