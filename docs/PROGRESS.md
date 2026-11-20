@@ -13,11 +13,11 @@ reflect actual completed work only.
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
-| WP-09 | Service-aware mount and startup validation | Implemented, local tests verified | First-preview branch from `5e6bacc` | 15 storage/mount negatives passed locally; real Linux container/host checks prepared | Actual container CI and NAS acceptance pending | Run container CI |
-| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices implemented | First-preview branch | Digest-pinned amd64 image, non-root/read-only profile, explicit migrate/admin tools; no worker deployed | Actual build/smoke pending; full worker gate remains WP-05b | Container CI; full packages remain partial |
-| WP-08 | Extended CI and container verification | Implemented, run pending | First-preview branch | Locked audit, browser, build, real mount/auth/mode/restore smoke, Trivy/SBOM | Actual workflow evidence pending; main is not branch-protected (API 404) | Enforce manual green-PR gate |
+| WP-09 | Service-aware mount and startup validation | Software verified | PR #8; source `4aa2165` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Merge reviewed PR; retain NAS gate |
+| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
+| WP-08 | Extended CI and container verification | Software verified | PR #8; CI 44797427059 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
 | WP-10 | Versioned container release pipeline | Prepared, not published | Proposed `v0.1.0-preview.1` | Preview-only policy tests; publish reuses verified artifact and records pulled digest/provenance/SBOM | Approved tag/publication and actual registry verification pending | Release milestone after green CI |
-| WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices prepared | First-preview branch | Install/restore/update/debug guides; isolated container restore acceptance prepared | Full archive/NAS/two-version acceptance remains outstanding | Validate preview; retain full package gates |
+| WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 
 ## WP-01 — Repository, development tooling and minimal CI
 
@@ -373,3 +373,14 @@ owner-approved.
   build/runtime base now installs that exact fixed version. Local checks after
   the storage changes: 170 pytest tests, Ruff (82 files), actionlint and diff
   whitespace checks passed. No scan finding is ignored.
+- Final preview source `4aa216506f1fd4a37dfa3a35de519ed40e25ec34` passed
+  CI `44797427059`: locked environment, Ruff, 170 Linux pytest tests, two
+  Playwright tests, runtime audit, actual amd64 image build, default/tools/Debug
+  Compose models, complete synthetic container/isolated-restore smoke, image
+  vulnerability/secret scan and uploaded CycloneDX SBOM/image metadata.
+  Trivy reported zero HIGH/CRITICAL OS/Python findings and no secrets. The
+  full branch diff was reviewed; PR #8 has no submitted reviews or unresolved
+  review threads at this checkpoint. Documentation-only follow-up records
+  this evidence before the standing-authorized integration. No GHCR publication
+  or NAS deployment has occurred. Nine packages are now software-verified;
+  62 remain unfinished until WP-10's approved publication (then 10 / 61).
