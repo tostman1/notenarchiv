@@ -652,7 +652,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   not complete. Counts remain 15 software-verified WPs / 56 unfinished.
 
 
-## WP-13 ï¿½ Archive versions and state model
+## WP-13 — Archive versions and state model
 
 - Separate branch from verified main `480514264eee4aab15e77cc58447019d3a637154`.
   Added protected source/file/version identities, separate base/derivative content,
@@ -693,7 +693,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   until that gate; WP-14 has not started. No physical NAS/release action.
 
 
-## WP-14 ï¿½ Safe file publication (in progress)
+## WP-14 — Safe file publication (in progress)
 
 - WP-13 final head `f9e2b281a8b17cccd4b389f613014fce5d3d98bf`, final CI
   `44881432325`, merged at `a480a2a11bed574ef098d37fb8c4b6a2961f9874`.

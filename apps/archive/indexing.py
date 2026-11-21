@@ -237,6 +237,16 @@ def _summarize(context, scan):
             "fingerprint": fingerprint,
             "timestamp": timezone.now().isoformat(),
         }
+        record.snapshot["duplicate_content"] = sum(
+            bool(
+                entry.sha256
+                and m.SourceVersion.objects.using(using)
+                .filter(sha256=entry.sha256)
+                .exclude(source_file__relative_path=entry.relative_path)
+                .exists()
+            )
+            for entry in entries
+        )
         record.save(using=using)
 
 
