@@ -19,12 +19,18 @@ safe software work where appropriate. Published preview artifacts stay immutable
 
 ## Actual Git checkpoint
 
-- Active branch: feature/wp-11-12-catalog-members.
-- Comparison base: 470e7c8b0421d91ae38fbc65b888c16e70b1088c (verified main).
+- Current follow-up branch: fix/job-browser-sqlite (from verified main).
+- Catalog/member branch: feature/wp-11-12-catalog-members, merged PR #12.
+- Current follow-up base: a2d7264e43c823c612236e29effc414c8879cd97 (verified main).
+- Full catalog/member comparison base: 470e7c8b0421d91ae38fbc65b888c16e70b1088c.
 - Reviewed source head: 3f1b30969843f508ffda082c4f80d94155aff392, pushed on
-  the active branch; PR #12. Full CI 44841036938 passed. This documentation
-  checkpoint precedes the authorized merge; verify final PR/main CI and tree.
-- WP-05b/05c is complete and merged through PR #11 at the comparison base.
+  the catalog/member branch; PR #12. Full CI 44841036938 passed. This documentation
+  checkpoint preceded merge a2d7264e43c823c612236e29effc414c8879cd97; final
+  PR CI 44841417182 and main CI 44841705128 passed. Trees match. A subsequent
+  local Windows browser run found a shared-memory SQLite test lock failure;
+  the current bounded fix switches browser tests to isolated file SQLite.
+  Verify its local/browser/CI integration before WP-17.
+- WP-05b/05c is complete and merged through PR #11 at 470e7c8.
   Reviewed head: 74e7312acc87e3b0d4a5d1302d592c47b188ce3b.
   Final PR CI 44823906492 and main CI 44824237705 passed; merged tree matched.
   Do not duplicate that framework. Earlier full A comparison: 0be8e44..470e7c8.
@@ -74,8 +80,8 @@ unauthorized. Synthetic data only; never include secrets or real music/member da
 
 ## Next actions
 
-Verify final documentation CI, merge PR #12 at its exact reviewed head and
-verify merged main before feature/wp-17-pdf-foundation. Then implement
+Complete and integrate the browser file-SQLite follow-up, then start
+feature/wp-17-pdf-foundation from latest verified main. Then implement
 feature/synology-simple-install: standalone configuration.yaml using the published
 immutable digest, minimal essential edits, safe first-install preparation and
 primary concise German guide. Preserve advanced Compose and technical runbooks;
