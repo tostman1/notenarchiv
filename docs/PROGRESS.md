@@ -758,3 +758,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   integration/main verification and private NAS acceptance remain outstanding.
   Integrated count stays 16 / 55. Documentation-only HEAD CI is separate from
   the verified implementation run. See HANDOFF.md for the current checkpoint.
+
+- Final handoff: documentation CI 44886873476 passed at 36a2d80.
+  Owner-supplied AGENTS.md transfer gate is included in the final marker commit.
+  Reused existing verification; no implementation changes or expensive test rerun.

@@ -54,3 +54,10 @@ No known software defect remains in the verified checkpoint.
 WP-14 is software-verified on its feature branch, not yet integrated. PR #15's
 simple installation and WP-13 are merged. Published v0.1.0-preview.1 image/tag/
 assets remain unchanged; newer source functionality is not in that image.
+
+## Final transfer marker
+
+Documentation checkpoint 36a2d80cb6cb7b82850b3449ba19eadf6dfff0c1 passed
+CI 44886873476. The final transfer commit also includes the owner-supplied
+AGENTS.md readiness gate. Verify its exact subject/trailer at remote HEAD;
+its own CI is separate. No development, merge or next WP is authorized here.
