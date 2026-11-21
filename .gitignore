@@ -36,3 +36,4 @@ build/
 
 # Local agent/tooling configuration (per-workspace, not project state)
 opencode.json
+.agent-commit-message.txt

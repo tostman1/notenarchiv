@@ -30,6 +30,8 @@ Documentation can be updated as part of an approved documentation task or to ref
 
 Use feature branches from `main` unless the owner selects another active branch. Use small English Conventional Commits in the form `type(scope): imperative summary` (scope optional); types: `feat`, `fix`, `test`, `docs`, `refactor`, `perf`, `chore` (e.g. `feat(archive): implement RAW/CLEAN indexing`, `chore(ci): add container build workflow`). Never force-push or discard user changes without explicit approval. Report if CI or branch protection is unavailable rather than fabricating it.
 
+For every OpenCode and Codex commit, including handoff commits, use the agent's file-writing tool to write the complete message as UTF-8 to `.agent-commit-message.txt` in the current repository worktree, then run `git commit -F .agent-commit-message.txt` instead of passing the message as shell arguments. Remove the ignored file after success; on failure, preserve it until resolved or the message is no longer needed. Existing commit subject and trailer rules remain unchanged.
+
 ## Invariants (must survive every change)
 
 - RAW strictly read-only at NAS and mount; even marker files go into separate STATUS. CLEAN copies are real, byte-identical, hash verified; PROCESSED derivatives separate. No blind overwrite or deletion of historical referenced files. Every new/changed PDF inspected and manually approved; no filename/OCR confidence auto-approval; unchanged confirmed hashes reusable.
