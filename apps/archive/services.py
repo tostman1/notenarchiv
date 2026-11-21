@@ -167,7 +167,7 @@ def register_base(version_id, relative_path, *, using="default"):
 def _proposal_references(arrangement_id, part_ids, using):
     if (
         arrangement_id is not None
-        and not Arrangement.objects.using(using).filter(pk=arrangement_id, active=True).exists()
+        and not Arrangement.objects.using(using).filter(pk=arrangement_id, active=True, work__active=True).exists()
     ):
         raise ValidationError("Choose an active arrangement.")
     if not isinstance(part_ids, (list, tuple)) or len(part_ids) > 1000 or len(set(map(str, part_ids))) != len(part_ids):
@@ -302,7 +302,15 @@ def request_approval(proposal_id, *, actor, expected_revision, using="default"):
 
 
 def plan_publication(
-    file_id, *, job_id, target_path, kind="COPY", proposal_id=None, expected_revision, using="default"
+    file_id,
+    *,
+    job_id,
+    target_path,
+    kind="COPY",
+    proposal_id=None,
+    operation_id=None,
+    expected_revision,
+    using="default",
 ):
     """Reserve metadata only. WP-14 performs streaming, validation and no-clobber publication."""
     with transaction.atomic(using=using):
@@ -314,6 +322,7 @@ def plan_publication(
             if proposal.state != "APPROVAL_REQUESTED":
                 raise ValidationError("Canonical publication requires an explicit approval request.")
         operation = m.FileOperation.objects.using(using).create(
+            **({"id": operation_id} if operation_id is not None else {}),
             archive_file=file,
             job_id=job_id,
             kind=kind,
@@ -356,6 +365,36 @@ def record_stage(operation_id, *, attempt, staged_path, verified_sha256, verifie
         return operation
 
 
+def record_applied_operation(operation_id, *, intent_id, using="default"):
+    """Record a verified physical effect without necessarily selecting its path."""
+    with transaction.atomic(using=using):
+        if not m.FileOperation.objects.using(using).filter(pk=operation_id).update(attempt=F("attempt")):
+            raise ValidationError("Publication operation does not exist.")
+        operation = m.FileOperation.objects.using(using).get(pk=operation_id)
+        intent = OperationIntent.objects.using(using).filter(pk=intent_id).first()
+        if intent is None:
+            raise ValidationError("Publication receipt does not exist.")
+        previous = operation.state
+        operation.intent, operation.state = intent, "APPLIED"
+        operation.attempt = intent.attempt
+        operation.attempt_record = (
+            AttemptRecord.objects.using(using).filter(job_id=operation.job_id, number=intent.attempt).first()
+        )
+        operation.save(using=using)
+        if previous != "APPLIED":
+            _audit(
+                operation,
+                m.AuditEvent.Event.COPY_APPLIED,
+                using,
+                after={
+                    "file": str(operation.archive_file_id),
+                    "sha256": operation.expected_sha256,
+                    "intent": str(intent_id),
+                },
+            )
+        return operation
+
+
 def apply_publication_receipt(operation_id, *, intent_id, expected_revision, using="default"):
     """Acknowledge an APPLIED worker receipt, inside its short metadata fence.
 
@@ -369,25 +408,10 @@ def apply_publication_receipt(operation_id, *, intent_id, expected_revision, usi
         raise ValidationError("Publication operation does not exist.")
     with transaction.atomic(using=using):
         file = _lock_file(file_id, expected_revision, using)
-        operation = m.FileOperation.objects.using(using).get(pk=operation_id)
-        intent = OperationIntent.objects.using(using).filter(pk=intent_id).first()
-        if intent is None:
-            raise ValidationError("Publication receipt does not exist.")
-        operation.intent, operation.state = intent, "APPLIED"
-        operation.attempt = intent.attempt
-        operation.attempt_record = (
-            AttemptRecord.objects.using(using).filter(job_id=operation.job_id, number=intent.attempt).first()
-        )
-        operation.save(using=using)  # Validates the exact durable root/path/hash/size receipt.
+        operation = record_applied_operation(operation_id, intent_id=intent_id, using=using)
         file.relative_path, file.publication_state = operation.target_path, "AVAILABLE"
         file.publication_operation = operation
         file.save(using=using)
-        _audit(
-            operation,
-            m.AuditEvent.Event.COPY_APPLIED,
-            using,
-            after={"file": str(file.pk), "sha256": file.sha256, "intent": str(intent_id)},
-        )
         return file
 
 

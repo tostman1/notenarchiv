@@ -27,6 +27,34 @@ class RetryableFailure(RuntimeError):
     """Only explicit transient failures may retry an idempotent handler."""
 
 
+class ReviewRequired(RuntimeError):
+    """A known effect needs an explicit domain decision before further use."""
+
+
+class NoEffect(ValueError):
+    """Only an apply callback may assert that no external mutation occurred."""
+
+
+def metadata(context, apply):
+    """Run short pure DB metadata under the same current publisher fence."""
+    context._authority.assert_owned()
+    using, attempt = context._monitor.using, context._attempt
+    with transaction.atomic(using=using):
+        queue._touch_lease(attempt.lease, using)
+        context._authority.assert_owned()
+        context.check_cancelled()
+        result = apply()
+        queue._touch_lease(attempt.lease, using)
+        return result
+
+
+def _acknowledge(handler, context, intent):
+    # Metadata only: this runs after the exact receipt is APPLIED, in the same
+    # fenced transaction, including successor recovery of a cancelled attempt.
+    if handler and handler.acknowledge:
+        handler.acknowledge(context, intent)
+
+
 def bounded_data(value):
     if not isinstance(value, dict):
         raise ValueError("Operation data must be an object")
@@ -94,6 +122,7 @@ def publish(context, key, payload, apply):
         raise ValueError("Invalid operation key")
     payload = bounded_data(payload)
     using, attempt = context._monitor.using, context._attempt
+    handler = queue.HANDLERS.get(attempt.kind)
     with transaction.atomic(using=using):
         queue._touch_lease(attempt.lease, using)
         check_cancelled(attempt, using=using)
@@ -105,20 +134,40 @@ def publish(context, key, payload, apply):
         if intent.payload != payload:
             raise ValueError("Operation key cannot change meaning")
         if intent.state == OperationIntent.State.APPLIED:
+            _acknowledge(handler, context, intent)
             return intent.result
         if not created and intent.state != OperationIntent.State.ABANDONED:
             raise Interrupted("An unresolved operation requires reconciliation")
         intent.state, intent.attempt = OperationIntent.State.PENDING, attempt.number
         intent.save(using=using, update_fields=["state", "attempt"])
-    with transaction.atomic(using=using):
-        queue._touch_lease(attempt.lease, using)
-        context._authority.assert_owned()
-        check_cancelled(attempt, using=using)
-        result = bounded_data(apply())
-        queue._touch_lease(attempt.lease, using)
-        intent.state, intent.result = OperationIntent.State.APPLIED, result
-        intent.save(using=using, update_fields=["state", "result"])
-        return result
+    no_effect = False
+    try:
+        with transaction.atomic(using=using):
+            queue._touch_lease(attempt.lease, using)
+            context._authority.assert_owned()
+            check_cancelled(attempt, using=using)
+            try:
+                result = bounded_data(apply())
+            except NoEffect:
+                no_effect = True
+                raise
+            queue._touch_lease(attempt.lease, using)
+            intent.state, intent.result = OperationIntent.State.APPLIED, result
+            intent.save(using=using, update_fields=["state", "result"])
+            _acknowledge(handler, context, intent)
+            queue._touch_lease(attempt.lease, using)
+            return result
+    except NoEffect:
+        if no_effect:
+            with transaction.atomic(using=using):
+                queue._touch_lease(attempt.lease, using)
+                context._authority.assert_owned()
+                if not queue._attempt_rows(attempt, using).exists():
+                    raise queue.StaleAttempt("Attempt is no longer active") from None
+                OperationIntent.objects.using(using).filter(
+                    pk=intent.pk, attempt=attempt.number, state="PENDING"
+                ).update(state="ABANDONED")
+        raise
 
 
 def _retry_allowed(job, handler):
@@ -155,6 +204,7 @@ class RecoveryContext:
     def __init__(self, job, monitor, authority):
         self.job_id, self.payload = job.pk, job.payload
         self.monitor, self.authority = monitor, authority
+        self.using, self.attempt_number = monitor.using, job.attempt
 
     def checkpoint(self):
         self.authority.assert_owned()
@@ -196,6 +246,8 @@ def recover_interrupted(monitor, authority):
                 authority.assert_owned()
                 intent.state, intent.result = state, result
                 intent.save(using=using, update_fields=["state", "result"])
+                if state == "APPLIED":
+                    _acknowledge(handler, context, intent)
         with transaction.atomic(using=using):
             queue._touch_lease(lease, using)
             job.refresh_from_db(using=using)

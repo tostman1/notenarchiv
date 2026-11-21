@@ -82,6 +82,7 @@ class JobContext:
         self.payload = payload
         self._attempt, self._monitor = attempt, monitor
         self._authority = monitor.authority
+        self.using, self.attempt_number = monitor.using, attempt.number
 
     def checkpoint(self, progress=None):
         self._monitor.checkpoint(self._attempt, progress)
@@ -96,6 +97,9 @@ class JobContext:
     def publish(self, key, payload, apply):
         self.check_cancelled()
         return lifecycle.publish(self, key, payload, apply)
+
+    def commit_metadata(self, apply):
+        return lifecycle.metadata(self, apply)
 
     def run_process(self, arguments, *, timeout):
         return run_process(arguments, timeout=timeout, checkpoint=self.check_cancelled)
@@ -128,6 +132,8 @@ def execute(attempt, monitor):
                 status, error = Job.Status.CANCELLED, "CANCELLED"
                 if attempt.kind == Job.Kind.PRINT:
                     status, error = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN"
+            except lifecycle.ReviewRequired:
+                status, error = Job.Status.REVIEW_REQUIRED, "OPERATION_UNCERTAIN"
             except (lifecycle.Interrupted, lifecycle.RetryableFailure):
                 status, error, retry = Job.Status.FAILED, "INTERRUPTED", True
                 if attempt.kind == Job.Kind.PRINT:

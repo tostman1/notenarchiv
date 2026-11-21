@@ -1,4 +1,4 @@
-# Agent handoff — WP-13 archive metadata checkpoint
+# Agent handoff — WP-14 file publication in progress
 
 Date: 2026-11-21. Git/source and specifications remain authoritative.
 
@@ -32,6 +32,24 @@ reviewed-green-PR gate manually.
   Do not reimplement them. New source features are not in the released image.
 
 ## Current implementation
+
+Current active branch: feature/wp-14-safe-file-publication, from verified main
+ a480a2a11bed574ef098d37fb8c4b6a2961f9874 (PR #16 merged). Final WP-13 head
+f9e2b281a8b17cccd4b389f613014fce5d3d98bf passed CI 44881432325; main CI
+44881714517 passed; reviewed and merged trees match. Post-merge 48 archive
+tests, Ruff, system and migration checks passed. WP-14 changes are uncommitted
+and unpushed; remote takeover of WP-14 is not yet possible. No competing worktree.
+
+WP-14 now implements descriptor-anchored file primitives, safe naming and the
+registered actual worker publisher/reconciler, with failure/crash tests. POSIX primitives are
+required for physical effects; unsupported systems fail closed. Local full suite: 386 passed, 36 POSIX-only skips; four browser tests passed.
+Ruff/format, compilation, system/drift, actionlint and whitespace pass. Mandatory
+actual Linux CI/container publication tests remain before completion. No NAS or real files are involved.
+The small job prerequisite adds fenced pure metadata transactions and a handler
+acknowledgement hook in the same transaction as APPLIED receipt, including
+recovery of cancelled jobs. This prevents a physical-effect/DB-ack gap.
+
+### Previous WP-13 source checkpoint (superseded by integration above)
 
 Active branch feature/wp-13-archive-versions, comparison base
 480514264eee4aab15e77cc58447019d3a637154. Root/status/worktrees/existing branches
@@ -70,10 +88,11 @@ merge and merged main verification remain before WP-14.
 
 ## Next action and counts
 
-Verify the final documentation head of PR #16, all CI, reviews and full diff
-before exact-head merge;
-verify merged main/tree/CI before starting WP-14 safe physical publication.
+Finish WP-14 core/services, failure/recovery/negative and actual Linux/container
+tests; review complete diff, document evidence and integrate separately only with
+all acceptance and green CI. Continue the dependency-ready manual archive after
+verified main; do not stop automatically after WP-14.
 
-15 software-verified/integrated WPs; 56 unfinished (55 required + optional WP-43).
-WP-13 remains in progress until full acceptance and integration. Installation is
+16 software-verified/integrated WPs; 55 unfinished (54 required + optional WP-43).
+WP-13 is integrated. WP-14 remains in progress. Installation is
 an ops slice, not full WP-48/07/22. No hardware gate is inferred from Linux CI.

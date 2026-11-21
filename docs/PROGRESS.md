@@ -12,13 +12,13 @@ reflect actual completed work only.
 | WP-03a | Application shell and navigation | Merged, CI verified | PR #4; merge `e913d706d869de14f2e063eb0fb8b2835d548e98` | 90 tests, Ruff lint/format, local Playwright and combined CI run 44747734412 passed | None | Complete |
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
-| WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
+| WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Recovery/UI integrated through WP-05b/05c; published preview remains web-only |
 | WP-05b / WP-05c | Recovery, cancellation and job UI | Merged, CI verified | PR #11; merge `470e7c8b0421d91ae38fbc65b888c16e70b1088c` | 218 tests, 3 browser tests; final PR CI 44823906492 and main CI 44824237705 passed | None for software scope | WP-11/12 |
 | WP-11 / WP-12 | Musical catalog and members | Merged, CI verified | PR #12, merge `a2d7264`; browser follow-up PR #13, merge `2f4b0e9` | 265 tests, four browsers; final main CI 44842489941 passed | None for software scope | Complete |
 | WP-17 | Bounded PDF foundation | Merged, CI verified | PR #14, merge `c12e71c` | 319 Linux tests, four browsers; native image checks; main CI 44845475304 passed | NAS resource acceptance separate | Complete |
-| WP-13 | Archive identities and state transitions | Software verified; integration pending | PR #16, source `2c91b43`, base `4805142` | 48 focused tests; full Linux CI 44881080792: 373 tests, four browsers, actual container/install/security checks passed | Final head/main CI gate | Finish before WP-14 |
+| WP-13 | Archive identities and state transitions | Merged, CI verified | PR #16, merge `a480a2a` | 373 Linux tests, four browsers; final PR CI 44881432325 / main CI 44881714517 passed; merged tree matched | NAS gate separate | WP-14 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
-| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
+| WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
 | WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
@@ -687,3 +687,39 @@ remain unexecuted without their distinct approval. Preserve published preview as
   or unresolved threads. This checkpoint precedes final documentation CI and
   exact-head integration/main verification. Integrated count remains 15 / 56
   until that gate; WP-14 has not started. No physical NAS/release action.
+
+
+## WP-14 — Safe file publication (in progress)
+
+- WP-13 final head `f9e2b281a8b17cccd4b389f613014fce5d3d98bf`, final CI
+  `44881432325`, merged at `a480a2a11bed574ef098d37fb8c4b6a2961f9874`.
+  Main CI `44881714517` passed; exact merged tree matched. Post-merge 48 archive
+  tests, Ruff and system/drift checks passed. Counts: 16 integrated/software-
+  verified WPs; 55 unfinished (54 required plus optional WP-43).
+- Root/status/worktrees/upstream/existing branches checked; separate
+  `feature/wp-14-safe-file-publication` starts from that verified main.
+- Implementing descriptor-anchored read-only source access, bounded verified
+  staging, PDF validation, no-clobber publication, SMB-safe naming/collisions,
+  actual durable worker effects and recovery. A small job-framework prerequisite
+  adds fenced pure DB metadata and transactional receipt acknowledgement during
+  both normal publication and successor recovery. No real data/NAS/release use.
+- Physical publication requires POSIX no-follow/dir-fd primitives. Unsupported
+  platforms fail closed; Windows naming/metadata tests do not substitute for
+  mandatory actual Linux CI/container publication tests or private NAS gates.
+
+- WP-14 implementation checkpoint: real registered ARCHIVE_PUBLISH handler,
+  verified independent staging/canonical copies, protected target reservation,
+  exact retained-inode recovery and bounded temporary cleanup. Added pure DB
+  receipt acknowledgement to the current worker fence, including cancelled
+  recovery; known pre-publication refusals abandon intent, ambiguous effects do
+  not. NAS worker command validates identity, storage and migration readiness.
+- Local full suite: 386 passed, 36 POSIX-only skips (34 new physical publication
+  cases plus the existing two); four browser tests passed. Ruff/format (137
+  files), compilation, system/migration drift, actionlint and whitespace passed.
+  Latest POSIX durability refinements still require actual Linux execution.
+- New Linux acceptance includes independent worker death during copy, after
+  link, inside DB acknowledgement and after commit; stale owner, cancellation,
+  unrelated replacement/equal hash, explicit multi-part canonical approval and
+  withdrawal history. New actual hardened-image CI exercises non-root worker
+  publication with no network and independent host/mount RAW denial. These
+  essential gates are pending, not claimed passed. See FILE_PUBLICATION.md.
