@@ -9,7 +9,7 @@ of the domain apps are added as their packages land.
 from __future__ import annotations
 
 from django.http import JsonResponse
-from django.urls import path
+from django.urls import include, path
 
 from apps.accounts import views as account_views
 from apps.catalog import views as catalog_views
@@ -28,6 +28,7 @@ def healthz(_request) -> JsonResponse:
 
 
 urlpatterns = [
+    path("archive/preview/", include("apps.archive.preview_urls")),
     path("healthz", healthz, name="healthz"),
     path("", account_views.home_view, name="home"),
     path("login/", account_views.login_view, name="login"),

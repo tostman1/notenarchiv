@@ -1,0 +1,4 @@
+.preview-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.preview-controls input { width: 5rem; }
+.preview-surface { overflow: auto; max-height: 75vh; max-width: 100%; background: #ddd; padding: .5rem; }
+.preview-surface canvas { display: block; background: white; margin: auto; }
