@@ -39,7 +39,7 @@ async function smoke(origin) {
             "Übersicht", "Werke und Arrangements", "Instrumente und Stimmen", "Mitglieder", "Aufträge",
         ]);
         assert.deepEqual(await nav.locator('[aria-disabled="true"]').allTextContents(), [
-            "Notenbibliothek", "Indizierung", "Prüfwarteschlange", "Projekte", "Scanaufbereitung",
+            "Notenbibliothek", "Projekte", "Scanaufbereitung",
             "Einstellungen",
         ]);
         assert.equal(await nav.locator("li :is(a, button, [tabindex])").count(), 0);

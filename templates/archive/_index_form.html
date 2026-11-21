@@ -1,0 +1,5 @@
+{% load i18n %}
+<form method="post" action="{% url 'archive_index_start' %}" class="record-form">
+    {% csrf_token %}{{ form.as_p }}
+    <button type="submit">{% translate "Indizieren" %}</button>
+</form>

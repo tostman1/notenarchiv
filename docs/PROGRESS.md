@@ -861,3 +861,21 @@ remain unexecuted without their distinct approval. Preserve published preview as
   and non-atomic two-file STATUS mirror (JSON authoritative). WP-16 indexing UI,
   OCR WP-24/25, full integrity UI WP-27 and backup before real ingestion remain
   separate. Integrated count stays 19 / 52 until owner-approved integration.
+
+## WP-16 — Indexing UI and approved continuous sequence
+
+- Owner authorized conditional separate integrations: WP-15 merge, WP-16,
+  WP-20a, WP-20b, WP-21; primary worktree only, no releases/NAS/real ingestion.
+- WP-15 PR #21 head `5d7f5b5244c452c64784ac8a22a642cac58c635f` passed final
+  CI 44954321633, merged at `3a5a69234ffa2762a4631d78bcc0e92a083ae1a7`.
+  Merge tree equals reviewed head; main CI 44956825128 passed. Clean primary
+  worktree then started `feature/wp-16-indexing-ui` from this verified main.
+- WP-16 provides authenticated German folder overview/detail, selected/new
+  RAW-relative and full-archive submission, existing job progress/cancellation,
+  worker availability, pending-review counts/queue and mandatory inspection
+  guidance. Complete integrity action remains explicitly unavailable until WP-27.
+- Only exact APPLIED JSON receipts plus matching STATUS bytes and a completed
+  successful scan prove STATUS publication. Text markers never imply successful
+  indexing, approval or completeness. UI paths cannot choose arbitrary roots.
+- Unit/integration/browser acceptance and final CI gates in progress. Review UI
+  corrections/approval remain WP-20a; no auto-approval or deployment added.
