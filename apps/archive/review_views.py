@@ -38,7 +38,7 @@ def detail(request, file_id):
         action = request.POST.get("action")
         if action not in FORMS:
             raise Http404
-        failed_form = FORMS[action](request.POST)
+        failed_form = FORMS[action](request.POST, auto_id=action + "_%s")
         if failed_form.is_valid():
             try:
                 result = services.act(file, action, failed_form.cleaned_data, request.user)
@@ -116,10 +116,10 @@ def detail(request, file_id):
             "inspected": inspected,
             "jobs": jobs,
             "failed_form": failed_form,
-            "correction": forms.CorrectionForm(initial=initial),
-            "inspection": forms.InspectionForm(initial=initial),
-            "approval": forms.ApprovalForm(initial=initial),
-            "rejection": forms.RejectionForm(initial=initial),
+            "correction": forms.CorrectionForm(initial=initial, auto_id="correction_%s"),
+            "inspection": forms.InspectionForm(initial=initial, auto_id="inspection_%s"),
+            "approval": forms.ApprovalForm(initial=initial, auto_id="approval_%s"),
+            "rejection": forms.RejectionForm(initial=initial, auto_id="rejection_%s"),
             "audit": audit,
         },
         status=status,

@@ -85,6 +85,9 @@ def test_combined_corrected_assignment_inspection_and_approval_are_separate_dura
     assert client.post(url, values(file, "inspect", explicit="on")).status_code == 302
     assert proposal.inspections.get().reviewer_id == actor.pk
     assert client.get(url).context["inspected"]
+    body = client.get(url).content.decode()
+    assert 'id="inspection_explicit"' in body and 'id="approval_explicit"' in body
+    assert 'for="approval_explicit"' in body and 'id="id_explicit"' not in body
     response = client.post(url, values(file, "approve", explicit="on"))
     assert response.status_code == 302 and "/jobs/" in response.url
     file.refresh_from_db()
