@@ -515,3 +515,16 @@ remain unexecuted without their distinct approval. Preserve published preview as
   no submitted reviews or unresolved threads. Software-verified count: 14 WPs,
   57 unfinished. Documentation checkpoint precedes authorized PR #12 integration;
   final PR CI and merged-main verification remain mandatory before WP-17.
+
+- PR #12 merged at `a2d7264e43c823c612236e29effc414c8879cd97`; final PR CI
+  `44841417182` and main CI `44841705128` passed. Merged tree equals reviewed
+  head `c0d1a0af2e5cd72c5b4718412c9202e4c35a4645`. Local main: 265 tests passed.
+- An additional Windows browser run exposed a concurrent job-test failure:
+  Django's default shared-cache in-memory SQLite returned `database table is
+  locked`. That mode does not exercise the production file DB busy timeout.
+  A bounded follow-up uses an isolated temporary file DB for browser acceptance,
+  and asserts that the real worker uses its canonical lock. No production DB
+  settings, retry policy or browser assertions are weakened. Complete browser
+  and CI gates must pass before starting WP-17.
+- Follow-up local checks: all four browser tests passed; the real job lifecycle
+  then passed twice independently. Ruff lint/format and whitespace passed.

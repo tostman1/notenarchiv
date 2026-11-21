@@ -39,11 +39,10 @@ def test_real_job_lifecycle_in_browser(settings, tmp_path, request, monkeypatch)
             ctx.run_process([sys.executable, "-c", script, str(pulse)], timeout=30)
 
     monkeypatch.setitem(queue.HANDLERS, Job.Kind.INTEGRITY_CHECK, queue.Handler(validate_synthetic, process))
-    lock = tmp_path / "worker.lock"
-    # Use the same canonical lock as production for file-backed browser DBs.
     name = str(connections["default"].settings_dict["NAME"])
-    if name != ":memory:" and not name.startswith("file:"):
-        lock = Path(name).resolve().parent / "worker.lock"
+    assert not name.startswith("file:") and Path(name).is_file()
+    # The real file database and worker use exactly the production lock boundary.
+    lock = Path(name).resolve().parent / "worker.lock"
     completed = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 2})
     worker.run_worker(lock, once=True)
     failed = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 3})
