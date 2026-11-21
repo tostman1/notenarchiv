@@ -11,9 +11,10 @@ from datetime import timedelta
 
 import pytest
 from django.db import connections, transaction
+from django.db.migrations.executor import MigrationExecutor
 from django.utils import timezone
 
-from apps.jobs.models import AttemptRecord, Job, OperationIntent, WorkerLease
+from apps.jobs.models import AttemptRecord, Job, WorkerLease
 from apps.jobs.services import queue, worker
 from core.locking import ProcessLock
 from tests.test_queue import validate_synthetic
@@ -33,12 +34,10 @@ def sqlite_queue(tmp_path, django_db_blocker, monkeypatch):
     )
     with django_db_blocker.unblock():
         try:
-            with connections[aliases[0]].schema_editor() as editor:
-                editor.create_model(Job)
-                editor.create_model(WorkerLease)
-                editor.create_model(AttemptRecord)
-                editor.create_model(OperationIntent)
-            WorkerLease.objects.using(aliases[0]).create(pk=1)
+            # Protected archive operation references now participate in ORM deletion
+            # collection. Exercise the real schema, not a jobs-only approximation.
+            executor = MigrationExecutor(connections[aliases[0]])
+            executor.migrate(executor.loader.graph.leaf_nodes())
             yield aliases
         finally:
             for alias in aliases:

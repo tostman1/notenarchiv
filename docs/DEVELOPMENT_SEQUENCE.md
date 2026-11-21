@@ -35,8 +35,9 @@ The independent lanes below are coordination guidance, not dispatched agents.
   (55 required plus optional WP-43), PR #14 merged at c12e71c, final PR CI
   44845116222 / main CI 44845475304 passed. Separate simple installation is
   software-verified in PR #15 / CI 44848131876 (325 tests, four browsers and
-  actual published/candidate first installs). Verify final merge/main; this
-  does not imply full WP-48/NAS acceptance.
+  actual published/candidate first installs). This
+  does not imply full WP-48/NAS acceptance. PR #15 merged at 4805142;
+  final CI 44848528982 and main CI 44875615555 passed.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
@@ -121,7 +122,7 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
 | WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Software verified; CI 44841036938 / PR #12, merge checkpoint in HANDOFF.md |
 | WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
-| WP-13 | Archive versions and state model | WP-11 | Planned |
+| WP-13 | Archive versions and state model | WP-11 | Software verified in PR #16 / CI 44881080792; final integration gate pending |
 | WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
 | WP-17 | PDF processing foundation | WP-01 | Software verified; 319 Linux tests + native musl image acceptance, CI 44844708708 / PR #14 |
 | WP-19 | Filename and text-layer recognition | WP-13, WP-17 | Planned |

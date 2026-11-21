@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.archive_fixtures import archive  # noqa: F401 - shared pytest fixture
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 

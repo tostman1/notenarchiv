@@ -14,7 +14,9 @@ reflect actual completed work only.
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
 | WP-05b / WP-05c | Recovery, cancellation and job UI | Merged, CI verified | PR #11; merge `470e7c8b0421d91ae38fbc65b888c16e70b1088c` | 218 tests, 3 browser tests; final PR CI 44823906492 and main CI 44824237705 passed | None for software scope | WP-11/12 |
-| WP-11 / WP-12 | Musical catalog and members | Implemented; local acceptance verified | `feature/wp-11-12-catalog-members`, base `470e7c8` | 265 tests and 4 browser tests; migrations/reopen persistence, Ruff and system/drift/whitespace checks passed | Full Linux CI and integration remain | Finish this milestone before WP-17 |
+| WP-11 / WP-12 | Musical catalog and members | Merged, CI verified | PR #12, merge `a2d7264`; browser follow-up PR #13, merge `2f4b0e9` | 265 tests, four browsers; final main CI 44842489941 passed | None for software scope | Complete |
+| WP-17 | Bounded PDF foundation | Merged, CI verified | PR #14, merge `c12e71c` | 319 Linux tests, four browsers; native image checks; main CI 44845475304 passed | NAS resource acceptance separate | Complete |
+| WP-13 | Archive identities and state transitions | Software verified; integration pending | PR #16, source `2c91b43`, base `4805142` | 48 focused tests; full Linux CI 44881080792: 373 tests, four browsers, actual container/install/security checks passed | Final head/main CI gate | Finish before WP-14 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -624,3 +626,64 @@ remain unexecuted without their distinct approval. Preserve published preview as
   refusal cases passed. Vulnerability/secret scan passed. Full diff reviewed;
   no submitted reviews/unresolved threads. Final docs CI/merge/main remain before
   advancing. Physical NAS gates remain separate; package count stays 15 / 56.
+
+
+## Manual archive sequence â€” resumed 2026-11-21
+
+- Owner reaffirmed: finish current installation first, then separate dependency-safe
+  WP-13 and WP-14, continuing toward preview/index/review/search/download where
+  complete acceptance and manageable integration permit. No automatic stop after
+  WP-13/14, no OCR/project/printing prerequisite unless the plan requires it.
+- PR #15 final head `d2dff42303f73728e75a44eed83dad235ebad5f0` passed full CI
+  `44848528982`, merged at `480514264eee4aab15e77cc58447019d3a637154`; merged
+  main CI `44875615555` passed. Trees match; simplified installation is integrated.
+  Physical NAS acceptance and further releases remain unexecuted/unapproved.
+- A local installation archive was built and inspected without publication:
+  `.dev/notenarchiv-simple-install.tar.gz`, SHA-256
+  `5e2c8f7f425412de4e05a0a5e2ad33ed24852c211985980869de523be26d7196`.
+  It contains the exact published digest and all 14 intended regular files.
+- Root/status/worktrees/upstream/existing branch were checked, then
+  `feature/wp-13-archive-versions` started from verified main above. Archive app
+  has only its skeleton; no implementation is assumed. WP-13 is now in progress,
+  not complete. Counts remain 15 software-verified WPs / 56 unfinished.
+
+
+## WP-13 — Archive versions and state model
+
+- Separate branch from verified main `480514264eee4aab15e77cc58447019d3a637154`.
+  Added protected source/file/version identities, separate base/derivative content,
+  multiple part assignments, non-exclusive folder proposals, bounded local
+  recognition evidence, sealed review revisions, exact per-reviewer inspections,
+  audit history and job/attempt/intent-bound publication metadata.
+- Short write-first services preserve approved assignments during new analysis,
+  enforce explicit inspected approval and canonical receipts, reject stale edits,
+  and retain withdrawn/unavailable history. Source/index/candidate/review/CLEAN
+  availability are independent; no confidence-based auto-approval.
+- 47 focused tests passed, including actual migration/reopen persistence,
+  competing file-SQLite connections (one saved edit, one revision conflict),
+  protected references, invalid states/paths/metadata, multi-part confirmation,
+  stale/foreign proof, failed/wrong receipts and rollback. Four existing browser
+  tests passed. Ruff lint/format (129 files), system and migration drift checks
+  passed. Full regression suite and CI/integration remain in progress.
+- See ARCHIVE_MODEL.md for contracts. No physical copy, ingestion, review UI or
+  NAS validation is claimed by this model package. Counts remain 15 / 56 until
+  full acceptance and green integration complete.
+
+- Full regression after correcting the jobs-only SQLite test fixture: 370 passed,
+  two POSIX-only skips. All ten real queue/recovery tests passed using the actual
+  migrated schema; assertions and PROTECT constraints remain intact. Final diff
+  review added explicit derivative approval coverage: derivatives require their
+  own hash inspection and canonical publication in PROCESSED, never inherit base
+  approval; all 17 workflow tests passed after this refinement. Existing four
+  browser tests passed. Ruff, compilation, system/drift and whitespace checks
+  passed. Ready for separate commit/PR and actual Linux/container CI.
+
+- Source `2c91b43c06f989c205980e1acc99f84d4a8f5842` pushed on
+  `feature/wp-13-archive-versions`, PR #16. Final focused suite: 48 passed.
+  Full Linux CI `44881080792` passed: 373 tests (including both POSIX gates),
+  four browsers, runtime audit, actual non-root amd64 image/Compose/native PDF,
+  container and isolated restore, published/candidate simple first installs,
+  vulnerability and secret scans. Complete diff reviewed; no submitted PR reviews
+  or unresolved threads. This checkpoint precedes final documentation CI and
+  exact-head integration/main verification. Integrated count remains 15 / 56
+  until that gate; WP-14 has not started. No physical NAS/release action.
