@@ -111,6 +111,9 @@ def publish_status(context, root, record):
             finally:
                 os.close(descriptor)
             os.fsync(parent)
+        staged_data, staged_info = root.read(stage_path, maximum=16_384, checkpoint=context.checkpoint)
+        if staged_data != data or files.identity(staged_info) != identity:
+            raise files.FileError("STATUS_CONFLICT")
         with root.parent(path, create=True):
             pass
 

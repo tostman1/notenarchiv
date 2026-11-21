@@ -108,6 +108,7 @@ def _failure(context, entry, code):
 
 def _entry(context, entry, roots, processor):
     using = context.using
+    version = None
     if entry.kind == "UNSAFE":
         _failure(context, entry, "UNSAFE_FILE")
         return
@@ -184,7 +185,7 @@ def _entry(context, entry, roots, processor):
     except PdfError as error:
         pdf_code = error.code
         if (
-            "version" in locals()
+            version is not None
             and version.pdf_state == "UNCHECKED"
             and error.code in {"INVALID_PDF", "ENCRYPTED_PDF", "LIMIT_EXCEEDED", "UNSUPPORTED_ANNOTATION"}
         ):
