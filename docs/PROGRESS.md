@@ -13,7 +13,8 @@ reflect actual completed work only.
 | WP-04a | Technical logging and mode contract | Merged, CI verified | PR #5; merge `d4b2d2bcfdee21de0628a2141f995b0d49fd3441` | Windows unittest: 5 passed; Linux CI runs 44746685234 and 44747068821 passed | NAS acceptance outstanding | WP-04b |
 | WP-04b | Authenticated debug UI | Merged, CI verified | PR #6; merge `ec705b29bc56d212cad1c34369cc5ba9dd9821c5` | 110 local tests, 2 Playwright tests; Linux CI run 44749299835 passed | NAS acceptance pending | WP-05a |
 | WP-05a | Durable queue, claim and singleton worker | Merged, CI verified | PR #7; merge `5e6bacc816f69999bbe88eae11536cc2dee71da2` | 141 local tests, 2 browser tests; Linux CI 44757097570 passed | NAS acceptance pending | Web-only preview per DEC-09; WP-05b remains planned |
-| WP-05b / WP-05c | Recovery, cancellation and job UI | Software verified; integration pending | PR #11; source `77d4f60`, base `0be8e44` | 218 local tests, 3 browser tests; full Linux CI 44823399459 passed including real container/restore/security | Final documentation CI and merge pending | Verify main before WP-11/12 |
+| WP-05b / WP-05c | Recovery, cancellation and job UI | Merged, CI verified | PR #11; merge `470e7c8b0421d91ae38fbc65b888c16e70b1088c` | 218 tests, 3 browser tests; final PR CI 44823906492 and main CI 44824237705 passed | None for software scope | WP-11/12 |
+| WP-11 / WP-12 | Musical catalog and members | Implemented; local acceptance verified | `feature/wp-11-12-catalog-members`, base `470e7c8` | 265 tests and 4 browser tests; migrations/reopen persistence, Ruff and system/drift/whitespace checks passed | Full Linux CI and integration remain | Finish this milestone before WP-17 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker gate remains WP-05b | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -469,3 +470,48 @@ after those three; no WP-13, archive/OCR expansion, release or NAS deployment.
   Full diff reviewed; no submitted PR reviews/unresolved threads at this checkpoint.
   Documentation-only follow-up records verified acceptance before integration.
   Current software-verified total: 12 WPs, 59 unfinished. No new image release.
+
+## Owner extension and resumed milestone — 2026-11-21
+
+The owner explicitly extended the session: finish the actual active WP-11/12
+branch without discarding existing work; complete WP-17; then implement separate
+`feature/synology-simple-install` with standalone `configuration.yaml` and a
+concise primary German installation guide. Afterwards reassess and deliver the
+next manageable dependency-ready manual archive slice when fully verifiable.
+The earlier stop after WP-17 is revoked. Ordinary Git integration is authorized;
+additional releases, NAS changes, real data and destructive production operations
+remain unexecuted without their distinct approval. Preserve published preview assets.
+
+- WP-05b/05c is actually merged via PR #11 at
+  `470e7c8b0421d91ae38fbc65b888c16e70b1088c`; final PR CI `44823906492`
+  and merged main CI `44824237705` succeeded. The merged tree matches the
+  reviewed head. WP-11/12 starts from that verified base, not a duplicate job branch.
+- WP-11/12 provides UUID catalog/member models, normalized canonical variants and
+  part codes, explicit aliases with exactly one target, required protected member
+  assignment, expected/optional parts and reusable independently copied templates.
+  Unknown and deliberately defined empty expectations remain distinct.
+- Complete authenticated German CRUD/search/pagination/detail screens include
+  controlled references, explicit unused-record deletion, deactivation protection,
+  optimistic conflict detection, CSRF and escaped output. Referenced musical
+  identities cannot be silently retargeted. No archive files/roles are fabricated.
+- Local acceptance: 265 full pytest tests, four Playwright tests, Ruff lint/format,
+  Django system/migration-drift and whitespace checks passed. Separate interpreter
+  migrations/reopen tests preserve identities/assignments. Browser acceptance covers
+  equal titles/names, notation variants, template independence, member deactivation
+  and protected references; desktop/mobile screenshots inspected.
+- Full diff review, push/PR, Linux/container CI and verified merge remain the next
+  gates. These source features are not claimed to be in the published 0.1.0-preview.1.
+- Initial PR #12 source `32a7e065d9c1b8d562bbdc0d4b911fb56972e194` passed
+  265 Linux tests and runtime audit in CI `44840283911`, but its mobile browser
+  width assertion failed. Privacy-safe geometry diagnostics retained that exact
+  assertion; full CI `44840633432` then passed, including all browsers and actual
+  image/Compose/container/restore/security checks. An additional explicit load,
+  font and animation-frame boundary removes the unsynchronized measurement after
+  navigation/viewport resize. Final CI must still verify that follow-up.
+
+- Final source `3f1b30969843f508ffda082c4f80d94155aff392` passed full CI
+  `44841036938`: 265 tests, four browser tests, runtime audit, actual amd64 image,
+  Compose, container/restore and vulnerability/secret checks. Full diff reviewed;
+  no submitted reviews or unresolved threads. Software-verified count: 14 WPs,
+  57 unfinished. Documentation checkpoint precedes authorized PR #12 integration;
+  final PR CI and merged-main verification remain mandatory before WP-17.

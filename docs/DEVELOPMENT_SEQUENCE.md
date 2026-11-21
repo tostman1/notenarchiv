@@ -4,11 +4,13 @@ Owner priority shift: 2026-11-20 (DEC-09). Stable WP identifiers and original
 full-scope dependencies are preserved. This document counts packages, not
 commits or estimated effort; a partial package is still unfinished.
 
-Current owner-authorized session: strictly integrate WP-05b/05c, then WP-11/12,
-then WP-17 on the three explicitly named feature branches, each from verified
-main with complete acceptance and green CI before advancing. Stop after WP-17;
-the independent lanes below are future coordination guidance, not authorization
-to dispatch agents or begin WP-13/OCR during this session.
+Owner extension 2026-11-21: finish current WP-11/12 (WP-05b/05c is merged), then
+WP-17, then separate feature/synology-simple-install with standalone configuration.yaml
+and a concise German guide. Each starts from verified main and integrates fully
+before advancing. Afterwards select a bounded, dependency-ready manual archive
+slice when it can be completed and tested; the earlier stop after WP-17 is revoked.
+Do not infer authorization for additional releases, real data or NAS deployment.
+The independent lanes below are coordination guidance, not dispatched agents.
 
 ## Counts and preview boundary
 
@@ -24,7 +26,10 @@ to dispatch agents or begin WP-13/OCR during this session.
   approved `v0.1.0-preview.1` publication. See [release evidence](RELEASES.md).
 - Current source after verified WP-05b/05c acceptance: **12 complete, 59 unfinished**
   (58 required plus optional WP-43); CI `44823399459`, PR #11. The published
-  preview image is unchanged; verify the PR merge before starting WP-11/12.
+  preview image is unchanged; PR #11 merged at 470e7c8 with main CI 44824237705.
+- Current source after WP-11/12 acceptance: **14 complete, 57 unfinished**
+  (56 required plus optional WP-43); PR #12, full CI 44841036938. Verify its
+  final merge/main CI before starting WP-17.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
@@ -107,8 +112,8 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-10 | Versioned container release pipeline | WP-08 | Verified; v0.1.0-preview.1 published, pulled and attested; RELEASES.md |
 | WP-22 | Early NAS synthetic smoke | WP-07, WP-08, WP-04b, WP-05c | Planned |
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
-| WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Planned |
-| WP-12 | Membership and regular assignments | WP-11 | Planned |
+| WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Software verified; CI 44841036938 / PR #12, merge checkpoint in HANDOFF.md |
+| WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
 | WP-13 | Archive versions and state model | WP-11 | Planned |
 | WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
 | WP-17 | PDF processing foundation | WP-01 | Planned |

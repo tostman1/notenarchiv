@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ screen.title }} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{{ screen.title }}</h1>
+{% include "catalog/_navigation.html" %}
+<p><a class="button" href="{% url 'catalog_create' entity %}">{% translate "Neu anlegen" %}</a></p>
+<form method="get" class="filters">{{ form.as_p }}<button type="submit">{% translate "Suchen" %}</button></form>
+{% if page != None %}
+<div class="log-table"><table><thead><tr>
+{% for field, label in screen.columns %}<th>{{ label }}</th>{% endfor %}<th>{% translate "Kennung" %}</th><th>{% translate "Aktionen" %}</th>
+</tr></thead><tbody>{% for record, values in rows %}<tr>
+{% for value in values %}<td>{{ value }}</td>{% endfor %}
+<td>{{ record.pk|truncatechars:12 }}</td>
+<td><a href="{% url 'catalog_detail' entity record.pk %}">{% translate "Öffnen" %}</a> · <a href="{% url 'catalog_edit' entity record.pk %}">{% translate "Bearbeiten" %}</a></td>
+</tr>{% empty %}<tr><td>{% translate "Keine Einträge gefunden." %}</td></tr>{% endfor %}</tbody></table></div>
+<p>{% blocktranslate with number=page.number total=page.paginator.num_pages %}Seite {{ number }} von {{ total }}{% endblocktranslate %}</p>
+{% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Zurück" %}</a>{% endif %}
+{% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Weiter" %}</a>{% endif %}
+{% endif %}
+{% endblock %}

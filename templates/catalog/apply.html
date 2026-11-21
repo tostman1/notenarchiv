@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Besetzung übernehmen" %}{% endblock %}
+{% block content %}
+<h1>{% translate "Besetzung übernehmen" %}</h1><p>{{ record }}</p>
+<form method="post" class="record-form" action="{% url 'catalog_apply_template' record.pk %}">{% csrf_token %}{{ form.as_p }}<button type="submit">{% translate "Vorlage übernehmen" %}</button></form>
+<p><a href="{% url 'catalog_detail' 'arrangements' record.pk %}">{% translate "Zurück zum Arrangement" %}</a></p>
+{% endblock %}

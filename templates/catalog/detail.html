@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ screen.title }} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{{ screen.title }}</h1>{% include "catalog/_navigation.html" %}
+<dl>{% for label, value in fields %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>
+<p>{% translate "Kennung" %}: {{ record.pk }}</p>
+<p><a href="{% url 'catalog_edit' entity record.pk %}">{% translate "Bearbeiten" %}</a> · <a href="{% url 'catalog_delete' entity record.pk %}">{% translate "Unbenutzten Datensatz löschen" %}</a></p>
+{% if entity == 'works' %}
+<h2>{% translate "Arrangements dieses Werks" %}</h2>
+<ul>{% for item in arrangements %}<li><a href="{% url 'catalog_detail' 'arrangements' item.pk %}">{{ item }}</a></li>{% empty %}<li>{% translate "Noch keine Arrangements angelegt." %}</li>{% endfor %}</ul>
+<p><a href="{% url 'catalog_create' 'arrangements' %}?work={{ record.pk }}">{% translate "Arrangement hinzufügen" %}</a> · <a href="{% url 'catalog_list' 'arrangements' %}?work={{ record.pk }}">{% translate "Alle Arrangements anzeigen" %}</a></p>
+{% elif entity == 'instruments' %}
+<h2>{% translate "Spielbare Stimmen dieser Variante" %}</h2>
+<ul>{% for item in parts %}<li><a href="{% url 'catalog_detail' 'parts' item.pk %}">{{ item }}</a></li>{% empty %}<li>{% translate "Noch keine Stimmen angelegt." %}</li>{% endfor %}</ul>
+<p><a href="{% url 'catalog_create' 'parts' %}?instrument={{ record.pk }}">{% translate "Stimme hinzufügen" %}</a> · <a href="{% url 'catalog_list' 'parts' %}?instrument={{ record.pk }}">{% translate "Alle Stimmen anzeigen" %}</a></p>
+{% endif %}
+{% if entity == 'arrangements' %}
+<h2>{% translate "Erwartete Besetzung" %}</h2>
+{% if not record.expectations_defined %}<p>{% translate "Unbekannt: Es wurde noch keine Erwartungsliste festgelegt." %}</p>{% else %}<p>{% translate "Festgelegt. Diese Liste beschreibt die erwarteten Stimmen, nicht die Verfügbarkeit von Notendateien." %}</p>{% endif %}
+<ul>{% for entry in expectations %}<li>{{ entry.part }} — {% if entry.required %}{% translate "Erforderlich" %}{% else %}{% translate "Optional" %}{% endif %} · <a href="{% url 'catalog_edit' 'expectations' entry.pk %}">{% translate "Bearbeiten" %}</a> · <a href="{% url 'catalog_delete' 'expectations' entry.pk %}">{% translate "Entfernen" %}</a></li>{% empty %}<li>{% translate "Keine erwarteten Stimmen eingetragen." %}</li>{% endfor %}</ul>
+<p><a href="{% url 'catalog_create' 'expectations' %}?arrangement={{ record.pk }}">{% translate "Erwartete Stimme hinzufügen" %}</a></p>
+<p><a href="{% url 'catalog_list' 'expectations' %}?arrangement={{ record.pk }}">{% translate "Alle erwarteten Stimmen anzeigen" %}</a> · {% translate "Hier werden höchstens 200 Einträge angezeigt." %}</p>
+<h2>{% translate "Besetzungsvorlage übernehmen" %}</h2>
+<p>{% translate "Die aktuelle Vorlage wird kopiert. Spätere Änderungen an der Vorlage ändern diese Erwartungsliste nicht." %}</p>
+<form method="post" class="record-form" action="{% url 'catalog_apply_template' record.pk %}">{% csrf_token %}{{ apply_form.as_p }}<button type="submit">{% translate "Vorlage übernehmen" %}</button></form>
+{% elif entity == 'templates' %}
+<h2>{% translate "Stimmen der Vorlage" %}</h2>
+<ul>{% for entry in entries %}<li>{{ entry.part }} — {% if entry.required %}{% translate "Erforderlich" %}{% else %}{% translate "Optional" %}{% endif %} · <a href="{% url 'catalog_edit' 'template-parts' entry.pk %}">{% translate "Bearbeiten" %}</a> · <a href="{% url 'catalog_delete' 'template-parts' entry.pk %}">{% translate "Entfernen" %}</a></li>{% empty %}<li>{% translate "Keine Stimmen eingetragen." %}</li>{% endfor %}</ul>
+<p><a href="{% url 'catalog_create' 'template-parts' %}?template={{ record.pk }}">{% translate "Vorlagenstimme hinzufügen" %}</a></p>
+<p><a href="{% url 'catalog_list' 'template-parts' %}?template={{ record.pk }}">{% translate "Alle Vorlagenstimmen anzeigen" %}</a> · {% translate "Hier werden höchstens 200 Einträge angezeigt." %}</p>
+{% endif %}
+<p><a href="{% url 'catalog_list' entity %}">{% translate "Zur Liste" %}</a></p>
+{% endblock %}

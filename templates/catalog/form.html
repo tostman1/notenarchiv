@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ screen.title }} — {% translate "Bearbeiten" %}{% endblock %}
+{% block content %}
+<h1>{{ screen.title }} — {% if record %}{% translate "Bearbeiten" %}{% else %}{% translate "Neu anlegen" %}{% endif %}</h1>
+{% include "catalog/_navigation.html" %}
+<p>{% translate "Gleiche Namen und Titel bleiben getrennte Datensätze. Wählen Sie Zuordnungen über die vorhandenen Einträge." %}</p>
+<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button type="submit">{% translate "Speichern" %}</button></form>
+<p><a href="{% url 'catalog_list' entity %}">{% translate "Zur Liste" %}</a></p>
+{% endblock %}

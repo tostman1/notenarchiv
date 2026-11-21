@@ -25,6 +25,9 @@
 {% if user.is_authenticated %}
     <nav aria-label="{% translate 'Hauptnavigation' %}">
         <a {% if request.resolver_match.url_name == 'home' %}class="current" aria-current="page"{% endif %} href="{% url 'home' %}">{% translate "Übersicht" %}</a>
+        <a href="{% url 'catalog_list' 'works' %}">{% translate "Werke und Arrangements" %}</a>
+        <a href="{% url 'catalog_list' 'instruments' %}">{% translate "Instrumente und Stimmen" %}</a>
+        <a href="{% url 'catalog_list' 'members' %}">{% translate "Mitglieder" %}</a>
         <a {% if request.resolver_match.url_name == 'job_list' or request.resolver_match.url_name == 'job_detail' %}class="current" aria-current="page"{% endif %} href="{% url 'job_list' %}">{% translate "Aufträge" %}</a>
         {% if diagnostics_enabled %}
             <a {% if request.resolver_match.url_name == 'debug_logs' %}class="current" aria-current="page"{% endif %} href="{% url 'debug_logs' %}">{% translate "Debug / Logs" %}</a>
@@ -36,8 +39,6 @@
             <li aria-disabled="true">{% translate "Prüfwarteschlange" %}</li>
             <li aria-disabled="true">{% translate "Projekte" %}</li>
             <li aria-disabled="true">{% translate "Scanaufbereitung" %}</li>
-            <li aria-disabled="true">{% translate "Mitglieder" %}</li>
-            <li aria-disabled="true">{% translate "Instrumente und Stimmen" %}</li>
             <li aria-disabled="true">{% translate "Einstellungen" %}</li>
         </ul>
     </nav>
