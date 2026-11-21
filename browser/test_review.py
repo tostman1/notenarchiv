@@ -1,0 +1,78 @@
+"""Actual PDF review browser; Linux performs real canonical worker publication."""
+
+import hashlib
+import os
+import subprocess
+from pathlib import Path
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.db import connections
+
+from apps.archive import models as m
+from apps.archive.recognition import record_candidate
+from apps.archive.services import observe_version, register_base
+from apps.catalog import models as c
+from apps.jobs.models import Job, WorkerLease
+from apps.jobs.services.worker import run_worker
+from tests.archive_fixtures import PAGE
+from tests.pdf_fixtures import pdf
+from tests.test_archive_workflow import receipt
+
+
+@pytest.mark.django_db(transaction=True)
+def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path, request):
+    settings.STATIC_ROOT = tmp_path / "static"
+    settings.DEBUG_MODE = False
+    for setting, name in (
+        ("SOURCE_DIR", "raw"),
+        ("CURATED_DIR", "clean"),
+        ("PROCESSED_DIR", "processed"),
+        ("STATUS_DIR", "status"),
+    ):
+        path = tmp_path / name
+        path.mkdir()
+        setattr(settings, setting, path)
+    WorkerLease.objects.get_or_create(pk=1)
+    call_command("collectstatic", interactive=False, verbosity=0)
+    actor = get_user_model().objects.create_user("review-browser", password="Synthetic-review-135")
+    work = c.Work.objects.create(title="Synthetic review")
+    arrangement = c.Arrangement.objects.create(work=work, edition="Synthetic edition")
+    variant = c.InstrumentVariant.objects.create(name="Posaune", transposition="C", clef="BASS")
+    parts = [c.Part.objects.create(instrument=variant, code=str(n)) for n in (2, 3)]
+    folder = m.SourceFolder.objects.create(relative_path="Synthetic")
+    data = pdf()
+    version, _ = observe_version(
+        folder.pk,
+        "Synthetic/Synthetic review Posaune 1.pdf",
+        sha256=hashlib.sha256(data).hexdigest(),
+        byte_size=len(data),
+        pdf_state="VALID",
+        page_info=[PAGE],
+    )
+    file, _ = receipt(register_base(version.pk, "_Ungeprueft/review.pdf"))
+    record_candidate(
+        version.pk, filename="Synthetic review Posaune 1.pdf", text_lines=["Synthetic review", "Posaune 2"]
+    )
+    path = settings.CURATED_DIR / file.relative_path
+    path.parent.mkdir()
+    path.write_bytes(data)
+    (settings.SOURCE_DIR / "synthetic.pdf").write_bytes(data)
+    before = (settings.SOURCE_DIR / "synthetic.pdf").read_bytes()
+    server = request.getfixturevalue("live_server")
+    arguments = [server.url, str(file.pk), str(arrangement.pk), str(variant.pk), *[str(p.pk) for p in parts]]
+    script = str(Path(__file__).with_name("review.cjs"))
+    subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
+    file.refresh_from_db()
+    assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk
+    assert not m.ArchiveFile.objects.usable().exists()
+    if os.name == "posix":
+        subprocess.run(["node", script, "approve", *arguments], check=True, timeout=90)
+        assert Job.objects.filter(kind="ARCHIVE_PUBLISH", status="QUEUED").count() == 1
+        run_worker(Path(connections["default"].settings_dict["NAME"]).parent / "worker.lock", once=True)
+        file.refresh_from_db()
+        assert file.review_state == "CONFIRMED" and file.assignments.usable().count() == 2
+        assert (settings.CURATED_DIR / file.relative_path).read_bytes() == data
+        subprocess.run(["node", script, "confirmed", *arguments], check=True, timeout=60)
+    assert (settings.SOURCE_DIR / "synthetic.pdf").read_bytes() == before

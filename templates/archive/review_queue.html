@@ -3,8 +3,8 @@
 {% block content %}
 <h1>{% translate "Prüfwarteschlange" %}</h1>
 <p>{% translate "Jede neue oder geänderte Version vollständig visuell prüfen. Ein Dateiname, eine hohe Erkennungsqualität oder das Öffnen der Vorschau ist keine Freigabe." %}</p>
-<p class="hint">{% translate "Manuelle Korrektur und Bestätigung folgen mit WP-20a; hier sind noch keine Freigaben möglich." %}</p>
 <ul>{% for file in page %}<li>{{ file.source_version.source_file.relative_path }} · {{ file.candidate_label }} · {{ file.review_label }}
+<a href="{% url 'archive_review_detail' file.pk %}">{% translate "Version prüfen und zuordnen" %}</a>
 {% if file.publication_state == 'AVAILABLE' %}<a href="{% url 'archive_preview:viewer' file.pk %}">{% translate "PDF-Vorschau" %}</a>{% else %}{% translate "Kopie noch nicht verfügbar" %}{% endif %}</li>{% empty %}<li>{% translate "Keine Versionen in der Prüfwarteschlange." %}</li>{% endfor %}</ul>
 {% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %} {% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
 {% endblock %}

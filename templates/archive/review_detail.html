@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load static i18n %}
+{% block title %}{% translate "Version prüfen" %} — Notenarchiv{% endblock %}
+{% block content %}
+<a href="{% url 'archive_review_queue' %}">{% translate "Prüfwarteschlange" %}</a>
+<h1>{% translate "Version prüfen" %}</h1>
+<p>{{ file.source_version.source_file.relative_path }} · {{ file.review_label }} · {{ file.candidate_label }}</p>
+<p>{% translate "Öffnen und Vorschau gelten niemals als Inspektion oder Freigabe. Alle Seiten, Notation, Stimmung und enthaltenen Stimmen visuell prüfen." %}</p>
+{% if failed_form %}<div role="alert">{{ failed_form.errors }}</div>{% endif %}
+<div class="review-columns">
+<section aria-label="{% translate 'PDF-Inhalt' %}">{% include "archive/_pdf_viewer.html" %}</section>
+<section aria-label="{% translate 'Zuordnung und Erkennung' %}">
+<h2>{% translate "Erkennungsevidenz – keine Freigabe" %}</h2>
+{% for candidate in candidates %}<article><p>{% if candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
+<pre class="evidence">{{ candidate.excerpt }}</pre><p>{{ candidate.proposed_work|default:"—" }} · {{ candidate.proposed_arrangement|default:"—" }}</p>
+<ul>{% for entry in candidate.parts.all %}<li>{{ entry.part }}</li>{% endfor %}</ul>
+<p>{% translate "Erkennungsqualität (keine musikalische Gewissheit)" %}: {{ candidate.confidence|default_if_none:"—" }}</p>
+<ul>{% for reason in candidate.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+</article>{% empty %}<p>{% translate "Keine Erkennungsevidenz vorhanden. Zuordnung manuell prüfen." %}</p>{% endfor %}
+<h2>{% translate "Gespeicherte Zuordnung" %}</h2>
+<p>{{ proposal.arrangement|default:"—" }}</p><ul>{% for entry in parts %}<li>{{ entry.part }}</li>{% empty %}<li>{% translate "Noch keine kontrollierten Stimmen gespeichert." %}</li>{% endfor %}</ul>
+<form method="post" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="save">{{ correction.as_p }}<button>{% translate "Zuordnung speichern" %}</button></form>
+</section></div>
+{% if proposal and proposal.state == 'DRAFT' %}
+<h2>{% translate "Eigene visuelle Prüfung" %}</h2>
+<p id="inspection-state">{% if inspected %}{% translate "Von Ihnen für diese Version und Zuordnung visuell geprüft." %}{% else %}{% translate "Noch keine eigene visuelle Prüfung für diese Zuordnung." %}{% endif %}</p>
+<form method="post" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="inspect">{{ inspection.as_p }}<button>{% translate "Visuelle Prüfung speichern" %}</button></form>
+<form method="post" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="approve">{{ approval.as_p }}<button {% if not inspected %}disabled{% endif %}>{% translate "Freigabe beauftragen" %}</button></form>
+{% endif %}
+{% if proposal and proposal.state != 'APPROVED' and proposal.state != 'REJECTED' %}
+<form method="post" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="reject">{{ rejection.as_p }}<button>{% translate "Vorschlag verwerfen" %}</button></form>
+{% endif %}
+<h2>{% translate "Publikationsaufträge" %}</h2><ul>{% for job in jobs %}<li><a href="{% url 'job_detail' job.pk %}">{{ job.status_label }}</a>{% if job.error_message %} — {{ job.error_message }}{% endif %}</li>{% endfor %}</ul>
+<h2>{% translate "Prüfgeschichte" %}</h2><ul>{% for event in audit %}<li>{{ event.created_at }} · {{ event.event }} · {{ event.actor|default:"—" }}</li>{% empty %}<li>{% translate "Noch keine Prüfereignisse." %}</li>{% endfor %}</ul>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}

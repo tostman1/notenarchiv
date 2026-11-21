@@ -891,3 +891,22 @@ remain unexecuted without their distinct approval. Preserve published preview as
   passed. CI browser fixture now restores migration-seeded lease after test flush.
 - Complete diff reviewed and historical document bytes preserved. Final docs-head
   CI/conditional merge/main verification remain before WP-20a. No NAS/release use.
+
+## WP-20a — Individual review and publication
+
+- WP-16 PR #22 final head `bbc708a0b1be861534814ceba63bbf130d186fd2` passed
+  final CI 44959000193, merged at `4c75350b389a1b9b735be048b4cbd912b2c9f794`.
+  Exact merged tree matches reviewed head; main CI 44959464054 passed. Clean
+  primary worktree started `feature/wp-20a-individual-review` at that main.
+- Implemented secure PDF.js review alongside immutable filename/text candidates,
+  controlled arrangement/instrument/combined-part corrections, explicit per-account
+  version/proposal/hash-bound visual inspection and separate durable canonical
+  publication request. GET/preview never mutates review state; worker receipts
+  alone complete availability and confirmed assignments. Audit/rejection retained.
+- Existing preview exclusions remain: rejected/withdrawn files are not exposed
+  through WP-18 routes. New manual correction can restore a rejected pending
+  draft, but always requires a new inspection. No active-content/auth/CSRF/path
+  boundary is weakened; RAW and historical copies remain immutable.
+- Targeted local UI/preview/workflow checks: 55 passed / one POSIX skip before
+  final browser acceptance. Full regression/browser/Linux/container gates pending.
+  No OCR, preferred editions, project generation, NAS/release/deployment added.
