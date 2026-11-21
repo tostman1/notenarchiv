@@ -36,3 +36,12 @@ scoped work packages; this register does not claim those gates were exercised.
   persistent correction/inspection and no preview auto-approval. Linux continues
   through real canonical queue/worker publication, confirmed combined assignments
   and unchanged RAW; existing WP-14 recovery protects the same publication path.
+
+## WP-20b
+
+- AR-13/GR-04: `tests/test_batch_review.py` verifies personal inspection, signed
+  hash/version/proposal/revision/source state, stale/foreign/uninspected/changed
+  selection rejection, POST/CSRF and entire-batch transaction rollback.
+- `browser/test_batch_review.py` exercises real previous/next navigation, actual
+  PDF inspection, persistent two-file selection and Linux durable batch publication
+  with distinct no-clobber canonical destinations. Preview remains read-only.
