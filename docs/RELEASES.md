@@ -57,3 +57,22 @@ mount/startup/auth/restart/mode/isolated-restore acceptance and vulnerability/
 secret scans. The pipeline fix additionally passed its full CI. NAS/DSM ACL,
 TLS, resources and actual backup destination acceptance remain separate WP-22
 work and require explicit deployment authorization.
+
+
+## Future simplified installation bundles (unpublished source improvement)
+
+The original v0.1.0-preview.1 tag, image and release assets remain immutable.
+Source now includes standalone `configuration.yaml` and guarded
+`scripts/prepare-install.sh`. They use the existing published digest as their
+starting example. Users can obtain these new installation files from the source
+ZIP; they are not retroactively added to the original release archive.
+
+For a future separately authorized release, `scripts/package_install.py` packages
+the simple YAML/helper, advanced Compose/env example, primary German guide and
+technical operating runbooks. It pins all simple-install image references to the
+actual verified `release-digest.txt`, without modifying checked-out source files.
+The resulting archive needs no generation/preprocessing by the installer. Bundle
+creation is reproducible and refuses output overwrite or source/helper digest
+drift. Historical source recovery retains its original packaging layout. None of
+this publishes a new release or changes an existing asset; release notes and
+image/schema compatibility must still be reviewed for the actual future release.

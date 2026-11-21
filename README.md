@@ -1,164 +1,47 @@
 # Notenarchiv & Marschbuch-Generator
 
-**Published delivery: web-only technical preview, empty/synthetic data only.**
-Login/logout, German responsive navigation and authenticated Debug diagnostics
-are implemented. Music import/review, members, projects, OCR, generation and
-printing remain unavailable; the preview does not deploy a worker. No real
-archive attachment or NAS deployment is performed by CI.
+A local German-language application for a music association, targeting Synology
+DS224+ / Container Manager. RAW remains read-only; reviewed music will be kept as
+real hash-verified CLEAN copies, with separate derivatives and exports. Processing
+stays local. Every new/changed musical version requires human visual approval.
 
-The newer source implements job management, works/arrangements, instrument
-variants/parts, aliases, expected instrumentation/templates and member management
-with protected regular assignments. These additions are not in the immutable
-0.1.0-preview.1 image. See [master-data usage](docs/stammdaten.de.md) and
-[job management](docs/auftraege.de.md). A bounded isolated [PDF core](docs/PDF_CORE.md)
-provides developer primitives; no archive processing workflow is available yet.
+**[Installation auf der Synology (Deutsch)](docs/INSTALL.de.md)** — the primary
+first-install guide uses standalone [configuration.yaml](configuration.yaml),
+three essential edits and a guarded preparation helper. No `.env` is needed for
+the simple method. Actual NAS/ACL/TLS acceptance remains outstanding.
 
-Start with [the German installation quickstart](docs/INSTALL.de.md) and
-[technical installation instructions](docs/INSTALL.md). The approved
-[0.1.0-preview.1 release](https://github.com/tostman1/notenarchiv/releases/tag/v0.1.0-preview.1)
-is published; use its install bundle and immutable digest. [Publication and
-signature evidence](docs/RELEASES.md) records actual verification. The [full package
-register and development sequence](docs/DEVELOPMENT_SEQUENCE.md) retain all
-71 original work packages and distinguish partial preview slices.
+The immutable [0.1.0-preview.1 release](https://github.com/tostman1/notenarchiv/releases/tag/v0.1.0-preview.1)
+provides login/logout, German navigation, health and authenticated diagnostics.
+It accepts empty/synthetic test roots only. Its original install assets stay
+unchanged; obtain the new simple-install files as explained in the guide.
 
-A local, browser-based sheet music archive and personal music-folder generator for a music association. Digitize once, verify and organize the archive, then reuse the music for concert folders, marchbooks, entertainment folders and small ensembles.
+The newer verified source additionally includes:
 
-**Status:** Published web-only technical preview. The business features below remain target deliverables; unavailable UI actions are disabled.
-**Target:** Synology DS224+, Docker Compose, Linux amd64.  
-**Interface:** German. Technical development and documentation: English.
+- Durable job recovery/cancellation and German job management.
+- Works/arrangements, notation variants, parts, aliases, expected instrumentation,
+  templates and members with protected regular assignments and German CRUD/search.
+- Bounded isolated PDF inspection/text/rendering/merging primitives for developers.
 
-## What the application will do
+These additions are not in the published preview image. Archive ingestion/review,
+projects, OCR, music exports and printing are still unavailable. No new release,
+NAS deployment or connection to real association data occurs automatically.
 
-- Index NAS PDF folders, compare filenames with actual PDF text and local OCR, propose part assignments, and require archivist visual approval. Search titles immediately, manage arrangements and confirmed versions, identify missing music, and export individual notes directly.
-- Keep real, byte-identical, standardized PDF copies in a separate CLEAN archive. RAW never changes. Optional scan enhancement produces separate derivatives, with visual review.
-- Maintain members, instrument variants, playable parts, replacement rules and ensemble roles.
-- Save, reopen, edit and duplicate projects. Each project has exactly one shared piece list, automatic numbering and optional reserved slots. Select participating musicians from the association, including guests.
-- Change personal part assignments quickly using the matrix. Pick confirmed editions with the correct notation, use project defaults and override individual pieces; batch changes and reset are direct actions.
-- Produce full **personal** folders, selected project excerpts/reprints, direct archive notes and separate contents sheets. Missing parts require explicit confirmation and placeholders. Never stamp piece numbers onto music pages.
-- Generate separate reading and print PDFs. Preserve native A3 pages; pair A4 portrait pages within pieces on A3 landscape. Marchbook default 170 × 120 mm. Preview and print on verified network printers, with explicit fallback if necessary.
+For usage see [Stammdaten](docs/stammdaten.de.md), [Aufträge](docs/auftraege.de.md)
+and [Diagnose](docs/archivist-diagnostics.de.md). Operations: [advanced installation
+and security](docs/INSTALL.md), [backup/restore](docs/RESTORE.md),
+[updates](docs/UPDATE.md), [Debug mode](docs/DEBUG_MODE.md),
+[release/digest evidence](docs/RELEASES.md).
 
-### Example assignment matrix
+Development uses Python 3.12, Django 5.2 LTS, uv, Ruff and pytest:
+`uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`,
+`uv run pytest`. Browser acceptance runs separately with `uv run pytest browser/`
+and the documented local Playwright setup. See [developer setup](docs/DEVELOPMENT.md),
+[PDF API](docs/PDF_CORE.md), [catalog API](docs/CATALOG.md) and [job contracts](docs/JOB_FRAMEWORK.md).
 
-| Piece | Mathias | Sebi | Riccardo |
-| --- | --- | --- | --- |
-| Böhmischer Traum | Posaune 1 | Posaune 2 | Posaune 3 |
-| ABBA Medley | Posaune 1 | Posaune 2 | **Posaune 2** |
-| Abel Tasman | Posaune 1 | Posaune 2 | **Posaune 2** |
-
-Fictional example: Riccardo deliberately changes part on selected pieces; the other participants and shared piece list remain unchanged. A reprint for Riccardo uses the same effective assignment as his full folder.
-
-## Data safety
-
-```text
-RAW/        existing original PDFs, read-only
-CLEAN/      real byte-identical, organized copies, confirmed or clearly pending
-PROCESSED/  separately approved enhanced derivatives
-STATUS/     mirrored indexing/review markers, never stored in RAW
-EXPORT/     generated immutable PDFs and manifests
-DATA/       local SQLite database, job data, logs and cache
-```
-
-No automatic approval based on a filename or OCR confidence. Indexing is not review and review is not completeness. The application never modifies RAW. CLEAN is independently browsable as actual PDF files. See [requirements](REQUIREMENTS.md) for business rules and [architecture](ARCHITECTURE.md) for permissions, versioning and recovery.
-
-## Technology
-
-Python 3.12, Django 5.2 LTS, Gunicorn, WhiteNoise, HTMX, local CSS/JS, SQLite, one persistent background worker, pypdf, pypdfium2, ReportLab, OpenCV, Pillow, NumPy, Tesseract, pytest and Docker Compose. One image for web and worker, published in GitHub Container Registry after tests and approval. No external OCR, CDN, runtime cloud dependency or telemetry. Native library, licensing, NAS and printer checks remain pending.
-
-## Documents
-
-| File | Purpose |
-| --- | --- |
-| [REQUIREMENTS.md](REQUIREMENTS.md) | Normative product behavior, business rules and requirement IDs |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Technical design, data model, configuration, security, deployment |
-| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Ordered milestones, work packages, acceptance and tests |
-| [AGENTS.md](AGENTS.md) | Instructions and approval workflow for coding agents |
-| [DECISIONS.md](DECISIONS.md) | Confirmed decisions, design defaults and pending evidence |
-
-## Delivery roadmap
-
-1. Foundation, authentication, navigation, jobs, CI, secure container smoke test.
-2. Manual archive: indexing, physical copies, review, search, direct note export.
-3. Local OCR, recognition and incremental reindexing.
-4. Projects, ensemble, matrix, immutable preflight and full personal/partial exports (MVP).
-5. Scan enhancement and marchbook layout.
-6. Printer support, backup/restore, security and release validation.
-
-See the implementation plan for dependencies and release gates. The MVP is a useful milestone, not the full product.
-
-## Planned development and deployment
-
-Development uses `uv sync --locked`, `uv run pytest`, `uv run ruff check .` and `uv run ruff format --check .`. Local development selects the `local` profile explicitly (loopback-only, synthetic roots under `.dev/`): `source scripts/dev_env.sh` (POSIX) or `. ./scripts/dev_env.ps1` (PowerShell), then `uv run python manage.py migrate && uv run python manage.py collectstatic --noinput && uv run python manage.py runserver`. The deployment (`nas`) profile is the default and requires the full environment contract (see `.env.example`); validate it with `uv run python manage.py validate_config --service web|worker`. Follow the implementation plan before running commands that depend on files or services not yet created.
-
-The browser smoke uses a synthetic account and Django’s temporary live server. With Node, Chrome and playwright-core 1.62.1 available to Node, run `uv run pytest browser/test_shell.py`. Select an installed Edge browser with `BROWSER_CHANNEL=msedge`. CI installs the pinned Node package into a temporary directory.
-
-For NAS deployment, create a dedicated non-admin account `svc_notenarchiv`, determine UID/GID using `id`, prepare distinct roots and mount RAW read-only. The architecture includes the environment-variable contract and illustrative Compose configuration. Actual share paths, IDs, RAM, DSM version, DNS/HTTPS and printer support must be verified. Use an exact approved image tag/digest; never automatically deploy unreviewed changes. Installation/update/restore runbooks are deliverables of the plan.
-
-Deploy is default. To enable application diagnostics, set the following in the environment shared by web and worker in Compose, then recreate both containers:
-
-```yaml
-environment:
-  DEBUG_MODE: "TRUE"
-```
-
-Debug adds authenticated GUI logs and persistent rotating files; Django DEBUG remains False. `PRINT_ENABLED=0` until actual printer verification.
-
-## Contributing and licensing
-
-Follow [AGENTS.md](AGENTS.md). Use small reviewed work packages, meaningful commits and approved release/deployment steps. Test with synthetic fixtures; never put real association notes, member data, database files or secrets in the repository or external CI/AI systems. The application license and third-party notice inventory must be finalized with the owner; private use is not an exemption from dependency obligations.
-
-### Technical diagnostics (WP-04a)
-
-Both services read the same `DEBUG_MODE`. The web service defaults to
-`NOTENARCHIV_SERVICE=web`. Set `NOTENARCHIV_SERVICE=worker` on the worker.
-Deploy sends structured INFO and higher events to stdout. Debug also writes
-DEBUG and higher events under `/data/logs` (local profile: `logs/` under the
-development root). Each service retains its current file and five 10 MiB
-backups. Only one process can own each service file. For local debugging use
-`python manage.py runserver --noreload` to run a single web process.
-An unavailable output directory or occupied writer slot fails Debug startup.
-Changing back to Deploy preserves existing diagnostics.
-
-Use named diagnostic events and typed fields for application logging. Raw
-messages, exception details, request paths, cookies and subprocess output are
-excluded from the JSON format. Request diagnostics can include the HTTP status.
-
-### Authenticated diagnostics (WP-04b)
-
-In Debug, authenticated users can open `/diagnostics/`, filter fixed web/worker
-sources by level, component, job UUID and time, and start bounded live polling.
-All three routes (page, JSON records, sanitized NDJSON download) return 404 in
-Deploy, including when old files remain. Responses are not cacheable.
-
-The reader scans at most 64 KiB / 100 records per page and 1 MiB / 1000 records
-per download; live polling is sequential at two-second intervals with at most
-200 visible rows. Signed, source-bound cursors expire after one hour and follow
-retained files across rotation. Missing rotation history is reported explicitly.
-Stored fields are validated again, and symlinks / non-regular files are excluded.
-See the [German archivist guide](docs/archivist-diagnostics.de.md).
-
-### Durable worker baseline (WP-05a)
-
-Run migrations before starting `python manage.py run_worker` with
-`NOTENARCHIV_SERVICE=worker`. `--once` inspects the queue once; the default
-keeps polling. `python manage.py worker_healthcheck` requires a fresh worker
-heartbeat and unexpired lease, independently of the current job.
-
-The worker holds `worker.lock` beside the local SQLite database for its full
-lifetime. A singleton database lease, a unique RUNNING constraint, atomic
-conditional claims and attempt/generation fencing additionally protect state
-changes. Leases last 30 seconds and renew every five seconds, also while idle.
-Expiry is checked against database time when the SQL statement executes, so
-waiting for a SQLite write lock cannot revive an expired owner.
-Payloads require a registered domain validator, schema version 1 and at most
-16 KiB of JSON. Real job handlers arrive with their domain packages; no dummy
-production handler is installed by this baseline.
-
-SIGINT/SIGTERM stop new claims and allow the active handler to finish. A lost
-lease rejects progress/completion; an unfinished RUNNING job blocks takeover.
-Recovery, cancellation, retry policy and filesystem publication are WP-05b;
-this package does not expose a requeue/recovery command. PRINT handler
-acceptance uncertainty is retained as REVIEW_REQUIRED and never auto-retried.
-
-Auxiliary management commands (including healthchecks) use sanitized stdout
-only, even in Debug. They preserve DEBUG_MODE and Django DEBUG=False without
-competing for the running web/worker's rotating log file.
+The binding project context is [requirements](REQUIREMENTS.md),
+[architecture](ARCHITECTURE.md), [decisions](DECISIONS.md),
+[implementation plan](IMPLEMENTATION_PLAN.md) and [agent instructions](AGENTS.md).
+[Delivery sequence/counts](docs/DEVELOPMENT_SEQUENCE.md), [progress](docs/PROGRESS.md)
+and [handoff](docs/HANDOFF.md) distinguish software/CI, published images and
+unverified NAS gates. No real music, members, OCR, secrets or DB files belong in
+Git, CI artifacts, logs or external AI services.

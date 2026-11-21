@@ -1,81 +1,79 @@
-# Agent handoff — verified PDF integration checkpoint
+# Agent handoff — active simplified Synology installation
 
-Date: 2026-11-21. Git/source and repository specifications remain authoritative.
+Date: 2026-11-21. Git/source and specifications remain authoritative.
 
 ## Scope and authorization
 
-Finish WP-17 on its separate branch, then feature/synology-simple-install.
-The owner's extension supersedes the old stop after WP-17. Afterwards reassess
-one manageable dependency-ready manual archive slice; do not implement the whole
-suggested roadmap speculatively. Each milestone needs full acceptance, reviewed
-PR, green CI, authorized merge and verified main before dependent work.
+Complete the current feature/synology-simple-install milestone, then reassess a
+bounded dependency-ready manual archive slice. The owner explicitly revoked the
+old stop after WP-17 and authorized routine implementation/commit/push/PR/merge
+when complete acceptance, reviewed diff and green CI permit. Do not leave partial
+branches to chase a later package. Keep one main implementation milestone.
 
-Ordinary development/Git integration is authorized. Additional releases, NAS
-changes, real data, destructive production operations, paid services and changes
-to architecture/security invariants retain separate approval. Defer those actions.
+Additional releases, actual NAS/infrastructure changes, real music/member data,
+destructive production work, force pushes and architecture/security changes
+retain separate approval. Defer those actions. No such action has occurred.
 Published v0.1.0-preview.1 tag/image/assets remain immutable and unchanged.
 
 ## Actual checkpoint
 
-- Active branch: feature/wp-17-pdf-foundation.
-- Comparison base: 2f4b0e98bd81e4eff29b5c1326199f95c684986b, verified main.
-- Reviewed pushed PDF source: 309081c77ca296da1bdb8e1b13704da1c5aecc91,
-  PR #14. Full CI 44844708708 passed. This documentation checkpoint precedes
-  final PR CI, authorized merge and main verification.
-- WP-11/12 resumed and completed through PR #12, merge
-  a2d7264e43c823c612236e29effc414c8879cd97; head
-  c0d1a0af2e5cd72c5b4718412c9202e4c35a4645, PR CI 44841417182,
-  main CI 44841705128 passed. Full catalog/member German CRUD is integrated.
-- Extra Windows browser verification exposed shared-cache memory SQLite locking.
-  Browser acceptance now uses private file SQLite and the real canonical worker
-  lock. All four browsers and two independent job tests passed locally.
-  Follow-up PR #13 head 974348995e70ed97d8fe6eca57e300c4b547b802 passed full
-  CI 44842205008, merged at the current base; main CI 44842489941 passed.
-  Both merge trees exactly matched their reviewed heads.
-- WP-05b/05c is already merged in PR #11 at 470e7c8, with PR/main CI green.
-  No framework duplication. See PROGRESS.md for full comparison and evidence.
-- Existing branches/worktrees were checked before creating WP-17; current
-  checkout reused. Preserve existing integrated .dev/wp03a/.dev/wp04a clones.
+- Active branch: feature/synology-simple-install, created after root/status,
+  branch/worktree checks. Current implementation/docs are uncommitted at this
+  snapshot; inspect/preserve all tracked and untracked changes.
+- Comparison base: c12e71cc7c3d5676a5be5a4cadee1a39e6ea8cfc, verified main.
+- WP-17 is complete via PR #14. Source 309081c77ca296da1bdb8e1b13704da1c5aecc91
+  passed CI 44844708708. Final head 27f77f8d390cf76b181fa5805f42c04e5026ddfd
+  passed CI 44845116222, merged at the current base; main CI 44845475304 passed.
+  Exact merged tree matched. Linux 319 tests, four browsers and actual native
+  musl image PDF/container/restore/security acceptance passed. Windows 317 tests
+  plus two POSIX-only skips. See PDF_CORE.md and LICENSES.md.
+- WP-11/12 was resumed and completed in PR #12 (merge a2d7264), with the
+  concurrent file-SQLite browser follow-up PR #13 (merge 2f4b0e9). All source/main
+  CI passed and trees matched. WP-05b/05c is complete via PR #11 (470e7c8).
+  See PROGRESS.md for full SHAs and CI checkpoints; do not duplicate them.
+- Preserve existing branches and integrated clean .dev/wp03a/.dev/wp04a clones.
+  Main protection was unavailable (actual API 404); retain reviewed-green PR gate.
 
-## PDF implementation and checks
+## Installation implementation and remaining gates
 
-See PDF_CORE.md for API/limits and LICENSES.md for actual wheel/license evidence.
-Locked pypdf 7.1.1 / pypdfium2 5.15.2 support amd64 Windows and musl; pinned Alpine
-base remains. Input bytes are immutable, sources/CLEAN untouched. Pure core
-inspection/text, effective boxes/UserUnit/rotation, bounded RGB PNG/thumbnail and
-ordered vector-preserving page copy/merge run only in resource-limited child processes.
-No OCR, archive model/UI, human approval or product export endpoint is invented.
+Standalone configuration.yaml uses the published immutable digest, fixed
+/volume1/docker/notenarchiv subdirectories and three mandatory edits: actual
+UID:GID, hostname and HTTPS origin. No .env/custom YAML parser/new service.
+Read-only RAW/archive web mounts, non-root, protected file secret, private
+network/gateway, startup/health, explicit migration and interactive account
+provisioning remain intact. No real archive is attached automatically.
 
-Limits cover aggregate bytes, pages, pixels, geometry, text, decoding work,
-output, scratch per invocation, memory/CPU/time. Caller owns authorization,
-stable input reads, single-heavy-job serialization and durable publication.
-Windows Job limits and POSIX rlimits precede native imports; existing owned-tree
-cleanup/cancellation remains. Fixed errors never contain parser text. Merges
-remove interactive document state while retaining Type3 glyphs/transparency;
-unsupported visible annotations/forms fail rather than silently losing content.
+prepare-install.sh creates only missing directories/key, checks canonical paths,
+existing ownership/modes and actual non-admin account/group membership. Existing
+files/secrets/modes are preserved; missing secret beside existing DATA fails.
+RAW host checks include ownership/ancestor rename and sticky-parent rules.
+No recursive chmod/chown, overwrite, automatic migration/account or app startup.
 
-Final full Windows suite: 317 passed, two POSIX-only skips; four browsers
-passed. Latest parser/form refinements additionally passed targeted tests. Ruff,
-compile, system/migration drift, lockfile and whitespace passed. Full diff
-reviewed; PDFium/independent Poppler images visually inspected. Real process memory/CPU
-limits passed; Linux permissions/file rlimit and actual musl image rendering are
-CI gates passed in run 44844708708: 319 Linux tests, four browsers, runtime
-audit, actual amd64 image/Compose/container/restore/native musl PDF checks and
-vulnerability/secret scan. No reviews/threads remained; full diff reviewed.
-No local Docker is installed. Do not infer NAS acceptance from CI.
+Primary INSTALL.de.md now follows eight practical steps. README is concise;
+advanced installation, update, restore, Debug, developer and worker documents
+retain/consolidate technical details. Future release bundling includes the new
+YAML/helper/guide and pins their image to release-digest.txt at packaging time;
+installers need no preprocessing. Existing release assets are never rewritten.
 
-## Counts, release and next steps
+Final local full pytest: 323 passed, two POSIX-only skips; four browsers passed.
+Six focused bundle tests also passed, including source preservation,
+reproducibility, no overwrite and digest drift. Ruff (120 files), compilation,
+actionlint and Bash syntax passed. No local Docker is installed. New CI tests
+actual Compose plus the published and local candidate images' full first-install flows, interactive
+hidden-password provisioning, key preservation, host/container RAW denial,
+identity/mount/network constraints, migration/restart persistence and preparation
+negatives. Those CI tests have not yet run. Inspect every result; do not mark
+this milestone verified before them.
 
-Software-verified count: 15 WPs, 56 unfinished (55 required plus optional
-WP-43). Verify final PR/main integration before starting dependent work.
-Main protection was unavailable (actual API 404); preserve reviewed-green PR gate.
-Published preview source 62d85b36189293a59df2ef39729a538f5c53ad3b and exact image
-are recorded in RELEASES.md. New source features are not in that released image.
+## Counts and next action
 
-Verify final documentation CI, merge PR #14 at the reviewed exact head and
-verify main before simplified installation: standalone configuration.yaml
-using the immutable published digest, minimal essential edits, safe preparation,
-primary concise German guide, advanced runbooks retained, actual Compose/container
-and future release-bundle CI coverage. Never rewrite published assets or deploy
-on NAS. Actual DSM/ACL/TLS/filesystem/load/restore evidence remains private,
-unperformed and separately authorized. Synthetic development data only.
+15 fully software-verified/integrated WPs; 56 unfinished (55 required plus
+optional WP-43). Installation is an ops usability slice, not full WP-48/07/22
+completion. Actual DS224+/DSM/ACL/TLS/firewall/filesystem/load/backup acceptance
+remains private, unperformed and separately authorized. New source features
+are not in the published preview image; no additional release is authorized.
+
+Finish final review/local checks, commit/push/open a separate installation PR,
+resolve all CI failures, then verify the merged main. After that assess the next
+manageable complete manual archive integration boundary against IMPLEMENTATION_PLAN
+and DEVELOPMENT_SEQUENCE; do not begin an enormous speculative chain of WPs.

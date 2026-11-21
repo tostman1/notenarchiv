@@ -13,9 +13,12 @@ Before real ingestion, complete the full backup/restore and RAW gates.
 2. Choose a **new**, administrator-only directory on a privately managed
    backup destination outside DATA and the archive roots. Never reuse a live
    root or overwrite an older backup. Use 0700 permissions; no broad share access.
-3. Copy the entire stopped DATA directory, the protected secret file, `.env`,
-   `compose.yaml`, any applied Debug override and `release-digest.txt` into that
-   new snapshot. Preserve ownership/modes and record the exact image digest.
+3. Copy the entire stopped DATA directory, protected secret and the actual
+   Container Manager project file (`docker-compose.yml` / `configuration.yaml`
+   for the simple method). For the advanced method include `.env` and
+   `compose.yaml`. Include any applied Debug override, preparation/preflight
+   scripts and `release-digest.txt` or a private record of the exact image digest
+   in that new snapshot. Preserve ownership/modes and record the exact image digest.
    No file manifest substitutes for these actual copies. Logs are optional;
    copy no external music/member sources to GitHub or AI services.
 4. Record SHA-256 hashes of the copied files in a private manifest. Verify the
@@ -33,10 +36,13 @@ No production Hyper Backup task is created by this repository or release.
 1. Create new, separate test roots, DATA, config and secret locations. Keep
    the live project and its files intact. Copy the backed-up state into these
    new destinations; preserve service ownership and private secret permissions.
-2. Verify copied hashes. Change the restored `.env` to these new paths, a
+2. Verify copied hashes. Change the restored project file (simple) or `.env`
+   (advanced) to these new paths, a
    different private project name/port and the backed-up **exact image digest**.
    Never bind the restored project to the live DATA or real archive directories.
-3. Run the host preflight and Compose validation. Start web on the restored
+3. Run the host preflight as the service identity (`--simple UID GID ROOT`
+   for the standard directory layout, otherwise the advanced `.env` method)
+   and Compose validation. Start web on the restored
    schema/image. The same archivist credentials should work; the secret and
    DB must belong to the same snapshot. Check `/healthz`, login/logout and
    application preview state.
@@ -52,3 +58,7 @@ DSM ACLs and a real owner-run rehearsal remain unverified until WP-22.
 RAW requires its own independent NAS backup. Once actual CLEAN/PROCESSED data,
 review history, snapshots or outputs exist, this preview procedure is insufficient:
 use the complete WP-47a/WP-47b consistent state/retention procedures.
+
+The preparation helper is not a restore or upgrade tool. It never overwrites
+existing state or silently regenerates a missing secret beside populated DATA.
+Restore the original matching secret; do not bypass that failure with a new key.

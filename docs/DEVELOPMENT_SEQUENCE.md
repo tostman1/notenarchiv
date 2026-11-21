@@ -32,8 +32,9 @@ The independent lanes below are coordination guidance, not dispatched agents.
   follow-up PR #13 merged at 2f4b0e9; main CI 44842489941 passed. WP-17 starts
   from that verified main.
 - Current source after WP-17 acceptance: **15 complete, 56 unfinished**
-  (55 required plus optional WP-43), PR #14 / CI 44844708708. Final merge/main
-  verification precedes the separate simplified installation milestone.
+  (55 required plus optional WP-43), PR #14 merged at c12e71c, final PR CI
+  44845116222 / main CI 44845475304 passed. Separate simple installation is
+  in progress; it does not imply full WP-48/NAS acceptance.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
