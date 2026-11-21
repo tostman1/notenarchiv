@@ -59,7 +59,7 @@ Windows uses a waiting launcher assigned to a non-breakaway Job Object before
 the target can spawn. Cleanup waits for zero active processes. An unverified
 stop becomes REVIEW_REQUIRED and stops the worker; it cannot become CANCELLED
 or automatically retry. This containment is not a security sandbox for arbitrary
-untrusted executables. Native PDF limits are added by WP-17.
+untrusted executables. Native PDF limits are implemented in [PDF_CORE.md](PDF_CORE.md).
 
 Cancellation preserves already completed effects. Uncertain PRINT acceptance,
 including a cancellation/completion race, always needs review and never claims
@@ -78,3 +78,24 @@ and intent acknowledgement, idempotent reconciliation, old-attempt rejection,
 bounded retry/backoff, PRINT uncertainty, 20 independent SQLite claim/cancel
 races, actual child/grandchild cleanup, and a real browser-to-worker cancellation.
 NAS filesystem/hardware acceptance is separately tracked, not inferred from CI.
+
+
+## Development worker commands and fixed bounds
+
+After migrations, set `NOTENARCHIV_SERVICE=worker` and run
+`uv run python manage.py run_worker` in the explicit local/synthetic profile.
+`--once` checks the queue once; otherwise polling continues. Use
+`uv run python manage.py worker_healthcheck` to check the independent heartbeat
+and unexpired lease. The current installation Compose files deliberately deploy
+no domain worker. No dummy handler is registered to make these commands appear
+productive.
+
+Leases last 30 seconds and heartbeat every five seconds, including idle periods.
+Expiry is checked against database time at the SQL statement, so waiting for a
+SQLite write lock cannot revive expired ownership. Payloads need a registered
+domain validator, schema version 1 and at most 16 KiB JSON. Singleton lease,
+unique RUNNING constraint, atomic claims and generation/attempt fencing coexist
+with the lifetime OS lock. SIGINT/SIGTERM stop new claims and invoke cooperative
+shutdown/recovery policy above. Auxiliary commands preserve DEBUG_MODE and
+Django DEBUG=False without competing for a rotating writer slot. This current
+contract consolidates the earlier README worker baseline.

@@ -1,3 +1,4 @@
+# Advanced .env-based deployment. Standard first install: configuration.yaml and docs/INSTALL.de.md.
 name: notenarchiv-preview
 x-runtime: &runtime
   image: ${APP_IMAGE:?Set the published image digest}

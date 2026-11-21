@@ -1,4 +1,16 @@
-# Synology technical preview installation
+# Advanced Synology installation and security reference
+
+For the standard first installation, follow **[INSTALL.de.md](INSTALL.de.md)**.
+It uses standalone `configuration.yaml` and `scripts/prepare-install.sh`, without
+a `.env` file or runtime YAML parser. The helper creates only missing directories
+with explicit non-recursive ownership/modes and publishes a new secret without
+overwriting an existing path. Missing secrets beside existing DATA require
+recovery. It never migrates, starts the app, creates an account or changes DSM ACLs.
+
+The remaining commands below describe the **advanced** `compose.yaml` / `.env`
+method. Keep using one chosen configuration; do not operate two projects against
+the same DATA. A Container Manager editor upload is normally stored as
+`docker-compose.yml`; use that actual file for console maintenance.
 
 This is an **empty/synthetic-data technical preview**, not a usable music
 archive or the full M3/M6 release. Login/logout, German responsive navigation,
@@ -21,6 +33,8 @@ bind syntax to work around an old version. DS224+ must run the amd64 image.
 Actual NAS/ACL, reverse-proxy and hardware validation remain WP-22; no NAS
 deployment is performed by CI or by the release workflow.
 
+## Private network boundary
+
 Check the actual Docker engine/vendor fixes and NAS firewall privately. Docker
 documents that versions older than 28.0.0 can expose localhost-published ports
 to specially routed same-L2 clients. A private host-port/TLS boundary must be
@@ -28,6 +42,8 @@ verified from another LAN host (including the gateway/container route), or
 protected with an effective, tested host firewall/vendor fix before installation.
 Do not assume DSM's generic firewall page automatically filters Docker traffic.
 See [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/).
+
+## Advanced project directory
 
 Extract the installation bundle into a private project folder, for example
 `/volume1/docker/notenarchiv-preview/config`. Keep `.env` and secrets out of Git.
@@ -70,6 +86,12 @@ with the service GID and modes 0550 (files 0440), with an administrator-owned
 must not make RAW writable. DATA is owned by the service UID/GID (0700).
 The secrets directory is admin-owned/service-GID-readable (0750). DSM ACLs may
 override POSIX expectations: verify as the actual service identity.
+
+The service must not own RAW or an ancestor (otherwise it could chmod/rename
+them). No ancestor may permit service renaming; a sticky shared temporary parent
+is accepted only when its child belongs to another owner. The standard NAS root
+should have no writable ancestors. The simple helper checks the same host
+preflight through sudo as the actual UID/GID, including inherited DSM group ACLs.
 
 RAW has two independent protections: DSM filesystem permissions and the
 container's read-only mount. No startup or host preflight writes into RAW.
@@ -120,7 +142,7 @@ docker compose --env-file .env config --quiet
 docker compose --env-file .env pull
 ```
 
-The host check requires `sh`, `awk`, `grep`, `readlink`, `id` and `dirname`.
+The host check requires `sh`, `awk`, `grep`, `readlink`, `id`, `stat` and `dirname`.
 It verifies canonical distinct host sources and RAW access as the service
 identity without creating test files in RAW. Container startup separately
 checks actual mount identities, read-only flags, root filesystem, secret
@@ -205,6 +227,12 @@ secrets, actual OCR/music or personal data to issues or AI tools. Startup
 rejection usually means a missing host directory, unsafe mount/secret mode,
 root identity, missing migration, or occupied maintenance lock. Fix the cause;
 never disable validation or remove a live process lock file.
+
+A simple-install permission failure must be fixed in the targeted DSM ACLs.
+Do not recursively chmod/chown a share, change its general users group or grant
+administrator rights. The helper preserves unexpected existing modes and fails;
+inspect them manually. It uses `sudo`, `id`, `stat`, `readlink`, `mktemp`, ordinary
+POSIX file tools and Docker; no host Python installation is needed.
 
 The host-side preflight catches path/identity errors; the container-side check
 cannot prove DSM ACLs. A redirect loop means the proxy header/certificate/host

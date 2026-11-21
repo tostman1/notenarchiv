@@ -1,10 +1,22 @@
 # Deploy and Debug operation
 
-Deploy is the default: no active DEBUG_MODE key in compose.yaml. Django DEBUG
+Deploy is the default: no active DEBUG_MODE key in `configuration.yaml` or
+advanced `compose.yaml`. Django DEBUG
 is always False, in both modes. Authentication, CSRF, HTTPS cookies, path/mount
 validation, non-root identity and read-only filesystems remain active.
 
-To enable diagnostics, stop/recreate the web project with both files:
+To enable diagnostics, use the same active project and roots. For a simple
+Container Manager project, its base is usually `docker-compose.yml` (the pasted
+`configuration.yaml`). Place the unchanged `compose.debug.yaml` beside it and
+merge it explicitly; validate the pair first:
+
+```sh
+docker compose -f docker-compose.yml -f compose.debug.yaml config --quiet
+docker compose -f docker-compose.yml -f compose.debug.yaml up -d --force-recreate web gateway
+```
+
+With the source filename use `-f configuration.yaml` instead. For the advanced
+method stop/recreate the web project with both original files:
 
 ```sh
 docker compose -f compose.yaml -f compose.debug.yaml up -d --force-recreate web gateway
@@ -28,8 +40,32 @@ Authenticated users can open Debug / Logs, filter bounded pages and download
 sanitized excerpts. See [the German guide](archivist-diagnostics.de.md). Regular
 future business progress/review is independent of diagnostics.
 
-Return to Deploy using compose.yaml alone and force recreation. Existing Debug
+Return to Deploy using the same base file alone and force recreation. Remove
+the override from Container Manager as well; do not switch to another project. Existing Debug
 files are preserved; the menu disappears and all diagnostic routes return 404,
 including old log downloads. Do not delete logs automatically on a mode switch.
 An occupied writer slot or unusable log directory must fail clearly; stop the
 old process or correct permissions rather than disabling locking/security.
+
+
+## Technical event and reader contract
+
+Deploy sends structured INFO-and-higher events to stdout. Debug adds
+DEBUG-and-higher rotating files under `/data/logs` (local profile: the development
+root's `logs/`). `NOTENARCHIV_SERVICE` distinguishes web and worker. Both share
+DEBUG_MODE; management commands and liveness helpers use sanitized stdout only.
+For local Debug runserver use `--noreload` to avoid a second log writer. An
+unavailable log directory or occupied writer slot fails startup.
+
+Use named events and typed diagnostic fields. Raw messages, exception details,
+request paths, cookies and subprocess output are excluded. HTTP status is an
+allowed typed field. See `config/diagnostics.py`; never log business/OCR content.
+
+Authenticated `/diagnostics/` supports fixed web/worker sources, level,
+component, job UUID and time filters. Page, JSON and NDJSON-download routes are
+not cacheable and return 404 in Deploy. Readers scan at most 64 KiB / 100 records
+per page and 1 MiB / 1000 records per download. Live polling is sequential at
+two-second intervals with at most 200 visible rows. Signed source-bound cursors
+expire after one hour and follow retained files across rotation; missing history
+is reported. Stored fields are validated again; symlink/non-regular inputs are
+excluded. These implementation details moved here from README.

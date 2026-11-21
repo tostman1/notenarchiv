@@ -181,9 +181,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.validate.outputs.tag }}
         run: |
-          tar -czf notenarchiv-preview-install.tar.gz compose.yaml compose.debug.yaml .env.example \
-            scripts/preflight-host.sh docs/INSTALL.md docs/INSTALL.de.md docs/UPDATE.md \
-            docs/RESTORE.md docs/DEBUG_MODE.md docs/archivist-diagnostics.de.md docs/LICENSES.md release-digest.txt
+          if [ -f scripts/package_install.py ]; then
+            python3 scripts/package_install.py --digest-file release-digest.txt --output notenarchiv-preview-install.tar.gz
+          else
+            # Historical source recovery keeps the original install layout.
+            tar -czf notenarchiv-preview-install.tar.gz compose.yaml compose.debug.yaml .env.example \
+              scripts/preflight-host.sh docs/INSTALL.md docs/INSTALL.de.md docs/UPDATE.md \
+              docs/RESTORE.md docs/DEBUG_MODE.md docs/archivist-diagnostics.de.md docs/LICENSES.md release-digest.txt
+          fi
           gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "$RELEASE_TAG" \
             --notes-file docs/PREVIEW_RELEASE.md notenarchiv-preview-install.tar.gz \
             release-digest.txt image-sbom.cdx.json published-image-metadata.json

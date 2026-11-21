@@ -572,3 +572,55 @@ remain unexecuted without their distinct approval. Preserve published preview as
   PR reviews or unresolved threads; full diff reviewed. Software-verified count:
   15 WPs, 56 unfinished (55 required plus optional WP-43). Verify final docs CI
   and merged main before beginning the separate installation milestone.
+
+
+## Simplified Synology installation — 2026-11-21
+
+- Completed WP-17 before starting: PR #14 final head
+  `27f77f8d390cf76b181fa5805f42c04e5026ddfd`, CI `44845116222`, merge
+  `c12e71cc7c3d5676a5be5a4cadee1a39e6ea8cfc`; main CI `44845475304` passed.
+  Merged tree matched the reviewed head. Current verified/integrated count:
+  15 WPs, 56 unfinished. Published image/tag/assets remain unchanged.
+- Checked root/status/worktrees/existing branches, then started separate
+  `feature/synology-simple-install` from that verified main.
+- Standalone `configuration.yaml` uses the published immutable digest, three
+  essential edits (identity/host/origin), a fixed root with distinct subdirectories,
+  no `.env` or new parser/service. All runtime protections/profiles remain.
+- Guarded POSIX preparation creates only missing directories/key, validates
+  actual non-admin identity/membership, canonical paths and existing modes, never
+  recursively changes permissions, and refuses new keys beside existing DATA.
+  Host preflight now checks RAW ownership and ancestor rename boundaries, including
+  sticky-parent semantics, plus secret directory replacement denial.
+- German primary guide follows eight actual first-start steps; README is concise.
+  Technical diagnostics/developer/worker details were consolidated into appropriate
+  docs, including correcting the obsolete pre-recovery worker description. Update,
+  restore, Debug and advanced `.env` instructions distinguish the active base file.
+- Future bundle packaging includes the new files and bakes the verified release
+  digest into simple references without installer preprocessing or source changes.
+  Historical packaging and original published assets stay unchanged.
+- Local checkpoint: full pytest 321 passed / two POSIX skips, four browsers passed;
+  bundle coverage expanded afterward to six passing focused tests. Ruff (120 files),
+  compilation, actionlint and Bash syntax passed. Actual Compose parsing and
+  root/Linux helper/container tests cannot run locally (no Docker); new CI exercises
+  the published digest, real interactive provisioning, migration/restart persistence,
+  host/container RAW denial, identity/mount/network limits, key preservation and
+  negative preparation cases. CI has not yet run for this milestone.
+- Physical DSM/Container Manager UI/ACL/TLS/firewall/filesystem/restore acceptance
+  remains unperformed and separately authorized. This ops slice does not mark full
+  WP-48/07/22 or other hardware-dependent packages complete. No real data or NAS use.
+
+- Final local suite after bundle drift coverage: 323 passed, two POSIX-only skips;
+  four browsers passed. Six bundle tests pass. Ruff/format, compilation,
+  system/migration drift, actionlint, Bash syntax and revised local documentation
+  links passed; complete diff reviewed. CI runs the first-install procedure with
+  both the published immutable digest and the local candidate (no publication).
+  Linux/Compose/container verification is still pending before integration.
+
+- Source `c74e7c20ce1ee4348b6bc6e265d5517b88f2a820`, PR #15, passed full
+  CI `44848131876`: 325 Linux tests, four browsers, runtime audit, actual image,
+  Compose, container/restore/native PDF checks, and complete simple installation
+  with both published digest and current candidate. Interactive account/password
+  concealment, RAW negatives, persistence, key/data preservation and preparation
+  refusal cases passed. Vulnerability/secret scan passed. Full diff reviewed;
+  no submitted reviews/unresolved threads. Final docs CI/merge/main remain before
+  advancing. Physical NAS gates remain separate; package count stays 15 / 56.

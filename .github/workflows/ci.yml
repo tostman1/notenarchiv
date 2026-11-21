@@ -80,6 +80,8 @@ jobs:
         run: python3 scripts/check_compose.py
       - name: Exercise real container and isolated restore
         run: sudo python3 scripts/container_smoke.py --image notenarchiv-ci:verified
+      - name: Exercise standalone Synology installation with the published digest
+        run: sudo python3 -m scripts.simple_install_smoke --candidate-image notenarchiv-ci:verified
       - name: Verify pinned scanner
         run: |
           curl --fail --location --retry 3 -o "$RUNNER_TEMP/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
