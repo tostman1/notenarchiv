@@ -879,3 +879,15 @@ remain unexecuted without their distinct approval. Preserve published preview as
   indexing, approval or completeness. UI paths cannot choose arbitrary roots.
 - Unit/integration/browser acceptance and final CI gates in progress. Review UI
   corrections/approval remain WP-20a; no auto-approval or deployment added.
+
+- Implementation `2e8353a1c37e7d88129ad9bb23c1eb9ef3b2382e` passed full CI
+  44958536579: 493 Linux tests, six browsers including real index/worker/STATUS
+  and pending-review queue, runtime audit, actual image/Compose/container/restore,
+  worker publication, installation flows and vulnerability/secret scans.
+- Current local UI tests: five passed; all six browsers passed. Two full Windows
+  runs each had 436 passed / 53 platform skips / four existing queue timing
+  failures at differing cases; isolated queue/lifecycle suite had 42 passed.
+  No assertions or security checks weakened. Ruff/system/migration/lock/diff checks
+  passed. CI browser fixture now restores migration-seeded lease after test flush.
+- Complete diff reviewed and historical document bytes preserved. Final docs-head
+  CI/conditional merge/main verification remain before WP-20a. No NAS/release use.
