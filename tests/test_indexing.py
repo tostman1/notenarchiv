@@ -346,3 +346,63 @@ output=io.BytesIO(); writer.write(output)
         job,
     )
     assert raw_snapshot(installation.root / "raw") == before
+
+
+def test_cancel_index_before_copy_does_not_make_files_available(indexed_installation):
+    installation = indexed_installation
+    job = enqueue(installation)
+    script = """
+import django
+django.setup()
+from django.core.management import call_command
+from apps.archive import indexing
+from apps.jobs.services.lifecycle import request_cancel
+original = indexing._entry
+def cancel(context, *args, **kwargs):
+    request_cancel(context.job_id)
+    return original(context, *args, **kwargs)
+indexing._entry = cancel
+call_command('run_worker', once=True)
+"""
+    before = raw_snapshot(installation.root / "raw")
+    installation.run("-c", script)
+    query(
+        installation,
+        "from apps.archive import models as m\nfrom apps.jobs.models import Job\n"
+        "assert Job.objects.get(pk=data['job']).status=='CANCELLED'\n"
+        "assert not m.ArchiveFile.objects.usable().exists()\n",
+        job,
+    )
+    assert not list((installation.root / "clean").rglob("*.pdf"))
+    assert raw_snapshot(installation.root / "raw") == before
+
+
+def test_confirmed_copy_is_not_revoked_by_changed_or_missing_raw(indexed_installation):
+    installation = indexed_installation
+    identities = installation.action("setup")
+    installation.worker()
+    identities = installation.action("review", identities)
+    installation.worker()
+    approved = installation.action("check-approved", identities)
+    raw = installation.root / "raw" / "correct.pdf"
+    raw.write_bytes(raw.read_bytes() + b"\n% Changed synthetic source\n")
+    job = enqueue(installation)
+    installation.worker()
+    query(
+        installation,
+        "from apps.archive import models as m\n"
+        "assert m.ArchiveFile.objects.count()==2 and m.ArchiveFile.objects.usable().count()==1\n"
+        "assert m.ArchiveFile.objects.filter(review_state='PENDING').count()==1\n",
+        job,
+    )
+    raw.unlink()
+    job = enqueue(installation)
+    installation.worker()
+    query(
+        installation,
+        "from apps.archive import models as m\n"
+        "assert m.ArchiveFile.objects.usable().count()==1\n"
+        "assert m.SourceFile.objects.get().presence=='MISSING'\n",
+        job,
+    )
+    assert (installation.root / "clean" / approved["path"]).read_bytes() == synthetic_pdf()
