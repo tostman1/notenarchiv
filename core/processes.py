@@ -51,16 +51,23 @@ def _stop_posix(process):
         time.sleep(0.01)
 
 
-def run_process(arguments, *, timeout, checkpoint=lambda: None):
+def run_process(arguments, *, timeout, checkpoint=lambda: None, memory_bytes=None, cpu_seconds=None, file_bytes=None):
     """No shell, no inherited stdin, no logged/captured free-text output.
 
     Processes may stage results; only the worker's fenced publication callback
     may publish them. Windows starts a waiting launcher before job assignment.
+    Memory/CPU use POSIX rlimits or Windows Job limits. file_bytes is a POSIX
+    kernel limit; cross-platform writers must independently cap their output.
     """
     if not isinstance(arguments, (list, tuple)) or not arguments or not all(isinstance(arg, str) for arg in arguments):
         raise ValueError("Expected explicit process arguments")
     if not math.isfinite(timeout) or not 0 < timeout <= 3600:
         raise ValueError("Process timeout must be bounded")
+    limits = {"memory_bytes": memory_bytes, "cpu_seconds": cpu_seconds, "file_bytes": file_bytes}
+    for name, value in limits.items():
+        maximum = 3600 if name == "cpu_seconds" else 2**40
+        if value is not None and (type(value) is not int or not 1 <= value <= maximum):
+            raise ValueError("Process resource limits must be positive bounded integers")
     arguments = list(arguments)
     arguments[0] = shutil.which(arguments[0]) or str(Path(arguments[0]).resolve(strict=True))
     if len(json.dumps(arguments).encode("utf-8")) > 32768:
@@ -70,16 +77,15 @@ def run_process(arguments, *, timeout, checkpoint=lambda: None):
     if os.name == "nt":
         from core.windows_job import WindowsJob
 
-        job = WindowsJob()
-        command = [sys.executable, str(Path(__file__).with_name("_process_child.py"))]
-    else:
-        command = arguments
+        job = WindowsJob(memory_bytes=memory_bytes, cpu_seconds=cpu_seconds)
+    launcher = job is not None or any(value is not None for value in limits.values())
+    command = [sys.executable, str(Path(__file__).with_name("_process_child.py"))] if launcher else arguments
     process = None
     assigned = False
     try:
         process = subprocess.Popen(
             command,
-            stdin=subprocess.PIPE if job else subprocess.DEVNULL,
+            stdin=subprocess.PIPE if launcher else subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=job is None,
@@ -87,7 +93,8 @@ def run_process(arguments, *, timeout, checkpoint=lambda: None):
         if job:
             job.assign(process)
             assigned = True
-            process.stdin.write(json.dumps(arguments).encode("utf-8") + b"\n")
+        if launcher:
+            process.stdin.write(json.dumps({"arguments": arguments, "limits": limits}).encode("utf-8") + b"\n")
             process.stdin.close()
         deadline = time.monotonic() + timeout
         while process.poll() is None:
@@ -100,9 +107,9 @@ def run_process(arguments, *, timeout, checkpoint=lambda: None):
             raise ProcessFailed("Process did not complete successfully")
     finally:
         try:
+            if process and process.stdin and not process.stdin.closed:
+                process.stdin.close()
             if job:
-                if process and process.stdin and not process.stdin.closed:
-                    process.stdin.close()
                 if process and not assigned and process.poll() is None:
                     process.kill()
                 job.stop()

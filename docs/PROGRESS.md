@@ -528,3 +528,47 @@ remain unexecuted without their distinct approval. Preserve published preview as
   and CI gates must pass before starting WP-17.
 - Follow-up local checks: all four browser tests passed; the real job lifecycle
   then passed twice independently. Ruff lint/format and whitespace passed.
+
+
+## WP-17 — PDF foundation, 2026-11-21
+
+- Resumed WP-11/12, completed PR #12 and its bounded browser test correction
+  PR #13 before starting PDF work. PR #13 source
+  `974348995e70ed97d8fe6eca57e300c4b547b802` passed CI `44842205008`, merged at
+  `2f4b0e98bd81e4eff29b5c1326199f95c684986b`; main CI `44842489941` passed.
+  Both merged trees matched reviewed heads. Catalog/member acceptance is integrated.
+- Checked branches/worktrees/clean status and started
+  `feature/wp-17-pdf-foundation` at that verified main. No duplicate PDF branch.
+- Added locked pypdf 7.1.1 and pypdfium2 5.15.2; actual official Windows/musl
+  wheels, hashes and native notices inspected. Alpine baseline is preserved.
+- Pure core API accepts immutable byte snapshots, stages privately, and isolates
+  every parser/native operation with memory/CPU/time/output limits. Adds bounded
+  inspection/text, geometry/CropBox/UserUnit/rotation, thumbnails/PNG and ordered
+  vector-preserving merge. Source/CLEAN bytes are untouched; no archive UI/OCR,
+  approval, publication or generation feature is claimed.
+- Reviewed active-content removal without losing Type3 glyphs/transparency.
+  Unsupported visual annotations/forms fail explicitly rather than losing notation.
+  Synthetic tests cover malformed/encrypted/oversize files, every major resource
+  bound, compressed expansion, Unicode, A4/A3/custom rotations, effective crop,
+  cancellation/private cleanup and structural/pixel preservation. A container smoke
+  now exercises actual musllinux native PDF rendering in the hardened image.
+- Intermediate local full suite: 316 passed, two POSIX-only skips on Windows;
+  final form/active-content refinements and complete final gates are checked below.
+  No Docker runtime is installed locally: image/Compose/security and Linux rlimit
+  acceptance require GitHub CI. No NAS, real archive or additional release action.
+
+- Final local full suite: 317 passed, two POSIX-only skips on Windows. All four
+  Playwright browser tests passed. Latest parser/form refinements additionally
+  passed targeted checks. Ruff lint/format (117 files), compilation, system,
+  migration drift, locked dependency and whitespace checks passed. Full source
+  diff reviewed. Synthetic PDFium and independent Poppler images visually checked
+  (Poppler reported unavailable unused fallback fonts; the inspected German
+  text/lines were intact). PR/Linux/container gates remain before completion.
+
+- Source `309081c77ca296da1bdb8e1b13704da1c5aecc91`, PR #14, passed complete
+  CI `44844708708`: 319 Linux tests (including POSIX gates), four browsers,
+  runtime dependency audit, actual amd64 image/Compose/container/restore and
+  native musllinux PDF primitives. Vulnerability/secret scan passed. No submitted
+  PR reviews or unresolved threads; full diff reviewed. Software-verified count:
+  15 WPs, 56 unfinished (55 required plus optional WP-43). Verify final docs CI
+  and merged main before beginning the separate installation milestone.
