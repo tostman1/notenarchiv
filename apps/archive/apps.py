@@ -10,3 +10,6 @@ class ArchiveConfig(AppConfig):
         from apps.archive.publication import register
 
         register()
+        from apps.archive.indexing import register as register_indexing
+
+        register_indexing()

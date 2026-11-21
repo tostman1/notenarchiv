@@ -167,6 +167,51 @@ class SourceVersion(Record):
         ]
 
 
+class IndexScan(Record):
+    job = models.OneToOneField("jobs.Job", on_delete=models.PROTECT, related_name="index_scan")
+    selected_path = models.CharField(max_length=1024, blank=True)
+    inventory_ready = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
+    error_code = models.CharField(max_length=40, blank=True)
+
+    def clean(self):
+        path_value(self.selected_path, allow_root=True)
+        if self.job_id and reference(self, "job").kind != "INDEX_SCAN":
+            raise ValidationError("Index scan requires an indexing job.")
+
+
+class IndexFolder(Record):
+    scan = models.ForeignKey(IndexScan, on_delete=models.PROTECT, related_name="folders")
+    folder = models.ForeignKey(SourceFolder, on_delete=models.PROTECT, related_name="index_history")
+    snapshot = models.JSONField(default=dict, blank=True, validators=[bounded_json])
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["scan", "folder"], name="archive_index_folder_once")]
+
+
+class IndexEntry(Record):
+    scan = models.ForeignKey(IndexScan, on_delete=models.PROTECT, related_name="entries")
+    folder = models.ForeignKey(SourceFolder, on_delete=models.PROTECT)
+    relative_path = models.CharField(max_length=1024)
+    fingerprint = models.JSONField(default=list)
+    kind = models.CharField(max_length=16)
+    state = models.CharField(max_length=16, default="PENDING")
+    sha256 = models.CharField(max_length=64, blank=True, validators=[HASH])
+    error_code = models.CharField(max_length=40, blank=True)
+    source_version = models.ForeignKey(SourceVersion, on_delete=models.PROTECT, null=True, blank=True)
+    operation = models.ForeignKey("FileOperation", on_delete=models.PROTECT, null=True, blank=True)
+
+    def clean(self):
+        path_value(self.relative_path)
+        if self.kind not in {"FILE", "UNSAFE"} or self.state not in {"PENDING", "COPIED", "SKIPPED", "FAILED"}:
+            raise ValidationError("Invalid inventory entry state.")
+        if not isinstance(self.fingerprint, list) or len(self.fingerprint) != 5:
+            raise ValidationError("Invalid source fingerprint.")
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["scan", "relative_path"], name="archive_index_entry_once")]
+
+
 class RootKind(models.TextChoices):
     CLEAN = "CLEAN"
     PROCESSED = "PROCESSED"
