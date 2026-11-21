@@ -17,6 +17,7 @@ reflect actual completed work only.
 | WP-11 / WP-12 | Musical catalog and members | Merged, CI verified | PR #12, merge `a2d7264`; browser follow-up PR #13, merge `2f4b0e9` | 265 tests, four browsers; final main CI 44842489941 passed | None for software scope | Complete |
 | WP-17 | Bounded PDF foundation | Merged, CI verified | PR #14, merge `c12e71c` | 319 Linux tests, four browsers; native image checks; main CI 44845475304 passed | NAS resource acceptance separate | Complete |
 | WP-13 | Archive identities and state transitions | Merged, CI verified | PR #16, merge `a480a2a` | 373 Linux tests, four browsers; final PR CI 44881432325 / main CI 44881714517 passed; merged tree matched | NAS gate separate | WP-14 |
+| WP-14 | Safe file publication | Merged, CI verified | PR #17, merge `5874c7c` | 424 Linux tests, four browsers; final PR CI 44887606153 and main CI 44897447951 passed; merged tree matched | NAS gate separate | WP-15/18/19 |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -762,3 +763,54 @@ remain unexecuted without their distinct approval. Preserve published preview as
 - Final handoff: documentation CI 44886873476 passed at 36a2d80.
   Owner-supplied AGENTS.md transfer gate is included in the final marker commit.
   Reused existing verification; no implementation changes or expensive test rerun.
+
+## WP-19 — Filename and text-layer recognition
+
+- Base: verified main `5874c7c49f39ef05b3c8599819861fa6c27d8bac` (WP-14 merge,
+  PR #17; main CI `44897447951` passed, merged tree matched). Branch
+  `feature/wp-19-recognition`. Parallel agent works WP-18 in a separate
+  worktree/branch; WP-19 stays independent and does not touch preview code.
+- `core/recognition.py` (pure, no Django): NFKC/whitespace/casefold
+  normalization, German+English pitch classes, bounded roman numerals (1-999),
+  combined part-code splitting (`II/III`, `1-2`, `2_3`), label parsing
+  (instrument name + optional pitch + optional part code), numeric-or-roman
+  part equality and the agree/consistent/conflict/insufficient source relation.
+- `apps/archive/recognition.py`: bounded versioned `RuleSet` snapshot of the
+  active catalog (works, work aliases, variants, parts, instrument aliases)
+  hashed into the candidate `rule_version`; filename evidence (longest
+  resolving word suffix is instrument+parts, leading words are the title);
+  bounded heading-region text-layer heuristics (no OCR); PROPOSED/CONFLICT/
+  UNKNOWN verdict with bounded reasons and confidence; `record_candidate()`
+  persists immutable sealed `RecognitionCandidate`/`CandidatePart` rows and the
+  file's independent `candidate_state`. Idempotent under the same rule set;
+  rule changes keep history and add a new candidate. Never approves, never
+  changes review/publication/assignment states.
+- Contract: docs/RECOGNITION.md; traceability rows updated in
+  DEVELOPMENT_SEQUENCE.md and README.
+
+- Plan acceptance cases are covered by synthetic tests: exact/alias/unknown
+  work matches; pitch disambiguation (Klarinette A vs Bb); instrument aliases;
+  roman numerals matching digit parts; combined parts keep all parts
+  (`Tuba 1-2`, `Posaune II-III`); Unicode normalization (full-width spelling);
+  Posaune-1 vs Posaune-2 disagreement is a conflict; ambiguous instrument is a
+  conflict; rule-version change records a second candidate without touching the
+  first; candidates cannot auto-confirm (review/publication/assignment states
+  untouched, no proposals created); candidate and part immutability; bounded
+  excerpt. Local focused suite: 24 passed (8 core + 16 archive recognition).
+
+- Open reliability issue (not fixed, not weakened): on the local Windows
+  machine (OneDrive-mounted tree, loaded environment), full-suite runs of
+  `tests/test_job_lifecycle.py` show an intermittent, rotating lease/timing
+  failure (different test fails per run; always green in isolation and in the
+  merged-head Linux CI runs 44886399016/44887606153/44897447951). It predates
+  WP-19 (observed before this branch). Treated as a local-environment
+  flake, not a product defect; no test was weakened or skipped.
+
+- Pushed as `2b44d3b` (single commit on `feature/wp-19-recognition`), PR #19
+  open against main. Linux CI 44939684382 passed at that head (full pipeline
+  including container publication and browser tests). Main moved while the PR
+  was open: WP-18 (secure preview) merged at e04905a; no file overlap with
+  WP-19 (new modules plus doc rows only) and the PR stays mergeable.
+  No merge without owner approval. Count stays 16 integrated / 55 unfinished
+  until the integration gate. No NAS, release or preview-image action; published
+  assets unchanged.

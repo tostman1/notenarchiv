@@ -130,9 +130,9 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Software verified; CI 44841036938 / PR #12, merge checkpoint in HANDOFF.md |
 | WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
 | WP-13 | Archive versions and state model | WP-11 | Merged PR #16 at a480a2a; main CI 44881714517 passed |
-| WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Software verified on feature branch; PR #17 open draft, CI 44886399016 passed; stopped for owner review |
+| WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Merged PR #17 at 5874c7c; main CI 44897447951 passed |
 | WP-17 | PDF processing foundation | WP-01 | Software verified; 319 Linux tests + native musl image acceptance, CI 44844708708 / PR #14 |
-| WP-19 | Filename and text-layer recognition | WP-13, WP-17 | Planned |
+| WP-19 | Filename and text-layer recognition | WP-13, WP-17 | In progress on `feature/wp-19-recognition`; 24 local recognition tests passed; CI/push/PR pending |
 | WP-15 | Indexing and separate STATUS publication | WP-14, WP-17, WP-19, WP-05c | Planned |
 | WP-16 | Indexing UI | WP-15, WP-03a | Planned |
 | WP-18 | Secure PDF preview | WP-17, WP-13, WP-03a | Planned |

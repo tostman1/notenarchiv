@@ -37,8 +37,8 @@ Development uses Python 3.12, Django 5.2 LTS, uv, Ruff and pytest:
 `uv run pytest`. Browser acceptance runs separately with `uv run pytest browser/`
 and the documented local Playwright setup. See [developer setup](docs/DEVELOPMENT.md),
 [PDF API](docs/PDF_CORE.md), [catalog API](docs/CATALOG.md),
-[archive state contract](docs/ARCHIVE_MODEL.md), [file publication](docs/FILE_PUBLICATION.md)
-and [job contracts](docs/JOB_FRAMEWORK.md).
+[archive state contract](docs/ARCHIVE_MODEL.md), [file publication](docs/FILE_PUBLICATION.md),
+[recognition](docs/RECOGNITION.md) and [job contracts](docs/JOB_FRAMEWORK.md).
 
 The binding project context is [requirements](REQUIREMENTS.md),
 [architecture](ARCHITECTURE.md), [decisions](DECISIONS.md),
