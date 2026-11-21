@@ -806,7 +806,11 @@ remain unexecuted without their distinct approval. Preserve published preview as
   WP-19 (observed before this branch). Treated as a local-environment
   flake, not a product defect; no test was weakened or skipped.
 
-- Status: implemented, locally verified. Linux/container CI, diff review, push
-  and PR remain the next gates; no merge without owner approval. Count stays
-  16 integrated / 55 unfinished until the integration gate. No NAS, release or
-  preview-image action; published assets unchanged.
+- Pushed as `2b44d3b` (single commit on `feature/wp-19-recognition`), PR #19
+  open against main. Linux CI 44939684382 passed at that head (full pipeline
+  including container publication and browser tests). Main moved while the PR
+  was open: WP-18 (secure preview) merged at e04905a; no file overlap with
+  WP-19 (new modules plus doc rows only) and the PR stays mergeable.
+  No merge without owner approval. Count stays 16 integrated / 55 unfinished
+  until the integration gate. No NAS, release or preview-image action; published
+  assets unchanged.
