@@ -1,4 +1,4 @@
-# Agent handoff — active PDF foundation
+# Agent handoff — verified PDF integration checkpoint
 
 Date: 2026-11-21. Git/source and repository specifications remain authoritative.
 
@@ -19,8 +19,9 @@ Published v0.1.0-preview.1 tag/image/assets remain immutable and unchanged.
 
 - Active branch: feature/wp-17-pdf-foundation.
 - Comparison base: 2f4b0e98bd81e4eff29b5c1326199f95c684986b, verified main.
-- Current PDF source/docs are locally implemented; inspect uncommitted tracked
-  and untracked files. Commit/push/PR/CI/integration remain mandatory.
+- Reviewed pushed PDF source: 309081c77ca296da1bdb8e1b13704da1c5aecc91,
+  PR #14. Full CI 44844708708 passed. This documentation checkpoint precedes
+  final PR CI, authorized merge and main verification.
 - WP-11/12 resumed and completed through PR #12, merge
   a2d7264e43c823c612236e29effc414c8879cd97; head
   c0d1a0af2e5cd72c5b4718412c9202e4c35a4645, PR CI 44841417182,
@@ -58,18 +59,21 @@ passed. Latest parser/form refinements additionally passed targeted tests. Ruff,
 compile, system/migration drift, lockfile and whitespace passed. Full diff
 reviewed; PDFium/independent Poppler images visually inspected. Real process memory/CPU
 limits passed; Linux permissions/file rlimit and actual musl image rendering are
-CI gates. No local Docker is installed. Do not infer NAS acceptance from CI.
+CI gates passed in run 44844708708: 319 Linux tests, four browsers, runtime
+audit, actual amd64 image/Compose/container/restore/native musl PDF checks and
+vulnerability/secret scan. No reviews/threads remained; full diff reviewed.
+No local Docker is installed. Do not infer NAS acceptance from CI.
 
 ## Counts, release and next steps
 
-Current fully software-verified/integrated count: 14 WPs, 57 unfinished (56
-required plus optional WP-43). WP-17 counts only after complete remaining gates.
+Software-verified count: 15 WPs, 56 unfinished (55 required plus optional
+WP-43). Verify final PR/main integration before starting dependent work.
 Main protection was unavailable (actual API 404); preserve reviewed-green PR gate.
 Published preview source 62d85b36189293a59df2ef39729a538f5c53ad3b and exact image
 are recorded in RELEASES.md. New source features are not in that released image.
 
-Finish/review/test/push WP-17, open separate PR and resolve every CI failure.
-Verify merged main before simplified installation: standalone configuration.yaml
+Verify final documentation CI, merge PR #14 at the reviewed exact head and
+verify main before simplified installation: standalone configuration.yaml
 using the immutable published digest, minimal essential edits, safe preparation,
 primary concise German guide, advanced runbooks retained, actual Compose/container
 and future release-bundle CI coverage. Never rewrite published assets or deploy

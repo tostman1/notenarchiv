@@ -83,8 +83,8 @@ texts and platform-specific notices, not just the Python wrapper's license.
 The wheel's documentation license (CC-BY-4.0) is also retained. No native source
 or bundled notice is modified. References: [official package](https://pypi.org/project/pypdfium2/5.15.2/),
 [platform support](https://pypdfium2-team.github.io/pypdfium2/platforms.html).
-Actual musl loading/rendering and image vulnerability checks are CI gates;
-wheel availability alone is not evidence of runtime success.
+Actual musl loading/rendering and image vulnerability checks passed in CI
+44844708708 (PR #14); wheel availability alone was not used as runtime evidence.
 
 PDF fixtures use original synthetic text, paths, pixels and Type3 glyphs.
 Base-14 Helvetica references do not distribute a font binary. No real music or

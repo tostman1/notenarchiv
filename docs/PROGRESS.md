@@ -564,3 +564,11 @@ remain unexecuted without their distinct approval. Preserve published preview as
   diff reviewed. Synthetic PDFium and independent Poppler images visually checked
   (Poppler reported unavailable unused fallback fonts; the inspected German
   text/lines were intact). PR/Linux/container gates remain before completion.
+
+- Source `309081c77ca296da1bdb8e1b13704da1c5aecc91`, PR #14, passed complete
+  CI `44844708708`: 319 Linux tests (including POSIX gates), four browsers,
+  runtime dependency audit, actual amd64 image/Compose/container/restore and
+  native musllinux PDF primitives. Vulnerability/secret scan passed. No submitted
+  PR reviews or unresolved threads; full diff reviewed. Software-verified count:
+  15 WPs, 56 unfinished (55 required plus optional WP-43). Verify final docs CI
+  and merged main before beginning the separate installation milestone.
