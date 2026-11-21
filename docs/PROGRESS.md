@@ -508,3 +508,10 @@ remain unexecuted without their distinct approval. Preserve published preview as
   image/Compose/container/restore/security checks. An additional explicit load,
   font and animation-frame boundary removes the unsynchronized measurement after
   navigation/viewport resize. Final CI must still verify that follow-up.
+
+- Final source `3f1b30969843f508ffda082c4f80d94155aff392` passed full CI
+  `44841036938`: 265 tests, four browser tests, runtime audit, actual amd64 image,
+  Compose, container/restore and vulnerability/secret checks. Full diff reviewed;
+  no submitted reviews or unresolved threads. Software-verified count: 14 WPs,
+  57 unfinished. Documentation checkpoint precedes authorized PR #12 integration;
+  final PR CI and merged-main verification remain mandatory before WP-17.
