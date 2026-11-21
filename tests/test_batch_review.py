@@ -179,6 +179,7 @@ def test_previous_source_version_cannot_be_selected_after_new_hash(review_ui):
 
 def test_navigation_visits_both_pending_versions_without_inspecting_them(review_ui):
     import hashlib
+
     from tests.archive_fixtures import PAGE
     from tests.test_archive_workflow import receipt
 
