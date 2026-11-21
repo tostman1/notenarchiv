@@ -59,6 +59,11 @@ class CopyContext:
     def __getattr__(self, name):
         return getattr(self.context, name)
 
+    def checkpoint(self, progress=None):
+        # WP-14 reports per-copy percentages; INDEX_SCAN owns monotonic global
+        # progress. Preserve lease/cancellation checks without regressing it.
+        self.context.checkpoint()
+
 
 def _scan(context):
     return m.IndexScan.objects.using(context.using).get(pk=context.payload["scan_id"], job_id=context.job_id)
