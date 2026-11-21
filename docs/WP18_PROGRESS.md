@@ -27,5 +27,7 @@ secrets; synthetic-settings system check and migration-drift check then passed.
 Final targeted suite after busy-lock/forged-receipt and vendored integrity
 coverage: 22 passed / one POSIX skip. Complete diff reviewed; upstream notices
 and binary assets preserve exact bytes through scoped Git attributes.
-PR CI is not claimed complete at this checkpoint. NAS/real-data validation,
+PR #18 is open; implementation commit `467e6a5` is pushed. Container build
+context explicitly retains vendored PDF.js build modules despite the general
+build-artifact exclusion. PR CI is not claimed complete at this checkpoint. NAS/real-data validation,
 release and deployment remain unperformed.
