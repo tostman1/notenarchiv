@@ -196,6 +196,8 @@ def create_proposal(file_id, *, actor, arrangement_id, part_ids, expected_revisi
         proposal.sealed = True
         proposal.save(using=using)
         file.current_proposal = proposal
+        if file.review_state == "REJECTED" and file.approved_proposal_id is None:
+            file.review_state = "PENDING"
         file.save(using=using)
         _audit(
             file,

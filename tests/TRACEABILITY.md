@@ -24,3 +24,15 @@ scoped work packages; this register does not claim those gates were exercised.
 - `browser/test_indexing.py` exercises real browser full/selected enqueue and
   cancellation; Linux continues through the real worker, verified STATUS and
   pending preview queue, with identical RAW and no inspection/usable assignment.
+
+## WP-20a
+
+- GR-03/04/05, AR-12/13/14: `tests/test_review_ui.py` covers read-only GET/preview,
+  explicit version/proposal/hash/revision inspection, controlled combined parts,
+  incompatible/inactive selection, personal attestation, rejection/new revision,
+  corrupt bytes, failed publication and auth/CSRF. Metadata tests do not claim
+  physical publication; existing WP-14 crash/recovery tests remain required.
+- `browser/test_review.py` exercises actual PDF.js alongside candidate evidence,
+  persistent correction/inspection and no preview auto-approval. Linux continues
+  through real canonical queue/worker publication, confirmed combined assignments
+  and unchanged RAW; existing WP-14 recovery protects the same publication path.

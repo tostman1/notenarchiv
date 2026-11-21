@@ -891,3 +891,40 @@ remain unexecuted without their distinct approval. Preserve published preview as
   passed. CI browser fixture now restores migration-seeded lease after test flush.
 - Complete diff reviewed and historical document bytes preserved. Final docs-head
   CI/conditional merge/main verification remain before WP-20a. No NAS/release use.
+
+## WP-20a — Individual review and publication
+
+- WP-16 PR #22 final head `bbc708a0b1be861534814ceba63bbf130d186fd2` passed
+  final CI 44959000193, merged at `4c75350b389a1b9b735be048b4cbd912b2c9f794`.
+  Exact merged tree matches reviewed head; main CI 44959464054 passed. Clean
+  primary worktree started `feature/wp-20a-individual-review` at that main.
+- Implemented secure PDF.js review alongside immutable filename/text candidates,
+  controlled arrangement/instrument/combined-part corrections, explicit per-account
+  version/proposal/hash-bound visual inspection and separate durable canonical
+  publication request. GET/preview never mutates review state; worker receipts
+  alone complete availability and confirmed assignments. Audit/rejection retained.
+- Existing preview exclusions remain: rejected/withdrawn files are not exposed
+  through WP-18 routes. New manual correction can restore a rejected pending
+  draft, but always requires a new inspection. No active-content/auth/CSRF/path
+  boundary is weakened; RAW and historical copies remain immutable.
+- Targeted local UI/preview/workflow checks: 55 passed / one POSIX skip before
+  final browser acceptance. Full regression/browser/Linux/container gates pending.
+  No OCR, preferred editions, project generation, NAS/release/deployment added.
+
+- Final implementation `2122b51d15fe4cb4d5a42cf46297a564368c35eb` passed full
+  CI 44961573223: 505 Linux tests, seven browsers, locked runtime audit, actual
+  image/Compose/container/restore/worker publication, both installation flows and
+  vulnerability/secret scans. HTTP review -> real worker death after link ->
+  recovered canonical approval passed; RAW and controlled combined parts retained.
+- All seven local browsers passed before the final form-ID fix; final review
+  browser passed again afterward. Current focused review/workflow/preview suite:
+  51 passed / one POSIX skip. Ruff/system/migration/lock/diff checks passed.
+  Latest full Windows suite: 450 passed / 54 skips / one baseline queue timing
+  failure. Latest isolated queue run was also affected (29 passed / 13 failures),
+  despite earlier isolated successes. No local all-green claim or weakened test.
+- Browser approval failure was duplicate checkbox IDs: explicit form-specific
+  labels/IDs now preserve the separate attestations; server correctly rejected
+  missing approval. Regression asserts unique IDs. Synthetic diagnostics never
+  entered production error responses. Full diff reviewed; no PR review threads.
+- Final documentation-head CI remains separate before conditional merge. Hardware
+  gates, worker deployment/operations and backup before real data remain separate.
