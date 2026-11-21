@@ -28,7 +28,11 @@ def inspected(file, actor):
 
 
 def selection(file, actor):
-    if not inspected(file, actor):
+    if (
+        not inspected(file, actor)
+        or file.publication_state != "AVAILABLE"
+        or file.source_version.source_file.current_version_id != file.source_version_id
+    ):
         return ""
     return signing.dumps(
         {

@@ -7,6 +7,7 @@ from django.test import Client
 from django.urls import reverse
 
 from apps.archive import models as m
+from apps.archive import review_services
 from apps.archive import services as s
 from apps.archive.batch_review import approve_batch, selection
 from apps.jobs.models import Job
@@ -149,3 +150,28 @@ def test_second_enqueue_failure_rolls_back_every_batch_request(review_ui, monkey
         approve_batch([first, token], actor=actor, explicit=True)
     assert Job.objects.count() == before and not m.ArchiveProposal.objects.filter(state="APPROVAL_REQUESTED").exists()
     assert not m.AuditEvent.objects.filter(event="APPROVAL_REQUESTED").exists()
+
+
+def test_expired_selection_and_corrupt_clean_copy_are_rejected(review_ui, monkeypatch):
+    from django.core import signing
+
+    _client, file, actor, _arrangement, _variant, _parts, path = review_ui
+    token = prepared(review_ui)
+    with monkeypatch.context() as clock:
+        clock.setattr(signing.time, "time", lambda: 0)
+        expired = selection(file, actor)
+    with pytest.raises(ValidationError):
+        approve_batch([expired], actor=actor, explicit=True)
+    path.write_bytes(b"Synthetic changed managed bytes")
+    with pytest.raises(ValueError):
+        approve_batch([token], actor=actor, explicit=True)
+    assert not Job.objects.filter(status="QUEUED").exists()
+
+
+def test_previous_source_version_cannot_be_selected_after_new_hash(review_ui):
+    _client, file, actor, *_ = review_ui
+    prepared(review_ui)
+    source = file.source_version.source_file
+    s.observe_version(source.folder_id, source.relative_path, sha256="b" * 64, byte_size=1)
+    file = review_services.review_file(file.pk)
+    assert not selection(file, actor)
