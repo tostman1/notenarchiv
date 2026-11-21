@@ -21,7 +21,7 @@ from django.contrib.auth import get_user_model
 from apps.archive import models as m
 from apps.jobs.models import Job
 file=m.ArchiveFile.objects.get(pk=data['file'])
-client=Client(); client.force_login(get_user_model().objects.get(pk=data['actor']))
+client=Client(HTTP_HOST='localhost'); client.force_login(get_user_model().objects.get(pk=data['actor']))
 url=reverse('archive_review_detail',args=[file.pk])
 assert client.get(url).status_code==200
 assert m.ReviewInspection.objects.count()==0
