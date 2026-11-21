@@ -228,12 +228,17 @@ if mode == 'copy':
         os._exit(71)
     files.publish = die
 elif mode == 'status':
-    original = status.os.link
-    def die(*args, **kwargs):
-        original(*args, **kwargs)
-        if args[1] == 'INDEXSTATUS.json':
-            os._exit(71)
-    status.os.link = die
+    from apps.jobs.services.worker import JobContext
+    original = JobContext.publish
+    def die(self, key, payload, apply):
+        if key.startswith('index-status:'):
+            def effect():
+                result = apply()
+                os._exit(71)
+                return result
+            return original(self, key, payload, effect)
+        return original(self, key, payload, apply)
+    JobContext.publish = die
 else:
     original = indexing._record_inventory
     def die(*args, **kwargs):
