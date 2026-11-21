@@ -1,89 +1,77 @@
-# Agent handoff — verified catalog/member integration checkpoint
+# Agent handoff — active PDF foundation
 
 Date: 2026-11-21. Git/source and repository specifications remain authoritative.
 
-## Current scope and authorization
+## Scope and authorization
 
-Finish the active WP-11/12 first, then WP-17, then the separate simplified
-Synology installation milestone. The owner's 2026-11-21 extension supersedes the
-old stop after WP-17. After installation integration, reassess a manageable,
-dependency-ready manual archive slice that can be completed and verified.
-Do not assume every suggested archive/OCR WP is due in one session.
+Finish WP-17 on its separate branch, then feature/synology-simple-install.
+The owner's extension supersedes the old stop after WP-17. Afterwards reassess
+one manageable dependency-ready manual archive slice; do not implement the whole
+suggested roadmap speculatively. Each milestone needs full acceptance, reviewed
+PR, green CI, authorized merge and verified main before dependent work.
 
-Each milestone requires full acceptance, reviewed diff, commit/push/separate PR,
-green CI, authorized merge and verification of main before advancing. Routine
-Git is authorized. Additional releases, NAS changes, real archive/member data,
-destructive production work, paid services and fundamental architecture/security
-changes still require separate approval. Record/defer them; continue independent
-safe software work where appropriate. Published preview artifacts stay immutable.
+Ordinary development/Git integration is authorized. Additional releases, NAS
+changes, real data, destructive production operations, paid services and changes
+to architecture/security invariants retain separate approval. Defer those actions.
+Published v0.1.0-preview.1 tag/image/assets remain immutable and unchanged.
 
-## Actual Git checkpoint
+## Actual checkpoint
 
-- Current follow-up branch: fix/job-browser-sqlite (from verified main).
-- Catalog/member branch: feature/wp-11-12-catalog-members, merged PR #12.
-- Current follow-up base: a2d7264e43c823c612236e29effc414c8879cd97 (verified main).
-- Full catalog/member comparison base: 470e7c8b0421d91ae38fbc65b888c16e70b1088c.
-- Reviewed source head: 3f1b30969843f508ffda082c4f80d94155aff392, pushed on
-  the catalog/member branch; PR #12. Full CI 44841036938 passed. This documentation
-  checkpoint preceded merge a2d7264e43c823c612236e29effc414c8879cd97; final
-  PR CI 44841417182 and main CI 44841705128 passed. Trees match. A subsequent
-  local Windows browser run found a shared-memory SQLite test lock failure;
-  the current bounded fix switches browser tests to isolated file SQLite.
-  Verify its local/browser/CI integration before WP-17.
-- WP-05b/05c is complete and merged through PR #11 at 470e7c8.
-  Reviewed head: 74e7312acc87e3b0d4a5d1302d592c47b188ce3b.
-  Final PR CI 44823906492 and main CI 44824237705 passed; merged tree matched.
-  Do not duplicate that framework. Earlier full A comparison: 0be8e44..470e7c8.
-- Requested B branch/worktrees were checked before creation; none existed.
-  The current checkout is reused. Keep existing branches and already integrated
-  clean .dev/wp03a / .dev/wp04a clones. No branch deletion was requested.
+- Active branch: feature/wp-17-pdf-foundation.
+- Comparison base: 2f4b0e98bd81e4eff29b5c1326199f95c684986b, verified main.
+- Current PDF source/docs are locally implemented; inspect uncommitted tracked
+  and untracked files. Commit/push/PR/CI/integration remain mandatory.
+- WP-11/12 resumed and completed through PR #12, merge
+  a2d7264e43c823c612236e29effc414c8879cd97; head
+  c0d1a0af2e5cd72c5b4718412c9202e4c35a4645, PR CI 44841417182,
+  main CI 44841705128 passed. Full catalog/member German CRUD is integrated.
+- Extra Windows browser verification exposed shared-cache memory SQLite locking.
+  Browser acceptance now uses private file SQLite and the real canonical worker
+  lock. All four browsers and two independent job tests passed locally.
+  Follow-up PR #13 head 974348995e70ed97d8fe6eca57e300c4b547b802 passed full
+  CI 44842205008, merged at the current base; main CI 44842489941 passed.
+  Both merge trees exactly matched their reviewed heads.
+- WP-05b/05c is already merged in PR #11 at 470e7c8, with PR/main CI green.
+  No framework duplication. See PROGRESS.md for full comparison and evidence.
+- Existing branches/worktrees were checked before creating WP-17; current
+  checkout reused. Preserve existing integrated .dev/wp03a/.dev/wp04a clones.
 
-## WP-11/12 implementation and evidence
+## PDF implementation and checks
 
-Implemented catalog UUID models and protected relationships: works, arrangements,
-instrument/notation variants, playable parts, aliases, expected parts and reusable
-instrumentation templates. Members have one required regular part. Equal human
-names/titles never merge; variants/part codes have normalized canonical uniqueness.
-Aliases target a real variant or part; ambiguity is retained, not auto-resolved.
+See PDF_CORE.md for API/limits and LICENSES.md for actual wheel/license evidence.
+Locked pypdf 7.1.1 / pypdfium2 5.15.2 support amd64 Windows and musl; pinned Alpine
+base remains. Input bytes are immutable, sources/CLEAN untouched. Pure core
+inspection/text, effective boxes/UserUnit/rotation, bounded RGB PNG/thumbnail and
+ordered vector-preserving page copy/merge run only in resource-limited child processes.
+No OCR, archive model/UI, human approval or product export endpoint is invented.
 
-Complete authenticated German CRUD/search/detail/pagination, typed reference
-choices, active/inactive status, confirmed unused-record deletion, protected
-references and optimistic stale-edit detection are implemented. Referenced musical
-identity cannot be silently reinterpreted. Template application is a bounded,
-atomic independent copy with explicit replacement confirmation. Unknown and known
-empty expectation lists differ. No archive availability/role/processor is invented.
-See CATALOG.md and stammdaten.de.md.
+Limits cover aggregate bytes, pages, pixels, geometry, text, decoding work,
+output, scratch per invocation, memory/CPU/time. Caller owns authorization,
+stable input reads, single-heavy-job serialization and durable publication.
+Windows Job limits and POSIX rlimits precede native imports; existing owned-tree
+cleanup/cancellation remains. Fixed errors never contain parser text. Merges
+remove interactive document state while retaining Type3 glyphs/transparency;
+unsupported visible annotations/forms fail rather than silently losing content.
 
-Local Windows gates passed: 265 full pytest tests, four Playwright tests, Ruff
-lint/format, system/migration-drift checks and whitespace. Tests include actual
-migrate/reopen persistence in independent interpreters, normalized duplicates,
-controlled assignment, active-member protection, stale forms, copy independence,
-empty/unknown/bounded expectations, CSRF/XSS/search and a real German browser flow.
-Desktop/mobile screenshots were inspected. Full Linux CI 44841036938 passed:
-265 tests, four browser checks, actual amd64 image/Compose/container/restore and
-vulnerability/secret checks. No submitted reviews or unresolved threads. The
-complete diff was reviewed; final documentation CI and merged-main verification
-remain required.
+Final full Windows suite: 317 passed, two POSIX-only skips; four browsers
+passed. Latest parser/form refinements additionally passed targeted tests. Ruff,
+compile, system/migration drift, lockfile and whitespace passed. Full diff
+reviewed; PDFium/independent Poppler images visually inspected. Real process memory/CPU
+limits passed; Linux permissions/file rlimit and actual musl image rendering are
+CI gates. No local Docker is installed. Do not infer NAS acceptance from CI.
 
-## Published baseline and counts
+## Counts, release and next steps
 
-The immutable 0.1.0-preview.1 image is unchanged. Its application/tag source is
-62d85b36189293a59df2ef39729a538f5c53ad3b; RELEASES.md records the exact digest,
-successful completion run 44817372155, signatures and assets. New source features
-are not claimed to be available in that image. No new release is authorized.
-Software-verified count: 14 WPs, 57 unfinished (56 required plus optional WP-43).
-WP-11/12 has passed local/Linux/container acceptance; verify its authorized merge
-and main CI before starting the next milestone.
-Main protection was unavailable (actual API 404); retain the manual reviewed-green
-PR gate. Actual NAS/DSM/ACL/TLS/resource/backup tests remain unperformed and
-unauthorized. Synthetic data only; never include secrets or real music/member data.
+Current fully software-verified/integrated count: 14 WPs, 57 unfinished (56
+required plus optional WP-43). WP-17 counts only after complete remaining gates.
+Main protection was unavailable (actual API 404); preserve reviewed-green PR gate.
+Published preview source 62d85b36189293a59df2ef39729a538f5c53ad3b and exact image
+are recorded in RELEASES.md. New source features are not in that released image.
 
-## Next actions
-
-Complete and integrate the browser file-SQLite follow-up, then start
-feature/wp-17-pdf-foundation from latest verified main. Then implement
-feature/synology-simple-install: standalone configuration.yaml using the published
-immutable digest, minimal essential edits, safe first-install preparation and
-primary concise German guide. Preserve advanced Compose and technical runbooks;
-validate actual container behavior and future bundle inclusion. No release-asset
-rewrite or live NAS action. Afterwards reassess the next manual archive slice.
+Finish/review/test/push WP-17, open separate PR and resolve every CI failure.
+Verify merged main before simplified installation: standalone configuration.yaml
+using the immutable published digest, minimal essential edits, safe preparation,
+primary concise German guide, advanced runbooks retained, actual Compose/container
+and future release-bundle CI coverage. Never rewrite published assets or deploy
+on NAS. Actual DSM/ACL/TLS/filesystem/load/restore evidence remains private,
+unperformed and separately authorized. Synthetic development data only.

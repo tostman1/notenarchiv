@@ -10,7 +10,7 @@ from ctypes import wintypes
 
 
 class WindowsJob:
-    def __init__(self):
+    def __init__(self, *, memory_bytes=None, cpu_seconds=None):
         class Basic(ctypes.Structure):
             _fields_ = [
                 ("process_time", ctypes.c_longlong),
@@ -50,6 +50,12 @@ class WindowsJob:
             raise OSError("Cannot create process containment")
         limits = Extended()
         limits.basic.flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE, no breakaway.
+        if memory_bytes is not None:
+            limits.basic.flags |= 0x200  # JOB_OBJECT_LIMIT_JOB_MEMORY
+            limits.memory[1] = memory_bytes
+        if cpu_seconds is not None:
+            limits.basic.flags |= 0x4  # JOB_OBJECT_LIMIT_JOB_TIME (100 ns units)
+            limits.basic.job_time = cpu_seconds * 10_000_000
         if not self.api.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
             self.api.CloseHandle(self.handle)
             raise OSError("Cannot configure process containment")

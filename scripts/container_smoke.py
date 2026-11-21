@@ -259,6 +259,39 @@ for action in actions:
     assert hashlib.sha256(note.read_bytes()).hexdigest() == original
 
 
+def pdf_primitives(name):
+    # Actual musllinux PDFium loading/rendering in the hardened image, not merely
+    # wheel resolution or host tests. No archive file is opened or written.
+    code = """
+from io import BytesIO
+from pathlib import Path
+from pypdf import PdfWriter
+from pypdf.generic import DecodedStreamObject, NameObject
+from core.pdf import Processor, Selection
+scratch = Path('/data/pdf-smoke')
+scratch.mkdir(mode=0o700)
+try:
+    writer = PdfWriter()
+    page = writer.add_blank_page(595.2756, 841.8898)
+    content = DecodedStreamObject()
+    content.set_data(b'0 0 0 RG 4 w 30 30 m 200 100 l S')
+    page[NameObject('/Contents')] = writer._add_object(content)
+    stream = BytesIO()
+    writer.write(stream)
+    data = stream.getvalue()
+    processor = Processor(scratch)
+    assert processor.inspect(data).pages[0].paper == 'A4'
+    assert processor.extract_text(data) == ('',)
+    assert processor.thumbnail(data).startswith(b'\\x89PNG')
+    merged = processor.merge((Selection(data), Selection(data)))
+    assert len(processor.inspect(merged).pages) == 2
+    assert not list(scratch.iterdir())
+finally:
+    scratch.rmdir()
+"""
+    docker("exec", name, "python", "-c", code)
+
+
 def backup_restore(paths, root):
     snapshot = root / "backup"
     snapshot.mkdir(mode=0o700)
@@ -318,6 +351,7 @@ def smoke(image, root):
         )
         docker("run", "--rm", *arguments(paths, network), "--entrypoint", "python", image, "-c", fixture)
         port = start(image, paths, network, names[0])
+        pdf_primitives(names[0])
         cookies = authentication(port)
         assert request(port, "GET", "/diagnostics/", cookies=cookies)[0] == 404
         assert docker("run", "--rm", *arguments(paths, network), image, "migrate", check=False).returncode != 0
@@ -357,7 +391,8 @@ def smoke(image, root):
             assert PASSWORD not in output and "synthetic-private-OCR" not in output
         sys.stdout.write(
             "PASS: amd64/non-root/read-only mounts, independent RAW rights, startup negatives, "
-            "migrations, login/CSRF/logout, persistence, Debug switch, backup/isolated restore\n"
+            "migrations, login/CSRF/logout, persistence, Debug switch, backup/isolated restore, "
+            "isolated PDF primitives\n"
         )
     except Exception:
         # These containers contain deterministic synthetic fixtures only.

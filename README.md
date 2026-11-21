@@ -10,7 +10,8 @@ The newer source implements job management, works/arrangements, instrument
 variants/parts, aliases, expected instrumentation/templates and member management
 with protected regular assignments. These additions are not in the immutable
 0.1.0-preview.1 image. See [master-data usage](docs/stammdaten.de.md) and
-[job management](docs/auftraege.de.md). No archive processing is available yet.
+[job management](docs/auftraege.de.md). A bounded isolated [PDF core](docs/PDF_CORE.md)
+provides developer primitives; no archive processing workflow is available yet.
 
 Start with [the German installation quickstart](docs/INSTALL.de.md) and
 [technical installation instructions](docs/INSTALL.md). The approved

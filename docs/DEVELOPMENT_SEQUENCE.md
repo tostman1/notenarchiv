@@ -28,8 +28,9 @@ The independent lanes below are coordination guidance, not dispatched agents.
   (58 required plus optional WP-43); CI `44823399459`, PR #11. The published
   preview image is unchanged; PR #11 merged at 470e7c8 with main CI 44824237705.
 - Current source after WP-11/12 acceptance: **14 complete, 57 unfinished**
-  (56 required plus optional WP-43); PR #12, full CI 44841036938. Verify its
-  final merge/main CI before starting WP-17.
+  (56 required plus optional WP-43); PR #12 merged at a2d7264. Browser DB
+  follow-up PR #13 merged at 2f4b0e9; main CI 44842489941 passed. WP-17 starts
+  from that verified main.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
@@ -116,7 +117,7 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
 | WP-13 | Archive versions and state model | WP-11 | Planned |
 | WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
-| WP-17 | PDF processing foundation | WP-01 | Planned |
+| WP-17 | PDF processing foundation | WP-01 | Implemented locally on feature/wp-17-pdf-foundation; final CI/integration pending |
 | WP-19 | Filename and text-layer recognition | WP-13, WP-17 | Planned |
 | WP-15 | Indexing and separate STATUS publication | WP-14, WP-17, WP-19, WP-05c | Planned |
 | WP-16 | Indexing UI | WP-15, WP-03a | Planned |
