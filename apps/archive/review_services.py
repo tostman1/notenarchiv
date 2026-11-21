@@ -32,6 +32,11 @@ def verify_version(file, values):
 
 def act(file, action, values, actor):
     verify_version(file, values)
+    if (
+        file.operations.filter(job__status="REVIEW_REQUIRED").exists()
+        or file.operations.filter(state="REVIEW_REQUIRED").exists()
+    ):
+        raise ValidationError("Resolve uncertain publication before changing or repeating this review.")
     common = {"actor": actor, "expected_revision": values["expected_revision"]}
     if action == "save":
         return services.create_proposal(

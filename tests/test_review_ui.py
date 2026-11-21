@@ -168,3 +168,15 @@ def test_review_actions_require_auth_csrf_and_no_arbitrary_file_id(review_ui):
     assert strict.post(url, values(file, "save")).status_code == 403
     assert strict.get(reverse("archive_review_detail", args=[uuid4()])).status_code == 404
     assert strict.get(url).status_code == 200
+
+
+def test_uncertain_publication_cannot_be_retried_or_replaced(review_ui):
+    client, file, *_ = review_ui
+    save(review_ui)
+    url = reverse("archive_review_detail", args=[file.pk])
+    client.post(url, values(file, "inspect", explicit="on"))
+    client.post(url, values(file, "approve", explicit="on"))
+    Job.objects.filter(status="QUEUED").update(status="REVIEW_REQUIRED", error_code="OPERATION_UNCERTAIN")
+    before = Job.objects.count()
+    assert client.post(url, values(file, "approve", explicit="on")).status_code == 409
+    assert Job.objects.count() == before and not m.ArchiveFile.objects.usable().exists()
