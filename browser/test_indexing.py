@@ -10,7 +10,7 @@ from django.core.management import call_command
 from django.db import connections
 
 from apps.archive import models as m
-from apps.jobs.models import Job
+from apps.jobs.models import Job, WorkerLease
 from apps.jobs.services.worker import run_worker
 from tests.publication_scenario import synthetic_pdf
 from tests.test_indexing import raw_snapshot
@@ -19,6 +19,8 @@ from tests.test_indexing import raw_snapshot
 @pytest.mark.django_db(transaction=True)
 def test_index_submission_status_and_review_queue_in_browser(settings, tmp_path, request):
     settings.DEBUG_MODE = False
+    # Transactional browser tests flush seeded data between cases.
+    WorkerLease.objects.get_or_create(pk=1)
     settings.STATIC_ROOT = tmp_path / "staticfiles"
     for setting, name in (
         ("SOURCE_DIR", "raw"),
