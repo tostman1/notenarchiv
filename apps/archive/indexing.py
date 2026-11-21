@@ -133,6 +133,8 @@ def _entry(context, entry, roots, processor):
         existing = m.ArchiveFile.objects.using(using).filter(source_version=version, kind="BASE").first()
         if existing and existing.publication_state == "AVAILABLE":
             p.verified_bytes(existing.pk, using=using, checkpoint=context.checkpoint)
+            if entry.operation_id:
+                p.run(CopyContext(context, entry.operation))
         else:
             inspection = processor.inspect(data, include_text=True)
             if version.pdf_state == "UNCHECKED":
