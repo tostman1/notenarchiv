@@ -910,3 +910,21 @@ remain unexecuted without their distinct approval. Preserve published preview as
 - Targeted local UI/preview/workflow checks: 55 passed / one POSIX skip before
   final browser acceptance. Full regression/browser/Linux/container gates pending.
   No OCR, preferred editions, project generation, NAS/release/deployment added.
+
+- Final implementation `2122b51d15fe4cb4d5a42cf46297a564368c35eb` passed full
+  CI 44961573223: 505 Linux tests, seven browsers, locked runtime audit, actual
+  image/Compose/container/restore/worker publication, both installation flows and
+  vulnerability/secret scans. HTTP review -> real worker death after link ->
+  recovered canonical approval passed; RAW and controlled combined parts retained.
+- All seven local browsers passed before the final form-ID fix; final review
+  browser passed again afterward. Current focused review/workflow/preview suite:
+  51 passed / one POSIX skip. Ruff/system/migration/lock/diff checks passed.
+  Latest full Windows suite: 450 passed / 54 skips / one baseline queue timing
+  failure. Latest isolated queue run was also affected (29 passed / 13 failures),
+  despite earlier isolated successes. No local all-green claim or weakened test.
+- Browser approval failure was duplicate checkbox IDs: explicit form-specific
+  labels/IDs now preserve the separate attestations; server correctly rejected
+  missing approval. Regression asserts unique IDs. Synthetic diagnostics never
+  entered production error responses. Full diff reviewed; no PR review threads.
+- Final documentation-head CI remains separate before conditional merge. Hardware
+  gates, worker deployment/operations and backup before real data remain separate.
