@@ -15,3 +15,12 @@ Windows skips are not substitutes for their CI evidence.
 
 OCR, human review UI, NAS permissions/load and full integrity UI remain separately
 scoped work packages; this register does not claim those gates were exercised.
+
+## WP-16
+
+- AR-04/UI-03: `tests/test_index_ui.py` verifies authenticated POST/CSRF selected/all
+  queueing, bounded folder/review lists, worker/error visibility and exact JSON
+  receipt/byte verification. Text-marker-only state cannot imply success.
+- `browser/test_indexing.py` exercises real browser full/selected enqueue and
+  cancellation; Linux continues through the real worker, verified STATUS and
+  pending preview queue, with identical RAW and no inspection/usable assignment.

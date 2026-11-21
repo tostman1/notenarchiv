@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Quellordner" %} — Notenarchiv{% endblock %}
+{% block content %}
+<a href="{% url 'archive_index' %}">{% translate "Alle Quellordner" %}</a>
+<h1>{{ folder.relative_path|default:_("Gesamtes Archiv") }}</h1>
+{% include "jobs/_worker.html" %}
+<p>{% translate "Inventarstatus" %}: {{ folder.state_label }}</p>
+<p>{% translate "Dateien / indiziert / Fehler" %}: {{ folder.file_count }} / {{ folder.indexed_count }} / {{ folder.failed_count }}</p>
+<p><a href="{% url 'archive_review_queue' %}?folder={{ folder.pk }}">{% translate "Versionen visuell prüfen" %}: {{ pending_count }}</a></p>
+<p>{% translate "Indiziert bedeutet nicht freigegeben oder vollständig. Jede neue oder geänderte Version erfordert eine ausdrückliche visuelle Prüfung." %}</p>
+{% if record %}
+<p><a href="{% url 'job_detail' record.scan.job_id %}">{% translate "Letzter Auftrag" %}: {{ record.scan.job.status_label }} · {{ record.scan.job.progress }} %</a></p>
+<p id="status-publication">{% if marker_verified %}{% translate "STATUS-JSON veröffentlicht und geprüft." %}{% else %}{% translate "STATUS-JSON nicht als erfolgreich veröffentlicht bestätigt. Auftrag prüfen." %}{% endif %}</p>
+<p>{% translate "JSON ist maßgeblich. Ein Textmarker allein beweist weder eine erfolgreiche Indizierung noch eine Freigabe." %}</p>
+<p>{% translate "Fehlende Quellen" %}: {{ record.snapshot.missing|default:0 }}</p>
+<ul>{% for entry in entries %}<li>{{ entry.relative_path }}{% if entry.error_message %} — <strong>{{ entry.error_message }}</strong>{% endif %}</li>{% empty %}<li>{% translate "Keine Dateieinträge." %}</li>{% endfor %}</ul>
+{% if entries.has_previous %}<a href="?page={{ entries.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %} {% if entries.has_next %}<a href="?page={{ entries.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
+{% endif %}
+{% include "archive/_index_form.html" %}
+{% endblock %}

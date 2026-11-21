@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% translate "Indizierung starten" %}</h1>
+{% include "archive/_index_form.html" %}<a href="{% url 'archive_index' %}">{% translate "Zurück" %}</a>{% endblock %}

@@ -28,6 +28,8 @@
         <a href="{% url 'catalog_list' 'works' %}">{% translate "Werke und Arrangements" %}</a>
         <a href="{% url 'catalog_list' 'instruments' %}">{% translate "Instrumente und Stimmen" %}</a>
         <a href="{% url 'catalog_list' 'members' %}">{% translate "Mitglieder" %}</a>
+        <a {% if request.resolver_match.url_name == 'archive_index' or request.resolver_match.url_name == 'archive_index_folder' %}class="current" aria-current="page"{% endif %} href="{% url 'archive_index' %}">{% translate "Indizierung" %}</a>
+        <a {% if request.resolver_match.url_name == 'archive_review_queue' %}class="current" aria-current="page"{% endif %} href="{% url 'archive_review_queue' %}">{% translate "Prüfwarteschlange" %}</a>
         <a {% if request.resolver_match.url_name == 'job_list' or request.resolver_match.url_name == 'job_detail' %}class="current" aria-current="page"{% endif %} href="{% url 'job_list' %}">{% translate "Aufträge" %}</a>
         {% if diagnostics_enabled %}
             <a {% if request.resolver_match.url_name == 'debug_logs' %}class="current" aria-current="page"{% endif %} href="{% url 'debug_logs' %}">{% translate "Debug / Logs" %}</a>
@@ -35,8 +37,6 @@
         <p id="planned">{% translate "In Entwicklung" %}</p>
         <ul aria-labelledby="planned">
             <li aria-disabled="true">{% translate "Notenbibliothek" %}</li>
-            <li aria-disabled="true">{% translate "Indizierung" %}</li>
-            <li aria-disabled="true">{% translate "Prüfwarteschlange" %}</li>
             <li aria-disabled="true">{% translate "Projekte" %}</li>
             <li aria-disabled="true">{% translate "Scanaufbereitung" %}</li>
             <li aria-disabled="true">{% translate "Einstellungen" %}</li>
