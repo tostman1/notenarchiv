@@ -31,7 +31,8 @@ def values(action, **extra):
             'sha256':file.sha256,'proposal':str(file.current_proposal_id) if file.current_proposal_id else '',**extra}
 from apps.catalog.models import Part
 instrument=str(Part.objects.get(pk=data['parts'][0]).instrument_id)
-assert client.post(url,values('save',arrangement=data['arrangement'],instruments=[instrument],parts=data['parts'])).status_code==302
+correction=values('save',arrangement=data['arrangement'],instruments=[instrument],parts=data['parts'])
+assert client.post(url,correction).status_code==302
 assert client.post(url,values('approve',explicit='on')).status_code==409
 assert client.post(url,values('inspect',explicit='on')).status_code==302
 assert client.post(url,values('approve',explicit='on')).status_code==302
