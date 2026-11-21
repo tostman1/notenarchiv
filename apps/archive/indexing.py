@@ -267,6 +267,19 @@ def run(context):
             if entry.state == "PENDING":
                 _entry(context, entry, roots, processor)
         if not scan.folders.using(context.using).exclude(snapshot={}).exists():
+            current = inventory.scan(roots["RAW"], scan.selected_path, checkpoint=context.checkpoint)
+            expected = {entry.relative_path: entry.fingerprint for entry in scan.entries.using(context.using)}
+            actual = {item["path"]: item["fingerprint"] for item in current if item["kind"] != "DIRECTORY"}
+            if actual != expected:
+
+                def incomplete():
+                    m.IndexScan.objects.using(context.using).filter(pk=scan.pk).update(error_code="SOURCE_CHANGED")
+                    m.SourceFolder.objects.using(context.using).filter(index_history__scan=scan).update(
+                        index_state="PARTIAL_FAILURE"
+                    )
+
+                context.commit_metadata(incomplete)
+                raise files.FileError("SOURCE_CHANGED")
             context.commit_metadata(lambda: _summarize(context, scan))
         for record in scan.folders.using(context.using):
             publish_status(context, status, record)

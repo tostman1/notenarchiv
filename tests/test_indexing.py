@@ -218,7 +218,8 @@ elif mode == 'status':
     original = status.os.link
     def die(*args, **kwargs):
         original(*args, **kwargs)
-        os._exit(71)
+        if args[1] == 'INDEXSTATUS.json':
+            os._exit(71)
     status.os.link = die
 else:
     original = indexing._record_inventory
@@ -258,3 +259,72 @@ def test_failed_traversal_does_not_mark_known_sources_missing(indexed_installati
         "assert m.SourceFile.objects.get().presence=='PRESENT'\n",
         job,
     )
+
+
+def test_changed_inventory_during_processing_never_claims_complete(indexed_installation):
+    installation = indexed_installation
+    job = enqueue(installation)
+    script = """
+import django
+django.setup()
+from django.core.management import call_command
+from apps.archive import indexing
+from django.conf import settings
+from pathlib import Path
+original = indexing._entry
+def mutate(*args, **kwargs):
+    original(*args, **kwargs)
+    (Path(settings.SOURCE_DIR) / 'new.pdf').write_bytes(b'Synthetic owner addition')
+indexing._entry = mutate
+call_command('run_worker', once=True)
+"""
+    installation.run("-c", script)
+    query(
+        installation,
+        "from apps.archive import models as m\nfrom apps.jobs.models import Job\n"
+        "job=Job.objects.get(pk=data['job']); assert job.status=='FAILED'\n"
+        "assert job.index_scan.error_code=='SOURCE_CHANGED' and not job.index_scan.completed\n"
+        "assert m.SourceFolder.objects.get(relative_path='').index_state=='PARTIAL_FAILURE'\n",
+        job,
+    )
+    assert not (installation.root / "status" / "INDEXSTATUS.json").exists()
+
+
+def test_index_integrates_filename_and_actual_text_conflict_without_auto_approval(indexed_installation):
+    installation = indexed_installation
+    setup = """
+from apps.catalog import models as c
+from apps.catalog.services import save_record
+from django.conf import settings
+from pathlib import Path
+from pypdf import PdfWriter
+from pypdf.generic import DictionaryObject, NameObject, DecodedStreamObject
+import io
+work=save_record(c.Work(title='Synthetic March'))
+save_record(c.Arrangement(work=work, edition='Synthetic'))
+variant=save_record(c.InstrumentVariant(name='Posaune', transposition='C', clef='BASS'))
+for number in (1,2):
+    save_record(c.Part(instrument=variant, code=str(number)))
+writer=PdfWriter(); page=writer.add_blank_page(width=595.276,height=841.89)
+font=DictionaryObject({NameObject('/Type'):NameObject('/Font'),NameObject('/Subtype'):NameObject('/Type1'),NameObject('/BaseFont'):NameObject('/Helvetica')})
+page[NameObject('/Resources')]=DictionaryObject({NameObject('/Font'):DictionaryObject({NameObject('/F1'):writer._add_object(font)})})
+stream=DecodedStreamObject(); stream.set_data(b'BT /F1 12 Tf 50 800 Td (Synthetic March) Tj 0 -20 Td (Posaune 2) Tj ET')
+page[NameObject('/Contents')]=writer._add_object(stream)
+output=io.BytesIO(); writer.write(output)
+(Path(settings.SOURCE_DIR)/'Synthetic March Posaune 1.pdf').write_bytes(output.getvalue())
+"""
+    installation.code(setup, {})
+    before = raw_snapshot(installation.root / "raw")
+    job = enqueue(installation)
+    installation.worker()
+    query(
+        installation,
+        "from apps.archive import models as m\nfrom apps.jobs.models import Job\n"
+        "job=Job.objects.get(pk=data['job']); assert job.status=='SUCCEEDED',(job.status,job.error_code)\n"
+        "file=m.ArchiveFile.objects.get(source_version__source_file__relative_path='Synthetic March Posaune 1.pdf')\n"
+        "assert file.candidate_state=='CONFLICT' and file.review_state=='PENDING'\n"
+        "assert file.candidates.get().method=='TEXT_LAYER'\n"
+        "assert not file.assignments.exists() and not m.ArchiveFile.objects.usable().exists()\n",
+        job,
+    )
+    assert raw_snapshot(installation.root / "raw") == before
