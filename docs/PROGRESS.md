@@ -20,7 +20,7 @@ reflect actual completed work only.
 | WP-14 | Safe file publication | Merged, CI verified | PR #17, merge `5874c7c` | 424 Linux tests, four browsers; final PR CI 44887606153 and main CI 44897447951 passed; merged tree matched | NAS gate separate | WP-15/18/19 |
 | WP-18 | Secure local PDF preview | Merged, CI verified | PR #18, merge `e04905a` | Main CI 44910769120 passed; combined WP-18/19 main CI 44943760201 passed | NAS gate separate | WP-20a |
 | WP-19 | Filename/text-layer recognition | Merged, CI verified | PR #19, merge `8cedf7b` | PR CI 44939684382 and combined main CI 44943760201 passed | Local Windows queue timing failures remain recorded below | WP-15 |
-| WP-15 | Indexing and separate STATUS | In progress | `feature/wp-15-indexing-status`, base `96443f9` | Baseline main CI 44952066658 passed; implementation checks pending | Linux physical acceptance and private NAS gates separate | Acceptance, PR; no merge without owner approval |
+| WP-15 | Indexing and separate STATUS | Implemented, software verified; not merged | PR #21, implementation `9610364`, base `96443f9` | Full CI 44953809320: 488 Linux tests, five browsers, image/container/security checks passed | Private NAS gates separate; owner merge approval required | Review PR #21; no automatic merge |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -836,3 +836,28 @@ remain unexecuted without their distinct approval. Preserve published preview as
 - Baseline full Windows suite before changes: 428 passed, 39 platform skips,
   four queue/lifecycle timing failures. This repeats the recorded local issue;
   no test was weakened. Focused implementation/Linux acceptance remain pending.
+
+- Final implementation `96103648ef850352bc96182a0d1a776197468a07` passed full
+  GitHub CI 44953809320: 488 Linux tests (including real indexing inventory,
+  copy/STATUS worker deaths, cancellation, confirmed-history reuse and exact RAW
+  before/after checks), five browser tests, locked runtime audit, actual amd64
+  image/Compose/container/restore/native PDF and worker publication, both synthetic
+  installation flows, vulnerability/secret scans and SBOM upload.
+- Local full regression: 435 passed / 51 platform skips before the final two
+  Linux-only acceptance additions; current focused archive/index suite: 37 passed /
+  14 Linux-only skips. All 42 queue/lifecycle tests also passed in isolation.
+  Ruff lint/format (155 files), lock, Django system/migration-drift and whitespace
+  checks passed. Earlier Windows timing failures and Linux integration failures
+  remain recorded, not hidden: global/per-copy progress isolation was corrected
+  and regression-tested; marker crash injection no longer changes API capability
+  detection. No tests or security checks were weakened.
+- Untouched historical PROGRESS.md bytes were compared against base `96443f9`,
+  including its two legacy non-UTF-8 heading bytes, and preserved exactly. No
+  encoding repair was performed. Full branch diff reviewed; PR is mergeable with
+  no submitted reviews at this checkpoint. This documentation-only follow-up has
+  separate final-head CI. No merge, release, deployment or NAS operation occurred.
+- Remaining risks/gates: actual NAS permissions/fsync/power-loss/resource behavior,
+  single-writer managed roots, cooperative deadlines cannot interrupt kernel I/O,
+  and non-atomic two-file STATUS mirror (JSON authoritative). WP-16 indexing UI,
+  OCR WP-24/25, full integrity UI WP-27 and backup before real ingestion remain
+  separate. Integrated count stays 19 / 52 until owner-approved integration.
