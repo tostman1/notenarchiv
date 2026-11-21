@@ -24,7 +24,14 @@ def smoke(image, root):
         args = ["run", "--rm", *arguments(paths, "none"), "--entrypoint", "python", image, "-c", scenario, name]
         if identities is not None:
             args.append(json.dumps(identities))
-        return docker(*args).stdout
+        output = docker(*args).stdout
+        if name == "pdf":
+            return output
+        responses = [
+            line.removeprefix("SCENARIO_RESULT=") for line in output.splitlines() if line.startswith("SCENARIO_RESULT=")
+        ]
+        assert len(responses) == 1, "Synthetic scenario did not return exactly one result"
+        return responses[0]
 
     data = base64.b64decode(action("pdf"))
     source = paths["raw"] / "correct.pdf"

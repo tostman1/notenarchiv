@@ -46,7 +46,15 @@ class Installation:
             arguments.append(json.dumps(identities) if isinstance(identities, dict) else identities)
         result = self.run(*arguments, check=False)
         assert result.returncode == expected, result.stdout + result.stderr
-        return json.loads(result.stdout) if result.stdout else None
+        if expected:
+            return None  # A real process death cannot emit a fixture return value.
+        responses = [
+            line.removeprefix("SCENARIO_RESULT=")
+            for line in result.stdout.splitlines()
+            if line.startswith("SCENARIO_RESULT=")
+        ]
+        assert len(responses) == 1, result.stdout + result.stderr
+        return json.loads(responses[0])
 
     def worker(self):
         return self.run("manage.py", "run_worker", "--once")

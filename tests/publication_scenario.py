@@ -197,7 +197,7 @@ def main():
     else:
         interrupted(action)
         result = {"finished": True}
-    sys.stdout.write(json.dumps(result))
+    sys.stdout.write("SCENARIO_RESULT=" + json.dumps(result) + "\n")
 
 
 if __name__ == "__main__":

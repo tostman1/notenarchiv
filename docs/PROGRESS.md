@@ -723,3 +723,12 @@ remain unexecuted without their distinct approval. Preserve published preview as
   withdrawal history. New actual hardened-image CI exercises non-root worker
   publication with no network and independent host/mount RAW denial. These
   essential gates are pending, not claimed passed. See FILE_PUBLICATION.md.
+
+- First WP-14 source `df89c248a2e521d70db4f7f90ed5833b9f0094fc` is pushed;
+  draft PR #17, CI `44885476030`. Linux ran all 422 tests: 413 passed, nine
+  actual-worker scenarios stopped in the test driver because structured stdout
+  logs were parsed as one JSON document. All 19 physical file primitive tests
+  and the ordinary copy/canonical/collision scenarios passed. The driver now
+  distinguishes a marked fixture result from real technical logs and checks
+  crash exit codes without expecting a return value. Domain assertions remain.
+  Full Linux/recovery/container rerun remains mandatory before completion.
