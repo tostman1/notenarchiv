@@ -2,7 +2,7 @@
 
 The queue is application code, not a deployed domain processor. The published
 0.1.0-preview.1 image remains unchanged. No worker/NAS deployment or new image
-release is part of this milestone. Later domain packages register real handlers;
+release is part of this milestone. WP-14 registers the real ARCHIVE_PUBLISH backend;
 there are no production demo jobs or arbitrary command/payload submission routes.
 
 ## Ownership and restart
@@ -36,13 +36,27 @@ the lease is checked again before recording APPLIED. Returning to an already
 APPLIED key reuses its stored result. Domain code must not perform long copies,
 OCR, network submission or arbitrary file writes inside this callback.
 
+WP-14 adds `context.commit_metadata(callback)` for short pure DB updates under
+the same current attempt/lease/OS-owner fence. A handler may supply a pure DB
+`acknowledge(context, intent)` hook: after recording APPLIED, it commits domain
+metadata in the same transaction, also during successor recovery. This includes
+recovering an already effected operation whose job was cancelled. It must never
+perform filesystem/network effects. Metadata failure leaves the durable intent
+pending, rather than claiming a half-acknowledged success.
+
+Only an apply callback that knows no final publication occurred may raise
+`NoEffect`; the fenced service records ABANDONED and propagates the failure.
+An acknowledgement error cannot make that assertion after an external effect.
+Ambiguous I/O errors keep PENDING and require reconciliation. PRINT's explicit
+no-retry/uncertain-acceptance rules remain unchanged.
+
 SQLite cannot atomically commit filesystem/network effects. A crash or callback
 exception may leave PENDING after an actual external change. A registered
 `reconcile(context, intent)` hook must inspect evidence and report APPLIED with
 its verified result, ABANDONED when no effect exists, or REVIEW_REQUIRED. Hooks
 must not blindly repeat effects. Missing/failed/ambiguous reconciliation requires
-review and blocks retries. Concrete archive copy/path rules belong to WP-14;
-this package exposes the fenced contract without implementing archive ingestion.
+review and blocks retries. Concrete archive copy/path rules are documented in
+[FILE_PUBLICATION.md](FILE_PUBLICATION.md). Archive ingestion remains a later package.
 
 ## Cancellation and child processes
 
@@ -71,7 +85,8 @@ Authenticated business routes `/jobs/` and `/jobs/<uuid>/` work in both modes.
 Lists paginate 25 rows; detail shows the last 20 attempts, progress, a fixed
 German error message and fresh worker availability. Refresh is explicit.
 Cancellation is POST-only with CSRF. No job payload, raw exception or log text
-is rendered. Domain processors remain unavailable until their own packages land.
+is rendered. The ARCHIVE_PUBLISH backend adds no arbitrary submission route;
+indexing/review submission UI remains in the corresponding later packages.
 
 Synthetic acceptance includes real worker process death between external effect
 and intent acknowledgement, idempotent reconciliation, old-attempt rejection,

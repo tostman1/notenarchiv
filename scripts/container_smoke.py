@@ -52,7 +52,7 @@ def prepare(root):
     return paths
 
 
-def arguments(paths, network, *, debug=False, raw_readonly=True):
+def arguments(paths, network, *, debug=False, raw_readonly=True, service="web"):
     args = [
         "--read-only",
         "--init",
@@ -74,6 +74,7 @@ def arguments(paths, network, *, debug=False, raw_readonly=True):
         "1s",
     ]
     environment = {
+        "NOTENARCHIV_SERVICE": service,
         "APP_BIND": "127.0.0.1",
         "APP_ALLOWED_HOSTS": f"{HOST},localhost,127.0.0.1",
         "APP_CSRF_TRUSTED_ORIGINS": f"https://{HOST}",
@@ -93,7 +94,9 @@ def arguments(paths, network, *, debug=False, raw_readonly=True):
         target = "/data" if key == "data" else f"/archive/{key}"
         if key == "secret":
             target = "/run/secrets/django_secret_key"
-        readonly = key != "data" and (key != "raw" or raw_readonly)
+        readonly = (
+            key != "data" and (key != "raw" or raw_readonly) and (service != "worker" or key in {"raw", "secret"})
+        )
         args.extend(["--mount", f"type=bind,src={source},dst={target}" + (",readonly" if readonly else "")])
     return args
 

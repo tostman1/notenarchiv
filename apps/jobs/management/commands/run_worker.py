@@ -1,6 +1,7 @@
 """Run one durable worker with a global OS lock and database lease."""
 
 import math
+import os
 import signal
 import threading
 from pathlib import Path
@@ -30,6 +31,17 @@ class Command(BaseCommand):
         database = settings.DATABASES["default"]["NAME"]
         if not database or str(database) == ":memory:" or str(database).startswith("file:"):
             raise CommandError("Worker requires a local file-backed SQLite database")
+        if env.profile == "nas":
+            from apps.jobs.services.storage import StorageError, validate_storage
+            from config.container import ensure_database_ready
+
+            try:
+                if os.name != "posix" or os.geteuid() == 0 or os.getegid() == 0:
+                    raise RuntimeError("A non-root service identity is required")
+                validate_storage(env, "worker")
+                ensure_database_ready(env)
+            except (StorageError, OSError, RuntimeError):
+                raise CommandError("Worker startup validation failed; check storage and migrations") from None
         shutdown = threading.Event()
         previous = {number: signal.getsignal(number) for number in (signal.SIGINT, signal.SIGTERM)}
         try:

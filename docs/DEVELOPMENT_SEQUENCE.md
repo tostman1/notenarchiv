@@ -12,6 +12,10 @@ slice when it can be completed and tested; the earlier stop after WP-17 is revok
 Do not infer authorization for additional releases, real data or NAS deployment.
 The independent lanes below are coordination guidance, not dispatched agents.
 
+Latest owner instruction (2026-11-21): stop after the pushed WP-14 checkpoint;
+leave PR #17 open for review. No merge or next WP in this run. Implementation
+3c38500 passed full CI 44886399016; integration remains outstanding.
+
 ## Counts and preview boundary
 
 - Total: **71 packages**, including optional WP-43; **70 required**.
@@ -38,6 +42,9 @@ The independent lanes below are coordination guidance, not dispatched agents.
   actual published/candidate first installs). This
   does not imply full WP-48/NAS acceptance. PR #15 merged at 4805142;
   final CI 44848528982 and main CI 44875615555 passed.
+- Current source after WP-13 integration: **16 complete, 55 unfinished**
+  (54 required plus optional WP-43), PR #16 / main CI 44881714517. WP-14 is
+  the only active implementation milestone.
 - WP-06/07 and WP-47a/48/49 are deliberately partial against the full
   application. The software preview publication gates are complete.
 - No further package blocks pulling the published preview. Installation on
@@ -122,8 +129,8 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
 | WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Software verified; CI 44841036938 / PR #12, merge checkpoint in HANDOFF.md |
 | WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
-| WP-13 | Archive versions and state model | WP-11 | Software verified in PR #16 / CI 44881080792; final integration gate pending |
-| WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
+| WP-13 | Archive versions and state model | WP-11 | Merged PR #16 at a480a2a; main CI 44881714517 passed |
+| WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Software verified on feature branch; PR #17 open draft, CI 44886399016 passed; stopped for owner review |
 | WP-17 | PDF processing foundation | WP-01 | Software verified; 319 Linux tests + native musl image acceptance, CI 44844708708 / PR #14 |
 | WP-19 | Filename and text-layer recognition | WP-13, WP-17 | Planned |
 | WP-15 | Indexing and separate STATUS publication | WP-14, WP-17, WP-19, WP-05c | Planned |

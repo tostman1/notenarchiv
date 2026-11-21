@@ -18,6 +18,97 @@ def ready(job):
     Job.objects.filter(pk=job.pk).update(available_at=timezone.now() - timedelta(seconds=1))
 
 
+def test_receipt_and_domain_ack_rollback_together_then_recover_even_when_cancelled(queue_db, monkeypatch, tmp_path):
+    from apps.archive.models import SourceFolder
+
+    effect = tmp_path / "synthetic-ack-effect"
+    acknowledgements = []
+
+    def acknowledge(ctx, intent):
+        assert intent.state == "APPLIED" and intent.result == {"verified": True}
+        SourceFolder.objects.using(ctx.using).get_or_create(relative_path="SyntheticAcknowledgement")
+        acknowledgements.append(1)
+        if len(acknowledgements) == 1:
+            raise SystemExit("Synthetic crash inside metadata acknowledgement")
+
+    def reconcile(ctx, intent):
+        ctx.checkpoint()
+        return "APPLIED", {"verified": effect.read_text() == "Synthetic effect"}
+
+    monkeypatch.setitem(
+        queue.HANDLERS,
+        Job.Kind.INTEGRITY_CHECK,
+        queue.Handler(validate_synthetic, lambda ctx: None, True, 2, reconcile, acknowledge),
+    )
+    job = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
+    with ProcessLock(tmp_path / "worker.lock") as authority:
+        lease = lifecycle.acquire_owned(authority)
+        attempt = queue.claim_next(lease)
+        monitor = worker.Heartbeats(lease, "default", authority=authority)
+        monitor.begin(attempt)
+        context = worker.JobContext(attempt, monitor, {"value": 1})
+
+        def apply():
+            effect.write_text("Synthetic effect")
+            return {"verified": True}
+
+        with pytest.raises(SystemExit):
+            context.publish("ack-result", {}, apply)
+    assert job.operations.get().state == "PENDING" and not SourceFolder.objects.exists()
+    assert lifecycle.request_cancel(job.pk)
+    worker.run_worker(tmp_path / "worker.lock", once=True)
+    job.refresh_from_db()
+    assert job.status == "CANCELLED" and job.operations.get().state == "APPLIED"
+    assert SourceFolder.objects.get().relative_path == "SyntheticAcknowledgement"
+    assert acknowledgements == [1, 1]
+    with pytest.raises((RuntimeError, queue.StaleAttempt)):
+        context.commit_metadata(lambda: pytest.fail("Dead predecessor must not commit metadata"))
+
+
+def test_metadata_fence_blocks_cancelled_and_expired_attempts(queue_db, tmp_path):
+    with ProcessLock(tmp_path / "worker.lock") as authority:
+        lease = lifecycle.acquire_owned(authority)
+        job = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
+        attempt = queue.claim_next(lease)
+        monitor = worker.Heartbeats(lease, "default", authority=authority)
+        monitor.begin(attempt)
+        context = worker.JobContext(attempt, monitor, {"value": 1})
+        assert context.commit_metadata(lambda: "short metadata result") == "short metadata result"
+        lifecycle.request_cancel(job.pk)
+        with pytest.raises(lifecycle.Cancelled):
+            context.commit_metadata(lambda: pytest.fail("Cancelled attempt must not commit"))
+        WorkerLease.objects.filter(pk=1).update(expires_at=timezone.now() - timedelta(seconds=1))
+        with pytest.raises(queue.StaleAttempt):
+            context.commit_metadata(lambda: pytest.fail("Expired attempt must not commit"))
+
+
+@pytest.mark.parametrize("inside_ack", [False, True])
+def test_only_apply_can_assert_no_effect_ack_failure_remains_uncertain(queue_db, monkeypatch, tmp_path, inside_ack):
+    effect = tmp_path / "synthetic-known-effect"
+
+    def apply():
+        if not inside_ack:
+            raise lifecycle.NoEffect("Synthetic pre-effect refusal")
+        effect.write_text("Synthetic known effect")
+        return {"verified": True}
+
+    def acknowledge(ctx, intent):
+        raise lifecycle.NoEffect("A metadata failure cannot erase an external effect")
+
+    def run(ctx):
+        ctx.publish("known-effect", {}, apply)
+
+    monkeypatch.setitem(
+        queue.HANDLERS, Job.Kind.INTEGRITY_CHECK, queue.Handler(validate_synthetic, run, acknowledge=acknowledge)
+    )
+    job = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
+    worker.run_worker(tmp_path / "worker.lock", once=True)
+    job.refresh_from_db()
+    assert job.status == ("REVIEW_REQUIRED" if inside_ack else "FAILED")
+    assert job.operations.get().state == ("PENDING" if inside_ack else "ABANDONED")
+    assert effect.exists() is inside_ack
+
+
 def test_queued_cancel_and_running_cancel_wait_for_actual_stop(queue_db):
     queued = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
     assert lifecycle.request_cancel(queued.pk)

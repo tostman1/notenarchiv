@@ -284,6 +284,17 @@ def test_inactive_references_block_new_approval_and_pending_request_blocks_edits
         draft(file, actor, arrangement, parts[1:2])
 
 
+def test_inactive_work_blocks_new_approval_and_existing_selection(reviewed_inputs):
+    _folder, _version, file, actor, _other, arrangement, parts = reviewed_inputs
+    file = confirm(file, draft(file, actor, arrangement, parts[:1]), actor)
+    work = arrangement.work
+    work.active = False
+    save_record(work, expected_revision=work.revision)
+    assert not m.ArchiveFile.objects.usable().exists()
+    with pytest.raises(ValidationError):
+        draft(file, actor, arrangement, parts[:1])
+
+
 def test_stage_requires_exact_running_attempt_and_verified_hash(archive):
     _folder, _version, file, _data = archive
     job = Job.objects.create(

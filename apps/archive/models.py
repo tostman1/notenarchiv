@@ -178,6 +178,7 @@ class UsableFiles(models.QuerySet):
             review_state="CONFIRMED",
             publication_state="AVAILABLE",
             arrangement__active=True,
+            arrangement__work__active=True,
             publication_operation__state="APPLIED",
             publication_operation__intent__state="APPLIED",
             approved_proposal__state="APPROVED",
