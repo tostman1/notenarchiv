@@ -175,3 +175,27 @@ def test_previous_source_version_cannot_be_selected_after_new_hash(review_ui):
     s.observe_version(source.folder_id, source.relative_path, sha256="b" * 64, byte_size=1)
     file = review_services.review_file(file.pk)
     assert not selection(file, actor)
+
+
+def test_navigation_visits_both_pending_versions_without_inspecting_them(review_ui):
+    import hashlib
+    from tests.archive_fixtures import PAGE
+    from tests.test_archive_workflow import receipt
+
+    client, file, _actor, _arrangement, _variant, _parts, path = review_ui
+    source = file.source_version.source_file
+    data = path.read_bytes()
+    version, _ = s.observe_version(
+        source.folder_id,
+        "Synthetic/next.pdf",
+        sha256=hashlib.sha256(data).hexdigest(),
+        byte_size=len(data),
+        pdf_state="VALID",
+        page_info=[PAGE],
+    )
+    second, _ = receipt(s.register_base(version.pk, "_Ungeprueft/next.pdf"))
+    first_page = client.get(reverse("archive_review_detail", args=[file.pk]))
+    assert first_page.context["following"].pk == second.pk
+    second_page = client.get(reverse("archive_review_detail", args=[second.pk]))
+    assert second_page.context["previous"].pk == file.pk
+    assert not m.ReviewInspection.objects.exists()
