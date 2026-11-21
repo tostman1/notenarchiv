@@ -18,6 +18,9 @@ reflect actual completed work only.
 | WP-17 | Bounded PDF foundation | Merged, CI verified | PR #14, merge `c12e71c` | 319 Linux tests, four browsers; native image checks; main CI 44845475304 passed | NAS resource acceptance separate | Complete |
 | WP-13 | Archive identities and state transitions | Merged, CI verified | PR #16, merge `a480a2a` | 373 Linux tests, four browsers; final PR CI 44881432325 / main CI 44881714517 passed; merged tree matched | NAS gate separate | WP-14 |
 | WP-14 | Safe file publication | Merged, CI verified | PR #17, merge `5874c7c` | 424 Linux tests, four browsers; final PR CI 44887606153 and main CI 44897447951 passed; merged tree matched | NAS gate separate | WP-15/18/19 |
+| WP-18 | Secure local PDF preview | Merged, CI verified | PR #18, merge `e04905a` | Main CI 44910769120 passed; combined WP-18/19 main CI 44943760201 passed | NAS gate separate | WP-20a |
+| WP-19 | Filename/text-layer recognition | Merged, CI verified | PR #19, merge `8cedf7b` | PR CI 44939684382 and combined main CI 44943760201 passed | Local Windows queue timing failures remain recorded below | WP-15 |
+| WP-15 | Indexing and separate STATUS | In progress | `feature/wp-15-indexing-status`, base `96443f9` | Baseline main CI 44952066658 passed; implementation checks pending | Linux physical acceptance and private NAS gates separate | Acceptance, PR; no merge without owner approval |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -649,7 +652,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   not complete. Counts remain 15 software-verified WPs / 56 unfinished.
 
 
-## WP-13 — Archive versions and state model
+## WP-13 ï¿½ Archive versions and state model
 
 - Separate branch from verified main `480514264eee4aab15e77cc58447019d3a637154`.
   Added protected source/file/version identities, separate base/derivative content,
@@ -690,7 +693,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   until that gate; WP-14 has not started. No physical NAS/release action.
 
 
-## WP-14 — Safe file publication (in progress)
+## WP-14 ï¿½ Safe file publication (in progress)
 
 - WP-13 final head `f9e2b281a8b17cccd4b389f613014fce5d3d98bf`, final CI
   `44881432325`, merged at `a480a2a11bed574ef098d37fb8c4b6a2961f9874`.
@@ -811,6 +814,25 @@ remain unexecuted without their distinct approval. Preserve published preview as
   including container publication and browser tests). Main moved while the PR
   was open: WP-18 (secure preview) merged at e04905a; no file overlap with
   WP-19 (new modules plus doc rows only) and the PR stays mergeable.
-  No merge without owner approval. Count stays 16 integrated / 55 unfinished
-  until the integration gate. No NAS, release or preview-image action; published
-  assets unchanged.
+   This was the pre-integration checkpoint. PR #19 subsequently merged at
+   `8cedf7bf74a2583b2d078516ba5066c16ecf0381`; combined main CI 44943760201
+   passed after WP-18 merge `e04905aca5a044ed355b8408deac127852ca76b1`
+   (PR #18, its main CI 44910769120 passed). Current integrated count is 19
+   verified / 52 unfinished, including the previously integrated WP-14. No NAS,
+   release or preview-image action; published assets unchanged.
+
+## WP-15 â€” Indexing and separate STATUS publication
+
+- Owner-approved scope: implement WP-15 with synthetic acceptance, standard
+  feature branch/commits/PR and actual CI; do not merge without explicit approval.
+  No deployment, real association data or NAS modification is authorized.
+- Verified clean primary main/local/remote base:
+  `96443f9759ba54bff77e5c3971056c2db3026dcb`, main CI 44952066658 passed.
+  WP-14, WP-17, WP-19 and WP-05c dependencies are integrated/software-verified.
+- Backend selected/all recursive inventory, stable streaming hashes, PDF metadata,
+  existing safe CLEAN publication, WP-19 candidates, durable per-entry checkpoints
+  and independently fenced mirrored STATUS snapshots. No unreviewed music usable.
+  See INDEXING.md. WP-16 UI and WP-27 full integrity tooling remain later packages.
+- Baseline full Windows suite before changes: 428 passed, 39 platform skips,
+  four queue/lifecycle timing failures. This repeats the recorded local issue;
+  no test was weakened. Focused implementation/Linux acceptance remain pending.
