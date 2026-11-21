@@ -745,3 +745,16 @@ remain unexecuted without their distinct approval. Preserve published preview as
   naming tests; all 48 targeted naming/workflow/fence tests passed. Pending-intent
   abandonment also checks its exact affected row. Final-head CI and complete
   diff/review/integration remain before WP-14 completion. Count stays 16 / 55.
+
+
+## Owner-requested review checkpoint - 2026-11-21
+
+- Stop after the pushed WP-14 checkpoint; no merge or next WP in this run.
+- Reviewed implementation 3c38500a492801b4ab5b846fcf202ca462d3800d passed full
+  CI 44886399016: 424 Linux tests, four browsers, Ruff/format, runtime audit,
+  actual image/Compose/native PDF/container/restore, both installation flows,
+  non-root network-disabled worker publication and vulnerability/secret scans.
+- PR #17 remains an open draft. WP-14 is software-verified on its feature branch;
+  integration/main verification and private NAS acceptance remain outstanding.
+  Integrated count stays 16 / 55. Documentation-only HEAD CI is separate from
+  the verified implementation run. See HANDOFF.md for the current checkpoint.
