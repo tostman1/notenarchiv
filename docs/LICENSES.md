@@ -90,3 +90,17 @@ PDF fixtures use original synthetic text, paths, pixels and Type3 glyphs.
 Base-14 Helvetica references do not distribute a font binary. No real music or
 third-party score fixture is copied. Font authoring for later generated covers
 still needs its own bundled Unicode font/notice selection (WP-37a/WP-51).
+
+## Local PDF.js preview assets (WP-18)
+
+PDF.js `pdfjs-dist` 6.5.438 was obtained from the official npm registry; the
+tarball SHA-512 was checked against registry integrity before extraction.
+Unmodified module/worker, CMaps and standard fonts are under
+`static/vendor/pdfjs/`, with origin/integrity recorded in `ORIGIN.md`.
+PDF.js is Apache-2.0 (actual registry metadata and retained LICENSE).
+Foxit PFBs use BSD-3-Clause (retained LICENSE_FOXIT). Unmodified Liberation
+Sans 1.07.4 TTFs use GPL-2.0 with the Liberation font exception, not OFL
+(retained LICENSE_LIBERATION includes the exception and full GPL text).
+Upstream identifies the exact font release in
+`external/standard_fonts/README.md`; source origin is recorded with the assets.
+No JavaScript/Python package manager or CDN is needed at application runtime.

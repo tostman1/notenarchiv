@@ -1,0 +1,2 @@
+# Preserve verified upstream bytes, including notices and binary CMaps/fonts.
+* -text -whitespace

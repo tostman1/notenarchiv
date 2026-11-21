@@ -31,3 +31,5 @@ thumbnails/
 # Build artifacts
 dist/
 build/
+!static/vendor/pdfjs/build/
+!static/vendor/pdfjs/build/*.mjs
