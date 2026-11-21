@@ -14,6 +14,19 @@ from tests.publication_scenario import synthetic_pdf
 from tests.test_archive_publication import Installation
 
 
+def test_copy_progress_does_not_regress_global_index_progress():
+    from types import SimpleNamespace
+
+    from apps.archive.indexing import CopyContext
+
+    calls = []
+    context = SimpleNamespace(checkpoint=lambda progress=None: calls.append(progress), using="default")
+    copy = CopyContext(context, SimpleNamespace(pk="synthetic-operation"))
+    for progress in (10, 80, None):
+        copy.checkpoint(progress)
+    assert calls == [None, None, None] and copy.using == "default"
+
+
 @pytest.mark.django_db
 def test_selection_is_canonical_durable_and_overlapping_jobs_are_not_duplicated():
     job = queue_index("selected")

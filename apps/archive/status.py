@@ -87,6 +87,14 @@ def publish_status(context, root, record):
             files.release_stage(root, f".staging/{identifier.hex}/attempt-{intent.attempt}.pdf", path)
             continue
         previous = _known(root, path, record, name)
+        for number in range(1, context.attempt_number):
+            old_stage = f".staging/{identifier.hex}/attempt-{number}.pdf"
+            if root.exists(old_stage):
+                info = root.metadata(old_stage)
+                if info.st_nlink == 2:
+                    files.release_stage(root, old_stage, path)
+                else:
+                    files.discard_stage(root, old_stage, files.identity(info))
         stage_path = f".staging/{identifier.hex}/attempt-{context.attempt_number}.pdf"
         with root.parent(stage_path, create=True) as (parent, stage_name):
             descriptor = os.open(stage_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
