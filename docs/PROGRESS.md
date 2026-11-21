@@ -501,3 +501,10 @@ remain unexecuted without their distinct approval. Preserve published preview as
   and protected references; desktop/mobile screenshots inspected.
 - Full diff review, push/PR, Linux/container CI and verified merge remain the next
   gates. These source features are not claimed to be in the published 0.1.0-preview.1.
+- Initial PR #12 source `32a7e065d9c1b8d562bbdc0d4b911fb56972e194` passed
+  265 Linux tests and runtime audit in CI `44840283911`, but its mobile browser
+  width assertion failed. Privacy-safe geometry diagnostics retained that exact
+  assertion; full CI `44840633432` then passed, including all browsers and actual
+  image/Compose/container/restore/security checks. An additional explicit load,
+  font and animation-frame boundary removes the unsynchronized measurement after
+  navigation/viewport resize. Final CI must still verify that follow-up.

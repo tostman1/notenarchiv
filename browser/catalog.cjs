@@ -71,11 +71,14 @@ async function check(origin) {
         await page.getByLabel(label("Status")).selectOption("all");
         await page.getByRole("button", { name: "Suchen", exact: true }).click();
         assert.equal(await page.locator("tbody tr").count(), 2);
+        await page.waitForLoadState("load");
+        await page.evaluate(() => document.fonts.ready);
         if (process.env.SCREENSHOT_DIR) {
             fs.mkdirSync(process.env.SCREENSHOT_DIR, { recursive: true });
             await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, "catalog-members-desktop.png"), fullPage: true });
         }
         await page.setViewportSize({ width: 390, height: 844 });
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         const geometry = await page.evaluate(() => ({
             viewport: innerWidth, document: document.documentElement.scrollWidth,
             outside: [...document.querySelectorAll("body *")].filter(element => {
