@@ -16,7 +16,7 @@ from apps.catalog.models import Work
 from apps.jobs.models import Job
 from apps.jobs.services import lifecycle, queue
 from core import files
-from core.naming import component, pdf_name, with_suffix
+from core.naming import component, part_filename, pdf_name, with_suffix
 from core.paths import storage_key
 from core.pdf import Limits, Processor
 
@@ -129,14 +129,21 @@ def canonical_path(proposal, *, using="default"):
         proposal.parts.using(using)
         .select_related("part__instrument")
         .order_by(
-            "part__instrument__name_key", "part__instrument__transposition_key", "part__instrument_id", "part__code_key"
+            "part__instrument__name_key",
+            "part__instrument__family_key",
+            "part__instrument__transposition_key",
+            "part__instrument_id",
+            "part__code_key",
         )
     ):
         part = entry.part
         variant = part.instrument
-        label = f"{variant.name} {variant.transposition} {variant.get_clef_display()}"
-        groups.setdefault(label, []).append(part.code)
-    filename = component(" - ".join(label + " " + "-".join(codes) for label, codes in groups.items())) + ".pdf"
+        family = f" [{variant.family}]" if variant.family else ""
+        label = f"{variant.transposition} {variant.get_clef_display()} {variant.name}{family}"
+        groups.setdefault(variant.pk, (label, []))[1].append(part.code)
+    if not groups:
+        raise ValidationError("Canonical publication requires at least one controlled part.")
+    filename = part_filename(list(groups.values()), proposal.archive_file.source_version_id.hex)
     return str(PurePosixPath(title, edition, filename))
 
 

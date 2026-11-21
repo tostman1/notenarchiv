@@ -164,9 +164,13 @@ def publish(context, key, payload, apply):
                 context._authority.assert_owned()
                 if not queue._attempt_rows(attempt, using).exists():
                     raise queue.StaleAttempt("Attempt is no longer active") from None
-                OperationIntent.objects.using(using).filter(
-                    pk=intent.pk, attempt=attempt.number, state="PENDING"
-                ).update(state="ABANDONED")
+                changed = (
+                    OperationIntent.objects.using(using)
+                    .filter(pk=intent.pk, attempt=attempt.number, state="PENDING")
+                    .update(state="ABANDONED")
+                )
+                if changed != 1:
+                    raise queue.StaleAttempt("Operation is no longer pending") from None
         raise
 
 

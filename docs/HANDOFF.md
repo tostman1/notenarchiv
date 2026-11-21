@@ -37,14 +37,21 @@ Current active branch: feature/wp-14-safe-file-publication, from verified main
  a480a2a11bed574ef098d37fb8c4b6a2961f9874 (PR #16 merged). Final WP-13 head
 f9e2b281a8b17cccd4b389f613014fce5d3d98bf passed CI 44881432325; main CI
 44881714517 passed; reviewed and merged trees match. Post-merge 48 archive
-tests, Ruff, system and migration checks passed. WP-14 changes are uncommitted
-and unpushed; remote takeover of WP-14 is not yet possible. No competing worktree.
+tests, Ruff, system and migration checks passed. Last fully verified pushed implementation is 005e99a2e71a040d6862447a6831425571ed6cbe
+on this branch, draft PR #17. CI 44885786349 passed all 422 Linux tests, four
+browsers, actual non-root worker publication, container/Compose/restore/native
+PDF and published/candidate install/security gates. Remote takeover is possible;
+review all commits since the comparison base. No competing worktree.
 
 WP-14 now implements descriptor-anchored file primitives, safe naming and the
 registered actual worker publisher/reconciler, with failure/crash tests. POSIX primitives are
 required for physical effects; unsupported systems fail closed. Local full suite: 386 passed, 36 POSIX-only skips; four browser tests passed.
 Ruff/format, compilation, system/drift, actionlint and whitespace pass. Mandatory
-actual Linux CI/container publication tests remain before completion. No NAS or real files are involved.
+actual Linux CI/container publication tests passed at that verified source.
+Final naming refinement adds two tests (all 48 targeted tests pass) and preserves
+part codes with long labels, distinct variants and bounded large-set count/IDs.
+Verify latest head CI/full diff and mark PR #17 ready before exact-head merge;
+then verify main. Do not claim the latest refinement CI has passed until observed. No NAS or real files are involved.
 The small job prerequisite adds fenced pure metadata transactions and a handler
 acknowledgement hook in the same transaction as APPLIED receipt, including
 recovery of cancelled jobs. This prevents a physical-effect/DB-ack gap.

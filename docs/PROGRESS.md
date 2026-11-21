@@ -732,3 +732,16 @@ remain unexecuted without their distinct approval. Preserve published preview as
   distinguishes a marked fixture result from real technical logs and checks
   crash exit codes without expecting a return value. Domain assertions remain.
   Full Linux/recovery/container rerun remains mandatory before completion.
+
+- Corrected driver head `005e99a2e71a040d6862447a6831425571ed6cbe` passed
+  full CI `44885786349`: all 422 Linux tests and four browsers, actual hardened
+  image/Compose/container/restore/native PDF, both simple-install flows, runtime
+  audit and security scans. The new non-root worker actually copied, independently
+  verified, explicitly reviewed and canonically published a combined fixture with
+  RAW unchanged; independent host/mount denial and network-none were exercised.
+- Final naming review preserves part codes under long instrument labels and
+  keeps notation variants separate. Large combined sets use a bounded count/ID
+  filename while retaining every controlled assignment in the DB. Added two
+  naming tests; all 48 targeted naming/workflow/fence tests passed. Pending-intent
+  abandonment also checks its exact affected row. Final-head CI and complete
+  diff/review/integration remain before WP-14 completion. Count stays 16 / 55.

@@ -85,6 +85,12 @@ including identical bytes, get a stable version suffix when necessary. A new
 external race/conflict is retained and reported, never overwritten. Managed
 directories must have a single authorized application writer in production.
 
+Ordinary combined part codes are retained when long instrument labels are
+shortened. Variant identities remain distinct when display labels coincide.
+Very large combined sets that cannot fit a SMB component use a bounded count,
+instrument hint and stable source-version ID; the complete controlled assignment
+set remains in the database. Filenames never replace the inspected assignment.
+
 Path walks have at most 64 components; directory collision scans stop at 100,000
 entries. File reads/copies have a 120-second checkpoint deadline, PDF validation
 has its own 60-second/30-CPU-second and 256-MiB child limit. Checkpoints bound work
