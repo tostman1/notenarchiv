@@ -22,7 +22,7 @@ from tests.test_archive_workflow import receipt
 
 
 @pytest.mark.django_db(transaction=True)
-def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path, request):
+def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path, request, monkeypatch):
     settings.STATIC_ROOT = tmp_path / "static"
     settings.DEBUG_MODE = False
     for setting, name in (
@@ -68,7 +68,21 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk
     assert not m.ArchiveFile.objects.usable().exists()
     if os.name == "posix":
-        subprocess.run(["node", script, "approve", *arguments], check=True, timeout=90)
+        from apps.archive import review_services
+
+        original, failures = review_services.act, []
+
+        def diagnostic(*args, **kwargs):
+            try:
+                return original(*args, **kwargs)
+            except Exception as error:
+                # Synthetic fixtures only; never enable exception output in the app.
+                failures.append((type(error).__name__, str(error)))
+                raise
+
+        monkeypatch.setattr(review_services, "act", diagnostic)
+        result = subprocess.run(["node", script, "approve", *arguments], check=False, timeout=90)
+        assert result.returncode == 0, failures
         assert Job.objects.filter(kind="ARCHIVE_PUBLISH", status="QUEUED").count() == 1
         run_worker(Path(connections["default"].settings_dict["NAME"]).parent / "worker.lock", once=True)
         file.refresh_from_db()
