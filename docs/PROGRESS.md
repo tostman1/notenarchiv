@@ -615,3 +615,12 @@ remain unexecuted without their distinct approval. Preserve published preview as
   links passed; complete diff reviewed. CI runs the first-install procedure with
   both the published immutable digest and the local candidate (no publication).
   Linux/Compose/container verification is still pending before integration.
+
+- Source `c74e7c20ce1ee4348b6bc6e265d5517b88f2a820`, PR #15, passed full
+  CI `44848131876`: 325 Linux tests, four browsers, runtime audit, actual image,
+  Compose, container/restore/native PDF checks, and complete simple installation
+  with both published digest and current candidate. Interactive account/password
+  concealment, RAW negatives, persistence, key/data preservation and preparation
+  refusal cases passed. Vulnerability/secret scan passed. Full diff reviewed;
+  no submitted reviews/unresolved threads. Final docs CI/merge/main remain before
+  advancing. Physical NAS gates remain separate; package count stays 15 / 56.

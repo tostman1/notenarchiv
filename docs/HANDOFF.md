@@ -1,4 +1,4 @@
-# Agent handoff — active simplified Synology installation
+# Agent handoff — verified simple-install integration checkpoint
 
 Date: 2026-11-21. Git/source and specifications remain authoritative.
 
@@ -18,8 +18,9 @@ Published v0.1.0-preview.1 tag/image/assets remain immutable and unchanged.
 ## Actual checkpoint
 
 - Active branch: feature/synology-simple-install, created after root/status,
-  branch/worktree checks. Current implementation/docs are uncommitted at this
-  snapshot; inspect/preserve all tracked and untracked changes.
+  branch/worktree checks. Reviewed source c74e7c20ce1ee4348b6bc6e265d5517b88f2a820
+  is pushed; PR #15. Full CI 44848131876 passed. This documentation checkpoint
+  precedes final PR CI, authorized merge and main verification.
 - Comparison base: c12e71cc7c3d5676a5be5a4cadee1a39e6ea8cfc, verified main.
 - WP-17 is complete via PR #14. Source 309081c77ca296da1bdb8e1b13704da1c5aecc91
   passed CI 44844708708. Final head 27f77f8d390cf76b181fa5805f42c04e5026ddfd
@@ -62,8 +63,10 @@ actionlint and Bash syntax passed. No local Docker is installed. New CI tests
 actual Compose plus the published and local candidate images' full first-install flows, interactive
 hidden-password provisioning, key preservation, host/container RAW denial,
 identity/mount/network constraints, migration/restart persistence and preparation
-negatives. Those CI tests have not yet run. Inspect every result; do not mark
-this milestone verified before them.
+negatives. Full CI 44848131876 passed: 325 Linux tests, four browsers, runtime
+audit, actual image/Compose/container/restore/native PDF, both first-install image
+variants and vulnerability/secret scan. Complete diff reviewed; no reviews or
+unresolved threads. Final documentation CI and merged main remain to verify.
 
 ## Counts and next action
 
@@ -73,7 +76,7 @@ completion. Actual DS224+/DSM/ACL/TLS/firewall/filesystem/load/backup acceptance
 remains private, unperformed and separately authorized. New source features
 are not in the published preview image; no additional release is authorized.
 
-Finish final review/local checks, commit/push/open a separate installation PR,
-resolve all CI failures, then verify the merged main. After that assess the next
+Verify final documentation CI, merge PR #15 at its exact reviewed head, then
+verify the merged main. After that assess the next
 manageable complete manual archive integration boundary against IMPLEMENTATION_PLAN
 and DEVELOPMENT_SEQUENCE; do not begin an enormous speculative chain of WPs.
