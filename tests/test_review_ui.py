@@ -23,7 +23,10 @@ def review_ui(archive, settings, tmp_path, client, monkeypatch):
     path.write_bytes(data)
     # Metadata-only enqueue fixture: actual no-clobber planning/worker publication
     # remains mandatory in Linux end-to-end tests, not this cross-platform test.
-    monkeypatch.setattr("apps.archive.publication.choose_target", lambda kind, path, *args, **kwargs: path)
+    monkeypatch.setattr(
+        "apps.archive.publication.choose_target",
+        lambda kind, path, *args, **kwargs: path.removesuffix(".pdf") + "--" + uuid4().hex + ".pdf",
+    )
     actor = get_user_model().objects.create_user("synthetic-review")
     client.force_login(actor)
     work = c.Work.objects.create(title="Synthetic review work")
@@ -150,6 +153,9 @@ def test_modified_copy_blocks_inspection_and_failed_publication_does_not_confirm
     Job.objects.filter(status="QUEUED").update(status="FAILED", error_code="HANDLER_FAILED")
     assert not m.ArchiveFile.objects.usable().exists()
     assert "fehlgeschlagen" in client.get(url).content.decode().lower()
+    response = client.post(url, values(file, "approve", explicit="on"))
+    assert response.status_code == 302 and Job.objects.filter(status="QUEUED").count() == 1
+    assert not m.ArchiveFile.objects.usable().exists()
 
 
 def test_review_actions_require_auth_csrf_and_no_arbitrary_file_id(review_ui):

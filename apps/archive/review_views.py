@@ -13,6 +13,7 @@ from apps.archive import models as m
 from apps.archive import review_forms as forms
 from apps.archive import review_services as services
 from apps.archive.index_presentation import CANDIDATES, REVIEW
+from apps.archive.review_presentation import EVENTS, REASONS
 from apps.jobs.models import Job
 from apps.jobs.presentation import describe
 
@@ -85,6 +86,14 @@ def detail(request, file_id):
         .prefetch_related("parts__part__instrument")
         .order_by("-created_at")[:10]
     )
+    for candidate in candidates:
+        candidate.reason_labels = [
+            REASONS.get(reason, _("Erkennung unsicher; Inhalt und Zuordnung manuell prüfen."))
+            for reason in candidate.reasons
+        ]
+    audit = list(file.auditevent_set.select_related("actor").order_by("-created_at")[:25])
+    for event in audit:
+        event.event_label = EVENTS.get(event.event, _("Archivstatus aktualisiert"))
     inspected = bool(
         proposal
         and proposal.inspections.filter(
@@ -111,7 +120,7 @@ def detail(request, file_id):
             "inspection": forms.InspectionForm(initial=initial),
             "approval": forms.ApprovalForm(initial=initial),
             "rejection": forms.RejectionForm(initial=initial),
-            "audit": file.auditevent_set.select_related("actor").order_by("-created_at")[:25],
+            "audit": audit,
         },
         status=status,
     )
