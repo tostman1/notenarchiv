@@ -122,7 +122,7 @@ apply to the full package; DEC-09 only scopes the documented early slices.
 | WP-44a | Early printer capability spike (validation only) | WP-22 | Planned |
 | WP-11 | Musical catalog and expected-parts CRUD | WP-02, WP-03a | Software verified; CI 44841036938 / PR #12, merge checkpoint in HANDOFF.md |
 | WP-12 | Membership and regular assignments | WP-11 | Software verified with German UI; CI 44841036938 / PR #12 |
-| WP-13 | Archive versions and state model | WP-11 | In progress on feature/wp-13-archive-versions, from verified main 4805142 |
+| WP-13 | Archive versions and state model | WP-11 | Software verified in PR #16 / CI 44881080792; final integration gate pending |
 | WP-14 | Safe file copy, naming and publication | WP-13, WP-05b | Planned |
 | WP-17 | PDF processing foundation | WP-01 | Software verified; 319 Linux tests + native musl image acceptance, CI 44844708708 / PR #14 |
 | WP-19 | Filename and text-layer recognition | WP-13, WP-17 | Planned |

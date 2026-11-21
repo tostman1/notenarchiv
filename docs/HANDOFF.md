@@ -35,9 +35,9 @@ reviewed-green-PR gate manually.
 
 Active branch feature/wp-13-archive-versions, comparison base
 480514264eee4aab15e77cc58447019d3a637154. Root/status/worktrees/existing branches
-were checked before branch creation. All current changes belong to WP-13;
-implementation is not yet committed/pushed, so remote takeover of WP-13 is not
-yet possible. No WP-14 branch or physical publication implementation exists.
+were checked before branch creation. Reviewed source 2c91b43c06f989c205980e1acc99f84d4a8f5842 is committed/pushed
+on that branch; remote takeover is possible. PR #16 full source CI 44881080792
+passed. No WP-14 branch or physical publication implementation exists.
 
 Added source folder/file/version, archive base/derivative identities, direct
 arrangement and multiple assignments, non-exclusive folder proposals, bounded
@@ -52,7 +52,7 @@ requirements. No ingestion, file copy or user-facing review is claimed here.
 
 Initial archive migration is newly generated and unapplied in the development DB;
 no historical committed migration was rewritten. Focused metadata/persistence
-suite: 47 passed, including actual migrations, independent file-SQLite competing
+suite: 48 passed, including actual migrations, independent file-SQLite competing
 connections and interpreter restart/integrity. Four existing browser tests passed.
 Ruff lint/format, Django checks and migration drift passed. Full regression found
 two queue fixture errors: hand-created jobs-only schema lacked the newly protected
@@ -62,12 +62,16 @@ All ten queue/recovery tests then passed; full regression passed 370 tests with
 two POSIX-only skips. Final derivative-approval refinement passed all 17 workflow
 tests; derivative copies require their own exact-hash inspection and canonical
 publication in PROCESSED. Ruff/compile/system/drift/whitespace checks pass.
-Complete source diff reviewed. CI has not run for WP-13 yet.
+Complete source diff reviewed. Full Linux CI 44881080792 passed 373 tests,
+four browsers, actual image/Compose/native PDF/container/restore and both
+simple-install image flows, runtime audit and vulnerability/secret scans. No
+submitted PR reviews or unresolved threads. Final documentation CI, exact-head
+merge and merged main verification remain before WP-14.
 
 ## Next action and counts
 
-Commit feat(archive): add versioned archive metadata and review states, push and
-create a separate PR. Verify all CI, reviews and full diff before exact-head merge;
+Verify the final documentation head of PR #16, all CI, reviews and full diff
+before exact-head merge;
 verify merged main/tree/CI before starting WP-14 safe physical publication.
 
 15 software-verified/integrated WPs; 56 unfinished (55 required + optional WP-43).
