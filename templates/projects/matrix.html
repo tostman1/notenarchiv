@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Zuordnungsmatrix" %} — {{ project.name }}{% endblock %}
+{% block content %}<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a>
+<h1>{% translate "Zuordnungsmatrix" %}</h1>
+<p>{% translate "Projekt-Revision" %} <span id="matrix-revision">{{ project.revision }}</span> · {{ project.get_status_display }}</p>
+<p>{% translate "Alle Teilnehmenden verwenden dieselbe Stückliste und Nummerierung. Diese Ansicht zeigt die zentrale Zuordnung, ersetzt aber keinen Preflight und keine ausdrückliche Bestätigung fehlender Noten." %}</p>
+{% if matrix_error %}<p role="alert">{{ matrix_error }}</p>{% else %}
+<p>{% translate "Begrenzte Ansicht: höchstens 25 gemeinsame Positionen und 10 ausgewählte Personen je Seite. Weitere Positionen und Personen bleiben im Projekt erhalten." %}</p>
+<div class="matrix-scroll" role="region" tabindex="0" aria-label="{% translate 'Gemeinsame Positionen und persönliche Zuordnungen' %}">
+<table id="assignment-matrix"><caption>{% translate "Gemeinsame Stückpositionen × ausgewählte Teilnehmende" %}</caption>
+<thead><tr><th scope="col">{% translate "Nr. / gemeinsames Stück" %}</th>{% for person in participants %}<th scope="col" data-participant="{{ person.pk }}">{{ person.display_name }}<p>{% translate "Gespeicherter Projektdefault" %}: {{ person.default_part }}</p>{% if person.role_id %}<p>{% translate "Musikalische Rolle" %}: {{ person.role }}</p>{% endif %}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in rows %}<tr data-position="{{ row.position.pk }}"><th scope="row">{{ row.position.order }}. {% if row.position.arrangement_id %}{{ row.position.arrangement }}{% else %}{% translate "Reserve — keine Notenseite" %}{% endif %}</th>{% for cell in row.cells %}{% include 'projects/matrix_cell.html' %}{% empty %}<td>{% translate "Keine Personen ausgewählt." %}</td>{% endfor %}</tr>{% empty %}<tr><td colspan="{{ participants|length|add:1 }}">{% translate "Keine gemeinsamen Positionen vorhanden." %}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p>{% if row_page.has_previous %}<a href="?rows={{ row_page.previous_page_number }}&amp;people={{ column_page.number }}">{% translate "Vorherige Positionen" %}</a>{% endif %} {% if row_page.has_next %}<a href="?rows={{ row_page.next_page_number }}&amp;people={{ column_page.number }}">{% translate "Weitere Positionen" %}</a>{% endif %} {% if column_page.has_previous %}<a href="?rows={{ row_page.number }}&amp;people={{ column_page.previous_page_number }}">{% translate "Vorherige Personen" %}</a>{% endif %} {% if column_page.has_next %}<a href="?rows={{ row_page.number }}&amp;people={{ column_page.next_page_number }}">{% translate "Weitere Personen" %}</a>{% endif %}</p>
+<p>{% translate "Stimmen- und Ausgabenherkunft werden getrennt gezeigt. Ungültige feste Ausgaben werden nicht still ersetzt; Reserven enthalten keine musikalische Zuordnung." %}</p>
+{% endif %}{% endblock %}

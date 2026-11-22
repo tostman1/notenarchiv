@@ -148,6 +148,16 @@ ul.errorlist {
 .diagnostic-filters input, .diagnostic-filters select { max-width: 100%; font: inherit; }
 select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .log-table { overflow-x: auto; }
+.matrix-scroll { overflow: auto; max-height: 75vh; border: 1px solid var(--line); background: white; }
+.matrix-scroll table { border-collapse: separate; border-spacing: 0; font-size: .82rem; }
+.matrix-scroll th, .matrix-scroll td { min-width: 15rem; padding: .6rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.matrix-scroll thead th { position: sticky; top: 0; background: #eef4fa; z-index: 2; }
+.matrix-scroll tbody th { position: sticky; left: 0; background: #f5f7f9; z-index: 1; }
+.matrix-scroll thead th:first-child { left: 0; z-index: 3; }
+.matrix-scroll p { margin: .35rem 0; }
+.matrix-override { border-left: 3px solid var(--accent); }
+.matrix-issue { font-weight: 600; }
+.matrix-id { font-family: ui-monospace, monospace; font-size: .75rem; }
 .log-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
 .log-table th, .log-table td { padding: .4rem; border-bottom: 1px solid var(--line); text-align: left; }
 
