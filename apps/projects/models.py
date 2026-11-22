@@ -220,6 +220,7 @@ class ProjectEditionPreference(Scoped):
     arrangement = models.ForeignKey("catalog.Arrangement", on_delete=models.PROTECT)
     part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT)
     edition = models.ForeignKey("archive.ArchiveAssignment", on_delete=models.PROTECT)
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
@@ -236,6 +237,7 @@ class PositionEditionPreference(Scoped):
     part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT)
     edition = models.ForeignKey("archive.ArchiveAssignment", on_delete=models.PROTECT)
     needs_revalidation = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
@@ -302,6 +304,7 @@ class ReplacementRule(Scoped):
     replacement_part = models.ForeignKey(
         "catalog.Part", on_delete=models.PROTECT, related_name="project_replacement_targets"
     )
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
@@ -317,7 +320,9 @@ class ReplacementRule(Scoped):
             seen.add(current)
             rule = (
                 type(self)
-                .objects.filter(project_id=self.project_id, position_id=self.position_id, desired_part_id=current)
+                .objects.filter(
+                    project_id=self.project_id, position_id=self.position_id, desired_part_id=current, active=True
+                )
                 .exclude(pk=self.pk)
                 .first()
             )
@@ -436,3 +441,8 @@ class EnsembleChange(Record):
 
     class Meta:
         ordering = ["project_revision", "created_at", "id"]
+
+
+# Separate module keeps global rule/audit definitions focused; Django discovers
+# these concrete models through the installed app's canonical models module.
+from apps.projects.rule_models import GlobalReplacementRule, GlobalRuleState, RuleChange  # noqa: E402,F401

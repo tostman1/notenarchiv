@@ -13,7 +13,8 @@ project/position replacement rules. Cross-project references are rejected by mod
 and service validation, plus SQLite uniqueness/check constraints. Ensemble role is
 not a playable part; mapping's exact variant must match. New explicit editions
 require exact compatible confirmed hash-verified assignment and post-lock revision
-recheck. Later mapping/rule/matrix UI remains WP-34/35/33, not claimed implemented.
+recheck. Mapping and rule editors use [ENSEMBLE.md](ENSEMBLE.md) and
+[RULES.md](RULES.md); the central resolver and matrix remain WP-32/33.
 
 Project revisions use write-first conditional UPDATE in short atomic SQLite
 transactions. Stale requests get a German 409 conflict, not lost updates. Append-only

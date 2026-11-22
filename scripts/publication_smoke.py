@@ -243,6 +243,7 @@ from apps.projects import models as m,services as s
 from apps.projects import list_services as pieces
 from apps.projects import participant_services as people
 from apps.projects import ensemble_services as ensemble
+from apps.projects import rule_services as rules
 from apps.members.models import Member
 from apps.catalog.models import Part
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
@@ -268,6 +269,11 @@ mapping=ensemble.save_mapping(project.pk,role_id=role.pk,instrument_id=part.inst
     part_id=part.pk,actor=actor,expected_revision=7)
 choice=ensemble.mapping_choice(project.pk,role.pk,part.instrument_id)
 assert choice.status=='MAPPED' and choice.mapping.pk==mapping.pk
+target=Part.objects.filter(instrument_id=part.instrument_id,active=True).exclude(pk=part.pk).first()
+rule=rules.save_replacement(project_id=project.pk,desired_part_id=part.pk,replacement_part_id=target.pk,
+    actor=actor,expected_revision=8)
+assert rules.replacement_choice(project.pk,None,part.pk).rule.pk==rule.pk
+rules.save_replacement(desired_part_id=part.pk,replacement_part_id=target.pk,actor=actor,expected_revision=1)
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

@@ -154,7 +154,7 @@ scoped work packages; this register does not claim those gates were exercised.
   `45047209870` passed. Main CI `45048123486` on merge `53aaced` verified all 630
   Linux tests, fourteen browsers and complete actual container/security gates.
 
-## WP-34 (software verified; integration pending)
+## WP-34 (merged, software verified)
 
 - CAT-04/AS-07: `tests/test_ensemble.py` covers four roles/seven participants,
   same role on distinct exact variants/notation, position-over-project mapping,
@@ -171,4 +171,16 @@ scoped work packages; this register does not claim those gates were exercised.
 - Queue regression prerequisite: immediate enqueue uses the SQLite statement clock
   already used by claims; `test_immediate_enqueue_uses_database_clock_not_future_python_microseconds`
   proves future Python-default skew cannot delay immediate claims. Existing lease/
-  cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.
+   cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.
+
+## WP-35 (verification in progress)
+
+- CAT-03/AS-05/06: `tests/test_rules.py` covers global/project/position precedence,
+  effective overlay cycles and clear exposing inherited cycle, same-variant explicit
+  one-hop replacement, foreign/reserve/stale/duplicate denial, confirmed exact edition
+  scope, hash-check race, reset/history/clone and no silent withdrawn pin replacement.
+- `tests/test_rule_persistence.py`: migrated global revision singleton and competing
+  file-SQLite rule writers, one saved/one conflict; independent reopen/DB integrity.
+- `browser/test_rules.py`: authenticated global/position rules and concrete confirmed
+  project edition selection and explicit reset; no external browser requests.
+- Actual image global/project replacement smoke added; final Linux/NAS not claimed.

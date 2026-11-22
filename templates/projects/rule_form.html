@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ title }} — Notenarchiv{% endblock %}
+{% block content %}<h1>{{ title }}</h1><p>{% translate "Keine automatische Transposition. Konkrete Ausgaben sind versionsgebunden; unbestätigte oder inkompatible Noten sind nicht auswählbar." %}</p>
+{% if not project or project.status == 'ACTIVE' %}<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button>{% translate "Regel speichern" %}</button></form>{% else %}{{ form.errors }}<p>{% translate "Archiviertes Projekt ist schreibgeschützt." %}</p>{% endif %}
+<a href="{% if project %}{% url 'project_rules' project.pk %}{% else %}{% url 'global_replacement_rules' %}{% endif %}">{% translate "Regeln neu laden" %}</a>{% endblock %}
