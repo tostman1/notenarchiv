@@ -38,6 +38,7 @@ reflect actual completed work only.
 | WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
 | WP-34 | Explicit ensemble roles and playable mapping editor | Merged, software verified | PR #35, merge `b174773` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers; final PR CI `45058429483` and main CI `45059301957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
+| WP-32 | Central assignment and edition resolver | Software verified; integration pending | PR #37, source `f20655e` | 685 Linux tests, sixteen browsers; complete CI `45068374035` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then WP-33a |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -95,7 +96,15 @@ reflect actual completed work only.
   Local full regression 600 passed/81 platform skips before final four coverage
   additions; final resolver/persistence suite 24 passed. All sixteen browsers
   passed. Ruff/format/lock/system/migration/diff checks passed; complete diff
-  reviewed. Separate final-head Linux/container/security/merge/main gates pending.
+   reviewed. Source `f20655e` passed full CI `45068374035`: 685 Linux tests,
+   sixteen browsers, system/migration drift, runtime audit, hardened amd64 image/
+   Compose, actual resolver on isolated restored confirmed inputs, archive/download/
+   backup/restore, both install flows and image vulnerability/secret checks.
+   Initial container assertion used an arbitrary part instead of the preferred
+   combined-PDF assignment; fixture now pins that exact assignment, original
+   usability/provenance assertion retained. Full diff/commits reviewed; no submitted
+   reviews or unresolved threads. Final docs-head and merged-main CI remain before
+   WP-33a; no NAS/private data, linked worktrees, release or deployment.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
