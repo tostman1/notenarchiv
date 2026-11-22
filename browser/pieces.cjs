@@ -13,8 +13,10 @@ async function check(origin,project,first,reserve,third){
  assert.deepEqual(await page.locator('.piece-number').allTextContents(),['1.','2.','3.']);
  await page.getByRole('button',{name:'Vorschau-Reihenfolge speichern'}).click();await page.reload();
  assert.equal(await rows().first().getAttribute('data-position'),third);
- await page.locator(`[data-position="${reserve}"]`).getByRole('link',{name:'Reserve füllen'}).click();
- await page.getByLabel('Titel oder Alias',{exact:false}).fill('abba');
+  await page.locator(`[data-position="${reserve}"]`).getByRole('link',{name:'Reserve füllen'}).click();
+  await page.waitForLoadState('load');
+  await page.waitForFunction(()=>document.querySelector('#library-search')?.dataset.enhanced==='ready');
+  await page.getByLabel('Titel oder Alias',{exact:false}).fill('abba');
  await page.waitForFunction(()=>document.querySelector('#library-results').dataset.query==='abba');
  await page.getByRole('checkbox',{name:'Kontrollierten Austausch bestätigen; Zuordnungen erneut prüfen'}).check();
  await page.getByRole('button',{name:'An dieser Position übernehmen'}).click();
