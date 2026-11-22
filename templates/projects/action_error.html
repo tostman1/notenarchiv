@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% translate "Projektaktion nicht gespeichert" %}</h1>{{ form.errors }}<a href="{% url 'project_detail' project.pk %}">{% translate "Projekt neu laden" %}</a>{% endblock %}

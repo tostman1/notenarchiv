@@ -32,7 +32,8 @@ reflect actual completed work only.
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 | WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
-| WP-23b | Direct unchanged PDF and bounded ZIP download | Software verified; integration pending | PR #29, source `bcc2e5b` | 590 Linux tests, eleven browsers; full CI `45030782487` passed | Private NAS acceptance separate | Final docs-head CI, merge and main CI |
+| WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
+| WP-29 | Durable project graph, revisions, CRUD and duplication | Software verified; integration pending | PR #30, source `8aad238` | 601 Linux tests, twelve browsers; full CI `45034660243` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -85,8 +86,23 @@ reflect actual completed work only.
   amd64 image/Compose, actual unchanged PDF/ZIP staging, archive/preference and
   isolated restore/reopen, both installation flows and vulnerability/secret scan.
   No submitted reviews or unresolved threads at this checkpoint. Final documentation
-  head CI and merge/post-merge main verification remain before WP-29. No private
+  head `a1d03d4` passed CI `45031690831`, merged as
+  `7fdb40b38c8c2d0e4b4a89716bfbe390e44f0cdc`; main CI `45032500732`
+  passed. Exact merged tree matched. No private
   NAS data/destination, release, deployment or branch deletion.
+- WP-29 in progress on `feature/wp-29-project-model-crud`, from that verified
+  clean primary main. Durable project graph/revisions, isolated full duplication,
+  German CRUD/archive/reactivate and migrations implemented. Targeted concurrency,
+  persistence/model/UI: eleven tests passed. Full local regression 518 passed/81
+  Windows platform skips before final pagination/clone refinements (targeted rerun
+  passed); twelve browsers passed. Ruff/format/lock/system/migration checks passed
+  after correcting synthetic script line length and line endings. Full diff
+  reviewed. Source `8aad238` passed full CI `45034660243`: 601 Linux tests,
+  twelve browsers, system/migration drift, locked runtime audit, hardened amd64
+  image/Compose, actual project CRUD/clone on restored isolated DB, archive and
+  download/backup/restore flow, both install variants and vulnerability/secret
+  scan. No submitted reviews or unresolved threads. Final documentation-head CI,
+  merge and post-merge main CI remain mandatory before WP-30. No NAS/release/deploy.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

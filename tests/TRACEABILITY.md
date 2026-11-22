@@ -101,3 +101,20 @@ scoped work packages; this register does not claim those gates were exercised.
   full CI `45030782487` on `bcc2e5b` passed: 590 Linux tests, eleven browsers and
   complete image/Compose/unchanged downloads/restore/installation/security checks.
   Private NAS/hardware acceptance remains separate; no real installation data used.
+
+## WP-29 (software verified; integration pending)
+
+- PR-01/05/07: `tests/test_projects.py` validates durable settings/revisions,
+  same-title identities, full graph duplication/remapped FKs/guests/reserves,
+  source isolation, protected history and archived edit denial; incompatible
+  editions/variants, cross-project/scoped identity changes, revalidation bypass,
+  cyclic replacements and SQLite uniqueness rejected. UI auth/CSRF/escape/409.
+- `tests/test_project_persistence.py`: independently migrated file-SQLite
+  competing edits (one success/one conflict), separate interpreter reopen,
+  stable reserve/clone/revision identities and actual database integrity.
+- `browser/test_projects.py`: real German CRUD/duplicate/archive and stale
+  concurrent editor. Updated shell navigation assertions retain unavailable
+  scan/settings checks. Actual hardened image project CRUD/clone smoke added.
+- Full CI `45034660243` on `8aad238` passed: 601 Linux tests, twelve browsers,
+  image/Compose/actual project graph on isolated restored SQLite/security checks.
+  No private NAS data or hardware acceptance is implied by software verification.

@@ -235,6 +235,34 @@ for zipped in (False,True):
         json.dumps(identities),
     )
     assert "SCENARIO_RESULT=" in checked.stdout
+    project_code = """
+import django
+django.setup()
+from django.contrib.auth import get_user_model
+from apps.projects import models as m,services as s
+actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
+values=dict(name='Synthetic project',layout='REGULAR',width_mm=170,height_mm=120,cover_enabled=True,cover_title='')
+project=s.save_project(values,actor=actor)
+slot=m.ProjectPosition.objects.create(project=project,order=1)
+clone=s.duplicate_project(project.pk,name=project.name,actor=actor,expected_revision=1)
+assert clone.positions.get().pk!=slot.pk and clone.positions.get().arrangement_id is None
+s.archive_project(clone.pk,actor=actor,expected_revision=1)
+assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
+"""
+    docker(
+        "run",
+        "--rm",
+        *arguments(restored_paths, "none"),
+        "-e",
+        "DATABASE_PATH=/data/database.sqlite3",
+        "-e",
+        "DJANGO_SETTINGS_MODULE=config.settings",
+        "--entrypoint",
+        "python",
+        image,
+        "-c",
+        project_code,
+    )
     docker(
         "run",
         "--rm",
