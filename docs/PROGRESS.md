@@ -36,6 +36,7 @@ reflect actual completed work only.
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
 | WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
+| WP-34 | Explicit ensemble roles and playable mapping editor | Software verified; integration pending | PR #35, source `424defd` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers and full CI `45057377256` passed | Private NAS acceptance separate | Final documentation-head CI, merge/main then WP-35 |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -56,12 +57,18 @@ reflect actual completed work only.
   microseconds ahead of SQLite's millisecond statement clock. Immediate enqueue
   now uses that same DB timebase as claim; 43 queue/lifecycle tests passed,
   including forced future Python-default regression. No lease/fencing/retry
-  conditions or assertions weakened. Full regression is repeated after the cause fix.
+   conditions or assertions weakened. Final local full regression passed: 565 tests,
+   81 platform skips; all fifteen browsers passed again after the cause fixes.
 - Initial PR #35 CI `45055233428` passed all Linux unit tests and the new ensemble
   browser, but failed an existing piece-list browser's immediate reload after POST.
   The correction waits for the actual redirected response, incremented revision
-  and load before reload; both piece/ensemble browsers passed. Final head/full
-  Linux/container/security/main CI remain gates before WP-35; no green claim yet.
+   and load before reload; both piece/ensemble browsers passed. Source `424defd`
+   passed full CI `45057377256`: 646 Linux tests, fifteen browsers, system/migration
+   drift, runtime audit, actual hardened amd64 image/Compose/ensemble role+mapping,
+   archive/download/backup/isolated restore, both install variants and image
+   vulnerability/secret checks. Full diff/commits reviewed, no submitted reviews or
+   unresolved threads. Final docs-head CI and merge/main remain before WP-35.
+   No NAS/private data, deployment, release, force-push or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
