@@ -24,7 +24,7 @@ reflect actual completed work only.
 | WP-16 | German indexing UI | Merged, software verified | PR #22, merge `4c75350` | 493 Linux tests, six browsers; final PR CI 44959000193 and main CI 44959464054 passed | Private NAS gates separate | Complete software scope |
 | WP-20a | Individual review and publication | Merged, software verified | PR #23, merge `dc78924` | 505 Linux tests, seven browsers; final PR CI 44962136139 and main CI 44962643794 passed | Local Windows queue timing issue; private NAS gates separate | Complete software scope |
 | WP-20b | Inspected batch approval and navigation | Merged, software verified | PR #24, merge `05a4898` | 520 Linux tests, eight browsers; final PR CI 44964388557 and main CI 44964905107 passed | Local Windows queue timing issue; private NAS gates separate | Complete software scope |
-| WP-21 | Searchable library and independent completeness | Software verified; final integration gate | PR #25, implementation `0f8639d`, base `05a4898` | 530 Linux tests, nine browsers and full container/security CI 44966827522 passed | Final docs CI/merge/main verification pending; private NAS gates separate | Finish approved integration, then stop |
+| WP-21 | Searchable library and independent completeness | Merged, software verified | PR #25, merge `eb6c542` | 530 Linux tests, nine browsers; final PR CI 44967842286 and main CI 44968360320 passed; exact merged tree matched | Private NAS gates and baseline Windows queue timing issue separate | Approved sequence complete; stop |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -1007,3 +1007,27 @@ remain unexecuted without their distinct approval. Preserve published preview as
   full integrity UI, kernel-I/O deadline limitation and two-file STATUS publication
   (JSON authoritative). Existing pinned CI actions emit Node.js deprecation warnings
   but all checks ran successfully; action upgrades are not part of WP-21.
+
+## Approved sequence completed — 2026-11-22
+
+- WP-21 PR #25 final head `c6e13c8eec3dc09db08e10af7856bc184dafc086` passed
+  complete CI 44967842286 (530 Linux tests, nine browsers, full container/security).
+  Merged at `eb6c542f4527c0836820e3d8b6085a27dcc57d62`; exact merge tree
+  equals reviewed head. Post-merge main CI 44968360320 passed all checks.
+- The prior documentation-head CI 44967430490 exposed a browser synchronization
+  race: existing four rows were mistaken for the new query response. Acceptance
+  now waits for page load and the actual applied query plus exact result count.
+  No assertions were weakened. Final local library browser and 36 focused
+  library/batch/review tests passed. Earlier Windows timing failures remain recorded.
+- WP-15/16/20a/20b/21 are implemented, software-verified and integrated through
+  distinct PRs #21/22/23/24/25. Every package's PR and merged-main CI passed before
+  starting its successor. Only the primary worktree was used; no linked worktree,
+  force push, branch deletion, release, deployment or real NAS/data operation.
+- This final evidence-only follow-up updates the WP-21 register without rewriting
+  historical bytes. Its own PR/head/main CI is a separate Git checkpoint; it does
+  not change application code or the accepted software test results.
+- Stop after this documentation integration. Recommended dependency-ready next
+  milestones: WP-47a full archive backup/restore before real ingestion, WP-23a
+  preferred archive editions, and independently WP-29 project model foundation.
+  WP-23b direct downloads follows WP-23a; OCR/full integrity remain later work.
+  None was started. Private NAS/hardware/backup/worker-operations gates remain open.
