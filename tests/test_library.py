@@ -85,6 +85,7 @@ def test_invalid_filters_auth_and_corrupt_copy_do_not_present_music_as_usable(li
     response = client.get(reverse("archive_library_arrangement", args=[arrangements[0].pk]))
     assert not response.context["editions"][0].physically_verified
     assert "nicht nutzbar" in response.content.decode()
+    assert response.context["rows"][0]["label"] == "Bestätigte Kopie fehlt oder ist beschädigt; nicht nutzbar"
     assert not service.verify_file(file)
     client.logout()
     assert client.get(reverse("archive_library")).status_code == 302
