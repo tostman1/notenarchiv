@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Archiv-Ausgaben" %} — Notenarchiv{% endblock %}
+{% block content %}
+<a href="{% url 'archive_library_arrangement' arrangement.pk %}">{% translate "Zurück zum Arrangement" %}</a>
+<h1>{% translate "Archiv-Ausgaben" %}</h1><p>{{ arrangement }}<br>{{ part }}</p>
+<p>{{ resolution.label }} · {{ resolution.origin_label }}{% if resolution.assignment %} · {{ resolution.assignment.archive_file.pk }}{% endif %}</p>
+{% if selection %}<p>{% translate "Diese Ansicht prüft eine explizite Version. Sie ändert keine Bevorzugung." %}</p>{% endif %}
+<p>{% translate "Nur genau passende, bestätigte und hash-geprüfte Versionen können bevorzugt werden. Stimmung und Notation gehören zur spielbaren Stimme. Änderungen ersetzen keine explizite Auswahl oder frühere Ausgabe." %}</p>
+{{ form.errors }}
+<ul>{% for assignment in page %}<li>
+{{ assignment.archive_file.pk }} · {{ assignment.kind_label }}
+{% if assignment.preferred %}<strong>{% translate "Archivweit bevorzugt" %}</strong>{% endif %}
+{% if assignment.available %}<p>{% translate "Bestätigt und hash-geprüft" %}</p>
+{% if assignment.archive_file.root_kind == 'CLEAN' %}<a href="{% url 'archive_preview:viewer' assignment.archive_file.pk %}">{% translate "PDF-Vorschau" %}</a>{% endif %}
+<a href="?selection={{ assignment.pk }}">{% translate "Diese explizite Ausgabe prüfen" %}</a>
+<form method="post">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ arrangement.revision }}"><input type="hidden" name="assignment" value="{{ assignment.pk }}"><button>{% translate "Archivweit bevorzugen" %}</button></form>
+{% else %}<p>{% translate "Zurückgezogen oder nicht verfügbar; für neue Ausgaben gesperrt" %}</p>{% endif %}
+</li>{% empty %}<li>{% translate "Keine zugeordneten Archivversionen." %}</li>{% endfor %}</ul>
+{% if preference.assignment_id %}<form method="post">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ arrangement.revision }}"><button>{% translate "Archiv-Bevorzugung zurücksetzen" %}</button></form>{% endif %}
+{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %}
+{% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
+<h2>{% translate "Letzte Änderungen der Bevorzugung" %}</h2><ul>{% for change in changes %}<li>{{ change.created_at }} · {{ change.previous.archive_file.pk|default:"—" }} → {{ change.selected.archive_file.pk|default:"—" }}</li>{% empty %}<li>{% translate "Keine Änderungen." %}</li>{% endfor %}</ul>
+{% endblock %}

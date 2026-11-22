@@ -90,6 +90,31 @@ def smoke(image, root):
     assert not list(paths["status"].iterdir())  # STATUS publication belongs to WP-15.
     assert not list((paths["clean"] / ".staging").rglob("*.pdf"))
     assert (paths["clean"] / approved["path"]).stat().st_uid == UID
+    preference_code = """
+import django,json,sys
+django.setup()
+from apps.archive import models as m,edition_services as e
+from apps.catalog.models import Arrangement
+data=json.loads(sys.argv[1])
+assignment=m.ArchiveAssignment.objects.usable().filter(archive_file_id=data['file']).first()
+arrangement=Arrangement.objects.get(pk=data['arrangement'])
+e.set_preference(arrangement.pk,assignment.part_id,assignment.pk,actor=data['actor'],expected_revision=arrangement.revision)
+result=e.resolve(arrangement.pk,assignment.part_id)
+assert result.origin=='ARCHIVE' and result.assignment.pk==assignment.pk
+"""
+    docker(
+        "run",
+        "--rm",
+        *arguments(paths, "none"),
+        "-e",
+        "DJANGO_SETTINGS_MODULE=config.settings",
+        "--entrypoint",
+        "python",
+        image,
+        "-c",
+        preference_code,
+        json.dumps(identities),
+    )
     # Full WP-47a: real copied/confirmed files and SQLite restored together in
     # hardened network-disabled containers. Only these new synthetic roots.
     private_config, independent, output = root / "config", root / "independent", root / "backup-output"
@@ -167,6 +192,8 @@ def smoke(image, root):
         *arguments(restored_paths, "none"),
         "-e",
         "DATABASE_PATH=/data/database.sqlite3",
+        "-e",
+        "DJANGO_SETTINGS_MODULE=config.settings",
         "--entrypoint",
         "python",
         image,
@@ -176,6 +203,22 @@ def smoke(image, root):
         json.dumps(identities),
     )
     assert "SCENARIO_RESULT=" in checked.stdout
+    docker(
+        "run",
+        "--rm",
+        *arguments(restored_paths, "none"),
+        "-e",
+        "DATABASE_PATH=/data/database.sqlite3",
+        "-e",
+        "DJANGO_SETTINGS_MODULE=config.settings",
+        "--entrypoint",
+        "python",
+        image,
+        "-c",
+        "import django; django.setup(); from apps.archive import models as m,edition_services as e; "
+        "p=m.PreferredEdition.objects.get(); r=e.resolve(p.arrangement_id,p.part_id); "
+        "assert r.origin=='ARCHIVE' and r.assignment.pk==p.assignment_id; assert p.changes.count()==1",
+    )
     assert before == {
         path.name: (hashlib.sha256(path.read_bytes()).hexdigest(), path.stat().st_mtime_ns)
         for path in paths["raw"].iterdir()

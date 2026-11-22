@@ -73,3 +73,17 @@ scoped work packages; this register does not claim those gates were exercised.
   and sanitized failures. Full Linux CI `45009366615` on `66926f9` passed (558
   tests, nine browsers and complete image/restore/security checks). Windows
   fail-closed skips are not NAS acceptance; no private installation data used.
+
+## WP-23a (software verified; integration pending)
+
+- AR-17/AS-05: `tests/test_editions.py` covers exact compatible arrangement/part,
+  multiple versions, ambiguity/sole/preferred/explicit provenance, preference reset,
+  transposition/clef incompatibility, pending/withdrawn/corrupt/inactive rejection,
+  hash-check state race, stale revision and protected append-only old references.
+- `tests/test_edition_persistence.py`: migrated file-SQLite concurrent writers and
+  independent interpreter reopen, same UUID/preferences/assignments and DB integrity.
+- `browser/test_editions.py`: German preference/reset and explicit pinned-choice
+  check across preference change/reload, local assets, unchanged synthetic PDF bytes.
+- Full Linux/container/security CI `45027269366` on `9c0ecd2` passed: 572 tests,
+  ten browsers; actual image preference creation and restored preference/history
+  verification added to the existing non-root, RAW-read-only, network-disabled flow.

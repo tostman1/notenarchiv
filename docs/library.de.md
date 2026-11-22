@@ -30,8 +30,10 @@ Erwartungsliste kopiert; spätere Vorlagenänderungen wirken nicht automatisch n
 Die Liste „Bestätigte Archivversionen“ enthält nur freigegebene Versionen. Ihre
 konkreten Dateihashes werden beim Aufruf dieser Seite geprüft. Fehlende oder
 beschädigte Kopien werden ausdrücklich **nicht nutzbar** gezeigt und erhalten
-keinen Vorschau-Link. Keine Variante wird automatisch bevorzugt, ersetzt oder
-für Projekte ausgewählt. Download/Export und bevorzugte Editionen folgen später.
+keinen Vorschau-Link. Unter **Ausgaben und Bevorzugung** kann je spielbarer Stimme
+eine passende bestätigte Ausgabe ausdrücklich bevorzugt oder die Vorgabe
+zurückgesetzt werden; siehe [ausgaben.de.md](ausgaben.de.md). Keine explizite
+Auswahl wird still ersetzt. Direkter Download und Projektregeln folgen separat.
 
 Der Archiv-Vollständigkeitsstatus beruht auf gespeicherten Belegen, nicht auf
 einem vollständigen Integritätsscan. Projekt-Preflight, NAS-Integrität/Last und

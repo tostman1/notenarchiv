@@ -129,7 +129,16 @@ def part_rows(arrangement):
             candidate__archive_file__current_proposal__isnull=True,
         ).select_related("part__instrument")
     )
-    parts = {entry.part_id: entry.part for entry in [*expected.values(), *confirmed, *proposals, *candidates]}
+    preferences = list(m.PreferredEdition.objects.filter(arrangement=arrangement).select_related("part__instrument"))
+    withdrawn = list(
+        m.ArchiveAssignment.objects.filter(archive_file__arrangement=arrangement)
+        .filter(Q(state="WITHDRAWN") | Q(archive_file__review_state="WITHDRAWN"))
+        .select_related("part__instrument")
+    )
+    parts = {
+        entry.part_id: entry.part
+        for entry in [*expected.values(), *confirmed, *proposals, *candidates, *preferences, *withdrawn]
+    }
     available = {entry.part_id for entry in confirmed}
     unreviewed = {entry.part_id for entry in [*proposals, *candidates]}
     rows = []
@@ -150,6 +159,7 @@ def part_rows(arrangement):
                 "optional": bool(expectation and not expectation.required),
                 "confirmed_count": sum(entry.part_id == identifier for entry in confirmed),
                 "pending_count": sum(entry.part_id == identifier for entry in [*proposals, *candidates]),
+                "withdrawn_count": sum(entry.part_id == identifier for entry in withdrawn),
             }
         )
     return sorted(
