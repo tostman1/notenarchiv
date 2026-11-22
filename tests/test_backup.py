@@ -199,3 +199,27 @@ def test_limits_validate_and_unsupported_platform_fails_closed(tmp_path):
     if os.name != "posix":
         with pytest.raises(FileError, match="UNSUPPORTED_FILESYSTEM_API"), Root(tmp_path):
             pass
+
+
+@posix
+def test_data_inside_raw_rejected_before_any_lock_or_destination_write(backup_install, tmp_path):
+    from dataclasses import replace
+
+    _install, env, config, independent, *_other = backup_install
+    invalid = replace(env, database_path=env.source_dir / "unexpected.sqlite3")
+    with pytest.raises(b.BackupError, match="LIVE_ROOT_OVERLAP"):
+        backup.create(invalid, tmp_path / "backup", config_dir=config, raw_backup=independent, image=IMAGE)
+    assert not (env.source_dir / ".maintenance.lock").exists()
+    assert not (env.source_dir / "worker.lock").exists()
+    assert not (tmp_path / "backup").exists()
+
+
+@posix
+def test_raw_hardlink_is_not_an_independent_backup(backup_install, tmp_path):
+    _install, env, config, independent, *_other = backup_install
+    copied = independent / "correct.pdf"
+    copied.unlink()
+    os.link(env.source_dir / "correct.pdf", copied)
+    with pytest.raises(b.BackupError, match="RAW_BACKUP_NOT_INDEPENDENT"):
+        backup.create(env, tmp_path / "backup", config_dir=config, raw_backup=independent, image=IMAGE)
+    assert not (tmp_path / "backup").exists()
