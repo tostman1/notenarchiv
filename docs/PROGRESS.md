@@ -35,6 +35,7 @@ reflect actual completed work only.
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
+| WP-31 | Participants, guests and saved project defaults | Software verified; integration pending | PR #32, source `da915e6` | 630 Linux tests, fourteen browsers; full CI `45043669400` passed | Private NAS acceptance separate | Final docs-head CI, merge/main and final sequence record |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -130,8 +131,13 @@ reflect actual completed work only.
   pagination coverage, which passed in targeted rerun (14 participant/persistence
   tests). Fourteen browsers passed; final origin/prefetch labels additionally passed
   participant browser. Ruff/format/lock/system/migration/diff checks passed; complete
-  source diff reviewed. Separate PR/Linux/container/security and main integration
-  remain mandatory before claiming completion of the six-WP sequence.
+   source diff reviewed. Full CI `45043669400` on `da915e6` passed: 630 Linux
+   tests, fourteen browsers, system/migration drift, runtime audit, actual hardened
+   amd64 image/Compose, saved participant/guest container operations, shared lists,
+   archive/download/backup/isolated restore, both first-install flows and image
+   vulnerability/secret scans. No submitted reviews or unresolved threads. Final
+   docs-head CI, merge/main and consolidated sequence record remain before final
+   completion. No NAS/private data/release/deployment/branch deletion.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

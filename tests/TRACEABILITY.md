@@ -134,7 +134,7 @@ scoped work packages; this register does not claim those gates were exercised.
   actual container shared list/backup/restore and vulnerability/secret checks.
   Browser input waits for actual live-search enhancement readiness. No NAS claim.
 
-## WP-31 (verification in progress)
+## WP-31 (software verified; integration pending)
 
 - CAT-02/PR-04/AS-01: `tests/test_participants.py` validates bounded subset/all/none,
   name/instrument filters, actor/project/revision-bound page selection, guests without
@@ -147,3 +147,6 @@ scoped work packages; this register does not claim those gates were exercised.
 - `browser/test_participants.py`: actual subset/guest selection then private synthetic
   master change between browser phases; no default change before explicit refresh.
   Hardened image smoke includes saved member default and project-local guest.
+- Full CI `45043669400` on `da915e6` passed: 630 Linux tests, fourteen browsers,
+  actual image saved participant/guest/shared list/restore and security checks.
+  No real members/music/NAS data were used; private acceptance is not implied.
