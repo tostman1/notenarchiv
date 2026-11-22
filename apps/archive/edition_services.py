@@ -54,26 +54,42 @@ def compatible(arrangement_id, part_id, *, using="default"):
 def resolve(arrangement_id, part_id, *, explicit_assignment_id=None, using="default"):
     """Exact part includes notation/transposition; same number is never compatibility."""
     choices = compatible(arrangement_id, part_id, using=using)
+    preference = m.PreferredEdition.objects.using(using).filter(arrangement_id=arrangement_id, part_id=part_id).first()
+    selected = (
+        explicit_assignment_id
+        if explicit_assignment_id is not None
+        else preference.assignment_id
+        if preference
+        else None
+    )
+    try:
+        candidates = list(choices.filter(pk=selected)[:1]) if selected is not None else list(choices[:2])
+    except (ValidationError, ValueError):
+        candidates = []
+    result = select_edition(
+        candidates,
+        explicit_assignment_id=explicit_assignment_id,
+        preferred_assignment_id=preference.assignment_id if preference else None,
+    )
+    if result.assignment is not None and not library_services.verify_file(result.assignment.archive_file):
+        return EditionResolution("UNAVAILABLE", result.origin)
+    return result
+
+
+def select_edition(choices, *, explicit_assignment_id=None, preferred_assignment_id=None):
+    """Pure edition choice over eligible exact-part assignments; shared with WP-32."""
     if explicit_assignment_id is not None:
         origin, selected = "EXPLICIT", explicit_assignment_id
+    elif preferred_assignment_id is not None:
+        origin, selected = "ARCHIVE", preferred_assignment_id
     else:
-        preference = (
-            m.PreferredEdition.objects.using(using).filter(arrangement_id=arrangement_id, part_id=part_id).first()
-        )
-        if preference and preference.assignment_id:
-            origin, selected = "ARCHIVE", preference.assignment_id
-        else:
-            candidates = list(choices[:2])
-            if not candidates:
-                return EditionResolution("MISSING", "NONE")
-            if len(candidates) != 1:
-                return EditionResolution("AMBIGUOUS", "NONE")
-            origin, selected = "SOLE", candidates[0].pk
-    try:
-        assignment = choices.filter(pk=selected).first()
-    except (ValueError, ValidationError):
-        assignment = None
-    if assignment is None or not library_services.verify_file(assignment.archive_file):
+        if not choices:
+            return EditionResolution("MISSING", "NONE")
+        if len(choices) != 1:
+            return EditionResolution("AMBIGUOUS", "NONE")
+        origin, selected = "SOLE", choices[0].pk
+    assignment = next((item for item in choices if str(item.pk) == str(selected)), None)
+    if assignment is None:
         return EditionResolution("UNAVAILABLE", origin)
     return EditionResolution("AVAILABLE", origin, assignment)
 

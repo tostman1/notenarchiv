@@ -2,6 +2,7 @@
 
 This package extends the existing ProjectRole/EnsembleMapping/ProjectParticipant
 graph; it does not create another project model or implement edition resolution.
+The central resolver now consumes this component; see [RESOLUTION.md](RESOLUTION.md).
 `ensemble_services.mapping_choice` is a reusable mapping component for the future
 WP-32 resolver. A position-specific active mapping wins over the project mapping
 for exactly the participant's saved instrument variant. Missing/invalid roles or

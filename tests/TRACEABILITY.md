@@ -173,7 +173,7 @@ scoped work packages; this register does not claim those gates were exercised.
   proves future Python-default skew cannot delay immediate claims. Existing lease/
    cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.
 
-## WP-35 (software verified; integration pending)
+## WP-35 (merged, software verified)
 
 - CAT-03/AS-05/06: `tests/test_rules.py` covers global/project/position precedence,
   effective overlay cycles and clear exposing inherited cycle, same-variant explicit
@@ -187,3 +187,19 @@ scoped work packages; this register does not claim those gates were exercised.
   `22edbd9` passed: 661 Linux tests, sixteen browsers and actual container/security
   gates. Local regression 578 passed/81 platform skips plus final targeted reruns;
   private NAS/hardware acceptance is separate and was not performed.
+
+## WP-32 (software verified; integration pending)
+
+- GR-09/10, AS-01/05/06/07: `tests/test_resolution.py` exercises saved-default/
+  personal/role precedence, position/project/archive/sole/explicit editions, manual
+  part 2 when 3 exists, variant-specific role, no fallback on ambiguity/invalid pin/
+  corruption/revalidation, explicit one-hop replacement/cycle checks, missing copies,
+  source-missing retained versions, immutable provenance, no-query pure selection
+  and one verified read per file/session. No view duplicates musical resolution.
+- `tests/test_resolution_persistence.py`: independent migrated process/reopen with
+  actual synthetic confirmed copy and exact resolver IDs/hash/default provenance.
+- Actual hardened container resolver added; existing browser suite retained. No
+   matrix, preflight, generation, missing acknowledgement or NAS acceptance claimed.
+- Complete CI `45068374035` on `f20655e` passed: 685 Linux tests, sixteen browsers,
+  actual container resolver/confirmed-input restore and security checks. Container
+  fixture uses exact preferred assignment, not arbitrary catalog row order.

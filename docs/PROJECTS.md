@@ -14,7 +14,8 @@ and service validation, plus SQLite uniqueness/check constraints. Ensemble role 
 not a playable part; mapping's exact variant must match. New explicit editions
 require exact compatible confirmed hash-verified assignment and post-lock revision
 recheck. Mapping and rule editors use [ENSEMBLE.md](ENSEMBLE.md) and
-[RULES.md](RULES.md); the central resolver and matrix remain WP-32/33.
+[RULES.md](RULES.md); the central resolver uses [RESOLUTION.md](RESOLUTION.md).
+Matrix screens remain WP-33.
 
 Project revisions use write-first conditional UPDATE in short atomic SQLite
 transactions. Stale requests get a German 409 conflict, not lost updates. Append-only
