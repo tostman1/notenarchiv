@@ -146,6 +146,10 @@ class ProjectParticipant(Scoped):
     default_part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT, related_name="project_defaults")
     role = models.ForeignKey(ProjectRole, on_delete=models.PROTECT, null=True, blank=True)
     active = models.BooleanField(default=True)
+    member_revision = models.PositiveBigIntegerField(null=True, blank=True)
+    default_origin = models.CharField(
+        max_length=16, choices=[("MEMBER", "MEMBER"), ("MANUAL", "MANUAL"), ("GUEST", "GUEST")], default="MANUAL"
+    )
 
     def clean(self):
         super().clean()
@@ -160,6 +164,9 @@ class ProjectParticipant(Scoped):
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                condition=Q(default_origin__in=["MEMBER", "MANUAL", "GUEST"]), name="projects_valid_default_origin"
+            ),
             models.CheckConstraint(
                 condition=Q(member__isnull=False, guest_id__isnull=True)
                 | Q(member__isnull=True, guest_id__isnull=False),
@@ -355,6 +362,32 @@ class PositionChange(Record):
             raise ValidationError("Position history is append-only.")
         if self.position.project_id != self.project_id:
             raise ValidationError("Position history belongs to another project.")
+
+    class Meta:
+        ordering = ["project_revision", "created_at", "id"]
+
+
+class ParticipantChange(Record):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name="participant_history")
+    participant = models.ForeignKey(ProjectParticipant, on_delete=models.PROTECT, related_name="history")
+    project_revision = models.PositiveBigIntegerField()
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    event = models.CharField(max_length=32)
+    previous_part = models.ForeignKey(
+        "catalog.Part", on_delete=models.PROTECT, null=True, blank=True, related_name="participant_changes_from"
+    )
+    selected_part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT, related_name="participant_changes_to")
+    previous_name = models.CharField(max_length=160, blank=True)
+    selected_name = models.CharField(max_length=160)
+    previous_active = models.BooleanField(null=True, blank=True)
+    selected_active = models.BooleanField()
+    member_revision = models.PositiveBigIntegerField(null=True, blank=True)
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Participant history is append-only.")
+        if self.participant.project_id != self.project_id:
+            raise ValidationError("Participant history belongs to another project.")
 
     class Meta:
         ordering = ["project_revision", "created_at", "id"]

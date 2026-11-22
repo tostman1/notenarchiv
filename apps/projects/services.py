@@ -174,6 +174,8 @@ def save_associated(record, *, actor, expected_revision):
     creating = record._state.adding
     if isinstance(record, m.ProjectPosition):
         raise ValidationError("Shared position changes require the list service and history.")
+    if isinstance(record, m.ProjectParticipant):
+        raise ValidationError("Participant changes require saved-default selection services and history.")
     if creating and getattr(record, "needs_revalidation", False):
         raise ValidationError("New overrides cannot bypass compatibility through revalidation markers.")
     edition_revision = None

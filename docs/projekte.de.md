@@ -14,7 +14,8 @@ erlaubt; die Versions-/Projekt-ID unterscheidet sie. Namen sind keine Identität
   **Projekt neu laden**, fremde Änderung prüfen und bewusst erneut speichern.
 
 Die gemeinsame Stückliste ist unter **Gemeinsame Stückliste öffnen** verfügbar;
-siehe [stueckliste.de.md](stueckliste.de.md). Teilnehmerverwaltung folgt in WP-31.
+siehe [stueckliste.de.md](stueckliste.de.md). Teilnehmerverwaltung und gespeicherte
+Projektdefaults sind unter [teilnehmer.de.md](teilnehmer.de.md) beschrieben.
 Eine Person erhält keinen eigenen Stückbestand und keine individuelle Nummerierung.
 Rollen, persönliche Overrides und Projekt-Ausgabenregeln haben getrennte Modelle;
 die späteren Fachoberflächen bauen darauf auf. Generierte Mappen werden in diesem
