@@ -34,6 +34,7 @@ reflect actual completed work only.
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
+| WP-30 | Shared list, reserve slots and automatic numbering | Software verified; integration pending | PR #31, source `5e6299d` | 616 Linux tests, thirteen browsers; full CI `45039372553` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -113,7 +114,14 @@ reflect actual completed work only.
   parameter/empty-list coverage; final focused list/persistence 15 passed. Thirteen
   browsers passed; final contents-label update additionally passed list browser.
   Ruff/format/lock/system/migration/diff checks passed. Full source diff reviewed;
-  final PR/Linux/container/security/merge/main gates pending before WP-31.
+   Source `5e6299d` passed full CI `45039372553`: 616 Linux tests, thirteen
+   browsers, system/migration drift, runtime audit, hardened amd64 image/Compose,
+   shared-list insert/move/reserve clone, archive/download/backup/isolated restore,
+   both install flows and image vulnerability/secret scans. Full commits/diff
+   reviewed; no submitted reviews or unresolved threads. Initial browser search
+   timeout fixed by synchronizing actual enhancement readiness, not weakening the
+   live search assertion. Final docs-head CI and merged-main gate remain before
+   WP-31; no NAS/private data/release/deployment/branch deletion.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

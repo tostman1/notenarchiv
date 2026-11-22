@@ -119,7 +119,7 @@ scoped work packages; this register does not claim those gates were exercised.
   image/Compose/actual project graph on isolated restored SQLite/security checks.
   No private NAS data or hardware acceptance is implied by software verification.
 
-## WP-30 (verification in progress)
+## WP-30 (software verified; integration pending)
 
 - GR-07/12, PR-02/03/06: `tests/test_piece_list.py` covers reserve consuming number,
   3→1 renumbering, repeated arrangement independent UUID, fill/replace same slot,
@@ -130,3 +130,6 @@ scoped work packages; this register does not claim those gates were exercised.
 - `browser/test_piece_list.py`: actual drag/drop local contents preview/save/reload,
   live substring library search and reserve fill, repeated arrangement addition.
   Existing hardened image project smoke now exercises insert/move/reserve clone.
+- Full CI `45039372553` on `5e6299d` passed: 616 Linux tests, thirteen browsers,
+  actual container shared list/backup/restore and vulnerability/secret checks.
+  Browser input waits for actual live-search enhancement readiness. No NAS claim.
