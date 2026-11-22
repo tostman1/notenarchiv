@@ -245,6 +245,7 @@ from apps.projects import participant_services as people
 from apps.projects import ensemble_services as ensemble
 from apps.projects import rule_services as rules
 from apps.projects import resolution_services as resolution
+from apps.archive.models import PreferredEdition
 from apps.members.models import Member
 from apps.catalog.models import Part
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
@@ -257,7 +258,8 @@ project.refresh_from_db()
 clone=s.duplicate_project(project.pk,name=project.name,actor=actor,expected_revision=3)
 assert project.revision==3
 assert clone.positions.count()==2 and clone.positions.first().pk!=inserted.pk
-part=Part.objects.filter(active=True).first()
+preference=PreferredEdition.objects.select_related('assignment__part').get()
+part=preference.assignment.part
 member=Member.objects.create(name='Synthetic container member',regular_part=part)
 people.member_subset(project.pk,[member.pk],scope_ids=[member.pk],actor=actor,expected_revision=3)
 participant=project.participants.get()
