@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ title }} — Notenarchiv{% endblock %}
+{% block content %}<h1>{{ title }}</h1><p>{{ project.name }} · {% translate "Revision" %} {{ project.revision }}</p>
+{% if project.status == 'ACTIVE' %}<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button>{% translate "Ensemblezuordnung speichern" %}</button></form>{% else %}<p>{% translate "Archiviertes Projekt ist schreibgeschützt." %}</p>{{ form.errors }}{% endif %}
+<a href="{% url 'project_ensemble' project.pk %}">{% translate "Ensemble neu laden" %}</a>{% endblock %}

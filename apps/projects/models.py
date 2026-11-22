@@ -127,6 +127,7 @@ class ProjectRole(Scoped):
     code = models.CharField(max_length=40)
     code_key = models.CharField(max_length=80, editable=False)
     label = models.CharField(max_length=120, blank=True)
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
@@ -136,6 +137,9 @@ class ProjectRole(Scoped):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["project", "code_key"], name="projects_unique_role")]
+
+    def __str__(self):
+        return f"{self.code} · {self.label or '—'} · {str(self.pk)[:8]}"
 
 
 class ProjectParticipant(Scoped):
@@ -251,6 +255,7 @@ class EnsembleMapping(Scoped):
         ProjectPosition, on_delete=models.PROTECT, null=True, blank=True, related_name="ensemble_mappings"
     )
     part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT)
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
@@ -388,6 +393,46 @@ class ParticipantChange(Record):
             raise ValidationError("Participant history is append-only.")
         if self.participant.project_id != self.project_id:
             raise ValidationError("Participant history belongs to another project.")
+
+    class Meta:
+        ordering = ["project_revision", "created_at", "id"]
+
+
+class EnsembleChange(Record):
+    """Append-only references for role, mapping and participant-role edits."""
+
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name="ensemble_history")
+    project_revision = models.PositiveBigIntegerField()
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    event = models.CharField(max_length=32)
+    role = models.ForeignKey(ProjectRole, on_delete=models.PROTECT, null=True, blank=True)
+    mapping = models.ForeignKey(EnsembleMapping, on_delete=models.PROTECT, null=True, blank=True)
+    participant = models.ForeignKey(ProjectParticipant, on_delete=models.PROTECT, null=True, blank=True)
+    previous_part = models.ForeignKey(
+        "catalog.Part", on_delete=models.PROTECT, null=True, blank=True, related_name="ensemble_changes_from"
+    )
+    selected_part = models.ForeignKey(
+        "catalog.Part", on_delete=models.PROTECT, null=True, blank=True, related_name="ensemble_changes_to"
+    )
+    previous_role = models.ForeignKey(
+        ProjectRole, on_delete=models.PROTECT, null=True, blank=True, related_name="ensemble_changes_from"
+    )
+    selected_role = models.ForeignKey(
+        ProjectRole, on_delete=models.PROTECT, null=True, blank=True, related_name="ensemble_changes_to"
+    )
+    before = models.JSONField(default=dict, blank=True)
+    after = models.JSONField(default=dict, blank=True)
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Ensemble history is append-only.")
+        for name in ("role", "mapping", "participant", "previous_role", "selected_role"):
+            if getattr(self, name + "_id") and getattr(self, name).project_id != self.project_id:
+                raise ValidationError("Ensemble history must stay in its project.")
+        from apps.archive.validation import bounded_json
+
+        bounded_json(self.before)
+        bounded_json(self.after)
 
     class Meta:
         ordering = ["project_revision", "created_at", "id"]

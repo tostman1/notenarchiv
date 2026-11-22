@@ -153,3 +153,16 @@ scoped work packages; this register does not claim those gates were exercised.
 - Final PR #32 CI `45045456240` and bounded navigation correction PR #33 CI
   `45047209870` passed. Main CI `45048123486` on merge `53aaced` verified all 630
   Linux tests, fourteen browsers and complete actual container/security gates.
+
+## WP-34 (verification in progress)
+
+- CAT-04/AS-07: `tests/test_ensemble.py` covers four roles/seven participants,
+  same role on distinct exact variants/notation, position-over-project mapping,
+  explicit clear, missing/inactive/foreign/duplicate/retarget rejection, role
+  protection, unchanged defaults, stale/archive denial and pinned history/clone.
+- `tests/test_ensemble_persistence.py`: independent migrated file-SQLite competing
+  mapping writes (one saved/one conflict) and separate interpreter integrity/reopen.
+- `browser/test_ensemble.py`: German role/mapping/participant editing, incompatible
+  variant rejection and explicit reset with persisted independent defaults.
+- `scripts/publication_smoke.py`: actual non-root/no-network/read-only RAW container
+  role/participant/mapping acceptance added; final CI/NAS acceptance not yet claimed.

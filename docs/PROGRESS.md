@@ -37,6 +37,24 @@ reflect actual completed work only.
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
 | WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
 
+## Owner-approved assignment and matrix sequence — 2026-11-22
+
+- Authorized WPs: WP-34 → WP-35 → WP-32 → WP-33a → WP-33b → WP-33c, each in
+  the primary worktree with a separate feature branch/PR and final-head/main CI.
+  No linked worktrees, NAS/private data, force-push, branch deletion, deploy/release.
+- Initial repository verification: clean main/origin main both
+  `7f07243f6ab30ee8235c8b584a583b82c706f205`, full CI `45049924473` success;
+  previous six WPs integrated, no open PR. Historical HANDOFF.md is superseded
+  by actual Git/progress and this new explicit owner continuation, not a takeover.
+- WP-34 in progress on `feature/wp-34-ensemble-mapping`: reuse protected project
+  graph and revision services; German role/mapping CRUD and participant role editor,
+  exact-variant mapping component and append-only change evidence. Fifteen targeted
+  model/persistence tests and all fifteen browsers passed. First full local Windows
+  regression: 556 passed/81 POSIX skips/two pre-existing queue timing failures;
+  both exact failing cases passed independently. Isolated full rerun underway;
+  Ruff/format/lock/system/migration checks passed. No queue safeguards/tests changed.
+  Complete implementation diff reviewed; Linux/container/final PR/main CI pending.
+
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
 - Approved sequential WPs: WP-47a, WP-23a, WP-23b, WP-29, WP-30, WP-31, each
