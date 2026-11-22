@@ -36,7 +36,8 @@ reflect actual completed work only.
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
 | WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
-| WP-34 | Explicit ensemble roles and playable mapping editor | Software verified; integration pending | PR #35, source `424defd` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers and full CI `45057377256` passed | Private NAS acceptance separate | Final documentation-head CI, merge/main then WP-35 |
+| WP-34 | Explicit ensemble roles and playable mapping editor | Merged, software verified | PR #35, merge `b174773` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers; final PR CI `45058429483` and main CI `45059301957` passed | Private NAS acceptance separate | Complete software scope |
+| WP-35 | Scoped replacement and concrete edition preference rules | Software verified; integration pending | PR #36, source `22edbd9` | 661 Linux tests, sixteen browsers; complete CI `45062571782` passed | Private NAS acceptance separate | Final documentation-head CI, merge/main then WP-32 |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -67,8 +68,24 @@ reflect actual completed work only.
    drift, runtime audit, actual hardened amd64 image/Compose/ensemble role+mapping,
    archive/download/backup/isolated restore, both install variants and image
    vulnerability/secret checks. Full diff/commits reviewed, no submitted reviews or
-   unresolved threads. Final docs-head CI and merge/main remain before WP-35.
+   unresolved threads. Final head `97b7ba4` passed CI `45058429483`, merged as
+   `b174773164acb0d6b6fab043529f25b0bec4b055`; main CI `45059301957` passed.
+   Exact merged tree matched; primary worktree returned to clean main.
    No NAS/private data, deployment, release, force-push or linked worktrees.
+- WP-35 in progress on `feature/wp-35-replacement-edition-rules` from that verified
+  main. Reuse project/position preferences and replacements; global replacement
+  revision/overlay-cycle checks, protected rule history, deliberate clear and
+  German controlled editors. Full local regression: 578 passed/81 Windows platform
+  skips before final history/invalid-rule/UI-status refinements; final targeted
+  rule/persistence suite 15 passed and rule browser passed. All sixteen browsers
+  passed. Ruff/format/lock/system/migration/diff checks passed, full diff reviewed.
+  Source `22edbd9` passed complete CI `45062571782`: 661 Linux tests, sixteen
+  browsers, system/migration drift, locked runtime audit, hardened amd64 image/
+  Compose, actual project/global rule operations, archive/unchanged downloads/
+  backup/isolated restore, both install flows and vulnerability/secret checks.
+  Full commits/diff reviewed, no submitted reviews or unresolved threads. Final
+  documentation-head CI and merge/post-merge main remain before WP-32; no NAS/
+  private data, deployment, release, force-push or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 

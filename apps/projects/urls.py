@@ -1,8 +1,43 @@
 from django.urls import path
 
-from apps.projects import ensemble_views, list_views, participant_views, views
+from apps.projects import ensemble_views, list_views, participant_views, rule_views, views
 
 urlpatterns = [
+    path("replacement-rules/", rule_views.overview, name="global_replacement_rules"),
+    path("replacement-rules/new/", rule_views.replacement_edit, name="global_replacement_create"),
+    path("replacement-rules/<uuid:rule_id>/", rule_views.replacement_edit, name="global_replacement_edit"),
+    path(
+        "replacement-rules/<uuid:record_id>/clear/",
+        rule_views.clear,
+        {"kind": "replacement"},
+        name="global_replacement_clear",
+    ),
+    path("<uuid:project_id>/rules/", rule_views.overview, name="project_rules"),
+    path("<uuid:project_id>/rules/replacements/new/", rule_views.replacement_edit, name="project_replacement_create"),
+    path(
+        "<uuid:project_id>/rules/replacements/<uuid:rule_id>/",
+        rule_views.replacement_edit,
+        name="project_replacement_edit",
+    ),
+    path(
+        "<uuid:project_id>/rules/replacements/<uuid:record_id>/clear/",
+        rule_views.clear,
+        {"kind": "replacement"},
+        name="project_replacement_clear",
+    ),
+    path("<uuid:project_id>/rules/editions/", rule_views.edition_edit, name="project_edition_edit"),
+    path(
+        "<uuid:project_id>/rules/editions/<uuid:record_id>/clear/",
+        rule_views.clear,
+        {"kind": "project-edition"},
+        name="project_edition_clear",
+    ),
+    path(
+        "<uuid:project_id>/rules/positions/<uuid:record_id>/clear/",
+        rule_views.clear,
+        {"kind": "position-edition"},
+        name="position_edition_clear",
+    ),
     path("<uuid:project_id>/ensemble/", ensemble_views.overview, name="project_ensemble"),
     path("<uuid:project_id>/ensemble/roles/new/", ensemble_views.role_edit, name="ensemble_role_create"),
     path("<uuid:project_id>/ensemble/roles/<uuid:role_id>/", ensemble_views.role_edit, name="ensemble_role_edit"),
