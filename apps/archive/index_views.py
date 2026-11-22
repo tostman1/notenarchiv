@@ -13,6 +13,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.archive import models as m
+from apps.archive.batch_review import selection
 from apps.archive.index_forms import IndexSelection
 from apps.archive.index_presentation import CANDIDATES, ERRORS, REVIEW, STATES, json_published, review_files
 from apps.archive.indexing import queue_index
@@ -105,7 +106,9 @@ def folder_detail(request, folder_id):
 @login_required
 @require_GET
 def review_queue(request):
-    files = review_files().select_related("source_version__source_file").order_by("created_at", "pk")
+    files = (
+        review_files().select_related("source_version__source_file", "current_proposal").order_by("created_at", "pk")
+    )
     if request.GET.get("folder"):
         try:
             identifier = UUID(request.GET["folder"])
@@ -119,6 +122,7 @@ def review_queue(request):
     for file in page:
         file.review_label = REVIEW[file.review_state]
         file.candidate_label = CANDIDATES[file.candidate_state]
+        file.batch_token = selection(file, request.user)
     query = request.GET.copy()
     query.pop("page", None)
     return render(request, "archive/review_queue.html", {"page": page, "filters": query.urlencode()})

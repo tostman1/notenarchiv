@@ -3,6 +3,7 @@
 {% block content %}
 <a href="{% url 'archive_review_queue' %}">{% translate "Prüfwarteschlange" %}</a>
 <h1>{% translate "Version prüfen" %}</h1>
+<nav aria-label="{% translate 'Prüfnavigation' %}">{% if previous %}<a href="{% url 'archive_review_detail' previous.pk %}">{% translate "Vorherige Version" %}</a>{% endif %} {% if following %}<a href="{% url 'archive_review_detail' following.pk %}">{% translate "Nächste Version" %}</a>{% endif %}</nav>
 <p>{{ file.source_version.source_file.relative_path }} · {{ file.review_label }} · {{ file.candidate_label }}</p>
 <p>{% translate "Öffnen und Vorschau gelten niemals als Inspektion oder Freigabe. Alle Seiten, Notation, Stimmung und enthaltenen Stimmen visuell prüfen." %}</p>
 {% if failed_form %}<div role="alert">{{ failed_form.errors }}</div>{% endif %}

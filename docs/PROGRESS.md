@@ -928,3 +928,33 @@ remain unexecuted without their distinct approval. Preserve published preview as
   entered production error responses. Full diff reviewed; no PR review threads.
 - Final documentation-head CI remains separate before conditional merge. Hardware
   gates, worker deployment/operations and backup before real data remain separate.
+
+## WP-20b — Efficient review and batch approval
+
+- WP-20a PR #23 head `c825c6e5ed261313f3fd2f5cda4f1575aa714e7f` passed
+  final CI 44962136139, merged at `dc7892498428ce334841f0fdee4bbe3b7447cc58`.
+  Exact reviewed tree matches; main CI 44962643794 passed. Clean primary worktree
+  then started `feature/wp-20b-batch-review` from that verified main.
+- Previous/next version navigation, persistent per-account inspection selection,
+  signed one-hour actor/file/hash/proposal/revision/source-observation-bound tokens,
+  explicit batch confirmation and bounded 25-file all-or-nothing metadata enqueue.
+  Rechecks inspection/eligibility under a short SQLite write-first transaction;
+  physical effects remain individual durable WP-14 operations. Same-name combined
+  batch destinations are collision-planned, never overwritten.
+- Uninspected/foreign/stale/changed/uncertain/duplicate selections reject the batch;
+  no browser selection or preview counts as inspection. Unit rollback/auth/CSRF
+  and actual browser multi-file acceptance added; Linux publication gate pending.
+- Initial local focused suite: 22 passed; actual batch browser passed. Full
+  regression, complete browser suite and GitHub/container CI remain pending.
+  No OCR/preferred edition/project/export/NAS/deployment/release expansion.
+
+- Final implementation `e1acf7844c28134dbeac1134c0d6e1681eb71446` passed full
+  CI 44963862611: 520 Linux tests, eight browsers, runtime audit, actual amd64
+  image/Compose/container/restore, worker publication, installation flows and
+  vulnerability/secret scans. Two personally inspected same-name versions published
+  to distinct canonical files; all-or-nothing metadata rollback was exercised.
+- Current local batch suite: 15 passed; all eight browsers passed. Local full
+  checkpoint: 459 passed / 54 POSIX/platform skips / four baseline queue timing
+  failures. Ruff (172 files), system/migration/lock and diff checks passed.
+  Import-format follow-up fixed without weakening assertions; no unresolved review
+  threads. Final documentation CI and exact-head merge/main verification remain.

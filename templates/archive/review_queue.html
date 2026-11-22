@@ -3,8 +3,12 @@
 {% block content %}
 <h1>{% translate "Prüfwarteschlange" %}</h1>
 <p>{% translate "Jede neue oder geänderte Version vollständig visuell prüfen. Ein Dateiname, eine hohe Erkennungsqualität oder das Öffnen der Vorschau ist keine Freigabe." %}</p>
-<ul>{% for file in page %}<li>{{ file.source_version.source_file.relative_path }} · {{ file.candidate_label }} · {{ file.review_label }}
+<form method="post" action="{% url 'archive_review_batch' %}">{% csrf_token %}
+<p>{% translate "Nur einzeln von Ihnen visuell geprüfte Versionen sind auswählbar. Öffnen oder Erkennung allein genügt nicht." %}</p>
+<ul>{% for file in page %}<li>{% if file.batch_token %}<label><input type="checkbox" name="versions" value="{{ file.batch_token }}">{% translate "Geprüfte Version auswählen" %}: {{ file.source_version.source_file.relative_path }}</label>{% else %}{{ file.source_version.source_file.relative_path }}{% endif %} · {{ file.candidate_label }} · {{ file.review_label }}
 <a href="{% url 'archive_review_detail' file.pk %}">{% translate "Version prüfen und zuordnen" %}</a>
 {% if file.publication_state == 'AVAILABLE' %}<a href="{% url 'archive_preview:viewer' file.pk %}">{% translate "PDF-Vorschau" %}</a>{% else %}{% translate "Kopie noch nicht verfügbar" %}{% endif %}</li>{% empty %}<li>{% translate "Keine Versionen in der Prüfwarteschlange." %}</li>{% endfor %}</ul>
+<label><input type="checkbox" name="confirm">{% translate "Ausgewählte einzeln geprüfte Versionen ausdrücklich freigeben" %}</label>
+<button>{% translate "Stapel-Freigabe beauftragen" %}</button></form>
 {% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %} {% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
 {% endblock %}

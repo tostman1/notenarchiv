@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
@@ -12,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from apps.archive import models as m
 from apps.archive import review_forms as forms
 from apps.archive import review_services as services
-from apps.archive.index_presentation import CANDIDATES, REVIEW
+from apps.archive.index_presentation import CANDIDATES, REVIEW, review_files
 from apps.archive.review_presentation import EVENTS, REASONS
 from apps.jobs.models import Job
 from apps.jobs.presentation import describe
@@ -105,6 +106,9 @@ def detail(request, file_id):
         file.review_state, _("Bestätigt") if file.review_state == "CONFIRMED" else _("Zurückgezogen")
     )
     file.candidate_label = CANDIDATES[file.candidate_state]
+    queue = review_files().order_by("created_at", "pk")
+    previous = queue.filter(Q(created_at__lt=file.created_at) | Q(created_at=file.created_at, pk__lt=file.pk)).last()
+    following = queue.filter(Q(created_at__gt=file.created_at) | Q(created_at=file.created_at, pk__gt=file.pk)).first()
     response = render(
         request,
         "archive/review_detail.html",
@@ -121,6 +125,8 @@ def detail(request, file_id):
             "approval": forms.ApprovalForm(initial=initial, auto_id="approval_%s"),
             "rejection": forms.RejectionForm(initial=initial, auto_id="rejection_%s"),
             "audit": audit,
+            "previous": previous,
+            "following": following,
         },
         status=status,
     )
