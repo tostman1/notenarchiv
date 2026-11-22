@@ -1,5 +1,8 @@
 # Preview backup and isolated restore
 
+Historical published-image procedure only. Current source implements the complete
+software-side WP-47a commands; see [BACKUP.md](BACKUP.md). No new image is published.
+
 Scope: the web-only technical preview. Its authoritative mutable state is the
 SQLite database (including accounts/sessions), protected secret and private
 deployment configuration. The app cannot import or change archive files yet.

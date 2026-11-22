@@ -48,6 +48,11 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
+      - name: Check Django and migration drift
+        run: |
+          uv run python manage.py check --settings tests.settings
+          uv run python manage.py makemigrations --check --dry-run --settings tests.settings
+
       - name: Audit locked runtime dependencies
         run: |
           uv export --locked --no-dev --no-emit-project --no-hashes -o "$RUNNER_TEMP/runtime-requirements.txt"

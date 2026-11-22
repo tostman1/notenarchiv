@@ -31,6 +31,19 @@ reflect actual completed work only.
 | WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 
+## Owner-approved archive safety and projects sequence — 2026-11-22
+
+- Approved sequential WPs: WP-47a, WP-23a, WP-23b, WP-29, WP-30, WP-31, each
+  from verified main with separate reviewed PR, final-head CI, conditional merge
+  and post-merge main CI. No NAS data, deployment, release or branch deletion.
+- Base: clean primary main `80193b413a5b1e1ad47f71c66d665de96e2e8c43`, full CI
+  `44969319332` succeeded. No open PR at start. Historical HANDOFF.md is not
+  current continuation authority; latest explicit owner sequence controls.
+- WP-47a in progress on `feature/wp-47a-consistent-backup`: exclusive service
+  locks/SQLite write barrier, actual file/config/secret capture, independent RAW
+  read-only verification, private manifest and isolated restore. Linux/synthetic
+  tests and container gates pending; no claim of software or NAS acceptance yet.
+
 ## WP-01 — Repository, development tooling and minimal CI
 
 **Delivered** (branch `feature/wp-01-project-foundation`, from `main` at the

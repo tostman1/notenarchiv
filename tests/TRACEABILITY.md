@@ -59,3 +59,14 @@ scoped work packages; this register does not claim those gates were exercised.
   hash-verified edition, unknown completeness, independent expectation-template
   application and persisted incomplete/missing-part overview. No preferred edition,
   OCR, project generation or real NAS acceptance is claimed.
+
+## WP-47a (software verification pending)
+
+- OP-05: `tests/test_backup.py` uses migrated independent synthetic installations,
+  actual worker copy/combined approval, rollback-journal/WAL Backup API, physical
+  CLEAN/PROCESSED/STATUS/config/secret/DATA and protected assignment restoration.
+  Service locks, competing writers, missing/corrupt/extra/manifest-only bundles,
+  symlinks, live-root overlap, bounds and independent RAW mismatch are negative gates.
+- `scripts/publication_smoke.py` extends the actual hardened non-root/no-network
+  image test with full bundle capture and isolated physical restore. Linux CI
+  evidence must pass; Windows fail-closed skips are not NAS acceptance.
