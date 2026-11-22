@@ -19,7 +19,11 @@ async function check(origin, arrangement, part, first, second, file) {
         await page.waitForLoadState('load');
         assert.match(await page.locator('body').innerText(), /Mehrere passende Ausgaben/);
         async function prefer(id) {
-            await page.locator(`form:has(input[name="assignment"][value="${id}"]) button`).click();
+            const [response] = await Promise.all([
+                page.waitForNavigation({waitUntil: 'load'}),
+                page.locator(`form:has(input[name="assignment"][value="${id}"]) button`).click(),
+            ]);
+            assert.equal(response.status(), 200);
             await page.getByText('Archivweite Bevorzugung gespeichert.', {exact: false}).waitFor();
         }
         await prefer(first);
@@ -30,7 +34,11 @@ async function check(origin, arrangement, part, first, second, file) {
         await prefer(second);
         await pinned.reload();
         assert.match(await pinned.locator('body').innerText(), new RegExp(`Explizite Ausgabenwahl · ${file}`));
-        await page.getByRole('button', {name:'Archiv-Bevorzugung zurücksetzen'}).click();
+        const [reset] = await Promise.all([
+            page.waitForNavigation({waitUntil: 'load'}),
+            page.getByRole('button', {name:'Archiv-Bevorzugung zurücksetzen'}).click(),
+        ]);
+        assert.equal(reset.status(), 200);
         await page.reload();
         assert.match(await page.locator('body').innerText(), /Mehrere passende Ausgaben/);
         assert.deepEqual(external, []); assert.deepEqual(errors, []);
