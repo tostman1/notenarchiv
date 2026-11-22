@@ -30,6 +30,7 @@ reflect actual completed work only.
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
 | WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
+| WP-47a | Complete software-side consistent backup and isolated restore | Software verified; integration pending | PR #27, source `66926f9` | 558 Linux tests, nine browsers, complete container/restore/security CI `45009366615` passed | Private NAS destination/retention/acceptance separate | Final docs-head CI, merge and main CI |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -39,10 +40,20 @@ reflect actual completed work only.
 - Base: clean primary main `80193b413a5b1e1ad47f71c66d665de96e2e8c43`, full CI
   `44969319332` succeeded. No open PR at start. Historical HANDOFF.md is not
   current continuation authority; latest explicit owner sequence controls.
-- WP-47a in progress on `feature/wp-47a-consistent-backup`: exclusive service
+- WP-47a software verified on `feature/wp-47a-consistent-backup`: exclusive service
   locks/SQLite write barrier, actual file/config/secret capture, independent RAW
-  read-only verification, private manifest and isolated restore. Linux/synthetic
-  tests and container gates pending; no claim of software or NAS acceptance yet.
+  read-only verification, trusted manifest and isolated restore. Source `66926f9`
+  passed complete CI `45009366615`: 558 Linux tests, nine browsers, migration
+  drift, runtime audit, hardened amd64 image/Compose, actual copied multi-part
+  archive backup/restore/reopen, published/candidate first installs and image
+  vulnerability/secret scans. Local baseline: 477 passed/75 platform skips and
+  nine browsers; final CLI regression: three passed/25 physical Linux skips.
+- Full diff/commits reviewed; no submitted reviews or unresolved threads at this
+  source checkpoint. Earlier failures were synthetic immutable-file/lease setup
+  and CLI environment access; corrected without weakening protections/assertions.
+  Final documentation-head CI, merge and post-merge main CI remain mandatory.
+  No private NAS acceptance, real data, release or deployment claimed. Later WPs
+  have not started; resume WP-23a only from verified clean merged main.
 
 ## WP-01 — Repository, development tooling and minimal CI
 
