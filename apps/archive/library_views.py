@@ -68,15 +68,15 @@ def arrangement_detail(request, arrangement_id):
             else _("Kopie fehlt oder Hash stimmt nicht; nicht nutzbar")
         )
     bad = {file.pk for file in editions if not file.physically_verified}
+    materials = {}
+    for part_id, file_id in (
+        m.ArchiveAssignment.objects.usable()
+        .filter(archive_file__arrangement=arrangement)
+        .values_list("part_id", "archive_file_id")
+    ):
+        materials.setdefault(part_id, set()).add(file_id)
     for row in rows:
-        assignments = m.ArchiveAssignment.objects.usable().filter(
-            archive_file__arrangement=arrangement, part=row["part"]
-        )
-        if (
-            row["state"] == "AVAILABLE"
-            and assignments.exists()
-            and not assignments.exclude(archive_file_id__in=bad).exists()
-        ):
+        if row["state"] == "AVAILABLE" and materials.get(row["part"].pk, set()) <= bad:
             row["label"] = _("Bestätigte Kopie fehlt oder ist beschädigt; nicht nutzbar")
     return render(
         request,
