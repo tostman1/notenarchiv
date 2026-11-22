@@ -11,7 +11,8 @@
 {{ assignment.archive_file.pk }} · {{ assignment.kind_label }}
 {% if assignment.preferred %}<strong>{% translate "Archivweit bevorzugt" %}</strong>{% endif %}
 {% if assignment.available %}<p>{% translate "Bestätigt und hash-geprüft" %}</p>
-{% if assignment.archive_file.root_kind == 'CLEAN' %}<a href="{% url 'archive_preview:viewer' assignment.archive_file.pk %}">{% translate "PDF-Vorschau" %}</a>{% endif %}
+<a href="{% url 'archive_note_download' assignment.archive_file.pk %}">{% translate "PDF herunterladen" %}</a>
+<a href="{% url 'archive_preview:viewer' assignment.archive_file.pk %}">{% translate "PDF-Vorschau" %}</a>
 <a href="?selection={{ assignment.pk }}">{% translate "Diese explizite Ausgabe prüfen" %}</a>
 <form method="post">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ arrangement.revision }}"><input type="hidden" name="assignment" value="{{ assignment.pk }}"><button>{% translate "Archivweit bevorzugen" %}</button></form>
 {% else %}<p>{% translate "Zurückgezogen oder nicht verfügbar; für neue Ausgaben gesperrt" %}</p>{% endif %}

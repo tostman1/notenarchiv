@@ -33,7 +33,8 @@ beschädigte Kopien werden ausdrücklich **nicht nutzbar** gezeigt und erhalten
 keinen Vorschau-Link. Unter **Ausgaben und Bevorzugung** kann je spielbarer Stimme
 eine passende bestätigte Ausgabe ausdrücklich bevorzugt oder die Vorgabe
 zurückgesetzt werden; siehe [ausgaben.de.md](ausgaben.de.md). Keine explizite
-Auswahl wird still ersetzt. Direkter Download und Projektregeln folgen separat.
+Auswahl wird still ersetzt. Direkter PDF-/ZIP-Download ohne Projekt ist verfügbar;
+siehe [download.de.md](download.de.md). Projektregeln folgen separat.
 
 Der Archiv-Vollständigkeitsstatus beruht auf gespeicherten Belegen, nicht auf
 einem vollständigen Integritätsscan. Projekt-Preflight, NAS-Integrität/Last und

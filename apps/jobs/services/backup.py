@@ -90,6 +90,8 @@ def create(env, destination, *, config_dir, raw_backup, image, include_exports=F
             "scratch",
             "thumbnails",
             "cache",
+            "download-scratch",
+            "direct-download.lock",
         }
         for key in sorted(selected):
             for name in b.inventory(opened[key], budget, excluded if key == "data" else ()):

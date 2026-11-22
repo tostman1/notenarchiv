@@ -5,7 +5,7 @@ from pathlib import Path
 from django.conf import settings
 from django.http import Http404
 
-from apps.archive.models import ArchiveFile
+from apps.archive.models import ArchiveAssignment, ArchiveFile
 from core.locking import ProcessLock
 from core.pdf.api import Processor
 from core.pdf.types import Limits
@@ -13,6 +13,23 @@ from core.preview import snapshot
 
 
 def preview_file(file_id):
+    derivative = (
+        ArchiveFile.objects.usable()
+        .filter(
+            pk=file_id,
+            kind="DERIVATIVE",
+            root_kind="PROCESSED",
+            assignments__in=ArchiveAssignment.objects.usable(),
+        )
+        .select_related("source_version", "publication_operation__intent")
+        .first()
+    )
+    if derivative is not None:
+        from apps.archive.library_services import verify_file
+
+        if not verify_file(derivative):
+            raise Http404
+        return derivative
     file = (
         ArchiveFile.objects.select_related("source_version", "publication_operation__intent")
         .filter(
@@ -46,7 +63,7 @@ def preview_file(file_id):
 
 def preview_bytes(file):
     return snapshot(
-        settings.CURATED_DIR,
+        settings.CURATED_DIR if file.root_kind == "CLEAN" else settings.PROCESSED_DIR,
         file.relative_path,
         maximum=min(settings.PDF_MAX_BYTES, 104_857_600),
         sha256=file.sha256,
