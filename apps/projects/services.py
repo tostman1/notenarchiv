@@ -176,6 +176,8 @@ def save_associated(record, *, actor, expected_revision):
         raise ValidationError("Shared position changes require the list service and history.")
     if isinstance(record, m.ProjectParticipant):
         raise ValidationError("Participant changes require saved-default selection services and history.")
+    if isinstance(record, (m.ProjectRole, m.EnsembleMapping)):
+        raise ValidationError("Ensemble edits require the scoped ensemble service and history.")
     if creating and getattr(record, "needs_revalidation", False):
         raise ValidationError("New overrides cannot bypass compatibility through revalidation markers.")
     edition_revision = None

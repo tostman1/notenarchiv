@@ -36,6 +36,39 @@ reflect actual completed work only.
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
 | WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
+| WP-34 | Explicit ensemble roles and playable mapping editor | Software verified; integration pending | PR #35, source `424defd` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers and full CI `45057377256` passed | Private NAS acceptance separate | Final documentation-head CI, merge/main then WP-35 |
+
+## Owner-approved assignment and matrix sequence — 2026-11-22
+
+- Authorized WPs: WP-34 → WP-35 → WP-32 → WP-33a → WP-33b → WP-33c, each in
+  the primary worktree with a separate feature branch/PR and final-head/main CI.
+  No linked worktrees, NAS/private data, force-push, branch deletion, deploy/release.
+- Initial repository verification: clean main/origin main both
+  `7f07243f6ab30ee8235c8b584a583b82c706f205`, full CI `45049924473` success;
+  previous six WPs integrated, no open PR. Historical HANDOFF.md is superseded
+  by actual Git/progress and this new explicit owner continuation, not a takeover.
+- WP-34 in progress on `feature/wp-34-ensemble-mapping`: reuse protected project
+  graph and revision services; German role/mapping CRUD and participant role editor,
+  exact-variant mapping component and append-only change evidence. Fifteen targeted
+  model/persistence tests and all fifteen browsers passed. First full local Windows
+  regression: 556 passed/81 POSIX skips/two pre-existing queue timing failures;
+  independent cases passed but the isolated full rerun still failed an immediate
+  claim (561 passed/81 skips/one failure). Synthetic clock probe found Python
+  microseconds ahead of SQLite's millisecond statement clock. Immediate enqueue
+  now uses that same DB timebase as claim; 43 queue/lifecycle tests passed,
+  including forced future Python-default regression. No lease/fencing/retry
+   conditions or assertions weakened. Final local full regression passed: 565 tests,
+   81 platform skips; all fifteen browsers passed again after the cause fixes.
+- Initial PR #35 CI `45055233428` passed all Linux unit tests and the new ensemble
+  browser, but failed an existing piece-list browser's immediate reload after POST.
+  The correction waits for the actual redirected response, incremented revision
+   and load before reload; both piece/ensemble browsers passed. Source `424defd`
+   passed full CI `45057377256`: 646 Linux tests, fifteen browsers, system/migration
+   drift, runtime audit, actual hardened amd64 image/Compose/ensemble role+mapping,
+   archive/download/backup/isolated restore, both install variants and image
+   vulnerability/secret checks. Full diff/commits reviewed, no submitted reviews or
+   unresolved threads. Final docs-head CI and merge/main remain before WP-35.
+   No NAS/private data, deployment, release, force-push or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 

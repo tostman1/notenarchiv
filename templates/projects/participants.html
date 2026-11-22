@@ -2,6 +2,7 @@
 {% block title %}{% translate "Teilnehmende und Projektdefaults" %} — {{ project.name }}{% endblock %}
 {% block content %}<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a><h1>{% translate "Teilnehmende und Projektdefaults" %}</h1>
 <p>{% translate "Revision" %} {{ project.revision }} · {% translate "Gespeicherte Projektstimme ist keine live verknüpfte Mitgliedsstimme. Persönliche Overrides bleiben bei Aktualisierungen erhalten. Ensemble-Rolle und spielbare Stimme sind getrennt." %}</p>
+<p><a href="{% url 'project_ensemble' project.pk %}">{% translate "Ensemble-Rollen und Zuordnungen" %}</a></p>
 {% if project.status == 'ACTIVE' %}
 <form method="get" class="filters">{{ form.as_p }}<button>{% translate "Mitglieder filtern" %}</button></form>
 <form method="post" action="{% url 'project_participant_select' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="action" value="subset"><input type="hidden" name="scope" value="{{ scope_token }}">

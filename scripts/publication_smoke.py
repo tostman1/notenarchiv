@@ -242,6 +242,7 @@ from django.contrib.auth import get_user_model
 from apps.projects import models as m,services as s
 from apps.projects import list_services as pieces
 from apps.projects import participant_services as people
+from apps.projects import ensemble_services as ensemble
 from apps.members.models import Member
 from apps.catalog.models import Part
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
@@ -261,6 +262,12 @@ participant=project.participants.get()
 assert participant.default_part_id==part.pk and participant.member_revision==member.revision
 people.add_guest(project.pk,name='Synthetic container guest',part_id=part.pk,actor=actor,expected_revision=4)
 assert project.participants.count()==2 and Member.objects.count()==1
+role=ensemble.save_role(project.pk,code='3',label='Synthetic ensemble role',actor=actor,expected_revision=5)
+ensemble.assign_role(project.pk,participant.pk,role.pk,actor=actor,expected_revision=6)
+mapping=ensemble.save_mapping(project.pk,role_id=role.pk,instrument_id=part.instrument_id,
+    part_id=part.pk,actor=actor,expected_revision=7)
+choice=ensemble.mapping_choice(project.pk,role.pk,part.instrument_id)
+assert choice.status=='MAPPED' and choice.mapping.pk==mapping.pk
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

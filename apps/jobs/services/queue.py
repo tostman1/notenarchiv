@@ -67,7 +67,12 @@ def validate_payload(kind, payload, version=1):
 
 def enqueue(kind, payload, *, version=1, using="default"):
     normalized = validate_payload(kind, payload, version)
-    return Job.objects.using(using).create(kind=kind, payload=normalized, payload_version=version)
+    # Claims compare with SQLite's statement clock (millisecond precision).
+    # Python microseconds can be ahead in the same clock tick, particularly on
+    # Windows. Immediate enqueue uses the same DB timebase as claim/retry fencing.
+    job = Job.objects.using(using).create(kind=kind, payload=normalized, payload_version=version, available_at=Now())
+    job.refresh_from_db(using=using, fields=["available_at"])
+    return job
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,12 @@
 # Dependency-aware delivery sequence
 
+Owner authorization 2026-11-22 (current): implement WP-34 → WP-35 → WP-32 →
+WP-33a → WP-33b → WP-33c sequentially in the primary worktree, separate PRs,
+reviewed final-head CI and post-merge main CI. Base `7f07243`, verified run
+`45049924473`. Stop after WP-33c; no extra worktrees, NAS/private data, deploy,
+release, force-push or branch deletion. Historical stop instructions below are
+superseded only within this explicit new sequence.
+
 Owner priority shift: 2026-11-20 (DEC-09). Stable WP identifiers and original
 full-scope dependencies are preserved. This document counts packages, not
 commits or estimated effort; a partial package is still unfinished.

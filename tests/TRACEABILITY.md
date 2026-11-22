@@ -153,3 +153,22 @@ scoped work packages; this register does not claim those gates were exercised.
 - Final PR #32 CI `45045456240` and bounded navigation correction PR #33 CI
   `45047209870` passed. Main CI `45048123486` on merge `53aaced` verified all 630
   Linux tests, fourteen browsers and complete actual container/security gates.
+
+## WP-34 (software verified; integration pending)
+
+- CAT-04/AS-07: `tests/test_ensemble.py` covers four roles/seven participants,
+  same role on distinct exact variants/notation, position-over-project mapping,
+  explicit clear, missing/inactive/foreign/duplicate/retarget rejection, role
+  protection, unchanged defaults, stale/archive denial and pinned history/clone.
+- `tests/test_ensemble_persistence.py`: independent migrated file-SQLite competing
+  mapping writes (one saved/one conflict) and separate interpreter integrity/reopen.
+- `browser/test_ensemble.py`: German role/mapping/participant editing, incompatible
+  variant rejection and explicit reset with persisted independent defaults.
+- `scripts/publication_smoke.py`: actual non-root/no-network/read-only RAW container
+   role/participant/mapping acceptance added. Full CI `45057377256` on `424defd`
+   passed: 646 Linux tests, fifteen browsers and all actual container/security gates.
+   Local full regression 565 passed/81 platform skips. No private NAS claim.
+- Queue regression prerequisite: immediate enqueue uses the SQLite statement clock
+  already used by claims; `test_immediate_enqueue_uses_database_clock_not_future_python_microseconds`
+  proves future Python-default skew cannot delay immediate claims. Existing lease/
+  cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.
