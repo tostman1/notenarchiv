@@ -244,6 +244,7 @@ from apps.projects import list_services as pieces
 from apps.projects import participant_services as people
 from apps.projects import ensemble_services as ensemble
 from apps.projects import rule_services as rules
+from apps.projects import resolution_services as resolution
 from apps.members.models import Member
 from apps.catalog.models import Part
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
@@ -274,6 +275,10 @@ rule=rules.save_replacement(project_id=project.pk,desired_part_id=part.pk,replac
     actor=actor,expected_revision=8)
 assert rules.replacement_choice(project.pk,None,part.pk).rule.pk==rule.pk
 rules.save_replacement(desired_part_id=part.pk,replacement_part_id=target.pk,actor=actor,expected_revision=1)
+arrangement=m.ProjectEditionPreference._meta.get_field('arrangement').related_model.objects.get()
+pieces.replace(project.pk,slot.pk,arrangement.pk,actor=actor,expected_revision=9)
+result=resolution.resolve_cell(project.pk,slot.pk,participant.pk)
+assert result.usable and result.desired_part_id==part.pk and result.edition_origin=='ARCHIVE'
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """
