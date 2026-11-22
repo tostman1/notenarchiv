@@ -173,7 +173,7 @@ scoped work packages; this register does not claim those gates were exercised.
   proves future Python-default skew cannot delay immediate claims. Existing lease/
    cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.
 
-## WP-35 (verification in progress)
+## WP-35 (software verified; integration pending)
 
 - CAT-03/AS-05/06: `tests/test_rules.py` covers global/project/position precedence,
   effective overlay cycles and clear exposing inherited cycle, same-variant explicit
@@ -183,4 +183,7 @@ scoped work packages; this register does not claim those gates were exercised.
   file-SQLite rule writers, one saved/one conflict; independent reopen/DB integrity.
 - `browser/test_rules.py`: authenticated global/position rules and concrete confirmed
   project edition selection and explicit reset; no external browser requests.
-- Actual image global/project replacement smoke added; final Linux/NAS not claimed.
+- Actual image global/project replacement smoke added. Full CI `45062571782` on
+  `22edbd9` passed: 661 Linux tests, sixteen browsers and actual container/security
+  gates. Local regression 578 passed/81 platform skips plus final targeted reruns;
+  private NAS/hardware acceptance is separate and was not performed.
