@@ -160,7 +160,12 @@ def test_retained_historical_copy_must_match_publication_receipt(backup_install,
         old_path = db.execute(
             "SELECT target_path FROM archive_fileoperation WHERE kind='COPY' AND state='APPLIED'"
         ).fetchone()[0]
-    (install.root / "clean" / old_path).write_bytes(b"corrupt retained history")
+    historical = install.root / "clean" / old_path
+    assert historical.stat().st_mode & 0o222 == 0
+    # Deliberately replace only this disposable synthetic inode, as an external
+    # corruption scenario; do not weaken publication's read-only file modes.
+    historical.unlink()
+    historical.write_bytes(b"corrupt retained history")
     with pytest.raises(b.BackupError, match="ARCHIVE_INTEGRITY"):
         capture(backup_install, tmp_path / "backup")
 
@@ -171,7 +176,12 @@ def test_unsettled_operations_require_recovery(backup_install, tmp_path, status)
     _install, env, *_other = backup_install
     with closing(sqlite3.connect(env.database_path)) as db:
         if status == "RUNNING":
-            db.execute("UPDATE jobs_job SET status='RUNNING' WHERE id=(SELECT id FROM jobs_job LIMIT 1)")
+            db.execute(
+                "UPDATE jobs_job SET status='RUNNING', lease_owner=?, lease_expires_at=? "
+                "WHERE id=(SELECT id FROM jobs_job LIMIT 1)",
+                ("a" * 32, "2099-01-01 00:00:00"),
+            )
+            assert db.execute("SELECT COUNT(*) FROM jobs_job WHERE status='RUNNING'").fetchone()[0] == 1
         else:
             db.execute("UPDATE jobs_operationintent SET state=?", (status,))
         db.commit()
