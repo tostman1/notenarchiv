@@ -25,6 +25,7 @@
 {% if user.is_authenticated %}
     <nav aria-label="{% translate 'Hauptnavigation' %}">
         <a {% if request.resolver_match.url_name == 'home' %}class="current" aria-current="page"{% endif %} href="{% url 'home' %}">{% translate "Übersicht" %}</a>
+        <a {% if request.resolver_match.url_name == 'archive_library' or request.resolver_match.url_name == 'archive_library_arrangement' %}class="current" aria-current="page"{% endif %} href="{% url 'archive_library' %}">{% translate "Notenbibliothek" %}</a>
         <a href="{% url 'catalog_list' 'works' %}">{% translate "Werke und Arrangements" %}</a>
         <a href="{% url 'catalog_list' 'instruments' %}">{% translate "Instrumente und Stimmen" %}</a>
         <a href="{% url 'catalog_list' 'members' %}">{% translate "Mitglieder" %}</a>
@@ -36,7 +37,6 @@
         {% endif %}
         <p id="planned">{% translate "In Entwicklung" %}</p>
         <ul aria-labelledby="planned">
-            <li aria-disabled="true">{% translate "Notenbibliothek" %}</li>
             <li aria-disabled="true">{% translate "Projekte" %}</li>
             <li aria-disabled="true">{% translate "Scanaufbereitung" %}</li>
             <li aria-disabled="true">{% translate "Einstellungen" %}</li>

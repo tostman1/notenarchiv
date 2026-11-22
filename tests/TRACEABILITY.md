@@ -45,3 +45,17 @@ scoped work packages; this register does not claim those gates were exercised.
 - `browser/test_batch_review.py` exercises real previous/next navigation, actual
   PDF inspection, persistent two-file selection and Linux durable batch publication
   with distinct no-clobber canonical destinations. Preview remains read-only.
+
+## WP-21
+
+- AR-15: `tests/test_library.py` verifies Unicode/casefold title and active alias
+  interior matches, controlled arrangement/instrument/part/review/completeness
+  filters, invalid filter/auth rejection, duplicate identities and pagination.
+- AR-16/GR-05: independent required/optional/unknown expectation and confirmed/
+  pending/missing material assertions; confirmed/withdrawn/missing/corrupt versions
+  never become interchangeable, unreviewed candidates never usable; current manual
+  correction takes precedence over historical recognition suggestions.
+- `browser/test_library.py` exercises local-only live substring search, confirmed
+  hash-verified edition, unknown completeness, independent expectation-template
+  application and persisted incomplete/missing-part overview. No preferred edition,
+  OCR, project generation or real NAS acceptance is claimed.
