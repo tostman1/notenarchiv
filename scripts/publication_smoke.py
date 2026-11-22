@@ -102,6 +102,11 @@ def smoke(image, root):
     shutil.copytree(paths["raw"], independent)
     os.chown(independent, 0, GID)
     independent.chmod(0o550)
+    # copytree preserves modes but not ownership. Give the non-root verifier
+    # read-only group access to this newly created synthetic independent copy.
+    for note in independent.iterdir():
+        os.chown(note, 0, GID)
+        note.chmod(0o440)
     mounts = [
         "--mount",
         f"type=bind,src={private_config},dst=/private-config,readonly",
