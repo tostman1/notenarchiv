@@ -35,7 +35,7 @@ reflect actual completed work only.
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
-| WP-31 | Participants, guests and saved project defaults | Merged; final main verification pending browser correction | PR #32, merge `6d4cd99` | 630 Linux tests, fourteen browsers; final PR CI `45045456240` passed; main CI `45046268589` failed participant browser navigation | Private NAS acceptance separate | Reviewed correction PR and green post-merge main |
+| WP-31 | Participants, guests and saved project defaults | Merged, software verified | PR #32, merge `6d4cd99`; browser correction PR #33, merge `53aaced` | 630 Linux tests, fourteen browsers; final PR CI `45045456240`, correction CI `45047209870` and main CI `45048123486` passed | Private NAS acceptance separate | Approved six-WP sequence complete; stop |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -140,17 +140,22 @@ reflect actual completed work only.
     `45045456240`, merged via PR #32 as `6d4cd99f801174b8b5e5599878180a367e29b79a`.
     Exact merged tree matched. Main CI `45046268589` passed 630 Linux tests but
     failed the participant browser's immediate reload during a guest POST redirect.
-    No complete main CI is claimed. Separate `fix/wp31-browser-checkpoint` changes
-    only browser navigation synchronization and this final sequence record. Full
-    correction PR/head/main CI remain gates; no next WP starts. No NAS/private
-    data/release/deployment/branch deletion.
+     Separate correction PR #33 on `fix/wp31-browser-checkpoint` changed only
+     browser navigation synchronization and the sequence record. Its final head
+     `75e017e581e29d60bf8979206d0861401e9628d8` passed full CI `45047209870`,
+     merged as `53aaced4559d3aefc7a222bcf297881b9f043279`; post-merge main CI
+     `45048123486` passed (630 Linux tests, fourteen browsers, complete container/
+     security checks). Both merged trees matched reviewed heads, no unresolved
+     reviews/threads; primary main was clean. No next WP started. No NAS/private
+     data/release/deployment/branch deletion.
 
-### Consolidated sequence checkpoint
+### Consolidated sequence completion
 
 All six requested implementations are merged through separate PRs #27–#32.
 WP-47a, WP-23a, WP-23b, WP-29 and WP-30 each have successful final PR and
-post-merge main CI recorded above. WP-31's final PR passed; the final main browser
-correction must pass before the entire sequence is called fully verified.
+post-merge main CI recorded above. WP-31 and its bounded browser correction passed
+final PR and post-merge main CI. **All six packages are software-verified and
+integrated. Stop after the documentation-only final record; no further development.**
 
 Delivered software: complete consistent backup/isolated restore; protected exact
 archive preferences; unchanged direct PDF/bounded ZIP; durable project graph and

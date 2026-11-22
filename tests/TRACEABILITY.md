@@ -74,7 +74,7 @@ scoped work packages; this register does not claim those gates were exercised.
   tests, nine browsers and complete image/restore/security checks). Windows
   fail-closed skips are not NAS acceptance; no private installation data used.
 
-## WP-23a (software verified; integration pending)
+## WP-23a (merged, software verified)
 
 - AR-17/AS-05: `tests/test_editions.py` covers exact compatible arrangement/part,
   multiple versions, ambiguity/sole/preferred/explicit provenance, preference reset,
@@ -88,7 +88,7 @@ scoped work packages; this register does not claim those gates were exercised.
   ten browsers; actual image preference creation and restored preference/history
   verification added to the existing non-root, RAW-read-only, network-disabled flow.
 
-## WP-23b (software verified; integration pending)
+## WP-23b (merged, software verified)
 
 - AR-18/EX-03/EX-07: `tests/test_downloads.py` exercises unchanged direct PDFs,
   bounded ZIP member/order/hash, combined A3/A4 document once, no member/project
@@ -102,7 +102,7 @@ scoped work packages; this register does not claim those gates were exercised.
   complete image/Compose/unchanged downloads/restore/installation/security checks.
   Private NAS/hardware acceptance remains separate; no real installation data used.
 
-## WP-29 (software verified; integration pending)
+## WP-29 (merged, software verified)
 
 - PR-01/05/07: `tests/test_projects.py` validates durable settings/revisions,
   same-title identities, full graph duplication/remapped FKs/guests/reserves,
@@ -119,7 +119,7 @@ scoped work packages; this register does not claim those gates were exercised.
   image/Compose/actual project graph on isolated restored SQLite/security checks.
   No private NAS data or hardware acceptance is implied by software verification.
 
-## WP-30 (software verified; integration pending)
+## WP-30 (merged, software verified)
 
 - GR-07/12, PR-02/03/06: `tests/test_piece_list.py` covers reserve consuming number,
   3→1 renumbering, repeated arrangement independent UUID, fill/replace same slot,
@@ -134,7 +134,7 @@ scoped work packages; this register does not claim those gates were exercised.
   actual container shared list/backup/restore and vulnerability/secret checks.
   Browser input waits for actual live-search enhancement readiness. No NAS claim.
 
-## WP-31 (software verified; integration pending)
+## WP-31 (merged, software verified)
 
 - CAT-02/PR-04/AS-01: `tests/test_participants.py` validates bounded subset/all/none,
   name/instrument filters, actor/project/revision-bound page selection, guests without
@@ -150,3 +150,6 @@ scoped work packages; this register does not claim those gates were exercised.
 - Full CI `45043669400` on `da915e6` passed: 630 Linux tests, fourteen browsers,
   actual image saved participant/guest/shared list/restore and security checks.
   No real members/music/NAS data were used; private acceptance is not implied.
+- Final PR #32 CI `45045456240` and bounded navigation correction PR #33 CI
+  `45047209870` passed. Main CI `45048123486` on merge `53aaced` verified all 630
+  Linux tests, fourteen browsers and complete actual container/security gates.
