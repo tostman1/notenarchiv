@@ -12,9 +12,22 @@ slice when it can be completed and tested; the earlier stop after WP-17 is revok
 Do not infer authorization for additional releases, real data or NAS deployment.
 The independent lanes below are coordination guidance, not dispatched agents.
 
-Latest owner instruction (2026-11-21): stop after the pushed WP-14 checkpoint;
+Historical owner instruction (2026-11-21, superseded): stop after the pushed WP-14 checkpoint;
 leave PR #17 open for review. No merge or next WP in this run. Implementation
 3c38500 passed full CI 44886399016; integration remains outstanding.
+
+Latest approved sequence (2026-11-22) completed: WP-47a → WP-23a → WP-23b →
+WP-29 → WP-30 → WP-31, separate PRs #27–#32 plus bounded browser correction #33.
+All software acceptance and final-head/main CI gates passed; final source merge
+`53aaced` passed main CI `45048123486` (630 Linux tests, fourteen browsers and full
+container/security checks). See [PROGRESS.md](PROGRESS.md) for exact checkpoint IDs.
+No further implementation is authorized by that completed sequence. Recommend
+WP-34 → WP-35 → WP-32 → WP-33a for new owner approval; do not start automatically.
+No NAS/private-data access, backup destination, deployment, release or branch deletion.
+
+The counts/status paragraphs below are historical delivery checkpoints, not the
+current package-status register. Full software WP-47a is now implemented/verified;
+private NAS backup/restore and WP-47b hardware gates remain distinct and open.
 
 ## Counts and preview boundary
 
