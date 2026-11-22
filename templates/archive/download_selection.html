@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Archivnoten herunterladen" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Archivnoten herunterladen" %}</h1>
+<p>{% translate "Kein Projekt und keine Person erforderlich. Jede gewählte PDF wird genau einmal unverändert exportiert; kombinierte Stimmen bleiben ein Dokument. Originalformate und Seiteninhalte bleiben erhalten." %}</p>
+<p>{{ files|length }} {% translate "PDFs" %} · {{ total }} {% translate "Bytes" %}</p>
+<ul>{% for file in files %}<li>{{ file.arrangement }} · {{ file.pk }} · {% translate "eine Kopie" %}<ul>{% for assignment in file.assignments.all %}<li>{{ assignment.part }}</li>{% endfor %}</ul><a href="{% url 'archive_preview:viewer' file.pk %}">{% translate "PDF-Vorschau" %}</a></li>{% endfor %}</ul>
+<form method="post" action="{% url 'archive_note_selection_download' %}">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><button>{% if files|length > 1 %}{% translate "ZIP herunterladen" %}{% else %}{% translate "PDF herunterladen" %}{% endif %}</button></form>
+<p>{% translate "Bei veränderter Freigabe, Hash oder abgelaufener Auswahl neu auswählen. Es wird keine andere Ausgabe eingesetzt." %}</p>
+{% endblock %}

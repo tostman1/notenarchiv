@@ -115,6 +115,38 @@ assert result.origin=='ARCHIVE' and result.assignment.pk==assignment.pk
         preference_code,
         json.dumps(identities),
     )
+    download_code = """
+import django,json,sys,zipfile,hashlib
+django.setup()
+from apps.archive import download_services as s
+data=json.loads(sys.argv[1])
+selected=s.files([data['file']])
+for zipped in (False,True):
+    stream=s.stage(selected,zipped=zipped)
+    try:
+        if zipped:
+            with zipfile.ZipFile(stream) as archive:
+                assert len(archive.namelist())==1
+                content=archive.read(archive.namelist()[0])
+        else:
+            content=stream.read()
+        assert hashlib.sha256(content).hexdigest()==selected[0].sha256
+    finally:
+        stream.close()
+"""
+    docker(
+        "run",
+        "--rm",
+        *arguments(paths, "none"),
+        "-e",
+        "DJANGO_SETTINGS_MODULE=config.settings",
+        "--entrypoint",
+        "python",
+        image,
+        "-c",
+        download_code,
+        json.dumps(identities),
+    )
     # Full WP-47a: real copied/confirmed files and SQLite restored together in
     # hardened network-disabled containers. Only these new synthetic roots.
     private_config, independent, output = root / "config", root / "independent", root / "backup-output"

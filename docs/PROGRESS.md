@@ -31,7 +31,8 @@ reflect actual completed work only.
 | WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 | WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
-| WP-23a | Preferred compatible archive editions | Software verified; integration pending | PR #28, source `9c0ecd2` | 572 Linux tests, ten browsers, complete CI `45027269366` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
+| WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
+| WP-23b | Direct unchanged PDF and bounded ZIP download | Software verified; integration pending | PR #29, source `bcc2e5b` | 590 Linux tests, eleven browsers; full CI `45030782487` passed | Private NAS acceptance separate | Final docs-head CI, merge and main CI |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -69,8 +70,23 @@ reflect actual completed work only.
   preference history, both first-install flows and vulnerability/secret checks.
   Complete diff/commits reviewed; no submitted reviews or unresolved threads.
   Initial container-test setup lacked explicit Django settings; corrected without
-  relaxing production settings or assertions. Final documentation-head CI and
-  merged-main verification remain before WP-23b. No NAS data/release/deployment.
+  relaxing production settings or assertions. Final head `4a00320` passed CI
+  `45028058218`, merged as `7025dfdd2a8fd242ce52edcee6fffffc974cf7ff`; main
+  CI `45028727303` passed. Exact merged tree matched. No NAS/release/deployment.
+- WP-23b in progress on `feature/wp-23b-direct-downloads` from that verified clean
+  main: confirmed direct unchanged PDF/ZIP, bounded private streaming stages,
+  signed explicit selection, combined-document deduplication, derivative preview.
+  Local full regression: 507 passed/80 Windows platform skips before final
+  timeout/scratch/failure coverage; final focused downloads 16 passed/two POSIX
+  skips. Eleven browsers passed; final download safety refinements additionally
+  passed its browser. Ruff/format/lock/system/migration/diff checks passed. Full
+  implementation diff reviewed. Source `bcc2e5b` passed full CI `45030782487`:
+  590 Linux tests, eleven browsers, system/migration drift, runtime audit, hardened
+  amd64 image/Compose, actual unchanged PDF/ZIP staging, archive/preference and
+  isolated restore/reopen, both installation flows and vulnerability/secret scan.
+  No submitted reviews or unresolved threads at this checkpoint. Final documentation
+  head CI and merge/post-merge main verification remain before WP-29. No private
+  NAS data/destination, release, deployment or branch deletion.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

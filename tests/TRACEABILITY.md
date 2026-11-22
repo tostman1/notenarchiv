@@ -87,3 +87,17 @@ scoped work packages; this register does not claim those gates were exercised.
 - Full Linux/container/security CI `45027269366` on `9c0ecd2` passed: 572 tests,
   ten browsers; actual image preference creation and restored preference/history
   verification added to the existing non-root, RAW-read-only, network-disabled flow.
+
+## WP-23b (software verified; integration pending)
+
+- AR-18/EX-03/EX-07: `tests/test_downloads.py` exercises unchanged direct PDFs,
+  bounded ZIP member/order/hash, combined A3/A4 document once, no member/project
+  dependency, auth/CSRF, duplicate/path/size/actor/stale token rejection, withdrawn/
+  pending/corrupt states, staging races, immutable response bytes, scratch no-follow
+  and lock/temporary cleanup. Confirmed derivative preview requires own approval.
+- `browser/test_downloads.py` verifies actual PDF/ZIP downloads, signed selection
+  confirmation, original hashes, combined parts and no external browser requests.
+- Actual hardened image PDF/ZIP staging added to `scripts/publication_smoke.py`;
+  full CI `45030782487` on `bcc2e5b` passed: 590 Linux tests, eleven browsers and
+  complete image/Compose/unchanged downloads/restore/installation/security checks.
+  Private NAS/hardware acceptance remains separate; no real installation data used.

@@ -3,6 +3,8 @@
 import hashlib
 import os
 import stat
+import time
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 from core.files import FileError, Root, fingerprint
@@ -29,6 +31,15 @@ def snapshot(root, path, *, maximum, sha256, size):
 
 
 def _windows_snapshot(root, path, maximum):
+    with _windows_reader(root, path, maximum) as (stream, info):
+        data = stream.read(maximum + 1)
+        if len(data) > maximum or fingerprint(os.fstat(stream.fileno())) != fingerprint(info):
+            raise FileError("SOURCE_CHANGED")
+        return data
+
+
+@contextmanager
+def _windows_reader(root, path, maximum):
     """Validate the actual opened handle, not just a pre-open path resolution."""
     import ctypes
     import msvcrt
@@ -54,7 +65,35 @@ def _windows_snapshot(root, path, maximum):
         length = function(msvcrt.get_osfhandle(stream.fileno()), buffer, len(buffer), 0)
         if not 0 < length < len(buffer) or Path(buffer.value.removeprefix("\\\\?\\")) != target:
             raise FileError("UNSAFE_PATH")
-        data = stream.read(maximum + 1)
-        if len(data) > maximum or fingerprint(os.fstat(stream.fileno())) != fingerprint(info):
+        yield stream, info
+        if fingerprint(os.fstat(stream.fileno())) != fingerprint(info):
             raise FileError("SOURCE_CHANGED")
-        return data
+
+
+def copy_snapshot(root, path, target, *, maximum, sha256, size, checkpoint=lambda: None):
+    """Stream verified immutable bytes into private staging, never serve source handles."""
+    relative_path(path)
+    if any(part.startswith(".") for part in path.split("/")) or not 0 < size <= maximum:
+        raise FileError("UNSAFE_PATH")
+    with ExitStack() as stack:
+        if os.name == "posix":
+            opened = stack.enter_context(Root(root))
+            descriptor, info = stack.enter_context(opened.reader(path, links=2))
+        elif os.name == "nt":
+            stream, info = stack.enter_context(_windows_reader(root, path, maximum))
+            descriptor = stream.fileno()
+        else:
+            raise FileError("UNSUPPORTED_FILESYSTEM_API")
+        if info.st_size != size:
+            raise FileError("CONTENT_CHANGED")
+        total, digest = 0, hashlib.sha256()
+        deadline = time.monotonic() + 15
+        while chunk := os.read(descriptor, 1_048_576):
+            checkpoint()
+            total += len(chunk)
+            if total > size or time.monotonic() > deadline:
+                raise FileError("LIMIT_EXCEEDED")
+            digest.update(chunk)
+            target.write(chunk)
+        if total != size or digest.hexdigest() != sha256:
+            raise FileError("CONTENT_CHANGED")

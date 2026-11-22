@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 from tests.archive_fixtures import archive  # noqa: F401 - shared pytest fixture
+from tests.test_editions import edition_inputs  # noqa: F401 - shared synthetic edition fixture
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
