@@ -15,7 +15,8 @@ not a playable part; mapping's exact variant must match. New explicit editions
 require exact compatible confirmed hash-verified assignment and post-lock revision
 recheck. Mapping and rule editors use [ENSEMBLE.md](ENSEMBLE.md) and
 [RULES.md](RULES.md); the central resolver uses [RESOLUTION.md](RESOLUTION.md).
-Matrix screens remain WP-33.
+Matrix view consumes the same engine ([MATRIX.md](MATRIX.md)); direct/batch editing
+remains WP-33b/c.
 
 Project revisions use write-first conditional UPDATE in short atomic SQLite
 transactions. Stale requests get a German 409 conflict, not lost updates. Append-only

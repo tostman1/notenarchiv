@@ -281,6 +281,10 @@ arrangement=m.ProjectEditionPreference._meta.get_field('arrangement').related_mo
 pieces.replace(project.pk,slot.pk,arrangement.pk,actor=actor,expected_revision=9)
 result=resolution.resolve_cell(project.pk,slot.pk,participant.pk)
 assert result.usable and result.desired_part_id==part.pk and result.edition_origin=='ARCHIVE'
+from apps.projects.matrix_services import matrix_page
+matrix=matrix_page(project.pk)
+assert len(matrix['rows'])==2 and len(matrix['participants'])==2
+assert any(cell['resolution'].usable for row in matrix['rows'] for cell in row['cells'])
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

@@ -203,3 +203,14 @@ scoped work packages; this register does not claim those gates were exercised.
 - Complete CI `45068374035` on `f20655e` passed: 685 Linux tests, sixteen browsers,
   actual container resolver/confirmed-input restore and security checks. Container
   fixture uses exact preferred assignment, not arbitrary catalog row order.
+
+## WP-33a (verification in progress)
+
+- AS-02/AS-08: `tests/test_matrix.py` compares displayed cells with WP-32 results,
+  Mathias/Sebi/Riccardo manual override and provenance, selected-only columns,
+  shared slot numbering/reserves, auth/POST denial/no mutation/escape, bounded
+  pagination, invalid/missing-role/corrupt/substituted labels and per-file read reuse.
+- `browser/test_matrix.py`: actual German shared matrix and personal edition,
+  reserve without controls, reload, local-only requests and mobile width containment.
+- Hardened actual image matrix presentation adapter acceptance added; no direct
+  edits, preflight/generation or private NAS acceptance claimed.

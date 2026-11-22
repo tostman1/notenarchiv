@@ -1,0 +1,11 @@
+{% load i18n %}<td data-participant="{{ cell.resolution.participant_id }}" data-status="{{ cell.resolution.status }}" class="matrix-cell {% if cell.resolution.override_id %}matrix-override{% endif %}">
+<strong>{{ cell.resolution.status_label }}</strong>
+{% if cell.resolution.status != 'RESERVE' %}
+<p>{% translate "Gewünscht" %}: {{ cell.desired_part|default:'—' }}</p><p>{% translate "Tatsächliche Stimme" %}: {{ cell.effective_part|default:'—' }}</p>
+<p>{% translate "Stimmenherkunft" %}: {{ cell.resolution.part_origin_label }}</p><p>{% translate "Ausgabenherkunft" %}: {{ cell.resolution.edition_origin_label }}</p>
+{% if cell.resolution.replacement_origin != 'NONE' %}<p>{{ cell.replacement_label }}</p>{% endif %}
+{% for reason in cell.reasons %}<p class="matrix-issue">{{ reason }}</p>{% endfor %}{% for warning in cell.warnings %}<p>{{ warning }}</p>{% endfor %}
+{% if cell.resolution.file_id %}<p>{% translate "Konkrete Version" %}: <span class="matrix-id">{{ cell.resolution.file_id }}</span></p>{% endif %}
+{% if cell.resolution.usable %}<p>{% translate "SHA-256 geprüft" %}: <span class="matrix-id">{{ cell.resolution.sha256 }}</span></p>{% endif %}
+{% if cell.resolution.usable %}<a href="{% url 'archive_preview:viewer' cell.resolution.file_id %}">{% translate "PDF-Vorschau" %}</a> · <a href="{% url 'archive_note_download' cell.resolution.file_id %}">{% translate "Bestätigte PDF herunterladen" %}</a>{% endif %}
+{% endif %}</td>
