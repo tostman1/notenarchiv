@@ -73,14 +73,21 @@ def test_reserve_cells_readonly_no_preview_or_assignment_forms(resolver_inputs, 
         def __init__(self):
             super().__init__()
             self.actions = []
+            self.in_reserve = False
+
+        def handle_endtag(self, tag):
+            if tag == "tr":
+                self.in_reserve = False
 
         def handle_starttag(self, tag, attrs):
-            if tag == "form":
+            if tag == "tr":
+                self.in_reserve = dict(attrs).get("data-position") == str(positions[2].pk)
+            if tag == "form" and self.in_reserve:
                 self.actions.append(dict(attrs).get("action"))
 
     parser = Forms()
     parser.feed(response.content.decode())
-    assert parser.actions == [reverse("logout")]
+    assert parser.actions == []  # Approved WP-33b adds editors only outside reserve rows.
 
 
 def test_matrix_selected_only_auth_post_denial_and_safe_names(resolver_inputs, client):

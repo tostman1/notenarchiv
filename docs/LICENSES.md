@@ -104,3 +104,12 @@ Sans 1.07.4 TTFs use GPL-2.0 with the Liberation font exception, not OFL
 Upstream identifies the exact font release in
 `external/standard_fonts/README.md`; source origin is recorded with the assets.
 No JavaScript/Python package manager or CDN is needed at application runtime.
+
+## Local HTMX matrix updates (WP-33b)
+
+HTMX 2.0.11 maintenance release (2026-11-01), 0BSD verified from upstream
+tagged package.json and retained LICENSE. Unmodified official release asset hash
+verified against GitHub metadata; see `static/vendor/htmx/ORIGIN.md`. Runtime uses
+only the local asset, with eval/script execution/history caching disabled and
+same-origin requests. HTMX 4.x migration is not needed for the approved 2.x
+template interaction contract. No runtime npm/CDN requirement.

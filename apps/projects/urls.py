@@ -1,9 +1,27 @@
 from django.urls import path
 
-from apps.projects import ensemble_views, list_views, matrix_views, participant_views, rule_views, views
+from apps.projects import (
+    ensemble_views,
+    list_views,
+    matrix_edit_views,
+    matrix_views,
+    participant_views,
+    rule_views,
+    views,
+)
 
 urlpatterns = [
     path("<uuid:project_id>/matrix/", matrix_views.matrix, name="project_matrix"),
+    path(
+        "<uuid:project_id>/matrix/cells/<uuid:position_id>/<uuid:participant_id>/",
+        matrix_edit_views.cell_edit,
+        name="matrix_cell_edit",
+    ),
+    path(
+        "<uuid:project_id>/matrix/defaults/<uuid:participant_id>/",
+        matrix_edit_views.default_edit,
+        name="matrix_default_edit",
+    ),
     path("replacement-rules/", rule_views.overview, name="global_replacement_rules"),
     path("replacement-rules/new/", rule_views.replacement_edit, name="global_replacement_create"),
     path("replacement-rules/<uuid:rule_id>/", rule_views.replacement_edit, name="global_replacement_edit"),

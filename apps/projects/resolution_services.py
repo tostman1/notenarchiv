@@ -345,23 +345,33 @@ class ResolutionSession:
         """Byte-verified boundary for matrix/preflight callers, once per file/session."""
         result = self.resolve(position_id, participant_id)
         if result.assignment_id is not None:
-            file = self.assignments[result.assignment_id].archive_file
-            if file.pk not in self._verified:
-                self._verified[file.pk] = library_services.verify_file(file)
-                self._current_assignments[file.pk] = set(
-                    archive.ArchiveAssignment.objects.usable()
-                    .filter(
-                        archive_file_id=file.pk,
-                        archive_file__revision=file.revision,
-                        archive_file__arrangement_id=file.arrangement_id,
-                    )
-                    .values_list("pk", "part_id")
-                )
-            if (result.assignment_id, result.effective_part_id) not in self._current_assignments[file.pk]:
+            state = self.assignment_state(result.assignment_id)
+            if state == "CHANGED":
                 return replace(result, status="INVALID", assignment_id=None, reasons=("ARCHIVE_SELECTION_CHANGED",))
-            if not self._verified[file.pk]:
+            if state != "VERIFIED":
                 return replace(result, status="CORRUPT", assignment_id=None, reasons=("INPUT_INTEGRITY_FAILURE",))
         return result
+
+    def assignment_state(self, assignment_id):
+        """Same integrity boundary for a displayed edition alternative or resolved cell."""
+        assignment = self.assignments.get(assignment_id)
+        if assignment is None:
+            return "CHANGED"
+        file = assignment.archive_file
+        if file.pk not in self._verified:
+            self._verified[file.pk] = library_services.verify_file(file)
+            self._current_assignments[file.pk] = set(
+                archive.ArchiveAssignment.objects.usable()
+                .filter(
+                    archive_file_id=file.pk,
+                    archive_file__revision=file.revision,
+                    archive_file__arrangement_id=file.arrangement_id,
+                )
+                .values_list("pk", "part_id")
+            )
+        if (assignment.pk, assignment.part_id) not in self._current_assignments[file.pk]:
+            return "CHANGED"
+        return "VERIFIED" if self._verified[file.pk] else "CORRUPT"
 
 
 def resolve_cell(project_id, position_id, participant_id):

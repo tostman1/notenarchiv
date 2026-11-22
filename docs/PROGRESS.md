@@ -39,7 +39,7 @@ reflect actual completed work only.
 | WP-34 | Explicit ensemble roles and playable mapping editor | Merged, software verified | PR #35, merge `b174773` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers; final PR CI `45058429483` and main CI `45059301957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
 | WP-32 | Central assignment and edition resolver | Merged, software verified | PR #37, merge `7b6e6fb` | 685 Linux tests, sixteen browsers; final PR CI `45069483361` and main CI `45070646957` passed | Private NAS acceptance separate | Complete software scope |
-| WP-33a | Read-only matrix and effective provenance | Software verified; integration pending | PR #38, source `800dd5a` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; full CI `45073173161` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then WP-33b |
+| WP-33a | Read-only matrix and effective provenance | Merged, software verified | PR #38, merge `52114f4` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; final PR CI `45074373994` and main CI `45075310004` passed | Private NAS acceptance separate | Complete software scope |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -119,8 +119,19 @@ reflect actual completed work only.
   696 Linux tests, seventeen browsers, hardened amd64 image/Compose, actual matrix
   adapter over restored confirmed inputs, archive/download/backup/restore, both
   installation flows and vulnerability/secret checks. Full diff/commits reviewed;
-  no submitted reviews or unresolved threads. Final docs-head/main CI gates remain
-  before WP-33b. No NAS/private data, deployment/release or linked worktrees.
+  no submitted reviews or unresolved threads. Final head `560bcf8` passed CI
+  `45074373994`, merged as `52114f4e20f012a76fdcdaeda02c0f1368889b7e`;
+  main CI `45075310004` passed. Exact merged tree matched, primary main clean.
+  No NAS/private data, deployment/release or linked worktrees.
+- WP-33b in progress on `feature/wp-33b-direct-matrix-edits` from verified main.
+  Signed exact edition cell edits, protected old/new MatrixChange, existing saved
+  default editor in headers, local hash-verified HTMX/no-JS forms, optimistic
+  project/archive fences; no personal-list mutation. Targeted tests/browser passed;
+  local full regression 631 passed/81 platform skips before final budget/archive
+  coverage, which passed in targeted rerun (18 edit/persistence/asset tests).
+  All eighteen browsers passed; final safety refinements passed both matrix browsers.
+  Ruff/format/lock/system/migration/diff checks passed; full implementation diff
+  reviewed. Separate final PR/Linux/container/security/merged-main gates remain.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 

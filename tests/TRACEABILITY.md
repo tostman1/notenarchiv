@@ -217,3 +217,16 @@ scoped work packages; this register does not claim those gates were exercised.
 - Full CI `45073173161` on `800dd5a` passed: 696 Linux tests, seventeen browsers,
   actual hardened image matrix/restore and security checks. Corrected local full
   regression 615 passed/81 platform skips. No private NAS acceptance inferred.
+
+## WP-33b (verification in progress)
+
+- AS-03/AS-08: `tests/test_matrix_edits.py` exercises exact signed actor-bound
+  confirmed part/notation/version, stale/foreign/reserve/expired/corrupt/withdrawn
+  and post-hash race rejection, one person's override only, old/new protected audit,
+  default keeping existing overrides, no-JS/HTMX POST/auth/CSRF/conflicts and bounds.
+- `tests/test_matrix_edit_persistence.py`: actual migrated SQLite concurrent cell
+  writes (one success/one conflict), independent reopen/central exact provenance.
+- `browser/test_matrix_edits.py`: local HTMX edits/partial refresh, stale second tab,
+  saved default keeping manual edition and reload, unchanged reserve/common list.
+- `tests/test_htmx_asset.py`: official local asset hash/license/safe config; no CDN.
+  Existing reserve test scoped to reserve rows after approved cell editors elsewhere.
