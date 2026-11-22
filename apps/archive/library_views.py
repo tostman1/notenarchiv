@@ -2,6 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
@@ -47,9 +48,15 @@ def arrangement_detail(request, arrangement_id):
     rows = Paginator(service.part_rows(arrangement), 25).get_page(request.GET.get("page"))
     editions = Paginator(
         m.ArchiveFile.objects.usable()
-        .filter(arrangement=arrangement)
+        .filter(arrangement=arrangement, pk__in=m.ArchiveAssignment.objects.usable().values("archive_file_id"))
         .select_related("source_version__source_file")
-        .prefetch_related("assignments__part__instrument")
+        .prefetch_related(
+            Prefetch(
+                "assignments",
+                queryset=m.ArchiveAssignment.objects.usable().select_related("part__instrument"),
+                to_attr="usable_assignments",
+            )
+        )
         .order_by("pk"),
         10,
     ).get_page(request.GET.get("editions"))

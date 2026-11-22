@@ -10,11 +10,19 @@
         url.search = new URLSearchParams(new FormData(form)).toString();
         try {
             const response = await fetch(url, { signal: controller.signal, credentials: 'same-origin' });
-            if (!response.ok) return;
+            if (!response.ok) {
+                if (current === sequence) {
+                    const status = window.document.querySelector('#library-search-status');
+                    status.textContent = status.dataset.invalid;
+                    window.document.querySelector('#library-results').replaceChildren();
+                }
+                return;
+            }
             const document = new DOMParser().parseFromString(await response.text(), 'text/html');
             const results = document.querySelector('#library-results');
             if (current !== sequence || !results) return;
             window.document.querySelector('#library-results').replaceWith(results);
+            window.document.querySelector('#library-search-status').textContent = '';
             history.replaceState(null, '', url);
         } catch (error) { if (error.name !== 'AbortError') return; }
     }

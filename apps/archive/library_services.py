@@ -1,6 +1,7 @@
 """One read-only library/completeness engine; candidates never become assignments."""
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models import Exists, F, OuterRef, Q
 from django.utils.translation import gettext_lazy as _
 
@@ -167,6 +168,13 @@ def verify_file(file):
     if not m.ArchiveFile.objects.usable().filter(pk=file.pk).exists():
         return False
     try:
+        file.full_clean()
+        operation = file.publication_operation
+        if (
+            operation.intent.result != operation.expected_receipt
+            or operation.intent.payload != operation.effect_payload
+        ):
+            return False
         preview.snapshot(
             settings.CURATED_DIR if file.root_kind == "CLEAN" else settings.PROCESSED_DIR,
             file.relative_path,
@@ -174,6 +182,6 @@ def verify_file(file):
             sha256=file.sha256,
             size=file.byte_size,
         )
-    except (ValueError, OSError):
+    except (ValidationError, ValueError, OSError):
         return False
     return True

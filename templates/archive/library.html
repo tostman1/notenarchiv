@@ -10,6 +10,6 @@
 {% for arrangement in page %}<tr><td><a href="{% url 'archive_library_arrangement' arrangement.pk %}">{{ arrangement.work.title }} · {{ arrangement.arranger|default:"—" }} · {{ arrangement.edition|default:"—" }}</a></td><td>{{ arrangement.completeness_label }}</td><td>{% if arrangement.has_confirmed %}{% translate "Bestätigte verfügbare Versionen laut Archivstatus" %}{% endif %} {% if arrangement.has_pending %}{% translate "Ungeprüfte Versionen" %}{% endif %} {% if arrangement.has_uncertain %}{% translate "Unklare Erkennung" %}{% endif %}</td></tr>{% empty %}<tr><td colspan="3">{% translate "Keine passenden Arrangements." %}</td></tr>{% endfor %}
 </tbody></table></div>
 {% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %} {% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
-</div><p id="library-search-status" role="status"></p>
+</div><p id="library-search-status" role="status" data-invalid="{% translate 'Ungültige Filter. Bitte Auswahl korrigieren und Suchen wählen.' %}"></p>
 {% endblock %}
 {% block scripts %}<script src="{% static 'archive/library.js' %}" defer></script>{% endblock %}
