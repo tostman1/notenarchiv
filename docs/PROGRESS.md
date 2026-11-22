@@ -20,7 +20,11 @@ reflect actual completed work only.
 | WP-14 | Safe file publication | Merged, CI verified | PR #17, merge `5874c7c` | 424 Linux tests, four browsers; final PR CI 44887606153 and main CI 44897447951 passed; merged tree matched | NAS gate separate | WP-15/18/19 |
 | WP-18 | Secure local PDF preview | Merged, CI verified | PR #18, merge `e04905a` | Main CI 44910769120 passed; combined WP-18/19 main CI 44943760201 passed | NAS gate separate | WP-20a |
 | WP-19 | Filename/text-layer recognition | Merged, CI verified | PR #19, merge `8cedf7b` | PR CI 44939684382 and combined main CI 44943760201 passed | Local Windows queue timing failures remain recorded below | WP-15 |
-| WP-15 | Indexing and separate STATUS | Implemented, software verified; not merged | PR #21, implementation `9610364`, base `96443f9` | Full CI 44953809320: 488 Linux tests, five browsers, image/container/security checks passed | Private NAS gates separate; owner merge approval required | Review PR #21; no automatic merge |
+| WP-15 | Indexing and separate STATUS | Merged, software verified | PR #21, merge `3a5a692` | Final PR CI 44954321633 and main CI 44956825128 passed; exact merged tree matched | Private NAS gates separate | Complete software scope |
+| WP-16 | German indexing UI | Merged, software verified | PR #22, merge `4c75350` | 493 Linux tests, six browsers; final PR CI 44959000193 and main CI 44959464054 passed | Private NAS gates separate | Complete software scope |
+| WP-20a | Individual review and publication | Merged, software verified | PR #23, merge `dc78924` | 505 Linux tests, seven browsers; final PR CI 44962136139 and main CI 44962643794 passed | Local Windows queue timing issue; private NAS gates separate | Complete software scope |
+| WP-20b | Inspected batch approval and navigation | Merged, software verified | PR #24, merge `05a4898` | 520 Linux tests, eight browsers; final PR CI 44964388557 and main CI 44964905107 passed | Local Windows queue timing issue; private NAS gates separate | Complete software scope |
+| WP-21 | Searchable library and independent completeness | Software verified; final integration gate | PR #25, implementation `0f8639d`, base `05a4898` | 530 Linux tests, nine browsers and full container/security CI 44966827522 passed | Final docs CI/merge/main verification pending; private NAS gates separate | Finish approved integration, then stop |
 | WP-09 | Service-aware mount and startup validation | Merged, software verified | PR #8; merge `62d85b3` | 19 storage tests locally; actual Linux container/host negatives in CI 44797427059 passed | Private NAS acceptance remains WP-22 | Retain NAS gate |
 | WP-06 / WP-07 | Hardened image / Compose | Preview web/tools slices verified | PR #8 | Actual amd64 build, Compose, non-root/read-only startup, mount/auth/mode/persistence/restore smoke passed in CI 44797427059 | Full worker Compose/operations integration remains | Full packages remain partial |
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
@@ -976,3 +980,30 @@ remain unexecuted without their distinct approval. Preserve published preview as
 - Synthetic unit/browser acceptance, Ruff/system/migration/full regression and
   GitHub/container CI gates in progress. No WP-23a/export/OCR/project expansion,
   real archive ingestion, NAS access, release or deployment performed.
+
+- Final implementation `0f8639d8f28a87c176aa3157316f192b928248dd` passed full
+  CI 44966827522: 530 Linux tests, nine browsers, locked runtime audit, actual
+  amd64 image/Compose/container/restore/native PDF, worker publication, both
+  synthetic installation flows and vulnerability/secret scans. Current library
+  suite: ten passed. All nine local browsers passed before final grouped-query
+  refinements; later library tests passed after those refinements.
+- Local full checkpoint: 473 passed / 54 platform skips / one baseline queue
+  timing failure. This is not an all-green Windows claim; the prior failures and
+  intermittent isolated successes remain documented. No tests were weakened.
+  Ruff lint/format (178 files), Django system/migration-drift, lock and whitespace
+  checks passed. Complete diff/security review: no blocking finding, no submitted
+  PR reviews or unresolved review threads at this checkpoint.
+- Library overview/completeness uses stored relational eligibility, explicitly
+  labelled as archive status rather than a full integrity proof. Displayed concrete
+  editions additionally check receipt and actual managed bytes; observed missing/
+  corrupt editions are marked unavailable with no preview link. Unknown expectation,
+  optional parts and pending recognition never become a confirmed assignment.
+- Existing progress history remained byte-identical to the WP-21 base, including
+  legacy non-UTF-8 bytes; no encoding repair. Final documentation-head CI, exact-head
+  conditional PR #25 merge and post-merge main verification are the remaining
+  integration gates. Stop after those gates; no next work package is authorized.
+- Remaining technical/hardware gates: private NAS ACL/mount/fsync/power-loss/load,
+  backup before real archive ingestion, full worker deployment/operations, later
+  full integrity UI, kernel-I/O deadline limitation and two-file STATUS publication
+  (JSON authoritative). Existing pinned CI actions emit Node.js deprecation warnings
+  but all checks ran successfully; action upgrades are not part of WP-21.
