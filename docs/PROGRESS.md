@@ -33,7 +33,7 @@ reflect actual completed work only.
 | WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
-| WP-29 | Durable project graph, revisions, CRUD and duplication | Software verified; integration pending | PR #30, source `8aad238` | 601 Linux tests, twelve browsers; full CI `45034660243` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
+| WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -102,7 +102,18 @@ reflect actual completed work only.
   image/Compose, actual project CRUD/clone on restored isolated DB, archive and
   download/backup/restore flow, both install variants and vulnerability/secret
   scan. No submitted reviews or unresolved threads. Final documentation-head CI,
-  merge and post-merge main CI remain mandatory before WP-30. No NAS/release/deploy.
+  head `3e6f011` passed CI `45035653508`, merged as
+  `6927dffbdfa221d9393162522d2215220531e727`; main CI `45036526836` passed.
+  Exact merged tree matched. No NAS/release/deploy.
+- WP-30 in progress on `feature/wp-30-shared-piece-list`, from that verified clean
+  primary main. Shared list/derived numbering/reserves/repeats, atomic validated
+  edits, acknowledged stable-ID replacement and protected history, German live
+  library/drag-drop preview implemented. Targeted tests/browser passed; full gates pending.
+  Local full regression: 533 passed/81 Windows platform skips before final personal
+  parameter/empty-list coverage; final focused list/persistence 15 passed. Thirteen
+  browsers passed; final contents-label update additionally passed list browser.
+  Ruff/format/lock/system/migration/diff checks passed. Full source diff reviewed;
+  final PR/Linux/container/security/merge/main gates pending before WP-31.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

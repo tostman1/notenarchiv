@@ -331,3 +331,30 @@ class ReplacementRule(Scoped):
                 name="projects_unique_slot_replacement",
             ),
         ]
+
+
+class PositionChange(Record):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name="position_history")
+    position = models.ForeignKey(ProjectPosition, on_delete=models.PROTECT, related_name="history")
+    project_revision = models.PositiveBigIntegerField()
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    event = models.CharField(max_length=24)
+    previous_arrangement = models.ForeignKey(
+        "catalog.Arrangement", on_delete=models.PROTECT, null=True, blank=True, related_name="position_changes_from"
+    )
+    selected_arrangement = models.ForeignKey(
+        "catalog.Arrangement", on_delete=models.PROTECT, null=True, blank=True, related_name="position_changes_to"
+    )
+    previous_order = models.PositiveIntegerField(null=True, blank=True)
+    selected_order = models.PositiveIntegerField(null=True, blank=True)
+    previous_active = models.BooleanField(null=True, blank=True)
+    selected_active = models.BooleanField()
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Position history is append-only.")
+        if self.position.project_id != self.project_id:
+            raise ValidationError("Position history belongs to another project.")
+
+    class Meta:
+        ordering = ["project_revision", "created_at", "id"]

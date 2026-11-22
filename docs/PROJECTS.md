@@ -27,8 +27,9 @@ every local FK. Member/catalog/archive IDs are shared protected immutable refere
 guests obtain fresh project-local identities. Historical withdrawn pinned editions
 are preserved, never reinterpreted as available new choices. The source graph and
 prior outputs remain unchanged. Associated removed rows keep IDs/history; active
-position order is unique, inactive slots have no order. Full list mutation/numbering
-and participant selection/default refresh arrive in WP-30/31.
+position order is unique, inactive slots have no order. Shared list mutation and
+numbering use [PIECE_LIST.md](PIECE_LIST.md); participant selection/default refresh
+remains WP-31.
 
 Local synthetic acceptance covers same-title projects, full graph mapping and clone
 isolation, protected records/append-only history, invalid cross-project/edition/

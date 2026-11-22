@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load static i18n %}
+{% block title %}{% translate "Gemeinsame Stückliste" %} — {{ project.name }}{% endblock %}
+{% block content %}
+<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a><h1>{% translate "Gemeinsame Stückliste" %}</h1>
+<p>{% translate "Revision" %} {{ project.revision }} · {% translate "Alle Teilnehmenden verwenden dieselbe Liste und Nummerierung. Reserven verbrauchen eine Nummer, aber keine Notenseite. Keine Nummern auf Musikseiten." %}</p>
+{% if review_count %}<p role="alert">{{ review_count }} {% translate "Zuordnungen nach Austausch erneut prüfen; keine still übernommenen Ausgaben." %}</p>{% endif %}
+{% if project.status == 'ACTIVE' %}
+<a href="{% url 'project_library_selection' project.pk %}">{% translate "Stück aus Bibliothek hinzufügen" %}</a>
+<form method="post" action="{% url 'project_piece_change' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="action" value="reserve"><button>{% translate "Reserve am Ende hinzufügen" %}</button></form>
+{% endif %}
+<h2>{% translate "Inhaltsvorschau" %}</h2>
+<ol id="piece-list">{% for row in positions %}<li data-position="{{ row.pk }}" {% if project.status == 'ACTIVE' %}draggable="true"{% endif %}>
+<strong class="piece-number">{{ forloop.counter }}.</strong> {% if row.arrangement %}{{ row.arrangement }}{% else %}{% translate "Reserve — keine Notenseite" %}{% endif %}
+{% if project.status == 'ACTIVE' %}
+<form method="post" action="{% url 'project_piece_change' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="action" value="move"><input type="hidden" name="position" value="{{ row.pk }}"><label>{% translate "Neue Position" %}<input type="number" name="at" min="1" max="{{ positions|length }}" value="{{ forloop.counter }}"></label><button>{% translate "Verschieben" %}</button></form>
+<a href="{% url 'project_library_selection' project.pk %}?position={{ row.pk }}">{% if row.arrangement %}{% translate "Arrangement ersetzen" %}{% else %}{% translate "Reserve füllen" %}{% endif %}</a> · <a href="{% url 'project_library_selection' project.pk %}?at={{ forloop.counter }}">{% translate "Davor einfügen" %}</a>
+<form method="post" action="{% url 'project_piece_change' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="action" value="remove"><input type="hidden" name="position" value="{{ row.pk }}"><button>{% translate "Position entfernen" %}</button></form>
+{% endif %}</li>{% empty %}<li>{% translate "Noch keine Stücke oder Reserven." %}</li>{% endfor %}</ol>
+{% if project.status == 'ACTIVE' %}<form id="piece-reorder" method="post" action="{% url 'project_piece_change' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="action" value="reorder"><div id="piece-order-inputs">{% for row in positions %}<input type="hidden" name="order" value="{{ row.pk }}">{% endfor %}</div><button>{% translate "Vorschau-Reihenfolge speichern" %}</button></form>{% endif %}
+<p>{% translate "Die angezeigten Nummern werden aus der gemeinsamen Reihenfolge abgeleitet. Drag-and-drop zeigt zunächst die neue Reihenfolge; erst Speichern übernimmt sie." %}</p>
+{% endblock %}
+{% block scripts %}<script src="{% static 'projects/pieces.js' %}" defer></script>{% endblock %}

@@ -172,6 +172,8 @@ def save_associated(record, *, actor, expected_revision):
     if not isinstance(record, m.Scoped):
         raise ValidationError("Unsupported project record.")
     creating = record._state.adding
+    if isinstance(record, m.ProjectPosition):
+        raise ValidationError("Shared position changes require the list service and history.")
     if creating and getattr(record, "needs_revalidation", False):
         raise ValidationError("New overrides cannot bypass compatibility through revalidation markers.")
     edition_revision = None
