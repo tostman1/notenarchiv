@@ -18,6 +18,8 @@ FILES = (
     "docs/INSTALL.md",
     "docs/UPDATE.md",
     "docs/RESTORE.md",
+    "docs/BACKUP.md",
+    "docs/sicherung.de.md",
     "docs/DEBUG_MODE.md",
     "docs/archivist-diagnostics.de.md",
     "docs/LICENSES.md",

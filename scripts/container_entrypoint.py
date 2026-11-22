@@ -42,6 +42,9 @@ def main():
         return 1
     if command == ["web"]:
         os.execvp("gunicorn", ["gunicorn", "--config", "config/gunicorn.conf.py", "config.wsgi:application"])
+    if command[0] in {"backup", "restore"}:
+        operation = "backup_installation" if command[0] == "backup" else "restore_installation"
+        return subprocess.call([sys.executable, "manage.py", operation, *command[1:]])
     if command not in (["migrate"], ["provision"], ["provision", "--set-password"], ["check"]):
         sys.stderr.write("Unsupported container operation\n")
         return 1

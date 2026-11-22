@@ -20,7 +20,9 @@ files do not update that image or authorize publishing a further release.
 
 1. Read the release notes and actual schema/storage compatibility statement.
    Download the new installation bundle and digest. Keep the old bundle/digest.
-2. Stop web/gateway and finish any one-shot tools. Make and verify the full preview
+2. Stop web/gateway and any worker; finish one-shot tools. Current-source archive
+   installations require [BACKUP.md](BACKUP.md); the historical published image uses
+   the preview procedure. Make and verify the full preview
    restore point in [RESTORE.md](RESTORE.md), including secret and config.
 3. Change the shared `image` (simple) or APP_IMAGE (advanced) to the new approved digest. Keep host roots and the secret
    deliberate and unchanged unless a reviewed migration explicitly requires it.
