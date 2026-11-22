@@ -142,6 +142,10 @@ def smoke(image, root):
     assert (output / "restored" / "clean" / approved["path"]).read_bytes() == data
     assert (output / "restored" / "secrets" / "django.key").read_bytes() == paths["secret"].read_bytes()
     assert not (output / "restored" / "raw").exists()
+    # Outputs are deliberately excluded by default. Rehearsal explicitly creates
+    # a new empty isolated export root, never binds the live EXPORT location.
+    (output / "restored" / "export").mkdir(mode=0o700)
+    os.chown(output / "restored" / "export", UID, GID)
     restored_paths = {
         name: output / "restored" / name
         if name not in {"raw", "secret"}
