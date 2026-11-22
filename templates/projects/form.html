@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% if project %}{% translate "Projekt bearbeiten" %}{% else %}{% translate "Neues Projekt" %}{% endif %}</h1>
+<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button>{% translate "Projekt speichern" %}</button></form>
+<a href="{% url 'project_list' %}">{% translate "Zurück zu Projekten" %}</a>{% endblock %}

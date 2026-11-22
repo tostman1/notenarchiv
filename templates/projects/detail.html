@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ project.name }} — Notenarchiv{% endblock %}
+{% block content %}<a href="{% url 'project_list' %}">{% translate "Projekte" %}</a><h1>{{ project.name }}</h1>
+<p>{{ project.pk }} · {{ project.get_status_display }} · {% translate "Revision" %} {{ project.revision }}</p>
+<p>{{ project.get_layout_display }} · {{ project.width_mm }} × {{ project.height_mm }} mm</p>
+<p>{% translate "Gemeinsame Positionen" %}: {{ positions }} · {% translate "Teilnehmende" %}: {{ participants }}</p>
+<p>{% translate "Stückliste und Teilnehmerverwaltung folgen als nächste Arbeitspakete. Kein individueller Stückbestand." %}</p>
+{% if project.status == 'ACTIVE' %}<a href="{% url 'project_edit' project.pk %}">{% translate "Projekt bearbeiten" %}</a>{% endif %}
+<form method="post" action="{% url 'project_duplicate' project.pk %}" class="record-form">{% csrf_token %}{{ duplicate_form.as_p }}<button>{% translate "Projekt duplizieren" %}</button></form>
+<form method="post" action="{% url 'project_archive' project.pk %}">{% csrf_token %}{{ revision_form.as_p }}<button>{% if project.status == 'ACTIVE' %}{% translate "Projekt archivieren" %}{% else %}{% translate "Projekt reaktivieren" %}{% endif %}</button></form>
+<h2>{% translate "Letzte Projektänderungen" %}</h2><ul>{% for entry in history %}<li>{% translate "Revision" %} {{ entry.revision }} · {{ entry.created_at }}</li>{% endfor %}</ul>
+{% endblock %}
