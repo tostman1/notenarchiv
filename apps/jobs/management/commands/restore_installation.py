@@ -3,7 +3,6 @@
 import sqlite3
 from pathlib import Path
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.jobs.services.backup import restore
@@ -22,9 +21,11 @@ class Command(BaseCommand):
         parser.add_argument("--timeout", type=int, default=Limits().seconds)
 
     def handle(self, *args, **options):
+        from config.env import env
+
         try:
             restore(
-                settings.env,
+                env,
                 options["source"],
                 options["destination"],
                 expected_manifest=options["manifest_sha256"],

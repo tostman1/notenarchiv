@@ -3,7 +3,6 @@
 import sqlite3
 from pathlib import Path
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.jobs.services.backup import create
@@ -24,9 +23,11 @@ class Command(BaseCommand):
         parser.add_argument("--timeout", type=int, default=Limits().seconds)
 
     def handle(self, *args, **options):
+        from config.env import env
+
         try:
             seal = create(
-                settings.env,
+                env,
                 options["destination"],
                 config_dir=options["config_dir"],
                 raw_backup=options["raw_backup"],

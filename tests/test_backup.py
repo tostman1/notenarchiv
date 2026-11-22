@@ -1,5 +1,6 @@
 """Real SQLite and physical synthetic file backups; never production/NAS data."""
 
+import io
 import json
 import os
 import shutil
@@ -7,6 +8,8 @@ import sqlite3
 from contextlib import closing
 
 import pytest
+from django.core.management import call_command
+from django.core.management.base import CommandError
 
 from apps.jobs.services import backup
 from config.env import parse_env
@@ -233,3 +236,59 @@ def test_raw_hardlink_is_not_an_independent_backup(backup_install, tmp_path):
     with pytest.raises(b.BackupError, match="RAW_BACKUP_NOT_INDEPENDENT"):
         backup.create(env, tmp_path / "backup", config_dir=config, raw_backup=independent, image=IMAGE)
     assert not (tmp_path / "backup").exists()
+
+
+@pytest.mark.parametrize("command", ["backup_installation", "restore_installation"])
+def test_commands_use_central_environment_and_sanitize_errors(command, monkeypatch, tmp_path):
+    import importlib
+
+    module = importlib.import_module("apps.jobs.management.commands." + command)
+    central = importlib.import_module("config.env").env
+    seen = []
+
+    def reject(environment, *args, **kwargs):
+        seen.append(environment)
+        raise sqlite3.OperationalError("synthetic-private-database-content")
+
+    monkeypatch.setattr(module, "create" if command == "backup_installation" else "restore", reject)
+    args = [str(tmp_path / "bundle")]
+    kwargs = {"stdout": io.StringIO(), "skip_checks": True}
+    if command == "backup_installation":
+        kwargs.update(config_dir=str(tmp_path / "config"), raw_backup=str(tmp_path / "raw-copy"), image=IMAGE)
+    else:
+        args.append(str(tmp_path / "restored"))
+        kwargs["manifest_sha256"] = "a" * 64
+    with pytest.raises(CommandError) as error:
+        call_command(command, *args, **kwargs)
+    assert seen == [central]
+    assert str(error.value) == ("BACKUP_REJECTED" if command == "backup_installation" else "RESTORE_REJECTED")
+
+
+@posix
+def test_real_management_commands_capture_and_restore(backup_install, tmp_path):
+    install, _env, config, raw, *_other = backup_install
+    destination = tmp_path / "cli-bundle"
+    result = install.run(
+        "manage.py",
+        "backup_installation",
+        str(destination),
+        "--config-dir",
+        str(config),
+        "--raw-backup",
+        str(raw),
+        "--image",
+        IMAGE,
+    )
+    seal = (destination / "manifest.sha256").read_text()
+    assert seal in result.stdout
+    restored = tmp_path / "cli-restore"
+    result = install.run(
+        "manage.py",
+        "restore_installation",
+        str(destination),
+        str(restored),
+        "--manifest-sha256",
+        seal,
+    )
+    assert "Isolated restore verified" in result.stdout
+    b.verify_bundle(restored, expected_manifest=seal)
