@@ -28,4 +28,5 @@
     }
     form.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(update, 250); });
     form.addEventListener('change', () => { clearTimeout(timer); update(); });
+    form.dataset.enhanced = 'ready';
 })();

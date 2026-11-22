@@ -14,6 +14,7 @@ import pytest
 
 from tests.archive_fixtures import archive  # noqa: F401 - shared pytest fixture
 from tests.test_editions import edition_inputs  # noqa: F401 - shared synthetic edition fixture
+from tests.test_projects import project_inputs  # noqa: F401 - shared synthetic project graph
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 

@@ -13,7 +13,8 @@ erlaubt; die Versions-/Projekt-ID unterscheidet sie. Namen sind keine Identität
 - Bei gleichzeitiger Bearbeitung wird eine veraltete Speicherung abgelehnt.
   **Projekt neu laden**, fremde Änderung prüfen und bewusst erneut speichern.
 
-Die gemeinsame Stückliste und Teilnehmerverwaltung folgen in WP-30 und WP-31.
+Die gemeinsame Stückliste ist unter **Gemeinsame Stückliste öffnen** verfügbar;
+siehe [stueckliste.de.md](stueckliste.de.md). Teilnehmerverwaltung folgt in WP-31.
 Eine Person erhält keinen eigenen Stückbestand und keine individuelle Nummerierung.
 Rollen, persönliche Overrides und Projekt-Ausgabenregeln haben getrennte Modelle;
 die späteren Fachoberflächen bauen darauf auf. Generierte Mappen werden in diesem

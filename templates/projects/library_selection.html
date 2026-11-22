@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load static i18n %}
+{% block content %}<a href="{% url 'project_piece_list' project.pk %}">{% translate "Gemeinsame Stückliste" %}</a><h1>{% translate "Stück aus Bibliothek wählen" %}</h1>
+<form method="get" id="library-search" class="filters">{{ form.as_p }}<input type="hidden" name="position" value="{{ position }}"><input type="hidden" name="at" value="{{ at }}"><button>{% translate "Suchen" %}</button></form>
+<div id="library-results" data-query="{{ form.q.value|default:'' }}" aria-live="polite"><ul>{% for arrangement in page %}<li>{{ arrangement }}
+<form method="post" action="{% url 'project_piece_change' project.pk %}">{% csrf_token %}<input type="hidden" name="expected_revision" value="{{ project.revision }}"><input type="hidden" name="arrangement" value="{{ arrangement.pk }}">{% if position %}<input type="hidden" name="action" value="replace"><input type="hidden" name="position" value="{{ position }}"><label><input type="checkbox" name="acknowledge">{% translate "Kontrollierten Austausch bestätigen; Zuordnungen erneut prüfen" %}</label><button>{% translate "An dieser Position übernehmen" %}</button>{% else %}<input type="hidden" name="action" value="insert"><input type="hidden" name="at" value="{{ at }}"><button>{% translate "Arrangement hinzufügen" %}</button>{% endif %}</form>
+</li>{% empty %}<li>{% translate "Keine passenden Arrangements." %}</li>{% endfor %}</ul>
+{% if page.has_previous %}<a href="?{{ filters }}&amp;page={{ page.previous_page_number }}">{% translate "Vorherige Seite" %}</a>{% endif %}{% if page.has_next %}<a href="?{{ filters }}&amp;page={{ page.next_page_number }}">{% translate "Nächste Seite" %}</a>{% endif %}
+</div><p id="library-search-status" role="status" data-invalid="{% translate 'Ungültige Auswahl. Bitte neu laden.' %}"></p>{% endblock %}
+{% block scripts %}<script src="{% static 'archive/library.js' %}" defer></script>{% endblock %}

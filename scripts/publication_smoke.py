@@ -240,12 +240,17 @@ import django
 django.setup()
 from django.contrib.auth import get_user_model
 from apps.projects import models as m,services as s
+from apps.projects import list_services as pieces
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
 values=dict(name='Synthetic project',layout='REGULAR',width_mm=170,height_mm=120,cover_enabled=True,cover_title='')
 project=s.save_project(values,actor=actor)
 slot=m.ProjectPosition.objects.create(project=project,order=1)
-clone=s.duplicate_project(project.pk,name=project.name,actor=actor,expected_revision=1)
-assert clone.positions.get().pk!=slot.pk and clone.positions.get().arrangement_id is None
+inserted=pieces.insert(project.pk,actor=actor,expected_revision=1)
+pieces.move(project.pk,inserted.pk,1,actor=actor,expected_revision=2)
+project.refresh_from_db()
+clone=s.duplicate_project(project.pk,name=project.name,actor=actor,expected_revision=3)
+assert project.revision==3
+assert clone.positions.count()==2 and clone.positions.first().pk!=inserted.pk
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """
