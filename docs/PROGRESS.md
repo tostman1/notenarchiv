@@ -39,6 +39,7 @@ reflect actual completed work only.
 | WP-34 | Explicit ensemble roles and playable mapping editor | Merged, software verified | PR #35, merge `b174773` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers; final PR CI `45058429483` and main CI `45059301957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
 | WP-32 | Central assignment and edition resolver | Merged, software verified | PR #37, merge `7b6e6fb` | 685 Linux tests, sixteen browsers; final PR CI `45069483361` and main CI `45070646957` passed | Private NAS acceptance separate | Complete software scope |
+| WP-33a | Read-only matrix and effective provenance | Software verified; integration pending | PR #38, source `800dd5a` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; full CI `45073173161` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then WP-33b |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -113,8 +114,13 @@ reflect actual completed work only.
   eleven matrix tests and all seventeen browsers passed; final hash-label update
   also passed matrix browser. Initial full regression had 612 passes/81 platform
   skips/one missing test import, corrected with assertions unchanged. Full corrected
-  rerun underway; Ruff/format/lock/system/migration/diff checks passed. Complete
-  implementation diff reviewed; final acceptance/CI gates pending before WP-33b.
+  corrected rerun passed: 615 tests/81 platform skips. Ruff/format/lock/system/
+  migration/diff checks passed. Full CI `45073173161` on `800dd5a` passed:
+  696 Linux tests, seventeen browsers, hardened amd64 image/Compose, actual matrix
+  adapter over restored confirmed inputs, archive/download/backup/restore, both
+  installation flows and vulnerability/secret checks. Full diff/commits reviewed;
+  no submitted reviews or unresolved threads. Final docs-head/main CI gates remain
+  before WP-33b. No NAS/private data, deployment/release or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
