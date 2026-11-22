@@ -154,6 +154,18 @@ def test_sqlite_barrier_blocks_concurrent_writer_during_file_capture(backup_inst
 
 
 @posix
+def test_retained_historical_copy_must_match_publication_receipt(backup_install, tmp_path):
+    install, env, *_other = backup_install
+    with closing(sqlite3.connect(env.database_path)) as db:
+        old_path = db.execute(
+            "SELECT target_path FROM archive_fileoperation WHERE kind='COPY' AND state='APPLIED'"
+        ).fetchone()[0]
+    (install.root / "clean" / old_path).write_bytes(b"corrupt retained history")
+    with pytest.raises(b.BackupError, match="ARCHIVE_INTEGRITY"):
+        capture(backup_install, tmp_path / "backup")
+
+
+@posix
 @pytest.mark.parametrize("status", ["RUNNING", "PENDING", "REVIEW_REQUIRED"])
 def test_unsettled_operations_require_recovery(backup_install, tmp_path, status):
     _install, env, *_other = backup_install

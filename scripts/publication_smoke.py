@@ -142,6 +142,31 @@ def smoke(image, root):
     assert (output / "restored" / "clean" / approved["path"]).read_bytes() == data
     assert (output / "restored" / "secrets" / "django.key").read_bytes() == paths["secret"].read_bytes()
     assert not (output / "restored" / "raw").exists()
+    restored_paths = {
+        name: output / "restored" / name
+        if name not in {"raw", "secret"}
+        else independent
+        if name == "raw"
+        else output / "restored" / "secrets" / "django.key"
+        for name in paths
+    }
+    # Reopen the restored actual ORM state and preview bytes in the image with
+    # explicitly isolated mounts; never start captured production configuration.
+    checked = docker(
+        "run",
+        "--rm",
+        *arguments(restored_paths, "none"),
+        "-e",
+        "DATABASE_PATH=/data/database.sqlite3",
+        "--entrypoint",
+        "python",
+        image,
+        "-c",
+        scenario,
+        "check-approved",
+        json.dumps(identities),
+    )
+    assert "SCENARIO_RESULT=" in checked.stdout
     assert before == {
         path.name: (hashlib.sha256(path.read_bytes()).hexdigest(), path.stat().st_mtime_ns)
         for path in paths["raw"].iterdir()

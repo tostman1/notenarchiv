@@ -210,7 +210,9 @@ def database_check(database, bundle, budget):
     database_state_check(database, budget)
     for root, path, sha256, size in database.execute(
         "SELECT root_kind, relative_path, sha256, byte_size FROM archive_archivefile "
-        "WHERE publication_state='AVAILABLE' OR review_state IN ('CONFIRMED','WITHDRAWN')"
+        "WHERE publication_state='AVAILABLE' OR review_state IN ('CONFIRMED','WITHDRAWN') "
+        "UNION SELECT target_root, target_path, expected_sha256, expected_size "
+        "FROM archive_fileoperation WHERE state='APPLIED'"
     ):
         if root not in {"CLEAN", "PROCESSED"}:
             raise BackupError("INVALID_ARCHIVE_ROOT")
