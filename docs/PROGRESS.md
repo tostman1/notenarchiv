@@ -33,6 +33,7 @@ reflect actual completed work only.
 | WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
+| WP-29 | Durable project graph, revisions, CRUD and duplication | Software verified; integration pending | PR #30, source `8aad238` | 601 Linux tests, twelve browsers; full CI `45034660243` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -96,7 +97,12 @@ reflect actual completed work only.
   Windows platform skips before final pagination/clone refinements (targeted rerun
   passed); twelve browsers passed. Ruff/format/lock/system/migration checks passed
   after correcting synthetic script line length and line endings. Full diff
-  reviewed; separate PR/Linux/container/security/merge/main gates still pending.
+  reviewed. Source `8aad238` passed full CI `45034660243`: 601 Linux tests,
+  twelve browsers, system/migration drift, locked runtime audit, hardened amd64
+  image/Compose, actual project CRUD/clone on restored isolated DB, archive and
+  download/backup/restore flow, both install variants and vulnerability/secret
+  scan. No submitted reviews or unresolved threads. Final documentation-head CI,
+  merge and post-merge main CI remain mandatory before WP-30. No NAS/release/deploy.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

@@ -102,7 +102,7 @@ scoped work packages; this register does not claim those gates were exercised.
   complete image/Compose/unchanged downloads/restore/installation/security checks.
   Private NAS/hardware acceptance remains separate; no real installation data used.
 
-## WP-29 (verification in progress)
+## WP-29 (software verified; integration pending)
 
 - PR-01/05/07: `tests/test_projects.py` validates durable settings/revisions,
   same-title identities, full graph duplication/remapped FKs/guests/reserves,
@@ -115,3 +115,6 @@ scoped work packages; this register does not claim those gates were exercised.
 - `browser/test_projects.py`: real German CRUD/duplicate/archive and stale
   concurrent editor. Updated shell navigation assertions retain unavailable
   scan/settings checks. Actual hardened image project CRUD/clone smoke added.
+- Full CI `45034660243` on `8aad238` passed: 601 Linux tests, twelve browsers,
+  image/Compose/actual project graph on isolated restored SQLite/security checks.
+  No private NAS data or hardware acceptance is implied by software verification.
