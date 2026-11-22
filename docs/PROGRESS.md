@@ -32,6 +32,7 @@ reflect actual completed work only.
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
 | WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
+| WP-23b | Direct unchanged PDF and bounded ZIP download | Software verified; integration pending | PR #29, source `bcc2e5b` | 590 Linux tests, eleven browsers; full CI `45030782487` passed | Private NAS acceptance separate | Final docs-head CI, merge and main CI |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -79,7 +80,13 @@ reflect actual completed work only.
   timeout/scratch/failure coverage; final focused downloads 16 passed/two POSIX
   skips. Eleven browsers passed; final download safety refinements additionally
   passed its browser. Ruff/format/lock/system/migration/diff checks passed. Full
-  implementation diff reviewed; final Linux/container/security/PR/main gates pending.
+  implementation diff reviewed. Source `bcc2e5b` passed full CI `45030782487`:
+  590 Linux tests, eleven browsers, system/migration drift, runtime audit, hardened
+  amd64 image/Compose, actual unchanged PDF/ZIP staging, archive/preference and
+  isolated restore/reopen, both installation flows and vulnerability/secret scan.
+  No submitted reviews or unresolved threads at this checkpoint. Final documentation
+  head CI and merge/post-merge main verification remain before WP-29. No private
+  NAS data/destination, release, deployment or branch deletion.
 
 ## WP-01 — Repository, development tooling and minimal CI
 
