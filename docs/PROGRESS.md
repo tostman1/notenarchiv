@@ -958,3 +958,21 @@ remain unexecuted without their distinct approval. Preserve published preview as
   failures. Ruff (172 files), system/migration/lock and diff checks passed.
   Import-format follow-up fixed without weakening assertions; no unresolved review
   threads. Final documentation CI and exact-head merge/main verification remain.
+
+## WP-21 — Library search and completeness
+
+- WP-20b PR #24 final head `c6d5c313039ab2783cbc41d150b1ed8e43cf25d4` passed
+  final CI 44964388557, merged at `05a48983cdaac08e06ec46e682b1760ae31ee8b3`.
+  Merged tree equals reviewed head; main CI 44964905107 passed. Clean primary
+  worktree started `feature/wp-21-library-completeness` at this verified main.
+- German authenticated local-only live title/alias substring search, NFKC/casefold,
+  controlled arrangement/instrument/part/review/completeness filters and bounded
+  lists. Independent expected-part/material overview, unknown/optional/required,
+  confirmed/unreviewed/missing states; no automatic candidate approval or edition
+  preference. Actual confirmed edition bytes hash-checked before preview linking.
+- Existing expected-part/template CRUD and independent template application reused.
+  Current manual proposal supersedes earlier recognition suggestions; confirmed
+  history remains usable independent of new pending corrections.
+- Synthetic unit/browser acceptance, Ruff/system/migration/full regression and
+  GitHub/container CI gates in progress. No WP-23a/export/OCR/project expansion,
+  real archive ingestion, NAS access, release or deployment performed.

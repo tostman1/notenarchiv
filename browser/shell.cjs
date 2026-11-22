@@ -36,11 +36,11 @@ async function smoke(origin) {
         await page.reload();
         const nav = page.getByRole("navigation", { name: "Hauptnavigation" });
         assert.deepEqual(await nav.getByRole("link").allTextContents(), [
-            "Übersicht", "Werke und Arrangements", "Instrumente und Stimmen", "Mitglieder",
+            "Übersicht", "Notenbibliothek", "Werke und Arrangements", "Instrumente und Stimmen", "Mitglieder",
             "Indizierung", "Prüfwarteschlange", "Aufträge",
         ]);
         assert.deepEqual(await nav.locator('[aria-disabled="true"]').allTextContents(), [
-            "Notenbibliothek", "Projekte", "Scanaufbereitung",
+            "Projekte", "Scanaufbereitung",
             "Einstellungen",
         ]);
         assert.equal(await nav.locator("li :is(a, button, [tabindex])").count(), 0);
