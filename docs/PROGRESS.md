@@ -51,9 +51,17 @@ reflect actual completed work only.
   exact-variant mapping component and append-only change evidence. Fifteen targeted
   model/persistence tests and all fifteen browsers passed. First full local Windows
   regression: 556 passed/81 POSIX skips/two pre-existing queue timing failures;
-  both exact failing cases passed independently. Isolated full rerun underway;
-  Ruff/format/lock/system/migration checks passed. No queue safeguards/tests changed.
-  Complete implementation diff reviewed; Linux/container/final PR/main CI pending.
+  independent cases passed but the isolated full rerun still failed an immediate
+  claim (561 passed/81 skips/one failure). Synthetic clock probe found Python
+  microseconds ahead of SQLite's millisecond statement clock. Immediate enqueue
+  now uses that same DB timebase as claim; 43 queue/lifecycle tests passed,
+  including forced future Python-default regression. No lease/fencing/retry
+  conditions or assertions weakened. Full regression is repeated after the cause fix.
+- Initial PR #35 CI `45055233428` passed all Linux unit tests and the new ensemble
+  browser, but failed an existing piece-list browser's immediate reload after POST.
+  The correction waits for the actual redirected response, incremented revision
+  and load before reload; both piece/ensemble browsers passed. Final head/full
+  Linux/container/security/main CI remain gates before WP-35; no green claim yet.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 

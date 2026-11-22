@@ -166,3 +166,7 @@ scoped work packages; this register does not claim those gates were exercised.
   variant rejection and explicit reset with persisted independent defaults.
 - `scripts/publication_smoke.py`: actual non-root/no-network/read-only RAW container
   role/participant/mapping acceptance added; final CI/NAS acceptance not yet claimed.
+- Queue regression prerequisite: immediate enqueue uses the SQLite statement clock
+  already used by claims; `test_immediate_enqueue_uses_database_clock_not_future_python_microseconds`
+  proves future Python-default skew cannot delay immediate claims. Existing lease/
+  cancellation/print-retry assertions retained; local 43 queue/lifecycle tests passed.

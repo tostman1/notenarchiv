@@ -67,6 +67,20 @@ def test_enqueue_validate_claim_and_fenced_progress(queue_db):
         queue.claim_next(lease)
 
 
+def test_immediate_enqueue_uses_database_clock_not_future_python_microseconds(queue_db, monkeypatch):
+    # Simulate skew/precision differences only in the model's Python default.
+    # Claim lease/expiry conditions still use the real SQLite statement clock.
+    field = Job._meta.get_field("available_at")
+    monkeypatch.setattr(field, "get_default", lambda: timezone.now() + timedelta(seconds=1))
+    lease = queue.acquire_worker()
+    for _number in range(20):
+        job = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
+        assert job.available_at <= timezone.now()
+        attempt = queue.claim_next(lease)
+        assert attempt is not None and attempt.job_id == job.pk
+        queue.finish(attempt)
+
+
 @pytest.mark.parametrize(
     "kind,payload,version",
     [
