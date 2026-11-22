@@ -35,7 +35,7 @@ reflect actual completed work only.
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
 | WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
-| WP-31 | Participants, guests and saved project defaults | Software verified; integration pending | PR #32, source `da915e6` | 630 Linux tests, fourteen browsers; full CI `45043669400` passed | Private NAS acceptance separate | Final docs-head CI, merge/main and final sequence record |
+| WP-31 | Participants, guests and saved project defaults | Merged; final main verification pending browser correction | PR #32, merge `6d4cd99` | 630 Linux tests, fourteen browsers; final PR CI `45045456240` passed; main CI `45046268589` failed participant browser navigation | Private NAS acceptance separate | Reviewed correction PR and green post-merge main |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -136,8 +136,42 @@ reflect actual completed work only.
    amd64 image/Compose, saved participant/guest container operations, shared lists,
    archive/download/backup/isolated restore, both first-install flows and image
    vulnerability/secret scans. No submitted reviews or unresolved threads. Final
-   docs-head CI, merge/main and consolidated sequence record remain before final
-   completion. No NAS/private data/release/deployment/branch deletion.
+    PR head `9b98b695db8d831abdbb00c091f3eab7565a98f4` passed full CI
+    `45045456240`, merged via PR #32 as `6d4cd99f801174b8b5e5599878180a367e29b79a`.
+    Exact merged tree matched. Main CI `45046268589` passed 630 Linux tests but
+    failed the participant browser's immediate reload during a guest POST redirect.
+    No complete main CI is claimed. Separate `fix/wp31-browser-checkpoint` changes
+    only browser navigation synchronization and this final sequence record. Full
+    correction PR/head/main CI remain gates; no next WP starts. No NAS/private
+    data/release/deployment/branch deletion.
+
+### Consolidated sequence checkpoint
+
+All six requested implementations are merged through separate PRs #27–#32.
+WP-47a, WP-23a, WP-23b, WP-29 and WP-30 each have successful final PR and
+post-merge main CI recorded above. WP-31's final PR passed; the final main browser
+correction must pass before the entire sequence is called fully verified.
+
+Delivered software: complete consistent backup/isolated restore; protected exact
+archive preferences; unchanged direct PDF/bounded ZIP; durable project graph and
+revision/clone isolation; one shared numbered list with explicit reserves; selected
+members/project guests and saved defaults with explicit master refresh. Original
+PDF bytes, historical references, explicit selections, local-only data handling,
+auth/CSRF/Django DEBUG=False and RAW read-only protections remain.
+
+Private NAS backup destination/retention/ACL/filesystem/recovery acceptance remains
+unperformed. No real association files/members were used. Published preview image,
+tag and installation assets are unchanged; new source is not deployed or released.
+Main branch protection is unavailable (API 404); reviewed green-PR gating is manual.
+Earlier local Windows skips/queue timing and corrected browser/fixture setup issues
+are documented separately from actual Linux and container acceptance.
+
+Recommended next dependency-ready sequence (not started or authorized here):
+WP-34 role/playable-variant mapping → WP-35 replacement and project/position edition
+rules → WP-32 single assignment/edition resolver → WP-33a shared matrix/provenance.
+WP-34 and WP-35 prerequisites are now implemented; WP-32 requires both, and WP-33a
+requires WP-30 plus WP-32. Matrix editing/batch overrides and immutable generation
+snapshots follow afterward under a new owner-approved sequence.
 
 ## WP-01 — Repository, development tooling and minimal CI
 
