@@ -17,7 +17,9 @@ async function check(origin,project,position,person,file,assignment,defaultPart,
   await page.waitForFunction(()=>document.querySelector('#matrix-panel').dataset.revision==='2');
   assert.match(await cell().innerText(),/Persönlicher Stück-Override/);assert.match(await cell().innerText(),new RegExp(file));
   const staleCell=stale.locator(`tr[data-position="${position}"] td[data-participant="${person}"]`);
-  await staleCell.getByLabel('Spielbare Stimme und konkrete Ausgabe').selectOption(token);
+  const staleSelect=staleCell.getByLabel('Spielbare Stimme und konkrete Ausgabe');
+  const staleToken=await staleSelect.locator('option').filter({hasText:file}).getAttribute('value');
+  await staleSelect.selectOption(staleToken);
   await staleCell.getByRole('button',{name:'Persönliche Ausgabe speichern'}).click();
   await stale.getByRole('alert').filter({hasText:'Projekt oder Archiv geändert'}).waitFor();
   const header=page.locator(`thead th[data-participant="${person}"]`);
