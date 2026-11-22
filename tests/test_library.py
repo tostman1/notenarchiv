@@ -159,3 +159,40 @@ def test_duplicate_titles_and_bounded_pages_remain_separate(library_inputs):
     response = client.get(reverse("archive_library"), {"q": "abba"})
     assert len(response.context["page"]) == 25 and response.context["page"].paginator.count == 27
     assert arrangements[0].pk in set(service.search({"q": "abba"}).values_list("pk", flat=True))
+
+
+def test_inactive_part_and_catalog_are_not_usable_in_library(library_inputs):
+    client, file, _actor, arrangements, _variant, parts, _path = library_inputs
+    c.Part.objects.filter(pk=parts[0].pk).update(active=False)
+    response = client.get(reverse("archive_library_arrangement", args=[arrangements[0].pk]))
+    assert response.context["editions"].paginator.count == 0
+    assert not service.search({"review": "CONFIRMED"}).exists()
+    c.Work.objects.filter(pk=arrangements[0].work_id).update(active=False)
+    assert not service.search({"q": "abba"}).exists()
+    assert client.get(reverse("archive_library_arrangement", args=[arrangements[0].pk])).status_code == 404
+
+
+def test_active_alias_only_and_uncertain_candidate_filters(library_inputs):
+    import hashlib
+
+    from apps.archive.recognition import record_candidate
+    from tests.archive_fixtures import PAGE
+
+    _client, file, _actor, arrangements, _variant, _parts, path = library_inputs
+    c.WorkAlias.objects.filter(work=arrangements[-1].work).update(active=False)
+    assert service.search({"q": "ab"}).count() == 3
+    source = file.source_version.source_file
+    data = path.read_bytes()
+    version, _ = s.observe_version(
+        source.folder_id,
+        "Synthetic/conflict.pdf",
+        sha256=hashlib.sha256(data).hexdigest(),
+        byte_size=len(data),
+        pdf_state="VALID",
+        page_info=[PAGE],
+    )
+    pending = s.register_base(version.pk, "_Ungeprueft/conflict.pdf")
+    record_candidate(version.pk, filename="Abel Tasman Posaune 1.pdf", text_lines=["Abel Tasman", "Posaune 2"])
+    pending.refresh_from_db()
+    assert pending.candidate_state == "CONFLICT"
+    assert service.search({"review": "UNCERTAIN"}).get().pk == arrangements[1].pk
