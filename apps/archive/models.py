@@ -556,6 +556,60 @@ class ArchiveAssignment(Record):
         ]
 
 
+class PreferredEdition(Record):
+    """One durable preference scope; clearing retains identity and audit history."""
+
+    arrangement = models.ForeignKey("catalog.Arrangement", on_delete=models.PROTECT, related_name="archive_preferences")
+    part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT, related_name="archive_preferences")
+    assignment = models.ForeignKey(
+        ArchiveAssignment, on_delete=models.PROTECT, null=True, blank=True, related_name="archive_preferences"
+    )
+
+    def clean(self):
+        if not self._state.adding:
+            previous = type(self).objects.using(self._state.db or "default").get(pk=self.pk)
+            if (previous.arrangement_id, previous.part_id) != (self.arrangement_id, self.part_id):
+                raise ValidationError("Preference scope is immutable.")
+        if self.assignment_id:
+            assignment = reference(self, "assignment")
+            if assignment.part_id != self.part_id or assignment.archive_file.arrangement_id != self.arrangement_id:
+                raise ValidationError("Preferred edition must match the exact arrangement and playable part.")
+            if (
+                not ArchiveAssignment.objects.using(self._state.db or "default")
+                .usable()
+                .filter(pk=assignment.pk)
+                .exists()
+            ):
+                raise ValidationError("A preferred edition must be confirmed and available.")
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["arrangement", "part"], name="archive_one_preferred_edition")]
+
+
+class EditionPreferenceChange(Record):
+    preference = models.ForeignKey(PreferredEdition, on_delete=models.PROTECT, related_name="changes")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    previous = models.ForeignKey(
+        ArchiveAssignment, on_delete=models.PROTECT, null=True, blank=True, related_name="preference_changes_from"
+    )
+    selected = models.ForeignKey(
+        ArchiveAssignment, on_delete=models.PROTECT, null=True, blank=True, related_name="preference_changes_to"
+    )
+    arrangement_revision = models.PositiveBigIntegerField()
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Preference history is append-only.")
+        scope = reference(self, "preference")
+        for field in ("previous", "selected"):
+            assignment = reference(self, field)
+            if assignment and assignment.part_id != scope.part_id:
+                raise ValidationError("Preference history must retain the same playable part.")
+
+    class Meta:
+        ordering = ["created_at", "id"]
+
+
 class ReviewInspection(Record):
     proposal = models.ForeignKey(ArchiveProposal, on_delete=models.PROTECT, related_name="inspections")
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="archive_inspections")

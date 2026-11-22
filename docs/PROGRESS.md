@@ -30,7 +30,7 @@ reflect actual completed work only.
 | WP-08 | Extended CI and container verification | Merged, software verified | PR #8; main CI 44798414658 success | Lock/audit, 170 tests, 2 browser tests, actual build/Compose/container/restore, image/secret scan and SBOM passed | Main is not branch-protected (API 404) | Enforce manual reviewed-green-PR gate |
 | WP-10 | Versioned container release pipeline | Verified, published | `v0.1.0-preview.1`; PR #9 recovery fix | Original checks/build 44815669883; publication completion 44817372155; pulled digest, signed origin/SBOM and install assets verified (RELEASES.md) | None for preview publication; NAS deployment remains unperformed | Separately authorized synthetic WP-22 |
 | WP-47a / WP-48 / WP-49 | Backup / install / rollback | Preview slices implemented; CI restore verified | PR #8 | Install/restore/update/debug guides; actual isolated container restore passed in CI 44797427059 | Full archive/NAS/two-version acceptance remains outstanding | Retain full package gates |
-| WP-47a | Complete software-side consistent backup and isolated restore | Software verified; integration pending | PR #27, source `66926f9` | 558 Linux tests, nine browsers, complete container/restore/security CI `45009366615` passed | Private NAS destination/retention/acceptance separate | Final docs-head CI, merge and main CI |
+| WP-47a | Complete software-side consistent backup and isolated restore | Merged, software verified | PR #27, merge `4574d7b` | 558 Linux tests, nine browsers; final PR CI `45010127373` and main CI `45024467489` passed | Private NAS destination/retention/acceptance separate | Complete software scope |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -51,9 +51,19 @@ reflect actual completed work only.
 - Full diff/commits reviewed; no submitted reviews or unresolved threads at this
   source checkpoint. Earlier failures were synthetic immutable-file/lease setup
   and CLI environment access; corrected without weakening protections/assertions.
-  Final documentation-head CI, merge and post-merge main CI remain mandatory.
-  No private NAS acceptance, real data, release or deployment claimed. Later WPs
-  have not started; resume WP-23a only from verified clean merged main.
+  Final PR head `2f384575f850e95c9e7612bad83cbd9e2208c8b9` passed CI
+  `45010127373`, merged as `4574d7bdcae80aac06bc5be898776013dc72036b`;
+  main CI `45024467489` passed. Exact merged tree matched reviewed PR head.
+  No private NAS acceptance, real data, release or deployment claimed.
+- WP-23a started on `feature/wp-23a-preferred-editions` from that verified clean
+  primary main. Protected preference/change models, exact-part edition component,
+  German preference/reset/version-check UI and migration implemented. Targeted
+  acceptance: 24 edition/library/persistence tests passed; full local regression
+  491 passed/79 Windows platform skips before final two coverage additions (both
+  passed in targeted rerun). Ten browsers passed; final UI-label/library refinements
+  additionally passed two relevant browsers. Ruff, lockfile, system/migration
+  drift and diff whitespace passed. Complete implementation diff reviewed; final
+  PR/Linux/container/security and post-merge-main gates remain pending.
 
 ## WP-01 — Repository, development tooling and minimal CI
 
