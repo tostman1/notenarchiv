@@ -15,12 +15,15 @@ async function check(origin, id, template) {
         await page.getByLabel('Benutzername').fill('library-browser');
         await page.getByLabel('Passwort').fill('Synthetic-library-135');
         await page.getByRole('button', { name: 'Anmelden' }).click();
+        await page.waitForLoadState('load');
         const search = page.getByLabel('Titel oder Alias', { exact: false });
         await search.fill('ａｂ');
-        await page.waitForFunction(() => document.querySelectorAll('#library-results tbody tr').length === 4);
+        await page.waitForFunction(() => document.querySelector('#library-results').dataset.query === 'ａｂ'
+            && document.querySelectorAll('#library-results tbody tr').length === 4);
         assert.match(await page.locator('#library-results').innerText(), /Fuchsgraben Polka/);
         await search.fill('graben');
-        await page.waitForFunction(() => document.querySelectorAll('#library-results tbody tr').length === 1);
+        await page.waitForFunction(() => document.querySelector('#library-results').dataset.query === 'graben'
+            && document.querySelectorAll('#library-results tbody tr').length === 1);
         assert.match(await page.locator('#library-results').innerText(), /Fuchsgraben Polka/);
         await page.goto(`${origin}/archive/library/${id}/`);
         assert.match(await page.locator('body').innerText(), /Erwartung unbekannt/);
