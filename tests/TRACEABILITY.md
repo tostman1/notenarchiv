@@ -218,7 +218,7 @@ scoped work packages; this register does not claim those gates were exercised.
   actual hardened image matrix/restore and security checks. Corrected local full
   regression 615 passed/81 platform skips. No private NAS acceptance inferred.
 
-## WP-33b (verification in progress)
+## WP-33b (software acceptance)
 
 - AS-03/AS-08: `tests/test_matrix_edits.py` exercises exact signed actor-bound
   confirmed part/notation/version, stale/foreign/reserve/expired/corrupt/withdrawn
@@ -230,3 +230,7 @@ scoped work packages; this register does not claim those gates were exercised.
   saved default keeping manual edition and reload, unchanged reserve/common list.
 - `tests/test_htmx_asset.py`: official local asset hash/license/safe config; no CDN.
   Existing reserve test scoped to reserve rows after approved cell editors elsewhere.
+- CI `45084352726` on `2b6eec1`: 714 Linux tests, eighteen browsers and full
+  hardened image/synthetic exact edit/security checks passed. Local full regression
+  631 passed/81 skips before final coverage, covered by targeted 18-test rerun.
+  No NAS acceptance inferred. Final PR-head/main integration gates remain.

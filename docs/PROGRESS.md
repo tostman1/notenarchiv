@@ -40,6 +40,7 @@ reflect actual completed work only.
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
 | WP-32 | Central assignment and edition resolver | Merged, software verified | PR #37, merge `7b6e6fb` | 685 Linux tests, sixteen browsers; final PR CI `45069483361` and main CI `45070646957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33a | Read-only matrix and effective provenance | Merged, software verified | PR #38, merge `52114f4` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; final PR CI `45074373994` and main CI `45075310004` passed | Private NAS acceptance separate | Complete software scope |
+| WP-33b | Exact direct matrix cell and saved-default edits | Software verified; integration pending | PR #39, source `2b6eec1` | Local 631 passed/81 skips before final coverage; 714 Linux tests, eighteen browsers; full CI `45084352726` passed | Private NAS acceptance separate | Final docs-head CI and merge/main gates |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -131,7 +132,16 @@ reflect actual completed work only.
   coverage, which passed in targeted rerun (18 edit/persistence/asset tests).
   All eighteen browsers passed; final safety refinements passed both matrix browsers.
   Ruff/format/lock/system/migration/diff checks passed; full implementation diff
-  reviewed. Separate final PR/Linux/container/security/merged-main gates remain.
+  reviewed. Initial CI `45083049948` failed an existing CRUD browser reload-before-
+  redirect race; explicit POST navigation synchronization retains assertions.
+  Matrix stale-tab test now reads its own timestamped choice token, preserving the
+  old project revision. Both affected browsers passed locally. Source `2b6eec1`
+  passed full CI `45084352726`: 714 Linux tests, eighteen browsers, system/migration
+  drift, locked runtime audit, hardened amd64 image/Compose, actual exact matrix
+  edit on confirmed synthetic inputs, archive/download/backup/isolated restore,
+  both install flows and vulnerability/secret checks. Full diff/commits reviewed;
+  no submitted reviews or unresolved threads. Final docs-head/merged-main gates
+  remain before WP-33c. No NAS/private data, deployment/release or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
