@@ -34,7 +34,7 @@ reflect actual completed work only.
 | WP-23a | Preferred compatible archive editions | Merged, software verified | PR #28, merge `7025dfd` | 572 Linux tests, ten browsers; final PR CI `45028058218` and main CI `45028727303` passed | Private NAS acceptance separate | Complete software scope |
 | WP-23b | Direct unchanged PDF and bounded ZIP download | Merged, software verified | PR #29, merge `7fdb40b` | 590 Linux tests, eleven browsers; final PR CI `45031690831` and main CI `45032500732` passed | Private NAS acceptance separate | Complete software scope |
 | WP-29 | Durable project graph, revisions, CRUD and duplication | Merged, software verified | PR #30, merge `6927dff` | 601 Linux tests, twelve browsers; final PR CI `45035653508` and main CI `45036526836` passed | Private NAS acceptance separate | Complete software scope |
-| WP-30 | Shared list, reserve slots and automatic numbering | Software verified; integration pending | PR #31, source `5e6299d` | 616 Linux tests, thirteen browsers; full CI `45039372553` passed | Private NAS acceptance separate | Final docs-head CI, merge/main verification |
+| WP-30 | Shared list, reserve slots and automatic numbering | Merged, software verified | PR #31, merge `25d4b04` | 616 Linux tests, thirteen browsers; final PR CI `45040247536` and main CI `45041169340` passed | Private NAS acceptance separate | Complete software scope |
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
@@ -120,8 +120,18 @@ reflect actual completed work only.
    both install flows and image vulnerability/secret scans. Full commits/diff
    reviewed; no submitted reviews or unresolved threads. Initial browser search
    timeout fixed by synchronizing actual enhancement readiness, not weakening the
-   live search assertion. Final docs-head CI and merged-main gate remain before
-   WP-31; no NAS/private data/release/deployment/branch deletion.
+    live search assertion. Final head `43a2069` passed CI `45040247536`, merged
+    as `25d4b042453d7539a27a2366447285824f5b2e71`; main CI `45041169340` passed.
+    Exact merged tree matched; no NAS/private data/release/deployment/branch deletion.
+- WP-31 in progress on `feature/wp-31-participants-defaults` from that verified
+  clean primary main. Bounded subset/all/none, project guests, saved defaults,
+  explicit master revision/name refresh, manual defaults and retained history.
+  Local full regression: 544 passed/81 Windows platform skips before final scope/
+  pagination coverage, which passed in targeted rerun (14 participant/persistence
+  tests). Fourteen browsers passed; final origin/prefetch labels additionally passed
+  participant browser. Ruff/format/lock/system/migration/diff checks passed; complete
+  source diff reviewed. Separate PR/Linux/container/security and main integration
+  remain mandatory before claiming completion of the six-WP sequence.
 
 ## WP-01 — Repository, development tooling and minimal CI
 

@@ -133,3 +133,17 @@ scoped work packages; this register does not claim those gates were exercised.
 - Full CI `45039372553` on `5e6299d` passed: 616 Linux tests, thirteen browsers,
   actual container shared list/backup/restore and vulnerability/secret checks.
   Browser input waits for actual live-search enhancement readiness. No NAS claim.
+
+## WP-31 (verification in progress)
+
+- CAT-02/PR-04/AS-01: `tests/test_participants.py` validates bounded subset/all/none,
+  name/instrument filters, actor/project/revision-bound page selection, guests without
+  permanent members, saved defaults unaffected by master edits, explicit revision/name
+  refresh and manual defaults, personal overrides/roles/shared list untouched, retained
+  deselection/clone identity, invalid/stale/inactive/archived rejection and batch rollback.
+- `tests/test_participant_persistence.py`: independently migrated SQLite concurrent
+  refresh (one success/one conflict), separate interpreter reopen of saved default,
+  member revision and unchanged per-position override, actual DB integrity.
+- `browser/test_participants.py`: actual subset/guest selection then private synthetic
+  master change between browser phases; no default change before explicit refresh.
+  Hardened image smoke includes saved member default and project-local guest.

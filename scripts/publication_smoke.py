@@ -241,6 +241,9 @@ django.setup()
 from django.contrib.auth import get_user_model
 from apps.projects import models as m,services as s
 from apps.projects import list_services as pieces
+from apps.projects import participant_services as people
+from apps.members.models import Member
+from apps.catalog.models import Part
 actor=get_user_model().objects.get(username='synthetic-publication-reviewer')
 values=dict(name='Synthetic project',layout='REGULAR',width_mm=170,height_mm=120,cover_enabled=True,cover_title='')
 project=s.save_project(values,actor=actor)
@@ -251,6 +254,13 @@ project.refresh_from_db()
 clone=s.duplicate_project(project.pk,name=project.name,actor=actor,expected_revision=3)
 assert project.revision==3
 assert clone.positions.count()==2 and clone.positions.first().pk!=inserted.pk
+part=Part.objects.filter(active=True).first()
+member=Member.objects.create(name='Synthetic container member',regular_part=part)
+people.member_subset(project.pk,[member.pk],scope_ids=[member.pk],actor=actor,expected_revision=3)
+participant=project.participants.get()
+assert participant.default_part_id==part.pk and participant.member_revision==member.revision
+people.add_guest(project.pk,name='Synthetic container guest',part_id=part.pk,actor=actor,expected_revision=4)
+assert project.participants.count()==2 and Member.objects.count()==1
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

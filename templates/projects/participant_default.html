@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% translate "Gespeicherte Projektstimme ändern" %}</h1><p>{{ participant.display_name }}</p>
+<p>{% translate "Diese Änderung betrifft nur den gespeicherten Projektdefault. Persönliche Stück-Overrides und Mitgliedsstammdaten bleiben unverändert." %}</p>
+<form method="post" class="record-form">{% csrf_token %}{{ form.as_p }}<button>{% translate "Projektdefault speichern" %}</button></form><a href="{% url 'project_participants' project.pk %}">{% translate "Zurück zu Teilnehmenden" %}</a>{% endblock %}
