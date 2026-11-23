@@ -9,6 +9,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import connections
 
 from apps.exports.models import ExportArtifact, ExportCompletion, ExportPublication, ExportStage
 from apps.exports.snapshot_services import load_pinned_inputs, validate_job_payload
@@ -60,12 +61,12 @@ def output_path(snapshot, person):
     return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Personen/{name}/Lese-PDF.pdf"
 
 
-def _roots(stack):
+def _roots(stack, using="default"):
     paths = [
         Path(getattr(settings, name)).absolute()
         for name in ("SOURCE_DIR", "CURATED_DIR", "PROCESSED_DIR", "EXPORT_DIR")
     ]
-    paths.append(Path(settings.DIAGNOSTIC_LOG_DIR).parent.absolute())
+    paths.append(Path(connections[using].settings_dict["NAME"]).absolute().parent)
     if any(a.is_relative_to(b) or b.is_relative_to(a) for i, a in enumerate(paths) for b in paths[:i]):
         raise files.FileError("OVERLAPPING_ROOTS")
     roots = [stack.enter_context(files.Root(p, writable=i >= 3)) for i, p in enumerate(paths)]
@@ -257,7 +258,7 @@ def run(context):
         context.checkpoint()
 
     with ExitStack() as stack:
-        root, data_root = _roots(stack)
+        root, data_root = _roots(stack, context.using)
         processor = _processor(data_root, guard)
         prune(data_root, ".staging/generation")
         total = 0
@@ -318,7 +319,7 @@ def acknowledge(context, intent):
 def reconcile(context, intent):
     publication, stage = _publication(context, intent)
     with ExitStack() as stack:
-        root, data_root = _roots(stack)
+        root, data_root = _roots(stack, context.using)
         if not root.exists(publication.relative_path):
             return "ABANDONED", {}
         files.verify_published(
@@ -339,7 +340,7 @@ def recover_cleanup(context):
     from apps.jobs.models import OperationIntent
 
     with ExitStack() as stack:
-        root, data_root = _roots(stack)
+        root, data_root = _roots(stack, context.using)
         _processor(data_root, context.checkpoint)
         prune(data_root, ".staging/generation")
         for publication in ExportPublication.objects.filter(run__job_id=context.job_id):

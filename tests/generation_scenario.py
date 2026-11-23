@@ -44,6 +44,19 @@ def interrupt(mode):
     from apps.jobs.services import lifecycle, queue, worker
     from config.env import env
 
+    handler = queue.HANDLERS["GENERATE"]
+
+    def diagnostic(ctx):
+        try:
+            return handler.run(ctx)
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+            raise
+
+    queue.HANDLERS["GENERATE"] = replace(handler, run=diagnostic)
+
     original_checkpoint = worker.JobContext.checkpoint
     if mode == "crash-before-composition":
 

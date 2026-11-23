@@ -66,6 +66,11 @@ reflect actual completed work only.
   Unchanged isolated editions browser passed in 19.25 s; no assertions/timeouts
   weakened. Preflight/authorization browsers also passed targeted verification.
   Linux final-head CI must verify all browser and physical publication cases.
+- First PR #46 CI `45229173541`: real hardened container generation/security passed;
+  Linux Foundation failed 20 tests (812 passed). Isolated-root acceptance found
+  generation scratch derived from local log root instead of canonical DB DATA,
+  failing closed on overlapping roots. Corrected to DB parent; a synthetic parent-
+  death test script also needed escaped newlines. No root checks/assertions weakened.
 
 ## Owner-approved developer workflow maintenance — 2026-11-23
 
