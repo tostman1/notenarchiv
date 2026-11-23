@@ -93,8 +93,10 @@ def compose(readers, request, limits, output):
                 f"{position['number']}. {position['title']}" + (" — Reserve" if position["state"] == "RESERVE" else "")
                 for position in request["positions"]
             ]
-            page_document("Inhaltsverzeichnis", entries)
-        for position in request["positions"]:
+            page_document(
+                "Inhaltsverzeichnis", entries if request.get("music", True) else [request["project"], *entries]
+            )
+        for position in request["positions"] if request.get("music", True) else []:
             if position["state"] == "MUSIC":
                 selected.append(readers[position["input"]])
             elif position["state"] == "MISSING":

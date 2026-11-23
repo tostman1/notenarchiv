@@ -34,6 +34,7 @@ class ImmutableRecord(models.Model):
 
 
 class GenerationSnapshot(ImmutableRecord):
+    source_snapshot = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
     request_id = models.UUIDField(unique=True, default=uuid.uuid4)
     project = models.ForeignKey("projects.Project", on_delete=models.PROTECT)
     project_revision = models.PositiveBigIntegerField()
@@ -60,6 +61,27 @@ class GenerationSnapshot(ImmutableRecord):
         }
         if set(self.acknowledgements) != missing or len(self.acknowledgements) != len(missing):
             raise ValidationError("Snapshot missing decisions must match every requested missing cell.")
+        if self.kind == "CONTENTS" and (self.payload.get("participants") or self.payload.get("cells")):
+            raise ValidationError("Contents snapshots cannot contain personal musical inputs.")
+        if self.source_snapshot_id:
+            if self.kind != "EXCERPT" or self.source_snapshot.project_id != self.project_id:
+                raise ValidationError("Historical excerpt provenance must refer to the same project.")
+            if self.payload.get("historical_source") != {
+                "id": str(self.source_snapshot_id),
+                "sha256": self.source_snapshot.sha256,
+            }:
+                raise ValidationError("Historical excerpt provenance fingerprint mismatch.")
+            source = self.source_snapshot.payload
+            for key, identity in (("positions", "id"), ("participants", "id")):
+                selected_ids = {p[identity] for p in self.payload[key]}
+                if self.payload[key] != [p for p in source[key] if p[identity] in selected_ids]:
+                    raise ValidationError("Historical selection differs from its immutable source.")
+            people = {p["id"] for p in self.payload["participants"]}
+            positions = {p["id"] for p in self.payload["positions"]}
+            if self.payload["cells"] != [
+                c for c in source["cells"] if c["participant_id"] in people and c["position_id"] in positions
+            ]:
+                raise ValidationError("Historical exact cell selection differs from its immutable source.")
 
 
 class GenerationRun(ImmutableRecord):
@@ -142,7 +164,7 @@ class SnapshotInput(ImmutableRecord):
 
 class ExportArtifact(ImmutableRecord):
     run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="artifacts")
-    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT, null=True, blank=True)
     relative_path = models.CharField(max_length=512, unique=True)
     sha256 = models.CharField(max_length=64)
     byte_size = models.PositiveBigIntegerField()
@@ -150,7 +172,12 @@ class ExportArtifact(ImmutableRecord):
     intent = models.OneToOneField("jobs.OperationIntent", on_delete=models.PROTECT)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_artifact")]
+        constraints = [
+            models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_artifact"),
+            models.UniqueConstraint(
+                fields=["run"], condition=models.Q(participant__isnull=True), name="exports_unique_contents_artifact"
+            ),
+        ]
 
     def clean(self):
         try:
@@ -161,7 +188,7 @@ class ExportArtifact(ImmutableRecord):
         if (
             self.intent.state != "APPLIED"
             or self.intent.job_id != self.run.job_id
-            or self.intent.key != "artifact:" + self.participant_id.hex
+            or self.intent.key != "artifact:" + (self.participant_id.hex if self.participant_id else "contents")
             or publication.run_id != self.run_id
             or publication.participant_id != self.participant_id
             or publication.relative_path != self.relative_path
@@ -173,16 +200,24 @@ class ExportArtifact(ImmutableRecord):
 
 class ExportPublication(ImmutableRecord):
     run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="publications")
-    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT, null=True, blank=True)
     relative_path = models.CharField(max_length=512, unique=True)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_publication")]
+        constraints = [
+            models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_publication"),
+            models.UniqueConstraint(
+                fields=["run"], condition=models.Q(participant__isnull=True), name="exports_unique_contents_publication"
+            ),
+        ]
 
     def clean(self):
         from core.paths import relative_path
 
-        if not self.run.snapshot.participants.filter(participant_id=self.participant_id).exists():
+        if (self.run.snapshot.kind == "CONTENTS") != (self.participant_id is None) or (
+            self.participant_id
+            and not self.run.snapshot.participants.filter(participant_id=self.participant_id).exists()
+        ):
             raise ValidationError("Publication participant is not authorized by this snapshot.")
         if relative_path(self.relative_path) != self.relative_path or self.relative_path.startswith(".staging/"):
             raise ValidationError("Invalid publication path.")
@@ -208,7 +243,11 @@ class ExportStage(ImmutableRecord):
             self.manifest.get("snapshot_id"),
             self.manifest.get("snapshot_sha256"),
             self.manifest.get("participant_id"),
-        ) != (str(snapshot.pk), snapshot.sha256, str(self.publication.participant_id)):
+        ) != (
+            str(snapshot.pk),
+            snapshot.sha256,
+            str(self.publication.participant_id) if self.publication.participant_id else None,
+        ):
             raise ValidationError("Stage manifest does not identify its exact snapshot and participant.")
 
     @property

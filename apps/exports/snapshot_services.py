@@ -58,6 +58,8 @@ def authorize(project_id, *, participant_ids, position_ids, token, acknowledgeme
             raise ValidationError(
                 _("Vollständige Mappen benötigen alle gemeinsamen Positionen einschließlich Reserven.")
             )
+        if kind == "EXCERPT" and not any(c["status"] != "RESERVE" for c in report.payload["cells"]):
+            raise ValidationError(_("Reserven enthalten keine Noten für einen Auszug."))
         snapshot = GenerationSnapshot.objects.create(
             request_id=request_id,
             project_id=project_id,

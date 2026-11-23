@@ -3,6 +3,7 @@
 {% block head %}<meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"selfRequestsOnly":true,"historyCacheSize":0,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"400|409","swap":true,"error":false},{"code":"[45]..","swap":false,"error":true}]}'>{% endblock %}
 {% block content %}<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a>
 <h1>{% translate "Zuordnungsmatrix" %}</h1>
+<p><a href="{% url 'project_excerpt' project.pk %}">{% translate "Projektauszug / Einzelstimme nachdrucken" %}</a></p>
 <p>{% translate "Alle Teilnehmenden verwenden dieselbe Stückliste und Nummerierung. Diese Ansicht zeigt die zentrale Zuordnung, ersetzt aber keinen Preflight und keine ausdrückliche Bestätigung fehlender Noten." %}</p>
 {% if matrix_error %}<p role="alert">{{ matrix_error }}</p>{% else %}{% include 'projects/matrix_panel.html' %}{% endif %}
 {% endblock %}

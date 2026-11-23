@@ -45,6 +45,32 @@ reflect actual completed work only.
 
 ## Owner-approved personal PDF continuation — 2026-11-23
 
+- WP-37b integrated via PR #46, final head `08b3c9de6ef9cb8bae41a43b552645892acffdba`:
+  CI `45231098671` passed 832 Linux tests/23 browsers and all container/security checks.
+  Merge `20d38494aaa65073b51a63a6ac1b39842e53de1e` passed main CI `45245754960`.
+  Reviewed merged tree matched; clean primary main synchronized before WP-37c.
+- WP-37c in progress on `feature/wp-37c-excerpts-contents`: current resolver-bound
+  excerpts/single-part replacement, participant-free full contents authorization,
+  immutable historical excerpt source/pin selection, shared publication/downloads
+  and German project/matrix/history navigation implemented. Initial affected suite:
+  42 passed. Added real Linux crash/restart/output-history tests and browser/container
+  acceptance for all kinds. Full regression, final review and integration gates pending.
+- WP-37c final affected snapshot/composition/selection/reopen suite passed: 42 tests;
+  contents-only exact receipt/download and independent SQLite reopen exercised.
+  Historical selection narrowed verification to requested eligible exact pins,
+  avoiding unrelated corrupted historical files; both focused guards/selection
+  tests passed. Browser regression passed 22 tests/two Windows physical skips
+  in 336.67 s. Linux real publication/browser tests remain mandatory before merge.
+- First full WP-37c run: 733 passed/110 Windows platform skips/four failures during
+  concurrent parser verification and an invalid synthetic override setup. Corrected
+  setup still tests fail-closed legacy metadata; final targeted selection/guard cases
+  passed. Serial full rerun is required, without weakening parser limits or assertions.
+- Serial full regression passed: 744 tests/110 Windows platform skips in 1080.66 s
+  before last contents/no-active-people/strict source-selection additions, which passed
+  targeted verification. All 22 local browsers passed/two physical skips. Ruff/format/
+  system/migration/lock/diff checks passed; complete diff reviewed. Real Linux final-head
+  CI/PR/main gates remain mandatory. No WP-38/39, OCR, printing, deploy or release.
+
 - Verified clean main `6bf3c87f6a2261ed952ba51239f5f93ab847662c`, merged PR #45 and
   successful main CI `45201911838`. Preserved and fully reviewed local checkpoint
   `837b2013b8b2f218955bdbf19c8d53444baced5d`; safely resumed its existing branch.

@@ -1,8 +1,9 @@
 {% extends "base.html" %}{% load i18n %}
 {% block title %}{% translate "Vorprüfung" %} — {{ project.name }}{% endblock %}
 {% block content %}
-<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a><h1>{% translate "Vorprüfung und Fehlnotenbericht" %}</h1>
-<p>{% translate "Gewählte Personen und gemeinsame Positionen prüfen, ohne Stückliste oder Zuordnungen zu ändern. Vollständige Mappen benötigen alle gemeinsamen Positionen einschließlich Reserven." %}</p>
+<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a><h1>{% if excerpt %}{% translate "Projektauszug und Einzelstimmen-Ersatz" %}{% else %}{% translate "Vorprüfung und Fehlnotenbericht" %}{% endif %}</h1>
+{% if excerpt %}<p>{% translate "Nur gewählte Positionen und Personen. Ohne Deckblatt oder Inhaltsverzeichnis; Zuordnungen, Stückliste und Nummern bleiben unverändert." %}</p>{% endif %}
+<p>{% translate "Gewählte Personen und gemeinsame Positionen prüfen, ohne Stückliste oder Zuordnungen zu ändern." %}{% if not excerpt %} {% translate "Vollständige Mappen benötigen alle gemeinsamen Positionen einschließlich Reserven." %}{% endif %}</p>
 <form method="post" class="record-form">{% csrf_token %}{{ selection.as_p }}<button name="action" value="inspect">{% translate "Auswahl prüfen" %}</button></form>
 {% if error %}<p role="alert">{{ error }}</p>{% endif %}
 {% if report %}
@@ -25,7 +26,7 @@
 </div>{% endfor %}</section>{% endfor %}
 {% if acknowledged %}<p role="status">{% translate "Fehlende Noten ausdrücklich bestätigt. Prüfergebnis akzeptiert, aber noch kein Generierungsauftrag oder dauerhafte Freigabe." %}</p>{% endif %}
 {% if authorized_run %}<p role="status">{% translate "Unveränderliche Generierungseingaben gespeichert und Auftrag angelegt." %} <a href="{% url 'generation_detail' authorized_run.pk %}">{% translate "Ergebnis und Auftrag öffnen" %}</a></p>{% endif %}
-{% if not full_scope %}<p>{% translate "Für vollständige persönliche Mappen zuerst alle gemeinsamen Positionen auswählen und erneut prüfen." %}</p>{% endif %}
-<form method="post" class="record-form">{% csrf_token %}{% for value in selection.cleaned_data.participants %}<input type="hidden" name="participants" value="{{ value }}">{% endfor %}{% for value in selection.cleaned_data.positions %}<input type="hidden" name="positions" value="{{ value }}">{% endfor %}{{ ack_form.as_p }}<button name="action" value="acknowledge" {% if report.blocking %}disabled{% endif %}>{% translate "Prüfergebnis und Platzhalter bestätigen" %}</button><button name="action" value="authorize" {% if report.blocking or not full_scope %}disabled{% endif %}>{% translate "Persönliche Mappen verbindlich erstellen" %}</button></form>
+{% if not full_scope and not excerpt %}<p>{% translate "Für vollständige persönliche Mappen zuerst alle gemeinsamen Positionen auswählen und erneut prüfen." %}</p>{% endif %}
+<form method="post" class="record-form">{% csrf_token %}{% for value in selection.cleaned_data.participants %}<input type="hidden" name="participants" value="{{ value }}">{% endfor %}{% for value in selection.cleaned_data.positions %}<input type="hidden" name="positions" value="{{ value }}">{% endfor %}{{ ack_form.as_p }}<button name="action" value="acknowledge" {% if report.blocking %}disabled{% endif %}>{% translate "Prüfergebnis und Platzhalter bestätigen" %}</button>{% if excerpt %}<button name="action" value="authorize" {% if report.blocking %}disabled{% endif %}>{% translate "Gewählten Auszug verbindlich erstellen" %}</button>{% else %}<button name="action" value="authorize" {% if report.blocking or not full_scope %}disabled{% endif %}>{% translate "Persönliche Mappen verbindlich erstellen" %}</button>{% endif %}</form>
 {% endif %}
 {% endblock %}

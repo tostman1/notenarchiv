@@ -51,7 +51,14 @@ def download(request, artifact_id):
         )
     except (OSError, ValueError):
         raise Http404 from None
-    response = FileResponse(BytesIO(data), as_attachment=True, filename="Lese-PDF.pdf", content_type="application/pdf")
+    filename = (
+        "Inhaltsverzeichnis.pdf"
+        if run.snapshot.kind == "CONTENTS"
+        else "Auszug.pdf"
+        if run.snapshot.kind == "EXCERPT"
+        else "Lese-PDF.pdf"
+    )
+    response = FileResponse(BytesIO(data), as_attachment=True, filename=filename, content_type="application/pdf")
     response["X-Content-Type-Options"] = "nosniff"
     response["Content-Security-Policy"] = "default-src 'none'; sandbox"
     return response

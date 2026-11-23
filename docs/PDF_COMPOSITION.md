@@ -38,3 +38,6 @@ Unicode, optional cover, contents pagination, separate piece boundaries, generat
 dimensions, literal markup and page limits. Existing PDF security/resource tests
 remain required. There is no new browser route or downloadable output in WP-37a;
 worker generation/publication is WP-37b. NAS/visual/hardware acceptance remains separate.
+WP-37c adds `music=False` for contents-only authoring and explicit `CONTENTS`
+logical entries (no musical bytes/placeholder). Music bytes in this mode are
+rejected. Shared contents/reserve generation is reused; project metadata is included.

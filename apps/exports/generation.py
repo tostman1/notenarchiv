@@ -57,8 +57,19 @@ def personal_pieces(snapshot, pins, person_id, checkpoint=lambda: None):
 
 def output_path(snapshot, person):
     project = "Projekt-" + component(snapshot.payload["project_name"], maximum=64) + "--" + snapshot.project_id.hex
+    if snapshot.kind == "CONTENTS":
+        return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Inhaltsverzeichnis/Inhaltsverzeichnis.pdf"
     name = "Person-" + component(person["name"], maximum=64) + "--" + person["id"].replace("-", "")
-    return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Personen/{name}/Lese-PDF.pdf"
+    filename = "Auszug.pdf" if snapshot.kind == "EXCERPT" else "Lese-PDF.pdf"
+    return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Personen/{name}/{filename}"
+
+
+def targets(snapshot):
+    return [{"id": None, "name": ""}] if snapshot.kind == "CONTENTS" else snapshot.payload["participants"]
+
+
+def effect_key(publication):
+    return "artifact:" + (publication.participant_id.hex if publication.participant_id else "contents")
 
 
 def _roots(stack, using="default"):
@@ -127,8 +138,17 @@ def _existing(publication, root, checkpoint):
 
 
 def _compose(context, snapshot, pins, person, processor, publication, root):
-    person_id = snapshot.participants.get(participant_id=person["id"]).participant_id
-    pieces = personal_pieces(snapshot, pins, person_id, processor.checkpoint)
+    if snapshot.kind == "CONTENTS":
+        pieces = [
+            {"number": p["order"], "title": p["title"], "state": "RESERVE", "data": None}
+            for p in snapshot.payload["positions"]
+        ]
+        # Music titles are contents entries, not reserves; no music bytes needed.
+        for piece, position in zip(pieces, snapshot.payload["positions"], strict=True):
+            piece["state"] = "RESERVE" if position["arrangement"] == "None" else "CONTENTS"
+    else:
+        person_id = snapshot.participants.get(participant_id=person["id"]).participant_id
+        pieces = personal_pieces(snapshot, pins, person_id, processor.checkpoint)
     logical = [{k: p[k] for k in ("number", "title", "state")} for p in pieces]
     options = snapshot.payload["options"]
     size = (
@@ -137,10 +157,12 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
         else (595.2756, 841.8898)
     )
     dependencies = snapshot.payload["dependencies"]
-    part = next(p for p in dependencies["parts"] if p["id"] == person["part"])
-    instrument = next(p for p in dependencies["instruments"] if p["id"] == part["instrument_id"])
-    assignment = f"{instrument['name']} {part['code']}"
-    if person["role"]:
+    assignment = ""
+    if snapshot.kind != "CONTENTS":
+        part = next(p for p in dependencies["parts"] if p["id"] == person["part"])
+        instrument = next(p for p in dependencies["instruments"] if p["id"] == part["instrument_id"])
+        assignment = f"{instrument['name']} {part['code']}"
+    if person.get("role"):
         role = next(r for r in dependencies["roles"] if r["id"] == person["role"])
         assignment += f" · {role['label']}"
     data = processor.compose(
@@ -148,7 +170,9 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
         project=options["cover_title"] or snapshot.payload["project_name"],
         participant=person["name"],
         assignment=assignment,
-        cover=options["cover_enabled"],
+        cover=options["cover_enabled"] and snapshot.kind == "FULL",
+        contents=snapshot.kind != "EXCERPT",
+        music=snapshot.kind != "CONTENTS",
         page_size=size,
     )
     del pieces
@@ -163,7 +187,7 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             "snapshot_id": str(snapshot.pk),
             "snapshot_sha256": snapshot.sha256,
             "participant_id": person["id"],
-            "participant_name": person["name"],
+            "participant_name": person["name"] or "Inhaltsverzeichnis",
             "positions": logical,
             "inputs": [c for c in snapshot.payload["cells"] if c["participant_id"] == person["id"]],
             "pages": [asdict(p) for p in info.pages],
@@ -192,7 +216,7 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
                 raise
             return recorded.receipt
 
-        context.publish("artifact:" + publication.participant_id.hex, {"publication": str(publication.pk)}, apply)
+        context.publish(effect_key(publication), {"publication": str(publication.pk)}, apply)
         files.release_stage(root, stage.path, publication.relative_path)
     finally:
         with suppress(files.FileError, OSError):
@@ -201,14 +225,16 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
 
 def inventory(run):
     artifacts = list(run.artifacts.select_related("intent").order_by("participant_id"))
-    if {str(a.participant_id) for a in artifacts} != {p["id"] for p in run.snapshot.payload["participants"]}:
+    if {str(a.participant_id) if a.participant_id else None for a in artifacts} != {
+        p["id"] for p in targets(run.snapshot)
+    }:
         raise ValidationError("Incomplete participant artifact inventory")
     for artifact in artifacts:
         artifact.full_clean()
     return [
         {
             "artifact": str(a.pk),
-            "participant": str(a.participant_id),
+            "participant": str(a.participant_id) if a.participant_id else None,
             "path": a.relative_path,
             "sha256": a.sha256,
             "size": a.byte_size,
@@ -248,7 +274,11 @@ def verified_complete(run):
 def run(context):
     context.checkpoint()
     snapshot, pins = load_pinned_inputs(context.payload["snapshot_id"], checkpoint=context.checkpoint)
-    if snapshot.run.job_id != context.job_id or snapshot.kind != "FULL" or snapshot.sha256 != context.payload["sha256"]:
+    if (
+        snapshot.run.job_id != context.job_id
+        or snapshot.kind not in {"FULL", "EXCERPT", "CONTENTS"}
+        or snapshot.sha256 != context.payload["sha256"]
+    ):
         raise ValidationError("Unsupported or foreign generation authorization")
     deadline = time.monotonic() + MAX_RUN_SECONDS
 
@@ -262,8 +292,8 @@ def run(context):
         processor = _processor(data_root, guard)
         prune(data_root, ".staging/generation")
         total = 0
-        for index, person in enumerate(snapshot.payload["participants"]):
-            context.checkpoint(min(90, index * 90 // len(snapshot.payload["participants"])))
+        for index, person in enumerate(targets(snapshot)):
+            context.checkpoint(min(90, index * 90 // len(targets(snapshot))))
             publication = _plan(context, snapshot, person)
             artifact = _existing(publication, root, guard)
             if not artifact:
@@ -293,7 +323,7 @@ def _publication(context, intent):
     publication = ExportPublication.objects.select_related("run__snapshot").get(
         pk=intent.payload["publication"], run__job_id=context.job_id
     )
-    if intent.key != "artifact:" + publication.participant_id.hex:
+    if intent.key != effect_key(publication):
         raise ValidationError("Invalid participant publication key")
     return publication, publication.stages.get(attempt=intent.attempt)
 
@@ -344,9 +374,7 @@ def recover_cleanup(context):
         _processor(data_root, context.checkpoint)
         prune(data_root, ".staging/generation")
         for publication in ExportPublication.objects.filter(run__job_id=context.job_id):
-            intents = OperationIntent.objects.filter(
-                job_id=context.job_id, key="artifact:" + publication.participant_id.hex
-            )
+            intents = OperationIntent.objects.filter(job_id=context.job_id, key=effect_key(publication))
             intent = intents.first()
             if intent and intent.state in {"PENDING", "REVIEW_REQUIRED"}:
                 continue

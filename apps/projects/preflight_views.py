@@ -1,4 +1,4 @@
-"""Authenticated inspection/acknowledgement, no generation enqueue in WP-36a."""
+"""Authenticated current full/excerpt preflight and immutable authorization."""
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -15,10 +15,10 @@ from apps.projects.preflight_services import build_report, validate_acknowledgem
 @never_cache
 @login_required
 @require_http_methods(["GET", "POST"])
-def preflight(request, project_id):
+def preflight(request, project_id, kind="FULL"):
     project = get_object_or_404(Project, pk=project_id)
     selection = PreflightSelection(request.POST if request.method == "POST" else None, project=project)
-    context = {"project": project, "selection": selection}
+    context = {"project": project, "selection": selection, "excerpt": kind == "EXCERPT"}
     status = 200
     if request.method == "POST" and selection.is_valid():
         try:
@@ -58,6 +58,7 @@ def preflight(request, project_id):
                         token=form.cleaned_data["token"],
                         acknowledgements=form.cleaned_data["acknowledgements"],
                         actor=request.user,
+                        kind=kind,
                     )
                     context["authorized_run"] = run
         except ValidationError as exc:
