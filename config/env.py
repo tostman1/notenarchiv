@@ -52,6 +52,7 @@ class EnvSettings:
     """Validated, typed view of the deployment environment."""
 
     profile: str
+    dev_login_token: str
     debug_mode: bool
     release: str
     service: str
@@ -250,6 +251,7 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
 
     return EnvSettings(
         profile=profile,
+        dev_login_token=_dev_login_token(env, profile, bind),
         debug_mode=debug_mode,
         release=release,
         service=service,
@@ -277,6 +279,13 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         print_enabled=_bool_flag(env, "PRINT_ENABLED", default=False),
         secure_transport_required=secure_transport_required,
     )
+
+
+def _dev_login_token(env, profile, bind):
+    token = env.get("DEV_LOGIN_TOKEN", "")
+    if token and (profile != "local" or bind != "127.0.0.1" or len(token) < 32):
+        raise ConfigError("Development login requires an explicit loopback local launcher token")
+    return token
 
 
 def _read_secret_key(path: Path) -> str:

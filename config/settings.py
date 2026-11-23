@@ -40,6 +40,8 @@ CSRF_TRUSTED_ORIGINS = env.csrf_trusted_origins
 # OP-04: application diagnostics flag, independent of Django DEBUG.
 DEBUG_MODE = env.debug_mode
 RELEASE_VERSION = env.release
+DEV_LOGIN_TOKEN = env.dev_login_token
+DEVELOPMENT_PROFILE = env.profile == "local"
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_NAME = "notenarchiv_sessionid"
@@ -153,6 +155,7 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 STATICFILES_DIRS = [BASE_DIR / "static"]
+WHITENOISE_USE_FINDERS = env.profile == "local"
 
 # --- Domain roots (business configuration) --------------------------------
 

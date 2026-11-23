@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # WP-01 minimal CI: locked dependency sync, Ruff lint/format, pytest.
 # Extended checks (image build, browser, security/secret scans) are added by
 # their own work packages (WP-06, WP-08).
@@ -20,6 +24,24 @@ env:
   UV_PYTHON: "3.12"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs-only: ${{ steps.classify.outputs.docs-only }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - id: classify
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            python3 scripts/ci_changes.py "$BASE" "$HEAD" >> "$GITHUB_OUTPUT"
+          else
+            echo 'docs-only=false' >> "$GITHUB_OUTPUT"
+          fi
   foundation:
     name: Foundation (ruff + pytest)
     runs-on: ubuntu-latest
@@ -32,6 +54,8 @@ jobs:
         with:
           python-version: "3.12"
           version: "0.13.1"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Verify lockfile is up to date
         run: uv lock --check
@@ -58,19 +82,30 @@ jobs:
           uv export --locked --no-dev --no-emit-project --no-hashes -o "$RUNNER_TEMP/runtime-requirements.txt"
           uv tool run --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r "$RUNNER_TEMP/runtime-requirements.txt"
 
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.npm
+          key: browser-npm-${{ runner.os }}-playwright-1.62.1
       - name: Run local-only Playwright smoke
         run: |
-          npm install --prefix "$RUNNER_TEMP/browser" --no-audit --no-fund --ignore-scripts playwright-core@1.62.1
+          npm install --cache "$HOME/.npm" --prefer-offline --prefix "$RUNNER_TEMP/browser" --no-audit --no-fund --ignore-scripts playwright-core@1.62.1
           NODE_PATH="$RUNNER_TEMP/browser/node_modules" uv run pytest browser/
 
   container:
     name: Container (amd64 + security + synthetic smoke)
-    needs: foundation
+    needs: changes
+    if: needs.changes.outputs.docs-only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            /tmp/notenarchiv-build-cache
+            ~/scanner-cache
+          key: build-scanner-${{ runner.os }}-${{ hashFiles('uv.lock', 'Dockerfile') }}-trivy-0.76.2
       - name: Build pinned non-root image
         env:
           REVISION: ${{ github.sha }}
@@ -80,7 +115,11 @@ jobs:
           VERSION=preview-ci
           if [ "$REF_TYPE" = tag ]; then VERSION="${REF_NAME#v}"; fi
           docker buildx build --platform linux/amd64 --load --provenance=false \
+            --cache-from type=local,src=/tmp/notenarchiv-build-cache \
+            --cache-to type=local,dest=/tmp/notenarchiv-build-cache-new,mode=max \
             --build-arg VCS_REF="$REVISION" --build-arg APP_VERSION="$VERSION" --tag notenarchiv-ci:verified .
+          rm -rf /tmp/notenarchiv-build-cache
+          mv /tmp/notenarchiv-build-cache-new /tmp/notenarchiv-build-cache
       - name: Validate Compose configurations
         run: python3 scripts/check_compose.py
       - name: Exercise real container and isolated restore
@@ -91,9 +130,12 @@ jobs:
         run: sudo python3 -m scripts.simple_install_smoke --candidate-image notenarchiv-ci:verified
       - name: Verify pinned scanner
         run: |
-          curl --fail --location --retry 3 -o "$RUNNER_TEMP/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
-          echo "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf  $RUNNER_TEMP/trivy.tar.gz" | sha256sum --check
-          tar -xzf "$RUNNER_TEMP/trivy.tar.gz" -C "$RUNNER_TEMP" trivy
+          mkdir -p "$HOME/scanner-cache"
+          if [ ! -f "$HOME/scanner-cache/trivy.tar.gz" ]; then
+            curl --fail --location --retry 3 -o "$HOME/scanner-cache/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
+          fi
+          echo "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf  $HOME/scanner-cache/trivy.tar.gz" | sha256sum --check
+          tar -xzf "$HOME/scanner-cache/trivy.tar.gz" -C "$RUNNER_TEMP" trivy
       - name: Scan image vulnerabilities and secrets
         run: |
           "$RUNNER_TEMP/trivy" image --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 --no-progress notenarchiv-ci:verified
