@@ -24,6 +24,7 @@
 {% if cell.resolution.usable and not cell.inspection.error %}<p>{% translate "Konkrete bestätigte Version" %}: {{ cell.resolution.file_id }} · {{ cell.resolution.sha256 }}</p><a href="{% url 'archive_preview:viewer' cell.resolution.file_id %}">{% translate "PDF-Vorschau" %}</a>{% endif %}
 </div>{% endfor %}</section>{% endfor %}
 {% if acknowledged %}<p role="status">{% translate "Fehlende Noten ausdrücklich bestätigt. Prüfergebnis akzeptiert, aber noch kein Generierungsauftrag oder dauerhafte Freigabe." %}</p>{% endif %}
+{% if authorized_run %}<p role="status">{% translate "Unveränderliche Generierungseingaben gespeichert und Auftrag angelegt. PDF-Erstellung noch nicht implementiert; kein fertiges Ergebnis verfügbar." %} {{ authorized_run.pk }}</p>{% endif %}
 <form method="post" class="record-form">{% csrf_token %}{% for value in selection.cleaned_data.participants %}<input type="hidden" name="participants" value="{{ value }}">{% endfor %}{% for value in selection.cleaned_data.positions %}<input type="hidden" name="positions" value="{{ value }}">{% endfor %}{{ ack_form.as_p }}<button name="action" value="acknowledge" {% if report.blocking %}disabled{% endif %}>{% translate "Prüfergebnis und Platzhalter bestätigen" %}</button></form>
-{% endif %}<p>{{ generation_unavailable }}</p>
+{% endif %}<p>{% translate "PDF-Erstellung ist noch nicht verfügbar. Generierungsfreigaben speichern unveränderliche Eingaben; vorzeitig ausgeführte Aufträge scheitern ausdrücklich statt ein fertiges PDF zu melden." %}</p>
 {% endblock %}

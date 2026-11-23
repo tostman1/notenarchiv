@@ -40,6 +40,23 @@ def preflight(request, project_id):
                         report, form.cleaned_data["token"], form.cleaned_data["acknowledgements"], request.user
                     )
                     context["acknowledged"] = True
+            elif request.POST.get("action") == "authorize":
+                from apps.exports.snapshot_services import authorize
+
+                form = PreflightAcknowledgement(request.POST, report=report, actor=request.user)
+                context["ack_form"] = form
+                if not form.is_valid():
+                    status = 400
+                else:
+                    run = authorize(
+                        project.pk,
+                        participant_ids=selection.cleaned_data["participants"],
+                        position_ids=selection.cleaned_data["positions"],
+                        token=form.cleaned_data["token"],
+                        acknowledgements=form.cleaned_data["acknowledgements"],
+                        actor=request.user,
+                    )
+                    context["authorized_run"] = run
         except ValidationError as exc:
             context["error"] = " ".join(exc.messages)
             status = 409

@@ -45,6 +45,42 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-36a merged through PR #42 as `ed22fbcdfe4e2d7e5c94f8fb9674b2a9d74f9c28`;
+  final-head CI `45150655373` and post-merge main CI `45152636899` passed. Clean
+  primary main matched origin and reviewed merged tree. No unresolved findings.
+- WP-36b in progress on `feature/wp-36b-generation-snapshots` from that verified
+  main: canonical dependency capture, immutable snapshot/run/pin models, atomic
+  preflight-bound enqueue, protected withdrawal and SQLite update guards added.
+  Worker loads pinned input only and fails closed while PDF renderer is unavailable.
+  No UI generation button or successful PDF output is presented. Twelve targeted
+  snapshot/persistence cases were run: eleven passed, one POST UUID normalization
+  failure fixed; final rerun pending. Existing thirteen preflight cases passed.
+  Package remains incomplete: concurrency/recovery/browser coverage, guard review,
+  documentation/traceability, full regression and PR/CI/merge gates still required.
+- Continuation closes replay and relational-selection gaps: signed request UUID,
+  idempotent authorization, participant/position pins including reserves/missing,
+  conservative canonical publication/catalog dependencies and SQLite trigger refresh.
+  Thirteen snapshot tests passed; independent reopen/concurrent replay plus new
+  authorization browser passed (three tests). Generic cancellation/unavailable-renderer
+  execution tested: no false success. Full regression and browser gates pending.
+  Snapshot contract/limitations recorded in GENERATION_SNAPSHOTS.md. No PDF composition.
+- Final security review added generic-queue duplicate-job denial and run/job identity
+  validation, bounded snapshot payload and missing-library-change atomic recheck.
+  Fifteen snapshot tests passed after these refinements; full suites launched before
+  those refinements are still pending and targeted results are recorded separately.
+- Full WP-36b browser suite passed: 22 tests in 304.49 s. Full local regression
+  remains pending. Final authorization refinements require only affected targeted
+  verification; no browser assertions or existing regression tests weakened.
+- Final snapshot/queue/SQLite regression passed: 47 tests in 130.85 s after generic
+  enqueue protection and formatting corrections. Full local regression pending;
+  no PR or integration completion is claimed.
+- Full local WP-36b regression passed: 688 tests/81 Windows platform skips in
+  768.50 s before final queue/validation refinements, which passed the 47-test
+  affected regression. All 22 browsers passed; Ruff/format/system/migration/locked
+  dependency/diff checks passed. Complete diff reviewed for exact pins, transaction
+  scope, replay, auth/CSRF, unchanged source files and no false output success.
+  Software implemented locally; Linux final-head CI and merge/main gates pending.
+
 - WP-36a implementation head `a519af64cdc0cb70652b540b146803adadcdccf6` in
   PR #42 passed full CI `45148831865`: Linux unit/browser checks, locked runtime
   audit, system/migration drift, hardened amd64 image, synthetic publication/restore

@@ -6,7 +6,7 @@ import tempfile
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from django.conf import settings
 from django.core import signing
@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.archive import library_services
 from apps.archive import models as archive
+from apps.exports.dependencies import dependency_payload
 from apps.projects.matrix_services import cell_context
 from apps.projects.resolution_services import ResolutionSession, bounded
 from core import preview
@@ -98,6 +99,7 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
             raise ValidationError(_("Personen und Positionen nicht mehrfach auswählen."))
     with transaction.atomic():
         session = ResolutionSession(project_id, participant_ids=participant_ids, position_ids=position_ids)
+        dependencies = dependency_payload(session)
         if not session.participants or not session.positions:
             raise ValidationError(_("Mindestens eine aktive Person und Position auswählen."))
         if len(session.participants) * len(session.positions) > MAX_CELLS:
@@ -173,6 +175,8 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
     project = session.project
     payload = {
         "schema": 1,
+        "dependencies": dependencies,
+        "project_name": project.name,
         "project": str(project.pk),
         "revision": project.revision,
         "options": {
@@ -213,7 +217,12 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
 
 def report_token(report, actor):
     return signing.dumps(
-        {"project": str(report.session.project.pk), "actor": str(actor.pk), "digest": report.digest},
+        {
+            "project": str(report.session.project.pk),
+            "actor": str(actor.pk),
+            "digest": report.digest,
+            "request_id": str(uuid4()),
+        },
         salt=SALT,
         compress=True,
     )
@@ -224,8 +233,16 @@ def validate_acknowledgement(report, token, acknowledgements, actor):
         value = signing.loads(token, salt=SALT, max_age=1800)
     except signing.BadSignature:
         raise ValidationError(_("Vorprüfung abgelaufen oder ungültig; erneut prüfen.")) from None
-    if value != {"project": str(report.session.project.pk), "actor": str(actor.pk), "digest": report.digest}:
+    if (
+        value.get("project") != str(report.session.project.pk)
+        or value.get("actor") != str(actor.pk)
+        or value.get("digest") != report.digest
+    ):
         raise ValidationError(_("Projekt oder Eingaben geändert; Vorprüfung erneut durchführen."))
+    try:
+        UUID(value["request_id"])
+    except (ValueError, KeyError, TypeError):
+        raise ValidationError(_("Ungültige Vorprüfungsfreigabe.")) from None
     if report.blocking:
         raise ValidationError(_("Blockierende Fehler zuerst korrigieren; keine Freigabe möglich."))
     if set(acknowledgements) != report.missing_keys or len(acknowledgements) != len(set(acknowledgements)):
