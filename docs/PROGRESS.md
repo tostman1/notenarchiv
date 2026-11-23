@@ -45,6 +45,13 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-36a implementation head `a519af64cdc0cb70652b540b146803adadcdccf6` in
+  PR #42 passed full CI `45148831865`: Linux unit/browser checks, locked runtime
+  audit, system/migration drift, hardened amd64 image, synthetic publication/restore
+  and image vulnerability/secret checks successful. Final head/base and complete
+  diff reviewed; no submitted reviews or inline comments, merge state CLEAN.
+  Documentation acceptance update requires final-head CI; merge/main still pending.
+
 - WP-33d integrated through PR #41, final head `daff51d2902bcc3eefcf32473422b26d45197770`
   passed full CI `45142636153`; merge `cac372c5fff4344ca3263df8e6227038bce28a62`
   passed post-merge main CI `45144408952`. Merged tree exactly matched reviewed head;
