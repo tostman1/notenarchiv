@@ -1,5 +1,7 @@
 """Authenticated revision-guarded matrix mutations and HTMX/no-JS responses."""
 
+from urllib.parse import urlencode
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
@@ -11,6 +13,7 @@ from django.views.decorators.http import require_POST
 
 from apps.projects import matrix_batch_services, matrix_edit_services, participant_services
 from apps.projects.matrix_edit_context import add_edit_forms
+from apps.projects.matrix_filters import MatrixFilters, navigation_values
 from apps.projects.matrix_forms import BatchEditForm, CellEditForm
 from apps.projects.matrix_services import matrix_page
 from apps.projects.models import Project
@@ -26,20 +29,29 @@ def respond(request, project, *, status=200, message="", row_page=None, column_p
             return 1
 
     row_page, column_page = page_number(row_page), page_number(column_page)
+    navigation = navigation_values(request.POST)
+    filters = MatrixFilters(navigation, project=project)
+    if not filters.is_valid():
+        return HttpResponse(_("Ungültige Matrixfilter; Projekt neu öffnen."), status=400)
     if request.headers.get("HX-Request") == "true":
         try:
-            context = add_edit_forms(matrix_page(project.pk, row_page=row_page, column_page=column_page), request.user)
+            context = add_edit_forms(
+                matrix_page(project.pk, row_page=row_page, column_page=column_page, filters=filters.cleaned_data),
+                request.user,
+            )
         except ValidationError:
             return HttpResponse(_("Matrix kann nicht geladen werden; Projekt neu öffnen."), status=409)
         context["edit_message"] = message
         context["edit_error"] = status != 200
+        context["filter_form"], context["navigation"] = filters, navigation
+        context["navigation_query"] = "&" + urlencode(navigation)
         return render(request, "projects/matrix_panel.html", context, status=status)
     if status != 200:
         return render(
             request, "projects/matrix_edit_error.html", {"project": project, "message": message}, status=status
         )
     url = reverse("project_matrix", args=[project.pk])
-    return redirect(url + f"?rows={row_page or 1}&people={column_page or 1}")
+    return redirect(url + "?" + urlencode({"rows": row_page, "people": column_page, **navigation}))
 
 
 @never_cache
