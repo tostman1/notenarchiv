@@ -1,5 +1,15 @@
 # Implemented acceptance traceability
 
+## WP-37a
+
+- EX-05/GR-12/EX-07: `test_contents_reserve_placeholder_unicode_no_music_overlay`,
+  `test_original_rotation_crop_userunit_and_vectors_preserved` compare exact music
+  streams and native geometry, German contents/reserve/placeholder and Unicode.
+- Optional cover/common contents pagination, independent excerpt pages/no pairing,
+  unsupported glyph rejection, literal markup, generated dimensions/page limits
+  in `tests/test_pdf_composition.py`; existing PDF security/annotation suite retained.
+- Pure isolated builder only; no generation/download browser route or NAS acceptance.
+
 ## WP-36b
 
 - GR-15/EX-09: `test_authorization_atomically_pins_and_enqueues`,

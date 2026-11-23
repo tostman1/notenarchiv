@@ -12,7 +12,14 @@ from pathlib import Path
 from core.pdf.types import DocumentInfo, Limits, PageInfo, PdfError, Selection
 from core.processes import ProcessFailed, ProcessTimeout, run_process
 
-_CODES = {"INVALID_PDF", "ENCRYPTED_PDF", "LIMIT_EXCEEDED", "UNSUPPORTED_ANNOTATION", "INVALID_PAGE"}
+_CODES = {
+    "INVALID_PDF",
+    "ENCRYPTED_PDF",
+    "LIMIT_EXCEEDED",
+    "UNSUPPORTED_ANNOTATION",
+    "INVALID_PAGE",
+    "UNSUPPORTED_TEXT",
+}
 
 
 class Processor:
@@ -44,6 +51,59 @@ class Processor:
 
     def extract_text(self, data: bytes) -> tuple[str, ...]:
         return self.inspect(data, include_text=True).text
+
+    def compose(
+        self,
+        pieces,
+        *,
+        project,
+        participant="",
+        assignment="",
+        cover=False,
+        contents=True,
+        page_size=(595.2756, 841.8898),
+    ):
+        """Explicit ordered music/reserve/missing inputs; no resolver or publication."""
+        if not isinstance(pieces, (list, tuple)) or not 1 <= len(pieces) <= 1000:
+            raise ValueError("Composition requires bounded ordered positions")
+        inputs, positions = [], []
+        previous = 0
+        for piece in pieces:
+            if set(piece) != {"number", "title", "state", "data"}:
+                raise ValueError("Invalid composition position")
+            number, title, state, data = (piece[key] for key in ("number", "title", "state", "data"))
+            if type(number) is not int or number <= previous or state not in {"MUSIC", "MISSING", "RESERVE"}:
+                raise ValueError("Invalid shared position order or state")
+            previous = number
+            if not isinstance(title, str) or not 1 <= len(title) <= 1000:
+                raise ValueError("Invalid position title")
+            index = None
+            if state == "MUSIC":
+                if not isinstance(data, bytes) or not data:
+                    raise ValueError("Music requires exact PDF bytes")
+                index = len(inputs)
+                inputs.append(data)
+            elif data is not None:
+                raise ValueError("Reserve/missing positions cannot contain music")
+            positions.append({"number": number, "title": title, "state": state, "input": index})
+        for value in (project, participant, assignment):
+            if not isinstance(value, str) or len(value) > 1000:
+                raise ValueError("Invalid generated-page text")
+        if len(page_size) != 2 or any(
+            type(value) not in (int, float) or not 140 <= value <= 1500 for value in page_size
+        ):
+            raise ValueError("Invalid generated page dimensions")
+        return self._invoke(
+            "compose",
+            inputs,
+            positions=positions,
+            project=project,
+            participant=participant,
+            assignment=assignment,
+            cover=bool(cover),
+            contents=bool(contents),
+            page_size=page_size,
+        )
 
     def render(self, data: bytes, page=0, *, dpi=144) -> bytes:
         if type(dpi) is not int or not 1 <= dpi <= 600:

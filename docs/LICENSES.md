@@ -17,6 +17,9 @@ again on 2026-11-20 with uv 0.13.1 and CPython 3.12.14):
 | whitenoise | 6.12.0 | MIT | Verified from metadata (WP-02) |
 | pypdf | 7.1.1 | BSD-3-Clause | Verified from downloaded/installed wheel metadata and LICENSE (WP-17) |
 | pypdfium2 | 5.15.2 | BSD-3-Clause / Apache-2.0 plus native dependency notices | Verified from Windows and musllinux amd64 wheels (WP-17) |
+| reportlab | 5.1.0 | BSD (installed package metadata/LICENSE) | WP-37a authoring; pure Python wheel, no optional shaping/rendering extras |
+| pillow | 13.0.0 (transitive) | MIT-CMU (SPDX metadata) | ReportLab runtime dependency; wheel/native notices retained |
+| charset-normalizer | 3.5.3 (transitive) | MIT (metadata) | ReportLab runtime dependency |
 | pytest | 8.4.1 (dev) | MIT | Verified from metadata |
 | pytest-django | 4.14.0 (dev) | BSD-3-Clause | Verified from metadata (WP-02) |
 | ruff | 0.14.5 (dev) | MIT | Verified from metadata (classifier) |
@@ -43,6 +46,15 @@ The browser smoke uses playwright-core 1.62.1 (Apache-2.0, verified from its
 package.json). This test-only Node dependency runs outside the application.
 
 ## Policy
+
+WP-37a generated German pages use the unmodified `reportlab/fonts/Vera.ttf`
+distributed in the pinned ReportLab wheel. Its installed
+`bitstream-vera-license.txt` was inspected: Bitstream copyright/trademark and
+permission notices are retained with the font in the runtime wheel. Redistribution
+with software is permitted; the font is not sold independently or modified.
+Unsupported characters outside the font coverage fail explicitly rather than
+silently rendering replacement glyphs. Other bundled ReportLab font license files
+(including DarkGarden notices) remain installed even though those fonts are unused.
 
 - Every new dependency added by a later work package is added to this table
   with its license taken from `uv.lock` / package metadata, not from memory.

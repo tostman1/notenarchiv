@@ -9,6 +9,7 @@ dependencies = [
     "gunicorn==27.0.1",
     "pypdf==7.1.1",
     "pypdfium2==5.15.2",
+    "reportlab==5.1.0",
     "whitenoise==6.12.0",
 ]
 

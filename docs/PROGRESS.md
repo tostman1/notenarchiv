@@ -45,6 +45,37 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-37a PR #44 head `a69cb41ce76f8e865c50049fb5ff07f3c0522371` passed full
+  CI `45175409416`: Linux unit/browser, runtime audit, migration/system checks,
+  actual hardened amd64 image with locked ReportLab/native dependencies, synthetic
+  container/restore/publication/install and vulnerability/secret checks. Exact PR
+  head and full diff reviewed; no reviews/inline findings, merge state CLEAN.
+  Final documentation-head CI and merge/main gates remain.
+
+- WP-36b merged PR #43 as `b4c16f9cc505185be78599c0cd9c271222c3e298`; final-head
+  CI `45168812914` and post-merge main CI `45170929102` passed. Reviewed merged
+  tree matched exactly; primary main clean/synchronized, no blocking findings.
+- WP-37a started on `feature/wp-37a-pdf-composition` from verified main. Isolated
+  shared reading-PDF builder, German contents/reserves, optional personal cover,
+  missing placeholders and Unicode font authoring added; original page geometry/
+  vector streams copied without overlays or pairing. ReportLab 5.1.0 and transitive
+  dependencies locked; actual metadata/font license notices inspected. Initial
+  eight composition tests passed; expanded limits/text/format tests pending.
+- WP-37a expanded composition/existing PDF foundation suite passed: 57 tests,
+  one Windows/POSIX permission skip in 96.09 s. Ruff/format/lock/system/migration/
+  diff checks passed. Full regression and all existing browsers running; no PR,
+  integration or output-generation success claimed. Contract in PDF_COMPOSITION.md.
+- WP-37a existing browser regression passed: 22 tests in 267.70 s. Full local
+  regression remains pending; no new UI route is introduced by the pure builder.
+- Final builder review adds an explicit oversized-heading bound (no clipping),
+  annotation fail-closed coverage and deterministic same-input composition test.
+  All thirteen composition cases passed in 21.12 s after these refinements;
+  full-suite result is recorded separately when available.
+- Full WP-37a local regression passed: 700 tests/81 platform skips in 739.94 s
+  before final heading/annotation/determinism refinements, which passed thirteen
+  targeted cases. All 22 browsers passed. Complete diff reviewed; source geometry/
+  content untouched, bounded isolated parsing retained. Linux PR CI pending.
+
 - WP-36b PR #43 implementation head `32a180b241e6cc9da0d8abf9ddf2ef3771986f47`
   passed full CI `45166737828`: Linux tests/browser, runtime audit, migration drift,
   hardened amd64 image, container/isolated restore/synthetic archive publication,
