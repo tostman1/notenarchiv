@@ -72,6 +72,11 @@ reflect actual completed work only.
   Ruff/format/system/migration/lock/diff checks and actual actionlint validation
   passed. Final review preserves existing required check names; main protection
   lookup confirmed HTTP 404/unprotected. Maintenance PR/actual after timings pending.
+- PR #45 implementation head `d9f7eed6078c44791877e7fd8738c5a87d208783` passed
+  complete CI `45197208105`. Foundation 10:41, Container 2:57 in parallel; total
+  10:44 versus baseline 10:00. No demonstrated net wall-time improvement in this
+  cold-cache sample; slower unit/browser execution dominated. Details recorded in
+  DEV_WORKFLOW.md. No reviews/inline findings; final documentation-head CI pending.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 

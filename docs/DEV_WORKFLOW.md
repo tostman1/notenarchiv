@@ -51,6 +51,14 @@ uv uses lock-keyed cache, BuildKit local cache is lock/Dockerfile-keyed, cached 
 archive is hash-verified every run; vulnerability database is refreshed normally.
 No mandatory code PR check is removed. Main protection API reports 404/unprotected;
 manual reviewed-green gating remains. Actual after timings await PR CI.
+First optimized PR run [45197208105](https://github.com/tostman1/notenarchiv/actions/runs/45197208105)
+passed in **10:44**: Foundation **10:41**, Container **2:57**, classification **6 s**.
+Jobs overlapped; Container began ten seconds after Foundation. Unit execution was
+8:38 (baseline 5:21), browser step 1:52 (baseline 1:29), Python setup/sync 3 s,
+Docker build 25 s and image scans 10 s. This cold-cache sample is **44 s slower**
+than the 10:00 baseline, not evidence of net speedup. Parallelism avoids adding
+Container duration to Foundation, but runner/test variability dominates. Cache
+benefits require subsequent warm runs; no percentage improvement is promised.
 
 Agent workflow: prepare implementation and acceptance docs before final-head CI;
 report final CI/merge SHA in PR/chat and record integration in the next approved
