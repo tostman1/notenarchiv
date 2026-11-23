@@ -36,9 +36,17 @@ class ImmutableRecord(models.Model):
 class GenerationSnapshot(ImmutableRecord):
     source_snapshot = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
     request_id = models.UUIDField(unique=True, default=uuid.uuid4)
-    project = models.ForeignKey("projects.Project", on_delete=models.PROTECT)
+    project = models.ForeignKey("projects.Project", on_delete=models.PROTECT, null=True, blank=True)
     project_revision = models.PositiveBigIntegerField()
-    kind = models.CharField(max_length=16, choices=[("FULL", "FULL"), ("EXCERPT", "EXCERPT"), ("CONTENTS", "CONTENTS")])
+    kind = models.CharField(
+        max_length=16,
+        choices=[
+            ("FULL", "FULL"),
+            ("EXCERPT", "EXCERPT"),
+            ("CONTENTS", "CONTENTS"),
+            ("ARCHIVE_NOTES", "ARCHIVE_NOTES"),
+        ],
+    )
     payload = models.JSONField()
     sha256 = models.CharField(max_length=64)
     preflight_sha256 = models.CharField(max_length=64)
@@ -63,7 +71,19 @@ class GenerationSnapshot(ImmutableRecord):
             raise ValidationError("Snapshot missing decisions must match every requested missing cell.")
         if self.kind == "CONTENTS" and (self.payload.get("participants") or self.payload.get("cells")):
             raise ValidationError("Contents snapshots cannot contain personal musical inputs.")
+        if (self.kind == "ARCHIVE_NOTES") != (self.project_id is None):
+            raise ValidationError("Only archive-note snapshots may omit a project.")
+        if self.kind == "ARCHIVE_NOTES" and (
+            self.payload.get("positions") or self.payload.get("participants") or self.payload.get("cells")
+        ):
+            raise ValidationError("Archive-note snapshots cannot contain project identities.")
         if self.source_snapshot_id:
+            if self.payload.get("output_variant") == "PRINT":
+                source = dict(self.source_snapshot.payload)
+                source["output_variant"] = "PRINT"
+                if source != self.payload or self.kind != self.source_snapshot.kind:
+                    raise ValidationError("Print run must preserve its exact source snapshot.")
+                return
             if self.kind != "EXCERPT" or self.source_snapshot.project_id != self.project_id:
                 raise ValidationError("Historical excerpt provenance must refer to the same project.")
             if self.payload.get("historical_source") != {
@@ -131,8 +151,9 @@ class SnapshotPosition(ImmutableRecord):
 
 class SnapshotInput(ImmutableRecord):
     snapshot = models.ForeignKey(GenerationSnapshot, on_delete=models.PROTECT, related_name="inputs")
-    position = models.ForeignKey("projects.ProjectPosition", on_delete=models.PROTECT)
-    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    position = models.ForeignKey("projects.ProjectPosition", on_delete=models.PROTECT, null=True, blank=True)
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT, null=True, blank=True)
+    ordinal = models.PositiveIntegerField(default=0)
     part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT)
     assignment = models.ForeignKey("archive.ArchiveAssignment", on_delete=models.PROTECT)
     archive_file = models.ForeignKey("archive.ArchiveFile", on_delete=models.PROTECT)
@@ -143,15 +164,22 @@ class SnapshotInput(ImmutableRecord):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["snapshot", "position", "participant"], name="exports_unique_cell_pin")
+            models.UniqueConstraint(fields=["snapshot", "position", "participant"], name="exports_unique_cell_pin"),
+            models.UniqueConstraint(
+                fields=["snapshot", "ordinal"],
+                condition=models.Q(position__isnull=True, participant__isnull=True),
+                name="exports_unique_archive_ordinal",
+            ),
         ]
 
     def clean(self):
-        if (
+        if self.snapshot.kind != "ARCHIVE_NOTES" and (
             self.position.project_id != self.snapshot.project_id
             or self.participant.project_id != self.snapshot.project_id
         ):
             raise ValidationError("Pinned cell belongs to another project.")
+        if self.snapshot.kind == "ARCHIVE_NOTES" and (self.participant_id or self.position_id or self.ordinal < 1):
+            raise ValidationError("Archive pins require ordered documents without project identities.")
         if (
             self.assignment.archive_file_id != self.archive_file_id
             or self.assignment.part_id != self.part_id
@@ -163,6 +191,7 @@ class SnapshotInput(ImmutableRecord):
 
 
 class ExportArtifact(ImmutableRecord):
+    variant = models.CharField(max_length=8, choices=[("READING", "READING"), ("PRINT", "PRINT")], default="READING")
     run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="artifacts")
     participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT, null=True, blank=True)
     relative_path = models.CharField(max_length=512, unique=True)
@@ -189,6 +218,7 @@ class ExportArtifact(ImmutableRecord):
             self.intent.state != "APPLIED"
             or self.intent.job_id != self.run.job_id
             or self.intent.key != "artifact:" + (self.participant_id.hex if self.participant_id else "contents")
+            or self.variant != self.run.snapshot.payload.get("output_variant", "READING")
             or publication.run_id != self.run_id
             or publication.participant_id != self.participant_id
             or publication.relative_path != self.relative_path
@@ -214,7 +244,7 @@ class ExportPublication(ImmutableRecord):
     def clean(self):
         from core.paths import relative_path
 
-        if (self.run.snapshot.kind == "CONTENTS") != (self.participant_id is None) or (
+        if (self.run.snapshot.kind in {"CONTENTS", "ARCHIVE_NOTES"}) != (self.participant_id is None) or (
             self.participant_id
             and not self.run.snapshot.participants.filter(participant_id=self.participant_id).exists()
         ):
@@ -249,6 +279,14 @@ class ExportStage(ImmutableRecord):
             str(self.publication.participant_id) if self.publication.participant_id else None,
         ):
             raise ValidationError("Stage manifest does not identify its exact snapshot and participant.")
+        if snapshot.payload.get("output_variant") == "PRINT":
+            plan = self.manifest.get("print_plan", {})
+            if (
+                not isinstance(plan, dict)
+                or not plan.get("sheets")
+                or len(plan["sheets"]) != self.manifest.get("page_count")
+            ):
+                raise ValidationError("Print stage must contain a complete physical sheet manifest.")
 
     @property
     def relative_path(self):

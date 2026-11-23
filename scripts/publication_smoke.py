@@ -125,6 +125,34 @@ def smoke(image, root):
         assert hashlib.sha256(output.read_bytes()).hexdigest() == artifact["sha256"]
     assert not list((paths["export"] / ".staging").rglob("*.pdf"))
     excerpt_scenario = Path("tests/excerpt_scenario.py").read_text(encoding="utf-8")
+    print_scenario = Path("tests/print_scenario.py").read_text(encoding="utf-8")
+
+    def print_action(kind, ids):
+        args = [
+            "run",
+            "--rm",
+            *arguments(paths, "none", service="worker"),
+            "-e",
+            "DJANGO_SETTINGS_MODULE=config.settings",
+            "--entrypoint",
+            "python",
+            image,
+            "-c",
+            print_scenario,
+        ]
+        output = docker(*args, kind, json.dumps(ids)).stdout
+        target = json.loads(
+            next(
+                line.removeprefix("SCENARIO_RESULT=")
+                for line in output.splitlines()
+                if line.startswith("SCENARIO_RESULT=")
+            )
+        )
+        worker()
+        assert "SCENARIO_RESULT=" in docker(*args, "check", json.dumps(target)).stdout
+
+    print_action("FULL", generation_ids)
+    print_action("ARCHIVE", generation_ids)
     for kind in ("EXCERPT", "CONTENTS", "HISTORICAL"):
         args = [
             "run",
@@ -148,6 +176,7 @@ def smoke(image, root):
         )
         worker()
         assert "SCENARIO_RESULT=" in docker(*args, "check", json.dumps(selection)).stdout
+        print_action(kind, selection)
     preference_code = """
 import django,json,sys
 django.setup()

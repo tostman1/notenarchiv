@@ -100,6 +100,7 @@ def historical_report(source_id, participant_ids, position_ids):
     payload["cells"] = [c for c in payload["cells"] if c["participant_id"] in people and c["position_id"] in positions]
     payload["historical_source"] = {"id": str(source.pk), "sha256": source.sha256}
     payload["options"]["cover_enabled"] = False
+    payload["output_variant"] = "READING"
     if not any(c["status"] != "RESERVE" for c in payload["cells"]):
         raise ValidationError(_("Reserven enthalten keine Noten für einen Auszug."))
     from apps.archive.library_services import verify_file

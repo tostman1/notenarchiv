@@ -123,6 +123,32 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
     snapshot.full_clean()
     if fingerprint(snapshot.payload) != snapshot.sha256 or snapshot.preflight_sha256 != snapshot.sha256:
         raise ValidationError("Snapshot fingerprint mismatch")
+    if snapshot.kind == "ARCHIVE_NOTES":
+        pins = list(snapshot.inputs.select_related("archive_file__publication_operation__intent", "assignment"))
+        entries = snapshot.payload["archive_files"]
+        if len(pins) != len(entries):
+            raise ValidationError("Archive pin inventory mismatch")
+        for pin, cell in zip(sorted(pins, key=lambda p: p.ordinal), entries, strict=True):
+            checkpoint()
+            if (
+                pin.ordinal != cell["ordinal"]
+                or str(pin.archive_file_id) != cell["id"]
+                or pin.sha256 != cell["hash"]
+                or pin.byte_size != cell["size"]
+                or pin.archive_file.sha256 != pin.sha256
+                or pin.archive_file.revision != cell["revision"]
+                or pin.archive_file.root_kind != cell["root"]
+                or pin.archive_file.relative_path != cell["path"]
+                or pin.archive_file.source_version_id != pin.source_version_id
+                or pin.archive_file.byte_size != pin.byte_size
+                or pin.archive_file.arrangement_id != UUID(cell["arrangement"])
+                or pin.assignment.archive_file_id != pin.archive_file_id
+                or pin.assignment.part_id != pin.part_id
+                or pin.assignment.state != "CONFIRMED"
+                or not verify_file(pin.archive_file)
+            ):
+                raise ValidationError("Pinned archive source verification failed")
+        return snapshot, pins
     people = {str(p.participant_id): p for p in snapshot.participants.all()}
     if set(people) != {p["id"] for p in snapshot.payload["participants"]} or any(
         (

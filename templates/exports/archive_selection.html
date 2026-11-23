@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% translate "Druck-PDF aus Archivnoten" %}</h1><p>{% translate "Kein Projekt oder Mitglied erforderlich. Gewählte bestätigte PDFs werden in angezeigter Reihenfolge einmal aufgenommen; kombinierte Stimmen bleiben vollständig. Ohne Deckblatt oder Inhaltsverzeichnis." %}</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<form method="post">{% csrf_token %}{{ form.as_p }}<button name="action" value="inspect">{% translate "Archiv-Auswahl prüfen" %}</button></form>
+{% if selected %}<ol>{% for f in selected %}<li>{{ f.arrangement }} · {{ f.pk }} · <a href="{% url 'archive_preview:viewer' f.pk %}">{% translate "Originalvorschau" %}</a></li>{% endfor %}</ol><form method="post">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}">{% for f in selected %}<input type="hidden" name="files" value="{{ f.pk }}">{% endfor %}<button name="action" value="authorize">{% translate "Archiv-Druck-PDF erstellen" %}</button></form>{% endif %}{% endblock %}
