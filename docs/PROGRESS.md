@@ -45,6 +45,13 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-37a PR #44 head `a69cb41ce76f8e865c50049fb5ff07f3c0522371` passed full
+  CI `45175409416`: Linux unit/browser, runtime audit, migration/system checks,
+  actual hardened amd64 image with locked ReportLab/native dependencies, synthetic
+  container/restore/publication/install and vulnerability/secret checks. Exact PR
+  head and full diff reviewed; no reviews/inline findings, merge state CLEAN.
+  Final documentation-head CI and merge/main gates remain.
+
 - WP-36b merged PR #43 as `b4c16f9cc505185be78599c0cd9c271222c3e298`; final-head
   CI `45168812914` and post-merge main CI `45170929102` passed. Reviewed merged
   tree matched exactly; primary main clean/synchronized, no blocking findings.
