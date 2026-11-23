@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% load i18n %}{% block content %}<h1>{% translate "Matrixänderung nicht gespeichert" %}</h1><p role="alert">{{ message }}</p><a href="{% url 'project_matrix' project.pk %}">{% translate "Matrix neu laden" %}</a>{% endblock %}

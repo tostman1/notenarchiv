@@ -446,3 +446,36 @@ class EnsembleChange(Record):
 # Separate module keeps global rule/audit definitions focused; Django discovers
 # these concrete models through the installed app's canonical models module.
 from apps.projects.rule_models import GlobalReplacementRule, GlobalRuleState, RuleChange  # noqa: E402,F401
+
+
+class MatrixChange(Record):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name="matrix_history")
+    project_revision = models.PositiveBigIntegerField()
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    participant = models.ForeignKey(ProjectParticipant, on_delete=models.PROTECT)
+    position = models.ForeignKey(ProjectPosition, on_delete=models.PROTECT)
+    override = models.ForeignKey(PartOverride, on_delete=models.PROTECT)
+    event = models.CharField(max_length=24)
+    previous_part = models.ForeignKey(
+        "catalog.Part", on_delete=models.PROTECT, null=True, blank=True, related_name="matrix_changes_from"
+    )
+    selected_part = models.ForeignKey(
+        "catalog.Part", on_delete=models.PROTECT, null=True, blank=True, related_name="matrix_changes_to"
+    )
+    previous_edition = models.ForeignKey(
+        "archive.ArchiveAssignment", on_delete=models.PROTECT, null=True, blank=True, related_name="matrix_changes_from"
+    )
+    selected_edition = models.ForeignKey(
+        "archive.ArchiveAssignment", on_delete=models.PROTECT, null=True, blank=True, related_name="matrix_changes_to"
+    )
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Matrix change history is append-only.")
+        if self.participant.project_id != self.project_id or self.position.project_id != self.project_id:
+            raise ValidationError("Matrix change must stay in one project.")
+        if (self.override.participant_id, self.override.position_id) != (self.participant_id, self.position_id):
+            raise ValidationError("Matrix change identifies another override.")
+
+    class Meta:
+        ordering = ["project_revision", "created_at", "id"]

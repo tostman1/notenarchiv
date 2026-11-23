@@ -8,4 +8,5 @@
 {% if cell.resolution.file_id %}<p>{% translate "Konkrete Version" %}: <span class="matrix-id">{{ cell.resolution.file_id }}</span></p>{% endif %}
 {% if cell.resolution.usable %}<p>{% translate "SHA-256 geprüft" %}: <span class="matrix-id">{{ cell.resolution.sha256 }}</span></p>{% endif %}
 {% if cell.resolution.usable %}<a href="{% url 'archive_preview:viewer' cell.resolution.file_id %}">{% translate "PDF-Vorschau" %}</a> · <a href="{% url 'archive_note_download' cell.resolution.file_id %}">{% translate "Bestätigte PDF herunterladen" %}</a>{% endif %}
+{% if cell.edit_form %}{% if cell.has_choices %}<form method="post" action="{% url 'matrix_cell_edit' project.pk row.position.pk cell.resolution.participant_id %}" hx-post="{% url 'matrix_cell_edit' project.pk row.position.pk cell.resolution.participant_id %}" hx-target="#matrix-panel" hx-swap="outerHTML" class="matrix-cell-form">{% csrf_token %}{{ cell.edit_form.as_p }}<button>{% translate "Persönliche Ausgabe speichern" %}</button></form>{% else %}<p>{% translate "Keine bestätigten, hash-geprüften Alternativen vorhanden." %}</p>{% endif %}{% endif %}
 {% endif %}</td>

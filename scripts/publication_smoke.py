@@ -285,6 +285,13 @@ from apps.projects.matrix_services import matrix_page
 matrix=matrix_page(project.pk)
 assert len(matrix['rows'])==2 and len(matrix['participants'])==2
 assert any(cell['resolution'].usable for row in matrix['rows'] for cell in row['cells'])
+from apps.projects import matrix_edit_services as manual
+from apps.archive.models import ArchiveAssignment
+assignment=ArchiveAssignment.objects.usable().filter(part_id=part.pk).get()
+token=manual.choice_token(assignment,actor)
+manual.set_cell(project.pk,slot.pk,participant.pk,token,actor=actor,expected_revision=10)
+resolved=resolution.resolve_cell(project.pk,slot.pk,participant.pk)
+assert resolved.usable and resolved.edition_origin=='PERSONAL' and resolved.assignment_id==assignment.pk
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

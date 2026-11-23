@@ -20,4 +20,19 @@ Die Anzeige ist zunächst auf 25 Positionen und 10 Personen pro Seite begrenzt;
 mit **Weitere Positionen/Personen** bleiben alle anderen gespeicherten Zeilen und
 Spalten erreichbar. Stücknummern gelten projektweit und werden nicht auf Noten
 gedruckt. Diese Ansicht ersetzt keine spätere Vollständigkeits-Vorprüfung und keine
-ausdrückliche Bestätigung fehlender Noten. Direkte Bearbeitung folgt in WP-33b/33c.
+ausdrückliche Bestätigung fehlender Noten.
+
+## Einzelne Zuordnung ändern
+
+In der Zelle **Spielbare Stimme und konkrete Ausgabe** wählen und **Persönliche
+Ausgabe speichern**. Die Auswahl benennt Stimmung, Schlüssel und konkrete
+bestätigte Version gemeinsam. Eine persönliche Wahl gewinnt auch dann, wenn eine
+andere Stammstimme verfügbar wäre. Bei fremder Änderung/abgelaufener Auswahl neu
+laden; keine stille Ersatzversion und kein automatischer Wiederholungsversuch.
+
+Im Spaltenkopf **Gespeicherte Projektstimme** ändern und **Projektdefault speichern**.
+Dies ändert nur diesen Projektdefault, keine Mitgliedsstammdaten oder persönlichen
+Stück-Overrides. Die sichtbare Matrix und Revision werden nach erfolgreicher
+Änderung aktualisiert; Reload zeigt dieselbe gespeicherte Auswahl. Ohne JavaScript
+funktionieren die Formulare weiterhin mit regulärer Speicherung/Weiterleitung.
+Batchbearbeitung und ausdrückliches Zurücksetzen folgen in WP-33c.

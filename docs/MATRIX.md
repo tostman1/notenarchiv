@@ -12,8 +12,9 @@ personal/default/ensemble provenance, exact confirmed PDF UUID and edition origi
 explicit replacement origin, missing/ambiguous/invalid/corrupt states and warnings.
 Only usable confirmed byte-verified cells offer local PDF.js preview/direct download.
 Invalid fixed choices are not replaced. Reserve cells have no assignment/editor links.
-This package is read-only; cell/default editing arrives in WP-33b and atomic batch/
-reset in WP-33c. No preflight acknowledgment or generation/export snapshot is implied.
+The read-only view foundation is extended by [MATRIX_EDITS.md](MATRIX_EDITS.md)
+for direct cell/default editing; atomic batch/reset remains WP-33c. No preflight
+acknowledgment or generation/export snapshot is implied.
 
 Bounded initial window: 25 rows × 10 columns, independent pagination preserving
 common numbers and other selections. Pagination IDs and resolver graph share the

@@ -39,7 +39,8 @@ reflect actual completed work only.
 | WP-34 | Explicit ensemble roles and playable mapping editor | Merged, software verified | PR #35, merge `b174773` | Local 565 passed/81 platform skips; 646 Linux tests, fifteen browsers; final PR CI `45058429483` and main CI `45059301957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
 | WP-32 | Central assignment and edition resolver | Merged, software verified | PR #37, merge `7b6e6fb` | 685 Linux tests, sixteen browsers; final PR CI `45069483361` and main CI `45070646957` passed | Private NAS acceptance separate | Complete software scope |
-| WP-33a | Read-only matrix and effective provenance | Software verified; integration pending | PR #38, source `800dd5a` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; full CI `45073173161` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then WP-33b |
+| WP-33a | Read-only matrix and effective provenance | Merged, software verified | PR #38, merge `52114f4` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; final PR CI `45074373994` and main CI `45075310004` passed | Private NAS acceptance separate | Complete software scope |
+| WP-33b | Exact direct matrix cell and saved-default edits | Software verified; integration pending | PR #39, source `2b6eec1` | Local 631 passed/81 skips before final coverage; 714 Linux tests, eighteen browsers; full CI `45084352726` passed | Private NAS acceptance separate | Final docs-head CI and merge/main gates |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -119,8 +120,28 @@ reflect actual completed work only.
   696 Linux tests, seventeen browsers, hardened amd64 image/Compose, actual matrix
   adapter over restored confirmed inputs, archive/download/backup/restore, both
   installation flows and vulnerability/secret checks. Full diff/commits reviewed;
-  no submitted reviews or unresolved threads. Final docs-head/main CI gates remain
-  before WP-33b. No NAS/private data, deployment/release or linked worktrees.
+  no submitted reviews or unresolved threads. Final head `560bcf8` passed CI
+  `45074373994`, merged as `52114f4e20f012a76fdcdaeda02c0f1368889b7e`;
+  main CI `45075310004` passed. Exact merged tree matched, primary main clean.
+  No NAS/private data, deployment/release or linked worktrees.
+- WP-33b in progress on `feature/wp-33b-direct-matrix-edits` from verified main.
+  Signed exact edition cell edits, protected old/new MatrixChange, existing saved
+  default editor in headers, local hash-verified HTMX/no-JS forms, optimistic
+  project/archive fences; no personal-list mutation. Targeted tests/browser passed;
+  local full regression 631 passed/81 platform skips before final budget/archive
+  coverage, which passed in targeted rerun (18 edit/persistence/asset tests).
+  All eighteen browsers passed; final safety refinements passed both matrix browsers.
+  Ruff/format/lock/system/migration/diff checks passed; full implementation diff
+  reviewed. Initial CI `45083049948` failed an existing CRUD browser reload-before-
+  redirect race; explicit POST navigation synchronization retains assertions.
+  Matrix stale-tab test now reads its own timestamped choice token, preserving the
+  old project revision. Both affected browsers passed locally. Source `2b6eec1`
+  passed full CI `45084352726`: 714 Linux tests, eighteen browsers, system/migration
+  drift, locked runtime audit, hardened amd64 image/Compose, actual exact matrix
+  edit on confirmed synthetic inputs, archive/download/backup/isolated restore,
+  both install flows and vulnerability/secret checks. Full diff/commits reviewed;
+  no submitted reviews or unresolved threads. Final docs-head/merged-main gates
+  remain before WP-33c. No NAS/private data, deployment/release or linked worktrees.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 
