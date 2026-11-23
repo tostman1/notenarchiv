@@ -82,6 +82,10 @@ def main(stage):
                     from core.pdf.merging import merge
 
                     merge(readers, request["selections"], limits, stream)
+                elif request["operation"] == "compose":
+                    from core.pdf.composition import compose
+
+                    compose(readers, request, limits, stream)
                 else:
                     raise PdfError("INVALID_PDF")
             response = {"ok": True}
