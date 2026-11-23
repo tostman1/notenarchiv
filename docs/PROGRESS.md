@@ -45,6 +45,14 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-33d PR #41 source head `9373806dc9ceba80767e9e3dbd02e6cd3f7f21b0`
+  passed complete CI `45141008382`: Foundation and hardened amd64 container/security/
+  synthetic publication/isolated restore checks successful. PR head/base confirmed,
+  full diff reviewed, no submitted reviews or inline comments; merge state CLEAN.
+  Existing pinned actions emit a non-blocking Node 20 deprecation annotation while
+  running on Node 24; no infrastructure change included. This documentation update
+  requires its own final-head CI before conditional merge and post-merge main gate.
+
 - Approved order: WP-33d → WP-36a → WP-36b → WP-37a → WP-37b → WP-37c, separate
   primary-worktree branches/PRs, final-head and post-merge main CI gates. No releases,
   deployment, private data, branch deletion or additional packages authorized.
