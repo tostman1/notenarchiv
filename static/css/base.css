@@ -161,6 +161,9 @@ select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .matrix-cell-form select, .matrix-default-form select { width: 100%; max-width: 100%; font: inherit; }
 .matrix-cell-form label, .matrix-default-form label { display: block; }
 .matrix-cell-form button, .matrix-default-form button { margin-top: .3rem; }
+.matrix-batch-cell { border-top: 1px solid var(--line); margin-top: .7rem; padding-top: .5rem; }
+.matrix-batch-cell label, .matrix-batch-form label { display: block; }
+.matrix-batch-cell select, .matrix-batch-form select { width: 100%; font: inherit; }
 .log-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
 .log-table th, .log-table td { padding: .4rem; border-bottom: 1px solid var(--line); text-align: left; }
 

@@ -9,9 +9,9 @@ from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from apps.projects import matrix_edit_services, participant_services
+from apps.projects import matrix_batch_services, matrix_edit_services, participant_services
 from apps.projects.matrix_edit_context import add_edit_forms
-from apps.projects.matrix_forms import CellEditForm
+from apps.projects.matrix_forms import BatchEditForm, CellEditForm
 from apps.projects.matrix_services import matrix_page
 from apps.projects.models import Project
 from apps.projects.participant_forms import DefaultForm
@@ -109,4 +109,62 @@ def default_edit(request, project_id, participant_id):
         message=message,
         row_page=request.POST.get("rows"),
         column_page=request.POST.get("people"),
+    )
+
+
+@never_cache
+@login_required
+@require_POST
+def batch_edit(request, project_id, participant_id):
+    project = get_object_or_404(Project, pk=project_id)
+    get_object_or_404(project.participants, pk=participant_id, active=True)
+    prefix = f"batch-{participant_id}"
+    form = BatchEditForm(request.POST, prefix=prefix)
+    status, message = (
+        400,
+        _("Mehrfachänderung ungültig; nichts geändert. Stimme, Zellen und konkrete Ausgaben kontrollieren."),
+    )
+    if form.is_valid():
+        ids = request.POST.getlist(prefix + "-positions")
+        try:
+            if form.cleaned_data["action"] == "reset":
+                count = matrix_batch_services.reset_cells(
+                    project.pk,
+                    participant_id,
+                    ids,
+                    actor=request.user,
+                    expected_revision=form.cleaned_data["expected_revision"],
+                )
+                message = _("%(count)s persönliche Overrides zurückgesetzt; übrige Zellen bleiben unverändert.") % {
+                    "count": count
+                }
+            else:
+                selections = [
+                    (identifier, request.POST.get(prefix + "-choice-" + identifier, "")) for identifier in ids
+                ]
+                matrix_batch_services.set_cells(
+                    project.pk,
+                    participant_id,
+                    selections,
+                    part_id=form.cleaned_data["part"].pk,
+                    actor=request.user,
+                    expected_revision=form.cleaned_data["expected_revision"],
+                )
+                message = _("Alle ausgewählten Zellen atomisch gespeichert.")
+        except ProjectConflict:
+            status, message = (
+                409,
+                _("Projekt oder Archiv geändert; gesamte Auswahl unverändert. Neu laden und erneut prüfen."),
+            )
+        except ValidationError as exc:
+            message = " ".join(exc.messages)
+        else:
+            status = 200
+    return respond(
+        request,
+        project,
+        status=status,
+        message=message,
+        row_page=form.cleaned_data.get("rows"),
+        column_page=form.cleaned_data.get("people"),
     )

@@ -35,4 +35,21 @@ Dies ändert nur diesen Projektdefault, keine Mitgliedsstammdaten oder persönli
 Stück-Overrides. Die sichtbare Matrix und Revision werden nach erfolgreicher
 Änderung aktualisiert; Reload zeigt dieselbe gespeicherte Auswahl. Ohne JavaScript
 funktionieren die Formulare weiterhin mit regulärer Speicherung/Weiterleitung.
-Batchbearbeitung und ausdrückliches Zurücksetzen folgen in WP-33c.
+
+## Mehrere Zellen gemeinsam ändern oder zurücksetzen
+
+Bei einer Person die gewünschten Zellen mit **Für Mehrfachaktion auswählen**
+markieren (höchstens 25). Im Spaltenkopf **Mehrfachziel: Stimme und Notation** wählen.
+Für jede markierte Position unter **Konkrete Ausgabe für Mehrfachänderung** bewusst
+die passende bestätigte Version wählen, dann **Ausgewählte Zellen speichern**.
+Die gemeinsame Aktion speichert entweder alle gewählten Zellen oder keine. Fehlende,
+geänderte oder unpassende Ausgaben müssen zuerst korrigiert werden; unmarkierte
+Zellen und andere Personen bleiben unverändert. Auswahl wird nach Fehlern nicht
+automatisch wiederholt. Nach Reload bleiben gespeicherte Änderungen erhalten.
+
+**Diesen Override zurücksetzen** betrifft nur diese eine Zelle. Alternativ Zellen
+markieren und **Ausgewählte Overrides zurücksetzen**. Damit endet nur die persönliche
+Stück-Ausnahme; Projektdefault und gegebenenfalls Rollenregeln gelten wieder.
+Fehlende oder mehrdeutige Ausgaben werden sichtbar, nicht still ersetzt. Die
+Historie bleibt erhalten. Defaultänderungen behalten die übrigen persönlichen
+Overrides; Stückliste und gemeinsame Nummern werden durch keine Aktion geändert.

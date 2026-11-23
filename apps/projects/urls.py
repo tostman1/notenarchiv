@@ -13,6 +13,9 @@ from apps.projects import (
 urlpatterns = [
     path("<uuid:project_id>/matrix/", matrix_views.matrix, name="project_matrix"),
     path(
+        "<uuid:project_id>/matrix/batch/<uuid:participant_id>/", matrix_edit_views.batch_edit, name="matrix_batch_edit"
+    ),
+    path(
         "<uuid:project_id>/matrix/cells/<uuid:position_id>/<uuid:participant_id>/",
         matrix_edit_views.cell_edit,
         name="matrix_cell_edit",

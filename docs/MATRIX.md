@@ -13,7 +13,8 @@ explicit replacement origin, missing/ambiguous/invalid/corrupt states and warnin
 Only usable confirmed byte-verified cells offer local PDF.js preview/direct download.
 Invalid fixed choices are not replaced. Reserve cells have no assignment/editor links.
 The read-only view foundation is extended by [MATRIX_EDITS.md](MATRIX_EDITS.md)
-for direct cell/default editing; atomic batch/reset remains WP-33c. No preflight
+for direct cell/default editing and [MATRIX_BATCH.md](MATRIX_BATCH.md) for atomic
+batch/reset. No preflight
 acknowledgment or generation/export snapshot is implied.
 
 Bounded initial window: 25 rows × 10 columns, independent pagination preserving

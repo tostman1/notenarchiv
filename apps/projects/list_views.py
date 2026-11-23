@@ -41,7 +41,9 @@ def piece_list(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     rows = list(
         service.positions(project).annotate(
-            invalid_overrides=Count("overrides", filter=Q(overrides__needs_revalidation=True), distinct=True),
+            invalid_overrides=Count(
+                "overrides", filter=Q(overrides__active=True, overrides__needs_revalidation=True), distinct=True
+            ),
             invalid_editions=Count(
                 "edition_preferences", filter=Q(edition_preferences__needs_revalidation=True), distinct=True
             ),

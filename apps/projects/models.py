@@ -204,10 +204,11 @@ class PartOverride(Scoped):
     desired_part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT, related_name="personal_overrides")
     edition = models.ForeignKey("archive.ArchiveAssignment", on_delete=models.PROTECT, null=True, blank=True)
     needs_revalidation = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()
-        if not self.needs_revalidation:
+        if self.active and not self.needs_revalidation:
             if not self.position.active or not self.position.arrangement_id:
                 raise ValidationError("Reserve/removed slots cannot have effective overrides.")
             validate_edition(self, self.position.arrangement_id, self.desired_part_id)
