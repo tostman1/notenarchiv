@@ -1,5 +1,14 @@
 # Implemented acceptance traceability
 
+## WP-38a regular print plan (verification in progress)
+
+- GR-11/PT-01/02/EX-07: `test_print_layout.py` checks 1-6 and >6 arbitrary A4 runs,
+  odd remainder, native A3, landscape/custom/crop, rotations/units/origins, media
+  and transformed left/right corners; no cross-piece/position/document pairing.
+- GR-12/15/OP-02: generated/reserve/missing boundaries, deterministic frozen input,
+  explicit modes, invalid geometry/identity/options and bounded 1,000-page output.
+  Pure planning has no original-file mutation, publication or printer interface.
+
 ## WP-37c project selections (verification in progress)
 
 - EX-02/04/06, GR-07–10/12/15: `test_project_exports.py` covers exact one/multi-person
