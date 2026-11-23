@@ -45,6 +45,27 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-33d integrated through PR #41, final head `daff51d2902bcc3eefcf32473422b26d45197770`
+  passed full CI `45142636153`; merge `cac372c5fff4344ca3263df8e6227038bce28a62`
+  passed post-merge main CI `45144408952`. Merged tree exactly matched reviewed head;
+  clean primary main matched origin. No reviews/inline comments or blocking findings.
+- WP-36a started from that verified main on `feature/wp-36a-preflight`. Selected
+  participant/position report reuses central verified resolver; missing decisions,
+  blocking ambiguity/invalid/corrupt/unreadable inputs, unreviewed candidate notices,
+  part/edition provenance and isolated bounded structural/layout inspection added.
+  Signed actor/report-bound acknowledgements are inspection-only, no generation
+  job or immutable durable authorization implied (WP-36b). Thirteen integration tests
+  and the missing/conflicting/corrupted-input browser passed; full gates pending.
+  Final additions verify matching-hash malformed PDFs through the actual isolated
+  parser, withdrawn exact editions, foreign actors and duplicate acknowledgement
+  keys; no assertions weakened. Full regression/browser suites running. Ruff/format,
+  locked dependency, system/migration checks passed after formatting the route file.
+- WP-36a full browser suite passed: 21 tests in 322.06 s. Full local regression
+  passed: 670 tests/81 Windows platform skips in 683.36 s before final refinements;
+  final thirteen preflight integration tests passed in 27.83 s, including the
+  duplicate-selection guard. Complete diff reviewed; auth/CSRF, safe read-only
+  inputs and exact resolver selection remain unchanged. Linux PR CI pending.
+
 - WP-33d PR #41 source head `9373806dc9ceba80767e9e3dbd02e6cd3f7f21b0`
   passed complete CI `45141008382`: Foundation and hardened amd64 container/security/
   synthetic publication/isolated restore checks successful. PR head/base confirmed,

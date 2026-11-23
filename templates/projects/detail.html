@@ -4,6 +4,7 @@
 <p>{{ project.pk }} · {{ project.get_status_display }} · {% translate "Revision" %} {{ project.revision }}</p>
 <p>{{ project.get_layout_display }} · {{ project.width_mm }} × {{ project.height_mm }} mm</p>
 <p><a href="{% url 'project_matrix' project.pk %}">{% translate "Zuordnungsmatrix öffnen" %}</a></p>
+<p><a href="{% url 'project_preflight' project.pk %}">{% translate "Vorprüfung und Fehlnotenbericht" %}</a></p>
 <p><a href="{% url 'project_ensemble' project.pk %}">{% translate "Ensemble-Rollen und Zuordnungen" %}</a></p>
 <p><a href="{% url 'project_rules' project.pk %}">{% translate "Ersatz- und Ausgabenregeln" %}</a></p>
 <p>{% translate "Gemeinsame Positionen" %}: {{ positions }} · {% translate "Teilnehmende" %}: {{ participants }}</p>

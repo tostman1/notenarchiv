@@ -1,5 +1,19 @@
 # Implemented acceptance traceability
 
+## WP-36a
+
+- GR-09/EX-08: `test_report_identical_to_matrix_missing_ambiguous_and_reserve`,
+  `test_missing_ack_requires_each_cell_and_no_generation_job`,
+  `test_stale_selection_and_actor_tokens_rejected`: shared resolver parity,
+  no unacknowledged missing selection, no inspection-to-generation bypass.
+- EX-08/OP-03: corruption, parser failure, known unavailable input, pending
+  conflicting candidate, auth/CSRF/subset/no-mutation cases in `test_preflight.py`.
+- EX-08/EX-07: `test_layout_inspection_flags_native_a3_rotation_and_custom`;
+  serial per-file inspection and report budgets are explicitly tested.
+- `browser/test_preflight.py::test_preflight_browser` exercises German missing
+  acknowledgements and blocking ambiguous/corrupted inputs with actual browser.
+- Durable authorization and immutable generation snapshots are not yet implemented.
+
 ## WP-33d
 
 - AS-02/UI-03: `test_filters_preserve_shared_list_and_absolute_numbers` covers

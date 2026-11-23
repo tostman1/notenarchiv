@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Vorprüfung" %} — {{ project.name }}{% endblock %}
+{% block content %}
+<a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a><h1>{% translate "Vorprüfung und Fehlnotenbericht" %}</h1>
+<p>{% translate "Gewählte Personen und gemeinsame Positionen prüfen, ohne Stückliste oder Zuordnungen zu ändern. Für vollständige Mappen gelten später alle gemeinsamen Positionen." %}</p>
+<form method="post" class="record-form">{% csrf_token %}{{ selection.as_p }}<button name="action" value="inspect">{% translate "Auswahl prüfen" %}</button></form>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+{% if report %}
+<h2>{% translate "Prüfergebnis" %}</h2><p>{% translate "Projekt-Revision" %}: {{ report.session.project.revision }}</p>
+<p>{% translate "Blockierende Fehler" %}: {{ report.blocking }} · {% translate "Fehlende Zuordnungen mit Bestätigungspflicht" %}: {{ report.missing_keys|length }}</p>
+{% if pending_count %}<p>{% translate "Hinweis: ungeprüfte oder abgelehnte Kandidaten in den gewählten Arrangements" %}: {{ pending_count }}. {% translate "Diese Kandidaten werden niemals als nutzbare Noten eingesetzt." %}</p>{% endif %}
+{% if project.layout == 'MARCHBOOK' %}<p>{% translate "Hinweis: Marschbuch-Drucklayout ist noch nicht verfügbar; Originalgeometrie bleibt maßgeblich." %}</p>{% endif %}
+<p><a href="{% url 'project_matrix' project.pk %}">{% translate "Zuordnungen in der Matrix korrigieren" %}</a> · <a href="{% url 'project_rules' project.pk %}">{% translate "Ausgaben- und Ersatzregeln korrigieren" %}</a> · <a href="{% url 'project_ensemble' project.pk %}">{% translate "Ensemble-Mapping korrigieren" %}</a></p>
+{% for row in report.rows %}<section class="preflight-position" data-position="{{ row.position.pk }}"><h3>{{ row.position.order }}. {{ row.position.arrangement|default:'Reserve' }}</h3>
+{% for cell in row.cells %}<div class="preflight-cell" data-participant="{{ cell.resolution.participant_id }}" data-status="{{ cell.resolution.status }}">
+<h4>{{ cell.person.display_name }}</h4>
+<p><strong>{% if cell.blocking %}{% translate "Blockierender Fehler" %}{% elif cell.missing %}{% translate "Bestätigung erforderlich" %}{% else %}{% translate "Hinweis / Zuordnung" %}{% endif %}: {{ cell.resolution.status_label }}</strong></p>
+<p>{% translate "Gewünscht" %}: {{ cell.desired_part|default:'—' }} · {% translate "Tatsächliche Stimme" %}: {{ cell.effective_part|default:'—' }}</p>
+<p>{{ cell.resolution.part_origin_label }} · {{ cell.resolution.edition_origin_label }} · {{ cell.replacement_label }}</p>
+{% for reason in cell.reasons %}<p>{{ reason }}</p>{% endfor %}{% for warning in cell.warnings %}<p>{{ warning }}</p>{% endfor %}
+{% if cell.inspection.error %}<p>{% translate "PDF beschädigt, unlesbar oder Prüfgrenze überschritten. Archivkopie korrigieren und erneut prüfen." %}</p>{% endif %}
+{% if cell.unavailable_input %}<p>{% translate "Bestätigte Archivkopie als fehlend oder beschädigt markiert; Archiv prüfen. Kein bestätigbarer Platzhalter für beschädigte Eingaben." %}</p>{% endif %}
+{% for flag in cell.layout_flags %}<p>{% translate "Layout-Hinweis" %}: {{ flag }}</p>{% endfor %}
+{% if cell.resolution.usable and not cell.inspection.error %}<p>{% translate "Konkrete bestätigte Version" %}: {{ cell.resolution.file_id }} · {{ cell.resolution.sha256 }}</p><a href="{% url 'archive_preview:viewer' cell.resolution.file_id %}">{% translate "PDF-Vorschau" %}</a>{% endif %}
+</div>{% endfor %}</section>{% endfor %}
+{% if acknowledged %}<p role="status">{% translate "Fehlende Noten ausdrücklich bestätigt. Prüfergebnis akzeptiert, aber noch kein Generierungsauftrag oder dauerhafte Freigabe." %}</p>{% endif %}
+<form method="post" class="record-form">{% csrf_token %}{% for value in selection.cleaned_data.participants %}<input type="hidden" name="participants" value="{{ value }}">{% endfor %}{% for value in selection.cleaned_data.positions %}<input type="hidden" name="positions" value="{{ value }}">{% endfor %}{{ ack_form.as_p }}<button name="action" value="acknowledge" {% if report.blocking %}disabled{% endif %}>{% translate "Prüfergebnis und Platzhalter bestätigen" %}</button></form>
+{% endif %}<p>{{ generation_unavailable }}</p>
+{% endblock %}
