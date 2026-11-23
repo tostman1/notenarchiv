@@ -121,12 +121,33 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
     snapshot.full_clean()
     if fingerprint(snapshot.payload) != snapshot.sha256 or snapshot.preflight_sha256 != snapshot.sha256:
         raise ValidationError("Snapshot fingerprint mismatch")
-    if {str(p.participant_id) for p in snapshot.participants.all()} != {
-        p["id"] for p in snapshot.payload["participants"]
-    }:
+    people = {str(p.participant_id): p for p in snapshot.participants.all()}
+    if set(people) != {p["id"] for p in snapshot.payload["participants"]} or any(
+        (
+            people[p["id"]].display_name,
+            str(people[p["id"]].default_part_id),
+            str(people[p["id"]].role_id) if people[p["id"]].role_id else None,
+        )
+        != (p["name"], p["part"], p["role"])
+        for p in snapshot.payload["participants"]
+    ):
         raise ValidationError("Snapshot participant inventory mismatch")
-    if {str(p.position_id) for p in snapshot.positions.all()} != {p["id"] for p in snapshot.payload["positions"]}:
+    positions = {str(p.position_id): p for p in snapshot.positions.all()}
+    if set(positions) != {p["id"] for p in snapshot.payload["positions"]} or any(
+        (positions[p["id"]].number, positions[p["id"]].title, str(positions[p["id"]].arrangement_id))
+        != (p["order"], p["title"], p["arrangement"])
+        for p in snapshot.payload["positions"]
+    ):
         raise ValidationError("Snapshot position inventory mismatch")
+    cells = {(c["position_id"], c["participant_id"]): c for c in snapshot.payload["cells"]}
+    if len(cells) != len(snapshot.payload["cells"]) or set(cells) != {
+        (p, person) for p in positions for person in people
+    }:
+        raise ValidationError("Snapshot cell inventory mismatch")
+    if any(c["status"] not in {"AVAILABLE", "SUBSTITUTED", "MISSING", "RESERVE"} for c in cells.values()):
+        raise ValidationError("Invalid pinned input state")
+    if any((c["status"] == "RESERVE") != (positions[c["position_id"]].arrangement_id is None) for c in cells.values()):
+        raise ValidationError("Pinned reserve identity mismatch")
     pins = list(
         snapshot.inputs.select_related("assignment", "archive_file__publication_operation__intent", "source_version")
     )
@@ -164,6 +185,9 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
             or file.source_version_id != pin.source_version_id
             or file.root_kind != cell["root_kind"]
             or file.relative_path != cell["relative_path"]
+            or file.arrangement_id != positions[str(pin.position_id)].arrangement_id
+            or pin.source_version.pdf_state != "VALID"
+            or (file.kind == "BASE" and pin.source_version.sha256 != pin.sha256)
         ):
             raise ValidationError("Pinned input changed or unavailable")
         if (
@@ -173,21 +197,9 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
         ):
             raise ValidationError("Pinned source verification failed")
         if file.pk not in verified:
+            checkpoint()
             if not verify_file(file):
                 raise ValidationError("Pinned source verification failed")
             verified.add(file.pk)
+            checkpoint()
     return snapshot, pins
-
-
-def run_authorized(context):
-    context.checkpoint()
-    snapshot, _pins = load_pinned_inputs(context.payload["snapshot_id"], checkpoint=context.checkpoint)
-    if snapshot.run.job_id != context.job_id:
-        raise ValidationError("Job is not bound to snapshot authorization")
-    # WP-36b installs authorization, not a fake successful PDF handler. WP-37b
-    # supplies the real renderer/publication contract; premature jobs fail closed.
-    raise ValidationError("PDF generation handler not yet available")
-
-
-def register():
-    queue.HANDLERS[Job.Kind.GENERATE] = queue.Handler(validate_job_payload, run_authorized)

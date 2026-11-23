@@ -65,7 +65,10 @@ report final CI/merge SHA in PR/chat and record integration in the next approved
 package, rather than triggering another expensive docs-only full run solely to
 store the previous run ID. Never reuse old green CI after code changes.
 
-WP-37b is paused and locally preserved at `837b2013b8b2f218955bdbf19c8d53444baced5d`
+Historical maintenance checkpoint: WP-37b was paused and locally preserved at `837b2013b8b2f218955bdbf19c8d53444baced5d`
 on `feature/wp-37b-personal-folders` (not pushed). After maintenance integration,
 verify clean status, `git switch feature/wp-37b-personal-folders`, review checkpoint
 and safely merge updated main, resolving conflicts without discarding partial work.
+The owner-approved continuation recovered this checkpoint and normally merged verified
+maintenance main as `fe1691d`. Current PDF progress is in PROGRESS.md; launcher and
+optimized check behavior remain unchanged.

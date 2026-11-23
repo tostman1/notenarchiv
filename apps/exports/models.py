@@ -138,3 +138,96 @@ class SnapshotInput(ImmutableRecord):
             or self.archive_file.byte_size != self.byte_size
         ):
             raise ValidationError("Pinned input identity does not match its source.")
+
+
+class ExportArtifact(ImmutableRecord):
+    run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="artifacts")
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    relative_path = models.CharField(max_length=512, unique=True)
+    sha256 = models.CharField(max_length=64)
+    byte_size = models.PositiveBigIntegerField()
+    manifest = models.JSONField()
+    intent = models.OneToOneField("jobs.OperationIntent", on_delete=models.PROTECT)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_artifact")]
+
+    def clean(self):
+        try:
+            publication = ExportPublication.objects.get(pk=self.intent.payload["publication"])
+            stage = publication.stages.get(attempt=self.intent.attempt)
+        except (KeyError, ValueError, ExportPublication.DoesNotExist, ExportStage.DoesNotExist):
+            raise ValidationError("Artifact publication identity is invalid.") from None
+        if (
+            self.intent.state != "APPLIED"
+            or self.intent.job_id != self.run.job_id
+            or self.intent.key != "artifact:" + self.participant_id.hex
+            or publication.run_id != self.run_id
+            or publication.participant_id != self.participant_id
+            or publication.relative_path != self.relative_path
+            or (stage.sha256, stage.byte_size, stage.manifest) != (self.sha256, self.byte_size, self.manifest)
+            or self.intent.result != stage.receipt
+        ):
+            raise ValidationError("Artifact must match its exact applied publication receipt.")
+
+
+class ExportPublication(ImmutableRecord):
+    run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="publications")
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    relative_path = models.CharField(max_length=512, unique=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_publication")]
+
+    def clean(self):
+        from core.paths import relative_path
+
+        if not self.run.snapshot.participants.filter(participant_id=self.participant_id).exists():
+            raise ValidationError("Publication participant is not authorized by this snapshot.")
+        if relative_path(self.relative_path) != self.relative_path or self.relative_path.startswith(".staging/"):
+            raise ValidationError("Invalid publication path.")
+
+
+class ExportStage(ImmutableRecord):
+    publication = models.ForeignKey(ExportPublication, on_delete=models.PROTECT, related_name="stages")
+    attempt = models.PositiveIntegerField()
+    sha256 = models.CharField(max_length=64)
+    byte_size = models.PositiveBigIntegerField()
+    manifest = models.JSONField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["publication", "attempt"], name="exports_unique_attempt_stage")]
+
+    def clean(self):
+        import re
+
+        if not re.fullmatch(r"[0-9a-f]{64}", self.sha256) or not 0 < self.byte_size <= 104_857_600:
+            raise ValidationError("Invalid bounded stage identity.")
+        snapshot = self.publication.run.snapshot
+        if (
+            self.manifest.get("snapshot_id"),
+            self.manifest.get("snapshot_sha256"),
+            self.manifest.get("participant_id"),
+        ) != (str(snapshot.pk), snapshot.sha256, str(self.publication.participant_id)):
+            raise ValidationError("Stage manifest does not identify its exact snapshot and participant.")
+
+    @property
+    def relative_path(self):
+        return f".staging/{self.publication_id.hex}/attempt-{self.attempt}.pdf"
+
+    @property
+    def receipt(self):
+        return {"stage": str(self.pk), "sha256": self.sha256, "size": self.byte_size}
+
+
+class ExportCompletion(ImmutableRecord):
+    run = models.OneToOneField(GenerationRun, on_delete=models.PROTECT, related_name="completion")
+    inventory = models.JSONField()
+    sha256 = models.CharField(max_length=64)
+
+    def clean(self):
+        from apps.exports.generation import inventory
+        from apps.projects.preflight_services import fingerprint
+
+        if self.inventory != inventory(self.run) or self.sha256 != fingerprint(self.inventory):
+            raise ValidationError("Completion must identify the complete verified artifact inventory.")

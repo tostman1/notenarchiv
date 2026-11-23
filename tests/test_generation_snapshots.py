@@ -186,10 +186,11 @@ def test_authorize_endpoint_requires_csrf_and_verified_report(resolver_inputs, c
     assert response.status_code == 200 and response.context["authorized_run"].job.status == "QUEUED"
 
 
-def test_worker_without_renderer_fails_never_succeeds(resolver_inputs, tmp_path):
+def test_worker_with_invalid_pinned_input_fails_never_succeeds(resolver_inputs, tmp_path, settings):
     from apps.jobs.services.worker import run_worker
 
     run = authorize(**permission(resolver_inputs))
+    (settings.CURATED_DIR / resolver_inputs[6].relative_path).write_bytes(b"corrupt synthetic pin")
     run_worker(tmp_path / "worker.lock", once=True)
     run.job.refresh_from_db()
     assert run.job.status == "FAILED" and run.job.error_code == "HANDLER_FAILED"

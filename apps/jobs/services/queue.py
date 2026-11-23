@@ -33,6 +33,7 @@ class Handler:
     max_attempts: int = 1
     reconcile: Callable | None = None
     acknowledge: Callable | None = None
+    recover_cleanup: Callable | None = None
 
     def __post_init__(self):
         if type(self.idempotent) is not bool or type(self.max_attempts) is not int or not 1 <= self.max_attempts <= 5:

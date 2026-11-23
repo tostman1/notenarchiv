@@ -79,3 +79,32 @@ def test_actual_process_file_limit(tmp_path):
 def test_invalid_resource_limits_fail_before_launch(limits):
     with pytest.raises(ValueError):
         run_process([sys.executable, "-c", "pass"], timeout=1, **limits)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux parent-death binding")
+def test_resource_limited_child_stops_when_owning_worker_process_dies(tmp_path):
+    import subprocess
+
+    pulse = tmp_path / "synthetic-owner-pulse"
+    child = "import pathlib,sys,time; p=pathlib.Path(sys.argv[1]); " + (
+        "exec('while True:\\n p.write_text(str(time.monotonic()))\\n time.sleep(.02)')"
+    )
+    owner = "from core.processes import run_process; import sys; " + (
+        f"run_process([sys.executable,'-c',{child!r},sys.argv[1]],timeout=30,memory_bytes=134217728)"
+    )
+    process = subprocess.Popen([sys.executable, "-c", owner, str(pulse)])
+    try:
+        deadline = time.monotonic() + 10
+        while not pulse.exists() and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert pulse.exists()
+        process.kill()
+        process.wait(timeout=5)
+        time.sleep(0.1)
+        before = pulse.read_bytes()
+        time.sleep(0.2)
+        assert pulse.read_bytes() == before
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait(timeout=5)

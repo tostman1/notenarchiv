@@ -43,6 +43,35 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
+## Owner-approved personal PDF continuation — 2026-11-23
+
+- Verified clean main `6bf3c87f6a2261ed952ba51239f5f93ab847662c`, merged PR #45 and
+  successful main CI `45201911838`. Preserved and fully reviewed local checkpoint
+  `837b2013b8b2f218955bdbf19c8d53444baced5d`; safely resumed its existing branch.
+  Normal main merge `fe1691d` retained both route additions after one URL conflict.
+  No reset, force push, branch deletion or additional worktree.
+- WP-37b in progress: snapshot-only composition, durable immutable publication/stage/
+  artifact/completion records, bounded verified staging, fenced receipts, batch-only
+  authenticated downloads, German UI and dead-owner/parent-bound parser cleanup.
+- Targeted composition/snapshot/download/process regression: 40 passed, one platform
+  skip; independent SQLite snapshot/replay and download rerun: ten passed. Full suite
+  and final refinements require verification. Real Linux process/filesystem and
+  browser-to-worker/download acceptance added. Windows has neither Docker nor WSL;
+  no physical publication claimed locally. Final-head Linux CI/PR/main gates remain.
+  WP-37c not started.
+- Full Windows regression passed: 728 tests/99 platform skips in 925.41 s before
+  final inventory/cleanup/security refinements; affected rerun passed 45 tests/two
+  POSIX scratch skips. Ruff/format/lock/system/migration/diff checks passed.
+- Browser regression: 21 passed/one physical Linux skip/one existing editions timeout.
+  Unchanged isolated editions browser passed in 19.25 s; no assertions/timeouts
+  weakened. Preflight/authorization browsers also passed targeted verification.
+  Linux final-head CI must verify all browser and physical publication cases.
+- First PR #46 CI `45229173541`: real hardened container generation/security passed;
+  Linux Foundation failed 20 tests (812 passed). Isolated-root acceptance found
+  generation scratch derived from local log root instead of canonical DB DATA,
+  failing closed on overlapping roots. Corrected to DB parent; a synthetic parent-
+  death test script also needed escaped newlines. No root checks/assertions weakened.
+
 ## Owner-approved developer workflow maintenance — 2026-11-23
 
 - PDF sequence paused. All unfinished WP-37b files preserved in local-only WIP
@@ -79,6 +108,19 @@ reflect actual completed work only.
   DEV_WORKFLOW.md. No reviews/inline findings; final documentation-head CI pending.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
+
+- WP-37a merged PR #44 as `269793cc032f671cfe7b27c5c44142530e4f2556`; final-head
+  CI `45177706547` and main CI `45179603788` passed; exact reviewed tree matched,
+  primary main clean/synchronized. WP-37b started on `feature/wp-37b-personal-folders`.
+- WP-37b initial implementation adds artifact model/migration, generated-byte staging,
+  worker composer/publication/reconcile hooks and complete-run-only download routes.
+  Two pure personal/placeholder composition integration cases passed. Not complete
+  or merge-ready: POSIX publication/recovery/failure/cancellation tests, immutable
+  artifact guards, bounded memory/output manifests, safe stage retry cleanup,
+  human-readable naming, browser/UI wiring and full regression remain. Existing
+  unavailable-renderer tests/UI assertions must be updated to the real handler
+  contract without weakening safety. No generation button enabled yet. Source
+  checkpoint remains uncommitted; no successful physical publication claimed.
 
 - WP-37a PR #44 head `a69cb41ce76f8e865c50049fb5ff07f3c0522371` passed full
   CI `45175409416`: Linux unit/browser, runtime audit, migration/system checks,

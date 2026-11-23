@@ -90,6 +90,40 @@ def smoke(image, root):
     assert not list(paths["status"].iterdir())  # STATUS publication belongs to WP-15.
     assert not list((paths["clean"] / ".staging").rglob("*.pdf"))
     assert (paths["clean"] / approved["path"]).stat().st_uid == UID
+    generation_scenario = Path("tests/generation_scenario.py").read_text(encoding="utf-8")
+
+    def generation_action(name, ids):
+        result = docker(
+            "run",
+            "--rm",
+            *arguments(paths, "none", service="worker"),
+            "-e",
+            "DJANGO_SETTINGS_MODULE=config.settings",
+            "--entrypoint",
+            "python",
+            image,
+            "-c",
+            generation_scenario,
+            name,
+            json.dumps(ids),
+        )
+        results = [
+            json.loads(line.removeprefix("SCENARIO_RESULT="))
+            for line in result.stdout.splitlines()
+            if line.startswith("SCENARIO_RESULT=")
+        ]
+        assert len(results) == 1
+        return results[0]
+
+    generation_ids = generation_action("setup", identities)
+    worker()
+    exported = generation_action("check", generation_ids)
+    assert len(exported["inventory"]) == 2
+    for artifact in exported["inventory"]:
+        output = paths["export"] / artifact["path"]
+        assert output.stat().st_uid == UID and output.stat().st_nlink == 1
+        assert hashlib.sha256(output.read_bytes()).hexdigest() == artifact["sha256"]
+    assert not list((paths["export"] / ".staging").rglob("*.pdf"))
     preference_code = """
 import django,json,sys
 django.setup()
