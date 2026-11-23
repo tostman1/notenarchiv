@@ -1,5 +1,13 @@
 # Dependency-aware delivery sequence
 
+Owner authorization 2026-11-23: WP-38a → WP-38b → WP-39 sequentially, separate
+primary-worktree branches/PRs, reviewed exact-head CI and post-merge main CI.
+WP-37c PR #47 already merged at `06e8b3546d690d9395515fe9cce708ca8a8da27a`;
+final PR CI `45256041092` and main CI `45259372536` verified successful.
+Stop after WP-39. No extra worktrees, NAS/private data, printer communication,
+release, deployment, force-push or branch deletion. Older authorization paragraphs
+below are historical checkpoints, not additional current scope.
+
 Owner authorization 2026-11-22 (current): implement WP-34 → WP-35 → WP-32 →
 WP-33a → WP-33b → WP-33c sequentially in the primary worktree, separate PRs,
 reviewed final-head CI and post-merge main CI. Base `7f07243`, verified run

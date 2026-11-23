@@ -43,6 +43,23 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
+## Owner-approved print PDF and export management — 2026-11-23
+
+- Reverified actual WP-37c integration: PR #47 merged at
+  `06e8b3546d690d9395515fe9cce708ca8a8da27a`, final CI `45256041092` and
+  main CI `45259372536` successful (859 Linux tests/24 browsers). No review threads;
+  merged tree equals reviewed head; primary main clean and remote-synchronized.
+- WP-38a started on `feature/wp-38a-print-layout`. Pure frozen occurrence/page/sheet
+  planner, exact A4 consecutive music pairing, odd remainder, whole native A3/
+  landscape/custom/crop geometry, rotation/UserUnit/origin transforms and manifests.
+  Initial 28 targeted tests passed. Full regression and PR/CI/main gates pending.
+- WP-38a full local regression passed: 774 tests/113 Windows platform skips in
+  1010.45 s; final real-PDF inspection-to-plan addition passed with 29 targeted tests.
+  Ruff/format/system/migration/lock/diff checks passed. Complete planner diff reviewed:
+  pure immutable data, no I/O/auth/publication effects, exact boundary/geometry guards.
+  No new UI requires local browser changes; full Linux/browser/container CI remains
+  mandatory at the exact PR head. No renderer or next package started.
+
 ## Owner-approved personal PDF continuation — 2026-11-23
 
 - WP-37b integrated via PR #46, final head `08b3c9de6ef9cb8bae41a43b552645892acffdba`:
