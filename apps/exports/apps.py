@@ -7,6 +7,6 @@ class ExportsConfig(AppConfig):
     label = "exports"
 
     def ready(self):
-        from apps.exports.snapshot_services import register
+        from apps.exports.generation import register
 
         register()

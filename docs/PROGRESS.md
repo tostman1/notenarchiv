@@ -45,6 +45,19 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-37a merged PR #44 as `269793cc032f671cfe7b27c5c44142530e4f2556`; final-head
+  CI `45177706547` and main CI `45179603788` passed; exact reviewed tree matched,
+  primary main clean/synchronized. WP-37b started on `feature/wp-37b-personal-folders`.
+- WP-37b initial implementation adds artifact model/migration, generated-byte staging,
+  worker composer/publication/reconcile hooks and complete-run-only download routes.
+  Two pure personal/placeholder composition integration cases passed. Not complete
+  or merge-ready: POSIX publication/recovery/failure/cancellation tests, immutable
+  artifact guards, bounded memory/output manifests, safe stage retry cleanup,
+  human-readable naming, browser/UI wiring and full regression remain. Existing
+  unavailable-renderer tests/UI assertions must be updated to the real handler
+  contract without weakening safety. No generation button enabled yet. Source
+  checkpoint remains uncommitted; no successful physical publication claimed.
+
 - WP-37a PR #44 head `a69cb41ce76f8e865c50049fb5ff07f3c0522371` passed full
   CI `45175409416`: Linux unit/browser, runtime audit, migration/system checks,
   actual hardened amd64 image with locked ReportLab/native dependencies, synthetic

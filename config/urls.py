@@ -28,6 +28,7 @@ def healthz(_request) -> JsonResponse:
 
 
 urlpatterns = [
+    path("exports/", include("apps.exports.urls")),
     path("projects/", include("apps.projects.urls")),
     path("archive/", include("apps.archive.library_urls")),
     path("archive/", include("apps.archive.index_urls")),

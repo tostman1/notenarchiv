@@ -138,3 +138,16 @@ class SnapshotInput(ImmutableRecord):
             or self.archive_file.byte_size != self.byte_size
         ):
             raise ValidationError("Pinned input identity does not match its source.")
+
+
+class ExportArtifact(ImmutableRecord):
+    run = models.ForeignKey(GenerationRun, on_delete=models.PROTECT, related_name="artifacts")
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    relative_path = models.CharField(max_length=512, unique=True)
+    sha256 = models.CharField(max_length=64)
+    byte_size = models.PositiveBigIntegerField()
+    manifest = models.JSONField()
+    intent = models.OneToOneField("jobs.OperationIntent", on_delete=models.PROTECT)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["run", "participant"], name="exports_unique_person_artifact")]
