@@ -38,6 +38,21 @@ class DiagnosticFormatter(logging.Formatter):
         if type(status) is int and 100 <= status <= 599:
             data["event"] = "http_response"
             data["status_code"] = status
+            request = getattr(record, "request", None)
+            if request is not None:
+                match = getattr(request, "resolver_match", None)
+                route = getattr(match, "url_name", None)
+                if isinstance(route, str) and route.replace("_", "").isalnum() and len(route) < 80:
+                    data["endpoint"] = route
+                else:
+                    path = getattr(request, "path", "")
+                    # Only predefined public asset prefixes; never raw business paths/queries.
+                    public_assets = {"/static/css/base.css", "/static/favicon.svg", "/static/vendor/htmx/htmx.min.js"}
+                    data["endpoint"] = (
+                        path
+                        if path in public_assets
+                        else ("static-resource" if path.startswith("/static/") else "unmatched-route")
+                    )
         for key in ("job_id", "correlation_id", "file_id"):
             value = getattr(record, key, None)
             if isinstance(value, UUID):

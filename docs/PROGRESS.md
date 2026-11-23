@@ -43,6 +43,41 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
+## Owner-approved developer workflow maintenance — 2026-11-23
+
+- PDF sequence paused. All unfinished WP-37b files preserved in local-only WIP
+  commit `837b2013b8b2f218955bdbf19c8d53444baced5d` on
+  `feature/wp-37b-personal-folders`; no push or premature PR. Verified clean worktree,
+  switched to synchronized main `269793cc032f671cfe7b27c5c44142530e4f2556`, created
+  `chore/dev-workflow-ci-optimization` in the primary worktree only.
+- Managed foreground launcher, local-only dedicated capability login, static finder/
+  collection/favicon and safe endpoint categories implemented. Initial 27 local/manual
+  auth tests and two live lifecycle/stale-state tests passed. No reproduced manual
+  credential defect established. CI baseline 10:00, Foundation 7:00/Container 2:53;
+  concurrency/cache/classification changes pending full verification and actual CI.
+- Package remains in progress: lifecycle edge cases/cleanup review, full regression/
+  browser tests, workflow validation, final PR/CI/merge gates required. No PDF work resumed.
+- Full browser regression passed: 22 tests in 328.44 s. Final targeted lifecycle
+  tests cover real startup/static assets, kill yes/no, Ctrl+C cleanup, stale state
+  and port-conflict listener preservation (four passed). CI classification/local
+  capability/manual-auth targeted checks passed. Full regression still pending;
+  final launcher timeout/isolated test-root refinements recorded separately.
+- First full maintenance regression: 709 passed/81 skips/one cancellation readiness
+  timeout in existing 1.5 s process-tree test while suites ran concurrently. Isolated
+  unchanged process suite passed (13/one skip), followed by combined launcher/CI/
+  process tests (24/one skip). No timeouts/assertions changed. Serial full rerun
+  pending; previous attempted foreground rerun exited without complete result.
+- Serial final full regression passed: 716 tests/81 platform skips in 828.29 s;
+  no process cleanup assertion or timeout weakened. All 22 browsers passed.
+  Ruff/format/system/migration/lock/diff checks and actual actionlint validation
+  passed. Final review preserves existing required check names; main protection
+  lookup confirmed HTTP 404/unprotected. Maintenance PR/actual after timings pending.
+- PR #45 implementation head `d9f7eed6078c44791877e7fd8738c5a87d208783` passed
+  complete CI `45197208105`. Foundation 10:41, Container 2:57 in parallel; total
+  10:44 versus baseline 10:00. No demonstrated net wall-time improvement in this
+  cold-cache sample; slower unit/browser execution dominated. Details recorded in
+  DEV_WORKFLOW.md. No reviews/inline findings; final documentation-head CI pending.
+
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
 - WP-37a PR #44 head `a69cb41ce76f8e865c50049fb5ff07f3c0522371` passed full
