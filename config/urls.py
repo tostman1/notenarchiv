@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.urls import include, path
 
 from apps.accounts import views as account_views
+from apps.accounts.development import development_login
 from apps.catalog import views as catalog_views
 from apps.jobs import job_views as job_management
 from apps.jobs import views as job_views
@@ -29,6 +30,7 @@ def healthz(_request) -> JsonResponse:
 
 urlpatterns = [
     path("exports/", include("apps.exports.urls")),
+    path("dev-login/", development_login, name="development_login"),
     path("projects/", include("apps.projects.urls")),
     path("archive/", include("apps.archive.library_urls")),
     path("archive/", include("apps.archive.index_urls")),

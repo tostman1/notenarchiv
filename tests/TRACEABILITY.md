@@ -1,5 +1,17 @@
 # Implemented acceptance traceability
 
+## Developer workflow / CI maintenance
+
+- OP-03/GR-13/UI-01: `tests/test_dev_workflow.py` checks loopback local-only
+  dedicated capability login, NAS/remote/forged rejection, restart account identity,
+  manual authentication suite retained and diagnostic secret redaction.
+- `tests/test_dev_server.py` exercises real startup/static/auto-login sessions,
+  kill yes/no, Ctrl+C cleanup, repeated start/stop, stale state and unrelated port
+  listener preservation. No process termination based on PID files/ports.
+- OP-06: `tests/test_ci_workflow.py` and `ci_changes` tests preserve check names,
+  full code/mixed/security/config verification, PR-only cancellation, main/reusable
+  full scope; actionlint validates actual workflow. No NAS/production testing.
+
 ## WP-37a
 
 - EX-05/GR-12/EX-07: `test_contents_reserve_placeholder_unicode_no_music_overlay`,

@@ -33,6 +33,8 @@ and security](docs/INSTALL.md), [backup/restore](docs/RESTORE.md),
 [release/digest evidence](docs/RELEASES.md).
 
 Development uses Python 3.12, Django 5.2 LTS, uv, Ruff and pytest:
+For the managed Windows launcher use `./dev.ps1 start` after `uv sync --locked`;
+see [local workflow](docs/DEV_WORKFLOW.md) / [Windows-Anleitung](docs/dev-workflow.de.md).
 `uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`,
 `uv run pytest`. Browser acceptance runs separately with `uv run pytest browser/`
 and the documented local Playwright setup. See [developer setup](docs/DEVELOPMENT.md),
