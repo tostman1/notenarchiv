@@ -5,7 +5,7 @@ import time
 from django.core.exceptions import ValidationError
 
 from apps.projects.matrix_edit_services import choice_token
-from apps.projects.matrix_forms import CellEditForm
+from apps.projects.matrix_forms import BatchEditForm, CellEditForm
 from apps.projects.participant_forms import DefaultForm
 
 MAX_CHOICES_PER_ARRANGEMENT = 200
@@ -62,6 +62,9 @@ def add_edit_forms(context, actor):
         person.matrix_default_form = DefaultForm(
             prefix=f"default-{person.pk}",
             initial={"expected_revision": project.revision, "part": person.default_part_id},
+        )
+        person.matrix_batch_form = BatchEditForm(
+            prefix=f"batch-{person.pk}", initial={"expected_revision": project.revision, **page_values}
         )
     context["page_values"] = page_values
     return context

@@ -144,7 +144,7 @@ def replace(project_id, position_id, arrangement_id, *, actor, expected_revision
         row.arrangement = target
         row.save()
         if row.arrangement_id != old:
-            row.overrides.update(needs_revalidation=True)
+            row.overrides.filter(active=True).update(needs_revalidation=True)
             row.edition_preferences.update(needs_revalidation=True)
         _history(project, row, actor, "REPLACED", before_arrangement=old, before_order=row.order, before_active=True)
         return row
@@ -160,7 +160,7 @@ def remove(project_id, position_id, *, actor, expected_revision):
         rows.remove(row)
         row.active, row.order = False, None
         row.save()
-        row.overrides.update(needs_revalidation=True)
+        row.overrides.filter(active=True).update(needs_revalidation=True)
         row.edition_preferences.update(needs_revalidation=True)
         _renumber(project, rows)
         _history(

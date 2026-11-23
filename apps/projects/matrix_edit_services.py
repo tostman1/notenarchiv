@@ -71,27 +71,32 @@ def set_cell(project_id, position_id, participant_id, token, *, actor, expected_
             .exists()
         ):
             raise ProjectConflict()
-        record, created = m.PartOverride.objects.get_or_create(
-            project=project,
-            position=position,
-            participant=participant,
-            defaults={"desired_part": selected.part, "edition": selected},
-        )
-        previous_part = None if created else record.desired_part_id
-        previous_edition = None if created else record.edition_id
-        record.desired_part, record.edition, record.needs_revalidation = selected.part, selected, False
-        record.save()
-        m.MatrixChange.objects.create(
-            project=project,
-            project_revision=project.revision,
-            actor=reviewer(actor),
-            participant=participant,
-            position=position,
-            override=record,
-            event="CELL_SAVED",
-            previous_part_id=previous_part,
-            selected_part=selected.part,
-            previous_edition_id=previous_edition,
-            selected_edition=selected,
-        )
-        return record
+        return save_choice(project, position, participant, selected, actor=actor)
+
+
+def save_choice(project, position, participant, selected, *, actor, event="CELL_SAVED"):
+    """Internal helper; callers hold the revision writer and have fenced the choice."""
+    record, created = m.PartOverride.objects.get_or_create(
+        project=project,
+        position=position,
+        participant=participant,
+        defaults={"desired_part": selected.part, "edition": selected},
+    )
+    previous_part = None if created or not record.active else record.desired_part_id
+    previous_edition = None if created or not record.active else record.edition_id
+    record.desired_part, record.edition, record.needs_revalidation, record.active = selected.part, selected, False, True
+    record.save()
+    m.MatrixChange.objects.create(
+        project=project,
+        project_revision=project.revision,
+        actor=reviewer(actor),
+        participant=participant,
+        position=position,
+        override=record,
+        event=event,
+        previous_part_id=previous_part,
+        selected_part=selected.part,
+        previous_edition_id=previous_edition,
+        selected_edition=selected,
+    )
+    return record

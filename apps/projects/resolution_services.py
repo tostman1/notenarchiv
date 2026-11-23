@@ -119,7 +119,10 @@ class ResolutionSession:
                 (row.position_id, row.participant_id): row
                 for row in bounded(
                     m.PartOverride.objects.filter(
-                        project=self.project, position_id__in=self.positions, participant_id__in=self.participants
+                        project=self.project,
+                        active=True,
+                        position_id__in=self.positions,
+                        participant_id__in=self.participants,
                     ).select_related("desired_part__instrument")
                 )
             }

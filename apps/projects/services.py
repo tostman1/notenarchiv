@@ -124,7 +124,11 @@ def duplicate_project(project_id, *, name, actor, expected_revision):
                     for field in ("position", "participant", "role"):
                         if getattr(row, field + "_id", None) and getattr(row, field).project_id != source.pk:
                             raise ValidationError("Cross-project reference in source graph.")
-                if isinstance(row, (m.PartOverride, m.PositionEditionPreference)) and not row.needs_revalidation:
+                if (
+                    isinstance(row, (m.PartOverride, m.PositionEditionPreference))
+                    and row.active
+                    and not row.needs_revalidation
+                ):
                     edition = row.edition
                     part_id = row.desired_part_id if isinstance(row, m.PartOverride) else row.part_id
                     if edition and (

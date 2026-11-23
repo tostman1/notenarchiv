@@ -40,7 +40,8 @@ reflect actual completed work only.
 | WP-35 | Scoped replacement and concrete edition preference rules | Merged, software verified | PR #36, merge `7190045` | 661 Linux tests, sixteen browsers; final PR CI `45063691091` and main CI `45064524288` passed | Private NAS acceptance separate | Complete software scope |
 | WP-32 | Central assignment and edition resolver | Merged, software verified | PR #37, merge `7b6e6fb` | 685 Linux tests, sixteen browsers; final PR CI `45069483361` and main CI `45070646957` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33a | Read-only matrix and effective provenance | Merged, software verified | PR #38, merge `52114f4` | Local 615 passed/81 skips; 696 Linux tests, seventeen browsers; final PR CI `45074373994` and main CI `45075310004` passed | Private NAS acceptance separate | Complete software scope |
-| WP-33b | Exact direct matrix cell and saved-default edits | Software verified; integration pending | PR #39, source `2b6eec1` | Local 631 passed/81 skips before final coverage; 714 Linux tests, eighteen browsers; full CI `45084352726` passed | Private NAS acceptance separate | Final docs-head CI and merge/main gates |
+| WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
+| WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
@@ -140,8 +141,38 @@ reflect actual completed work only.
   drift, locked runtime audit, hardened amd64 image/Compose, actual exact matrix
   edit on confirmed synthetic inputs, archive/download/backup/isolated restore,
   both install flows and vulnerability/secret checks. Full diff/commits reviewed;
-  no submitted reviews or unresolved threads. Final docs-head/merged-main gates
-  remain before WP-33c. No NAS/private data, deployment/release or linked worktrees.
+  no submitted reviews or unresolved threads. Final head `21064be` passed CI
+  `45085495233`, merged as `88ef45a4f9f5b7e6e0a381dcc41eeb18410b5190`;
+  main CI `45086565420` passed. Exact merged tree matched; primary main clean.
+  Branch protection unavailable; explicit checks performed. No NAS/private data,
+  deployment/release or linked worktrees.
+- WP-33c in progress on `feature/wp-33c-atomic-matrix-batch` from verified main.
+  Same-person bounded exact multi-cell edits and non-destructive selected reset;
+  active flag retains historical override identities/pins, central resolver ignores
+  reset overrides. Full validation, one project revision transaction and protected
+  per-cell history; no shared-list/numbering changes. Twenty-one batch/persistence
+  tests and all nineteen browsers passed, including JavaScript-disabled selected
+  reset. Actual SQLite concurrent
+  batches yield one save/one conflict and independent reopen preserves reset/pins.
+  Full local regression 652 passed/81 platform skips before final budget/inactive-
+  arrangement coverage; final matrix/batch/persistence suite 49 passed and all three
+  matrix browsers passed. Ruff/format/lock/system/migration/diff checks passed;
+  full diff reviewed. Source `04d2ff0` passed full CI `45090329532`: 736 Linux
+  tests, nineteen browsers, system/migration drift, locked runtime audit, hardened
+  amd64 image/Compose, actual synthetic exact batch and retained reset in the
+  isolated restored archive, worker publication/download/backup/restore, both install
+  flows and vulnerability/secret checks. No submitted reviews or unresolved threads.
+  Final documentation-head CI and merge/main gates remain; no further WPs started.
+- Authorized sequence functionality now covers scoped roles/mappings, replacement
+  and edition preferences, one central resolver, provenance matrix, direct exact
+  edits/saved defaults and atomic batch/reset. Private NAS acceptance is separate.
+  Matrix currently pages 25 positions by 10 participants; batches are bounded to
+  25 cells, require deliberate per-position exact editions and abort on conflicts.
+  Preflight acknowledgements, immutable generation snapshots and export/printing
+  are not implied. Dependency-ready next packages after WP-33c integration:
+  WP-33d (matrix filters/performance) and WP-36a (preflight/missing report).
+  Recommendation: WP-33d first to validate 100-by-50 usability/query bounds, then
+  WP-36a. Both require new authorization; stop after verified WP-33c main CI.
 
 ## Owner-approved archive safety and projects sequence — 2026-11-22
 

@@ -292,6 +292,12 @@ token=manual.choice_token(assignment,actor)
 manual.set_cell(project.pk,slot.pk,participant.pk,token,actor=actor,expected_revision=10)
 resolved=resolution.resolve_cell(project.pk,slot.pk,participant.pk)
 assert resolved.usable and resolved.edition_origin=='PERSONAL' and resolved.assignment_id==assignment.pk
+from apps.projects import matrix_batch_services as batch
+batch.set_cells(project.pk,participant.pk,[(slot.pk,token)],part_id=part.pk,actor=actor,expected_revision=11)
+assert batch.reset_cells(project.pk,participant.pk,[slot.pk],actor=actor,expected_revision=12)==1
+resolved=resolution.resolve_cell(project.pk,slot.pk,participant.pk)
+assert resolved.usable and resolved.override_id is None
+assert m.PartOverride.objects.get(project=project,participant=participant,position=slot).active is False
 s.archive_project(clone.pk,actor=actor,expected_revision=1)
 assert m.Project.objects.get(pk=clone.pk).status=='ARCHIVED'
 """

@@ -16,7 +16,7 @@ assignment/file revision. Saving pins desired part and edition together in the
 existing PartOverride, retains scope UUID and records append-only MatrixChange
 protected old/new parts and editions. Invalid, withdrawn, corrupt, stale or foreign
 selections roll back atomically. Explicit re-selection clears needs_revalidation;
-there is no automatic inheritance/reset in this package. Batch/reset follows WP-33c.
+there is no automatic reset. [MATRIX_BATCH.md](MATRIX_BATCH.md) adds WP-33c batch/reset.
 
 Column headers edit the saved participant project default through the existing
 WP-31 service. Master members, other people, positions/numbering, roles and all

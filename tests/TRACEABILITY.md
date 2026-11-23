@@ -233,4 +233,25 @@ scoped work packages; this register does not claim those gates were exercised.
 - CI `45084352726` on `2b6eec1`: 714 Linux tests, eighteen browsers and full
   hardened image/synthetic exact edit/security checks passed. Local full regression
   631 passed/81 skips before final coverage, covered by targeted 18-test rerun.
-  No NAS acceptance inferred. Final PR-head/main integration gates remain.
+  Final PR CI `45085495233` and merged main CI `45086565420` passed; PR #39
+  merged as `88ef45a`. No NAS acceptance inferred.
+
+## WP-33c (software acceptance)
+
+- AS-04/AS-08: `tests/test_matrix_batch.py` covers atomic exact same-person
+  part/notation multi-edit, complete validation/fencing and audit rollback,
+  invalid/foreign/reserve/duplicate/withdrawn/corrupt/stale selections, scope and
+  bounds, single/multi reset, historical pins/protection, defaults preserving
+  overrides, clone state, missing/revalidation statuses and authenticated CSRF forms.
+- `tests/test_matrix_batch_persistence.py`: actual migrated SQLite competing batches
+  (one save/one conflict), one-cell reset and independent process reopen.
+- `browser/test_matrix_batch.py`: real associated cell forms in HTMX, invalid batch
+  no changes, multi-save, stale second tab, single reset/reload, unchanged reserves/list.
+  Actual JavaScript-disabled selected-reset submission also checked; 21 focused
+  batch/persistence tests and all nineteen browsers passed on final implementation.
+  Local full regression 652 passed/81 platform skips before final refinements;
+  final 49 matrix/edit/batch/persistence tests and all three matrix browsers passed.
+  CI `45090329532` on `04d2ff0` passed: 736 Linux tests, nineteen browsers,
+  hardened image/Compose actual synthetic batch/reset and full vulnerability/secret
+  checks. Final documentation-head/merged-main gates remain. No NAS acceptance
+  or preflight/generation completion inferred.
