@@ -25,7 +25,7 @@ async function run(origin,project,person){
   assert.equal((await submit([])).status,409);
   const first=await submit(keys);assert.equal(first.status,200);assert.match(first.text,/Unveränderliche Generierungseingaben gespeichert/);
   assert.equal((await submit(keys)).status,200);
-  assert.match(first.text,/PDF-Erstellung noch nicht implementiert/);assert.deepEqual(errors,[]);
+   assert.match(first.text,/Ergebnis und Auftrag öffnen/);assert.deepEqual(errors,[]);
  }finally{await browser.close();}
 }
 run(new URL(process.argv[2]).origin,...process.argv.slice(3)).catch(e=>{console.error(e);process.exitCode=1;});

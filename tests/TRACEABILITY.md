@@ -1,5 +1,23 @@
 # Implemented acceptance traceability
 
+## WP-37b personal reading generation (verification in progress)
+
+- EX-01/GR-07–10/EX-05/07/09: `test_personal_generation.py` checks pinned composition
+  after project edits, exact distinct parts/editions with common contents/reserves,
+  acknowledged placeholders and aggregate input bound; existing PDF composition/core
+  tests cover original geometry, content streams, A3, rotation and active content.
+- EX-09/GR-15/OP-02/03: `test_generation_downloads.py` checks exact applied receipt,
+  immutable artifact trigger, safe names, login/GET-only, complete-state gating and
+  missing/corrupt output denial. Snapshot authorization/persistence suites remain.
+- OP-02/GR-15: `test_generation_publication.py` performs real Linux files/independent
+  processes for stage/link/ack/completion deaths, restart, replay, multi-person failure,
+  cancellation, missing/corrupt/foreign equal-hash stage evidence and private cleanup.
+- UI-01/03/EX-01: `browser/test_personal_generation.py` and local-only Playwright
+  exercise real preflight acknowledgement, worker and verified browser PDF download.
+  Windows skips this physical route; Linux CI must pass it before integration.
+- `scripts/publication_smoke.py` exercises actual hardened non-root network-disabled
+  container generation/publication of two personal PDFs, hashes and ownership.
+
 ## Developer workflow / CI maintenance
 
 - OP-03/GR-13/UI-01: `tests/test_dev_workflow.py` checks loopback local-only

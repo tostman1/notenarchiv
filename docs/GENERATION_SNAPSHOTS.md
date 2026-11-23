@@ -1,8 +1,9 @@
 # Immutable generation authorization (WP-36b)
 
 Generation authorization is a server-only service exposed through authenticated,
-CSRF-protected preflight POST. No PDF renderer, export download or enabled generation
-button is shipped by WP-36b; premature worker execution fails explicitly.
+CSRF-protected preflight POST. WP-36b established this boundary without a renderer;
+WP-37b's personal generation handler and complete-run downloads now consume it
+(see PERSONAL_GENERATION.md). Earlier unavailable-renderer acceptance is historical.
 
 The signed 30-minute preflight token binds actor, project, report fingerprint and
 an independent request UUID. `authorize` rebuilds the report with the central
@@ -43,10 +44,9 @@ are checked once per physical input, with cancellation/lease checkpoints between
 pins. Any changed/missing/corrupt/withdrawn source fails closed. Project/default/list
 edits do not rewrite existing payloads or pins.
 
-Until WP-37b, the registered GENERATE handler validates authorization then fails
-with no output. Generic queue history/cancellation/restart behavior is retained;
-it does not claim artifact recovery that cannot yet exist. WP-37b must add durable
-publication/idempotent artifact reconciliation, without weakening this input gate.
+WP-37b registers the real GENERATE handler, retaining this exact-input gate and
+generic queue history/cancellation/restart fencing. Durable export publication and
+artifact reconciliation are documented separately in PERSONAL_GENERATION.md.
 
 Tests: `test_generation_snapshots.py`, independent-process
 `test_generation_snapshot_persistence.py` (SQLite reopen/concurrent replay), and

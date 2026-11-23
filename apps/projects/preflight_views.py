@@ -30,6 +30,9 @@ def preflight(request, project_id):
             context["report"] = report
             context["pending_count"] = len(report.payload["pending"])
             context["ack_form"] = PreflightAcknowledgement(report=report, actor=request.user)
+            context["full_scope"] = set(report.session.positions) == set(
+                project.positions.filter(active=True).values_list("pk", flat=True)
+            )
             if request.POST.get("action") == "acknowledge":
                 form = PreflightAcknowledgement(request.POST, report=report, actor=request.user)
                 context["ack_form"] = form
@@ -65,5 +68,4 @@ def preflight(request, project_id):
             status = 409
     elif request.method == "POST":
         status = 400
-    context["generation_unavailable"] = _("Vorprüfung erzeugt noch keinen Auftrag. Dauerhafte Freigabe folgt separat.")
     return render(request, "projects/preflight.html", context, status=status)

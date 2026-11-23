@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
+from apps.exports.generation import verified_complete
 from apps.exports.models import ExportArtifact, GenerationRun
 from core import preview
 
@@ -18,8 +19,18 @@ from core import preview
 @require_GET
 def detail(request, run_id):
     run = get_object_or_404(GenerationRun.objects.select_related("job", "snapshot"), pk=run_id)
-    complete = run.job.status == "SUCCEEDED" and run.artifacts.count() == len(run.snapshot.payload["participants"])
-    return render(request, "exports/detail.html", {"run": run, "complete": complete})
+    complete = verified_complete(run)
+    return render(
+        request,
+        "exports/detail.html",
+        {
+            "run": run,
+            "complete": complete,
+            "participants": run.snapshot.payload["participants"],
+            "artifacts": list(run.artifacts.all()) if complete else [],
+            "job_status": run.job.get_status_display(),
+        },
+    )
 
 
 @never_cache
@@ -28,7 +39,7 @@ def detail(request, run_id):
 def download(request, artifact_id):
     artifact = get_object_or_404(ExportArtifact.objects.select_related("run__job", "run__snapshot"), pk=artifact_id)
     run = artifact.run
-    if run.job.status != "SUCCEEDED" or run.artifacts.count() != len(run.snapshot.payload["participants"]):
+    if not verified_complete(run):
         raise Http404
     try:
         data = preview.snapshot(
@@ -42,4 +53,5 @@ def download(request, artifact_id):
         raise Http404 from None
     response = FileResponse(BytesIO(data), as_attachment=True, filename="Lese-PDF.pdf", content_type="application/pdf")
     response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "default-src 'none'; sandbox"
     return response

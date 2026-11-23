@@ -252,6 +252,15 @@ def recover_interrupted(monitor, authority):
                 intent.save(using=using, update_fields=["state", "result"])
                 if state == "APPLIED":
                     _acknowledge(handler, context, intent)
+        cleanup_failed = False
+        if handler and handler.recover_cleanup:
+            try:
+                handler.recover_cleanup(context)
+            except queue.StaleAttempt:
+                raise
+            except Exception:
+                # Unverified cleanup must not authorize another heavy attempt.
+                cleanup_failed = True
         with transaction.atomic(using=using):
             queue._touch_lease(lease, using)
             job.refresh_from_db(using=using)
@@ -259,7 +268,7 @@ def recover_interrupted(monitor, authority):
             status, error = Job.Status.FAILED, "RECOVERY_UNSAFE"
             if job.kind == Job.Kind.PRINT:
                 status, error = Job.Status.REVIEW_REQUIRED, "PRINT_ACCEPTANCE_UNKNOWN"
-            elif uncertain:
+            elif uncertain or cleanup_failed:
                 status, error = Job.Status.REVIEW_REQUIRED, "OPERATION_UNCERTAIN"
             elif job.cancel_requested:
                 status, error = Job.Status.CANCELLED, "CANCELLED"

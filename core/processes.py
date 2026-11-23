@@ -94,7 +94,10 @@ def run_process(arguments, *, timeout, checkpoint=lambda: None, memory_bytes=Non
             job.assign(process)
             assigned = True
         if launcher:
-            process.stdin.write(json.dumps({"arguments": arguments, "limits": limits}).encode("utf-8") + b"\n")
+            process.stdin.write(
+                json.dumps({"arguments": arguments, "limits": limits, "parent_pid": os.getpid()}).encode("utf-8")
+                + b"\n"
+            )
             process.stdin.close()
         deadline = time.monotonic() + timeout
         while process.poll() is None:
