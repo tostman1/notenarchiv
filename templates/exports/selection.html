@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% if contents_only %}{% translate "Nur Inhaltsverzeichnis" %}{% else %}{% translate "Historische Einzelstimmen exakt nachdrucken" %}{% endif %}</h1>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+{% if source %}<p>{{ source.payload.project_name }} · {% translate "Historische Revision" %} {{ source.project_revision }}</p><p>{% translate "Exakte gespeicherte Stimmen und Ausgaben; heutige Projektdefaults werden nicht verwendet. Ohne Deckblatt oder Inhaltsverzeichnis." %}</p>
+<form method="post">{% csrf_token %}{{ selection.as_p }}<button name="action" value="inspect">{% translate "Historische Auswahl prüfen" %}</button></form>{% endif %}
+{% if report %}<p>{{ report.payload.project_name }} · {% translate "Revision" %} {{ report.payload.revision }}</p>
+<ul>{% for p in report.payload.positions %}<li>{{ p.order }}. {{ p.title }}</li>{% endfor %}</ul>
+{% if source %}<ul>{% for p in report.payload.participants %}<li>{{ p.name }}</li>{% endfor %}</ul><ul>{% for cell in report.payload.cells %}<li>{% translate "Exakte Notendatei / Hash" %}: {{ cell.file_id|default:'—' }} · {{ cell.sha256 }} · {{ cell.status }}</li>{% endfor %}</ul>{% endif %}
+{% if contents_only %}<p>{% translate "Gemeinsame vollständige Stückliste einschließlich Reserven; keine Notenseiten, keine Personenauswahl." %}</p>{% endif %}
+<form method="post">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}">{% for p in report.payload.participants %}<input type="hidden" name="participants" value="{{ p.id }}">{% endfor %}{% for p in report.payload.positions %}<input type="hidden" name="positions" value="{{ p.id }}">{% endfor %}
+{% for key in report.missing %}<label><input type="checkbox" name="acknowledgements" value="{{ key }}">{% translate "Historisch fehlende Noten erneut als Platzhalter bestätigen" %} · {{ key }}</label>{% endfor %}
+<button name="action" value="authorize">{% if contents_only %}{% translate "Inhaltsverzeichnis verbindlich erstellen" %}{% else %}{% translate "Exakten historischen Auszug erstellen" %}{% endif %}</button></form>{% endif %}
+{% endblock %}

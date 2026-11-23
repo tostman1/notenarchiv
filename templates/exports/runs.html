@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}<h1>{% translate "Erstellte Aufträge und exakter Nachdruck" %}</h1><p>{{ project.name }}</p>
+<ul>{% for run in runs %}<li>{{ run.created_at }} · {{ run.snapshot.kind }} · {{ run.job.get_status_display }} · <a href="{% url 'generation_detail' run.pk %}">{% translate "Ergebnis und Auftrag" %}</a>{% if run.snapshot.kind != 'CONTENTS' %} · <a href="{% url 'historical_excerpt' run.snapshot_id %}">{% translate "Historische Einzelstimmen exakt nachdrucken" %}</a>{% endif %}</li>{% empty %}<li>{% translate "Noch keine Generierungsaufträge." %}</li>{% endfor %}</ul>
+{% endblock %}

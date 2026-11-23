@@ -1,5 +1,22 @@
 # Implemented acceptance traceability
 
+## WP-37c project selections (verification in progress)
+
+- EX-02/04/06, GR-07–10/12/15: `test_project_exports.py` covers exact one/multi-person
+  excerpts, explicit editions/different parts, replacement at slot, original historical
+  pins after removals/default changes, contents-only/reserves/missing and no list mutations.
+- UI-01/03, OP-03, EX-08/09: same suite covers login/CSRF/stale/forged reports,
+  foreign historical selections, incompatible/unconfirmed/corrupt inputs and missing ack.
+- OP-02/GR-15: `test_excerpt_publication.py` runs real Linux excerpt/contents/historical
+  no-clobber publication and crash recovery while preserving previous output bytes.
+- `browser/test_project_exports.py` exercises actual current/historical/contents PDF
+  downloads; `scripts/publication_smoke.py` verifies all kinds in hardened non-root,
+  network-disabled containers. Windows physical skips must pass in Linux CI.
+- `test_contents_download.py` verifies the participant-free applied receipt and
+  authenticated download; `test_export_persistence.py` independently reopens SQLite
+  contents and exact historical pins. Composition tests reject music inputs in
+  contents-only mode and preserve German project metadata/reserve labels.
+
 ## WP-37b personal reading generation (verification in progress)
 
 - EX-01/GR-07–10/EX-05/07/09: `test_personal_generation.py` checks pinned composition

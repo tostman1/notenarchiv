@@ -12,6 +12,7 @@ from apps.projects import (
 )
 
 urlpatterns = [
+    path("<uuid:project_id>/excerpts/", preflight_views.preflight, {"kind": "EXCERPT"}, name="project_excerpt"),
     path("<uuid:project_id>/preflight/", preflight_views.preflight, name="project_preflight"),
     path("<uuid:project_id>/matrix/", matrix_views.matrix, name="project_matrix"),
     path(

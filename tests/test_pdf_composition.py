@@ -18,6 +18,21 @@ def piece(number, state="MUSIC", *, title="Synthetic Übung Straße", data=None)
     }
 
 
+def test_contents_only_rejects_musical_bytes_and_preserves_reserve_labels(tmp_path):
+    processor = Processor(tmp_path)
+    with pytest.raises(ValueError, match="music inputs"):
+        processor.compose([piece(1)], project="Synthetic", music=False)
+    with pytest.raises(ValueError, match="Contents entries"):
+        processor.compose([piece(1, "CONTENTS")], project="Synthetic")
+    result = processor.compose(
+        [piece(1, "CONTENTS"), piece(2, "RESERVE")], project="Synthetisches Projekt", music=False
+    )
+    reader = PdfReader(BytesIO(result))
+    text = reader.pages[0].extract_text()
+    assert len(reader.pages) == 1 and "Synthetisches Projekt" in text and "2. Synthetic Übung Straße — Reserve" in text
+    assert "Noten fehlen" not in text
+
+
 def test_contents_reserve_placeholder_unicode_no_music_overlay(tmp_path):
     processor = Processor(tmp_path)
     music = pdf(sizes=(A3, A4, (841.8898, 595.2756)))

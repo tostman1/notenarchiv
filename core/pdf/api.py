@@ -61,6 +61,7 @@ class Processor:
         assignment="",
         cover=False,
         contents=True,
+        music=True,
         page_size=(595.2756, 841.8898),
     ):
         """Explicit ordered music/reserve/missing inputs; no resolver or publication."""
@@ -72,13 +73,21 @@ class Processor:
             if set(piece) != {"number", "title", "state", "data"}:
                 raise ValueError("Invalid composition position")
             number, title, state, data = (piece[key] for key in ("number", "title", "state", "data"))
-            if type(number) is not int or number <= previous or state not in {"MUSIC", "MISSING", "RESERVE"}:
+            if (
+                type(number) is not int
+                or number <= previous
+                or state not in {"MUSIC", "MISSING", "RESERVE", "CONTENTS"}
+            ):
                 raise ValueError("Invalid shared position order or state")
+            if state == "CONTENTS" and music:
+                raise ValueError("Contents entries cannot be composed as musical positions")
             previous = number
             if not isinstance(title, str) or not 1 <= len(title) <= 1000:
                 raise ValueError("Invalid position title")
             index = None
             if state == "MUSIC":
+                if not music:
+                    raise ValueError("Contents-only composition cannot include music inputs")
                 if not isinstance(data, bytes) or not data:
                     raise ValueError("Music requires exact PDF bytes")
                 index = len(inputs)
@@ -102,6 +111,7 @@ class Processor:
             assignment=assignment,
             cover=bool(cover),
             contents=bool(contents),
+            music=bool(music),
             page_size=page_size,
         )
 

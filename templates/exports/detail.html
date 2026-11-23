@@ -1,11 +1,12 @@
 {% extends "base.html" %}{% load i18n %}
-{% block content %}<h1>{% translate "Persönliche Notenmappen" %}</h1>
+{% block content %}<h1>{% if run.snapshot.kind == 'CONTENTS' %}{% translate "Inhaltsverzeichnis" %}{% elif run.snapshot.kind == 'EXCERPT' %}{% translate "Projektauszug" %}{% else %}{% translate "Persönliche Notenmappen" %}{% endif %}</h1>
 <p>{{ run.snapshot.payload.project_name }} · {{ job_status }}</p>
 <p>{% translate "Unveränderliche Projekt-Revision" %}: {{ run.snapshot.project_revision }} · {% translate "Gemeinsame Positionen" %}: {{ run.snapshot.payload.positions|length }}</p>
 <ul>{% for person in participants %}<li>{{ person.name }}</li>{% endfor %}</ul>
 <a href="{% url 'job_detail' run.job_id %}">{% translate "Auftrag und Abbruch" %}</a>
 <a href="{% url 'generation_detail' run.pk %}">{% translate "Status aktualisieren" %}</a>
+{% if run.snapshot.kind != 'CONTENTS' %}<a href="{% url 'historical_excerpt' run.snapshot_id %}">{% translate "Historische Einzelstimmen exakt nachdrucken" %}</a>{% endif %}
 {% if complete %}<p>{% translate "Alle persönlichen PDFs vollständig erstellt und geprüft." %}</p>
-<ul>{% for artifact in artifacts %}<li>{{ artifact.manifest.participant_name }} · <a href="{% url 'generation_download' artifact.pk %}">{% translate "Persönliche Lese-PDF herunterladen" %}</a></li>{% endfor %}</ul>
+<ul>{% for artifact in artifacts %}<li>{{ artifact.manifest.participant_name }} · <a href="{% url 'generation_download' artifact.pk %}">{% if run.snapshot.kind == 'CONTENTS' %}{% translate "Inhaltsverzeichnis herunterladen" %}{% elif run.snapshot.kind == 'EXCERPT' %}{% translate "Auszug herunterladen" %}{% else %}{% translate "Persönliche Lese-PDF herunterladen" %}{% endif %}</a></li>{% endfor %}</ul>
 {% else %}<p>{% translate "Noch kein vollständig erfolgreiches Ergebnis. Unfertige oder fehlerhafte Ausgaben sind nicht verfügbar." %}</p>{% endif %}
 {% endblock %}
