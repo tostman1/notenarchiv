@@ -4,6 +4,7 @@ import time
 
 from django.core.exceptions import ValidationError
 
+from apps.catalog.models import Part
 from apps.projects.matrix_edit_services import choice_token
 from apps.projects.matrix_forms import BatchEditForm, CellEditForm
 from apps.projects.participant_forms import DefaultForm
@@ -58,6 +59,20 @@ def add_edit_forms(context, actor):
                 },
             )
             cell["has_choices"] = bool(options)
+    # ModelChoiceField iterators otherwise execute one query for every header.
+    # These are presentation choices only; bound POST forms still validate their
+    # live querysets in the mutation endpoint.
+    parts = list(
+        Part.objects.filter(active=True, instrument__active=True)
+        .select_related("instrument")
+        .order_by("instrument__name_key", "code_key")[:2001]
+    )
+    if len(parts) > 2000:
+        raise ValidationError("Matrix part inventory limit exceeded; narrow the catalog first.")
+    part_choices = [
+        ("", "---------"),
+        *[(part.pk, str(part)) for part in parts],
+    ]
     for person in context["participants"]:
         person.matrix_default_form = DefaultForm(
             prefix=f"default-{person.pk}",
@@ -66,5 +81,7 @@ def add_edit_forms(context, actor):
         person.matrix_batch_form = BatchEditForm(
             prefix=f"batch-{person.pk}", initial={"expected_revision": project.revision, **page_values}
         )
+        person.matrix_default_form.fields["part"].choices = part_choices
+        person.matrix_batch_form.fields["part"].choices = part_choices
     context["page_values"] = page_values
     return context

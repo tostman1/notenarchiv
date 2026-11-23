@@ -1,5 +1,19 @@
 # Implemented acceptance traceability
 
+## WP-33d
+
+- AS-02/UI-03: `test_filters_preserve_shared_list_and_absolute_numbers` covers
+  name/participant/instrument and personal deviation selection without mutations;
+  invalid filter parameters are rejected.
+- AS-04/UI-03: `test_htmx_navigation_and_edits_retain_filters` covers bounded panel
+  response and persisted filter state after revision-guarded default editing.
+- AS-02/UI-03: `test_synthetic_100_by_50_bounded_render_queries` measures full HTML,
+  SQL/time/size and enforces no per-cell SQL growth with identical source inputs.
+- `browser/test_matrix_performance.py::test_large_matrix_browser` covers the 100 × 50
+  paged project, last window, sticky header/column, exact filters, shared numbering
+  and no-JavaScript reload. Existing cell/batch/stale-revision browsers remain required.
+- No NAS performance or heterogeneous large-archive acceptance is implied.
+
 This incremental register records WP-15 tests, not completion of future packages.
 All fixtures are deterministic synthetic data. Physical tests require Linux;
 Windows skips are not substitutes for their CI evidence.

@@ -43,6 +43,37 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
+## Owner-approved matrix and generation sequence — 2026-11-23
+
+- Approved order: WP-33d → WP-36a → WP-36b → WP-37a → WP-37b → WP-37c, separate
+  primary-worktree branches/PRs, final-head and post-merge main CI gates. No releases,
+  deployment, private data, branch deletion or additional packages authorized.
+- Initial clean WP-33c branch safely fetched and main fast-forwarded to
+  `2ff6e01225eba6c5baf74b1c14baf70cb87ad803`; latest full main CI `45131526501`
+  verified successful by GitHub CLI. No open PR; locked offline dependency sync passed.
+  Historical HANDOFF.md is superseded by explicit owner continuation, not a takeover.
+- WP-33d in progress on `feature/wp-33d-matrix-performance`: bounded filters,
+  paged HTMX/no-JS navigation, shared header choices and retained integrity/revision
+  checks. Three new integration/performance tests and new 100 × 50 browser passed;
+  existing three matrix browsers passed. Ruff/format/lock/system/migration/diff checks
+  passed. All twenty browsers passed (300.90 s); final URL/reload refinement and
+  four filter/performance integration cases subsequently passed together with the
+  large browser (five tests). Full local regression passed: 658 tests/81 Windows
+  platform skips in 740.29 s before final URL/catalog/test refinements, which passed
+  targeted reruns. No PR/merge/CI success claimed yet.
+- Single Windows synthetic sample: small 3 × 3 response 105 SQL/0.759 s/45,824 bytes;
+  100 × 50 project, 25 × 10 window 105 SQL/3.306 s/1,194,732 bytes. Same two tiny PDFs
+  repeated; per-file verification costs remain. NAS/heterogeneous/archive load
+  acceptance separate. Details and window-local deviation limitation in MATRIX.md.
+- Final targeted sample: 105 SQL in both cases, 0.360 s small/2.422 s large;
+  45,850/1,194,290 HTML bytes. GitHub API became intermittently unavailable after
+  initial successful verification; current protection/PR/CI gates cannot be claimed.
+- GitHub connectivity recovered for main-CI verification and protection lookup:
+  main remains unprotected (HTTP 404); reviewed green-PR gate must be manual.
+  Final catalog bound (2,000 header choices) and five performance/filter cases passed.
+  Existing matrix/persistence rerun: twelve passed. Full diff reviewed; no resolver,
+  security, edition eligibility or revision fences weakened. Linux/CI gates pending.
+
 ## Owner-approved assignment and matrix sequence — 2026-11-22
 
 - Authorized WPs: WP-34 → WP-35 → WP-32 → WP-33a → WP-33b → WP-33c, each in
@@ -940,7 +971,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   not complete. Counts remain 15 software-verified WPs / 56 unfinished.
 
 
-## WP-13 � Archive versions and state model
+## WP-13 � Archive versions and state model
 
 - Separate branch from verified main `480514264eee4aab15e77cc58447019d3a637154`.
   Added protected source/file/version identities, separate base/derivative content,
@@ -981,7 +1012,7 @@ remain unexecuted without their distinct approval. Preserve published preview as
   until that gate; WP-14 has not started. No physical NAS/release action.
 
 
-## WP-14 � Safe file publication (in progress)
+## WP-14 � Safe file publication (in progress)
 
 - WP-13 final head `f9e2b281a8b17cccd4b389f613014fce5d3d98bf`, final CI
   `44881432325`, merged at `a480a2a11bed574ef098d37fb8c4b6a2961f9874`.

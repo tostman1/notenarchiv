@@ -22,6 +22,23 @@ Spalten erreichbar. Stücknummern gelten projektweit und werden nicht auf Noten
 gedruckt. Diese Ansicht ersetzt keine spätere Vollständigkeits-Vorprüfung und keine
 ausdrückliche Bestätigung fehlender Noten.
 
+## Filtern und navigieren
+
+Mit **Teilnehmende suchen**, **Teilnehmende** und **Instrumentenvariante** werden
+die sichtbaren Personenspalten eingegrenzt. Das Instrument bezieht sich auf den
+gespeicherten Projektdefault, nicht auf eine abweichende Stimme einzelner Stücke.
+**Abweichungen** zeigt persönliche Overrides, fehlende/ungeklärte Zuordnungen oder
+alle Abweichungen vom Projektdefault. Dieser Filter gilt für das aktuelle Fenster
+von höchstens 25 Positionen × 10 Personen: auch weitere Seiten kontrollieren.
+Ausgeblendete Zellen und leere Fenster sind keine fehlenden Projektpositionen.
+Nummern, Stückliste und gespeicherte Zuordnungen werden nicht verändert.
+
+**Positionsseite** und **Personenseite** erlauben direkte Seitensprünge. Kopf und
+Stückspalte bleiben beim Scrollen sichtbar; der Scrollbereich ist per Tastatur
+erreichbar. Filter bleiben beim Blättern und Speichern erhalten. **Filter
+zurücksetzen** öffnet wieder die ungefilterte Ansicht. Ohne JavaScript funktionieren
+Filter, Seitennavigation und gespeicherte Reload-Ansicht ebenfalls.
+
 ## Einzelne Zuordnung ändern
 
 In der Zelle **Spielbare Stimme und konkrete Ausgabe** wählen und **Persönliche

@@ -51,22 +51,46 @@ def cell_context(session, result):
     }
 
 
-def matrix_page(project_id, *, row_page=None, column_page=None):
+def matrix_page(project_id, *, row_page=None, column_page=None, filters=None):
     # Pagination IDs and resolver inputs share one SQLite read snapshot. File
     # verification remains outside the short read transaction, once per file.
     with transaction.atomic():
         project = Project.objects.get(pk=project_id)
+        filters = filters or {}
+        people_query = project.participants.filter(active=True)
+        if filters.get("q"):
+            people_query = people_query.filter(display_name__icontains=filters["q"])
+        if filters.get("participant"):
+            people_query = people_query.filter(pk=filters["participant"])
+        if filters.get("instrument"):
+            people_query = people_query.filter(default_part__instrument_id=filters["instrument"])
         row_ids = Paginator(
             project.positions.filter(active=True).order_by("order", "pk").values_list("pk", flat=True), ROWS_PER_PAGE
         ).get_page(row_page)
         column_ids = Paginator(
-            project.participants.filter(active=True).order_by("display_name", "pk").values_list("pk", flat=True),
+            people_query.order_by("display_name", "pk").values_list("pk", flat=True),
             COLUMNS_PER_PAGE,
         ).get_page(column_page)
         session = ResolutionSession(project.pk, position_ids=list(row_ids), participant_ids=list(column_ids))
     rows, people = [], list(session.participants.values())
     for position in session.positions.values():
         cells = [cell_context(session, session.verified_resolution(position.pk, person.pk)) for person in people]
+        for cell in cells:
+            result = cell["resolution"]
+            person = session.participants[result.participant_id]
+            cell["deviation"] = result.status != "RESERVE" and (
+                result.part_origin != "SAVED_DEFAULT"
+                or result.effective_part_id != person.default_part_id
+                or result.status != "AVAILABLE"
+            )
+            cell["filter_match"] = (
+                not filters.get("deviation")
+                or (filters["deviation"] == "personal" and result.part_origin == "PERSONAL")
+                or (filters["deviation"] == "issues" and result.status not in {"AVAILABLE", "SUBSTITUTED", "RESERVE"})
+                or (filters["deviation"] == "deviations" and cell["deviation"])
+            )
+        if filters.get("deviation") and not any(cell["filter_match"] for cell in cells):
+            continue
         rows.append({"position": position, "cells": cells})
     return {
         "project": session.project,
