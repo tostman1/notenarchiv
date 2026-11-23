@@ -236,7 +236,7 @@ scoped work packages; this register does not claim those gates were exercised.
   Final PR CI `45085495233` and merged main CI `45086565420` passed; PR #39
   merged as `88ef45a`. No NAS acceptance inferred.
 
-## WP-33c (verification in progress)
+## WP-33c (software acceptance)
 
 - AS-04/AS-08: `tests/test_matrix_batch.py` covers atomic exact same-person
   part/notation multi-edit, complete validation/fencing and audit rollback,
@@ -251,4 +251,7 @@ scoped work packages; this register does not claim those gates were exercised.
   batch/persistence tests and all nineteen browsers passed on final implementation.
   Local full regression 652 passed/81 platform skips before final refinements;
   final 49 matrix/edit/batch/persistence tests and all three matrix browsers passed.
-  Full Linux/container/security/PR/main integration gates pending.
+  CI `45090329532` on `04d2ff0` passed: 736 Linux tests, nineteen browsers,
+  hardened image/Compose actual synthetic batch/reset and full vulnerability/secret
+  checks. Final documentation-head/merged-main gates remain. No NAS acceptance
+  or preflight/generation completion inferred.
