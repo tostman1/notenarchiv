@@ -45,6 +45,13 @@ reflect actual completed work only.
 
 ## Owner-approved matrix and generation sequence — 2026-11-23
 
+- WP-36b PR #43 implementation head `32a180b241e6cc9da0d8abf9ddf2ef3771986f47`
+  passed full CI `45166737828`: Linux tests/browser, runtime audit, migration drift,
+  hardened amd64 image, container/isolated restore/synthetic archive publication,
+  install smoke and image vulnerability/secret checks. Final head/base/diff reviewed;
+  no submitted reviews or inline comments, merge state CLEAN. Documentation acceptance
+  update needs final-head CI before merge and post-merge main verification.
+
 - WP-36a merged through PR #42 as `ed22fbcdfe4e2d7e5c94f8fb9674b2a9d74f9c28`;
   final-head CI `45150655373` and post-merge main CI `45152636899` passed. Clean
   primary main matched origin and reviewed merged tree. No unresolved findings.
