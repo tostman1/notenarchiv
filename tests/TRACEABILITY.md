@@ -1,5 +1,23 @@
 # Implemented acceptance traceability
 
+## WP-36b
+
+- GR-15/EX-09: `test_authorization_atomically_pins_and_enqueues`,
+  `test_missing_ack_is_snapshot_bound_no_silent_skip`, `test_stale_token_and_full_subset_rejected`:
+  exact report/acknowledgement and relational input pins, no stale/bypassed enqueue.
+- Immutable project-edit survival, pinned withdrawal/deletion protection, raw SQL
+  update guards, corrupt-file worker rejection, transaction rollback and forged
+  payload cases in `tests/test_generation_snapshots.py`.
+- `test_edit_between_verification_and_enqueue_rejected` checks the atomic second
+  dependency read; `test_concurrent_authorization_replay_creates_one_job` uses
+  independent file-backed SQLite connections and requires one shared run/job.
+- `test_authorization_survives_independent_process_reopen` retains queued exact
+  inputs despite later project edits. Worker-without-renderer and queued cancellation
+  tests retain history and never imply successful output.
+- Browser authorization rejects absent missing decisions, accepts exact reviewed
+  report and replays without duplicate jobs. Existing preflight browser remains required.
+- Artifact generation/publication/recovery is not implemented by WP-36b.
+
 ## WP-36a
 
 - GR-09/EX-08: `test_report_identical_to_matrix_missing_ambiguous_and_reserve`,

@@ -484,6 +484,10 @@ def reject_proposal(proposal_id, *, actor, expected_revision, using="default"):
 
 def withdraw(file_id, *, actor, expected_revision, using="default"):
     with transaction.atomic(using=using):
+        from apps.exports.models import SnapshotInput
+
+        if SnapshotInput.objects.using(using).filter(archive_file_id=file_id).exists():
+            raise ValidationError("Pinned generation inputs cannot be withdrawn; historical authorization is retained.")
         file = _lock_file(file_id, expected_revision, using)
         actor = _actor(actor, using)
         if file.review_state != "CONFIRMED":
