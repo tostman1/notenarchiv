@@ -43,8 +43,77 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
-## Owner-approved print PDF and export management — 2026-11-23
+## Current-feature Synology test distribution — 2026-11-24
 
+- Verified base `fd0ed9ce0b4efeb05c7210f237dcb7896c38a31a`, integrated PR #50;
+  final PR CI `45347700944` and post-merge main CI `45350687436` passed. No open
+  PRs or unfinished WP-38b/WP-39 work found. Existing deployment drafts preserved
+  on dedicated `feature/synology-current-test` as checkpoint `fcc8547`.
+- Implemented: worker-aware container entrypoint/maintenance ownership, isolated
+  standalone Compose/tools, guarded host preparation, German runbook, original
+  demo PDFs through normal manual review, corrected capability UI, full actual
+  Compose/TLS-browser verification and immutable digest packaging/publication.
+- Local Docker unavailable. Full Linux stack acceptance verified below; publication
+  still pending, no test image/digest or NAS success claimed. Main is
+  not branch-protected (API 404); manual reviewed-green-head gate remains required.
+- Stop after this package. No OCR/enhancement/marchbook/printer development.
+- Targeted local tests: 43 passed/one Windows symlink skip; Ruff/lock/system and
+  migration drift passed. Full regression started; local browser attempt failed
+  because Node.js is absent (22 failed before driver start/four POSIX skips), not
+  a browser success. Linux CI must exercise the complete browser/container gate.
+- Dedicated PR #51 opened. Full NAS-profile acceptance also covers ensemble UI,
+  multi-page inspection, independent STATUS markers, exact-version/model pins,
+  disabled direct routes and denied partial-batch downloads; not yet CI verified.
+  Subsequent packaging/persistence/release/gateway affected suite: 26 passed.
+- CI `45377092525` at `0dceb27`: Foundation passed all 953 Linux tests and 26
+  browsers, dependency audit/system/migration checks. Container build, existing
+  smoke/publication/restore and simple installation passed. New stack browser
+  stopped at required indexing confirmation checkbox absent from the test;
+  test corrected without weakening the mandatory user confirmation. Full stack,
+  final-head CI, merge and publication remain pending.
+- First local full regression ran during demo changes: 823 passed/129 platform
+  skips/one stale collected one-page expectation failed against updated two-page
+  demo. Current targeted demo passed; immutable-source full rerun in progress.
+- Immutable-source local rerun passed: 824 tests/129 Windows platform skips in
+  1325.56 s. CI `45380788140` passed Foundation again; the stack performed actual
+  indexing and PDF rendering, then its strict label selector failed against the
+  required-field label suffix. Match the established review browser selector;
+  no business/UI/security behavior changed. Stack and publication remain pending.
+- Real stack `45393521026` isolated HTTP-500 cause to SQLite reader-to-writer
+  upgrade in nested canonical approval while the singleton worker writes.
+  Add write-first conditional no-op CAS before nested approval, preserve exact
+  revision and atomic enqueue; report bounded DB contention as actionable 409.
+  Add query-order and independent file-backed SQLite writer regression. Temporary
+  CI frame capture removed; actual stock NAS-profile stack remains mandatory.
+- CI `45396565551`: Foundation passed with SQLite writer regression; stock
+  full stack confirmed all six original synthetic PDFs through actual UI and
+  worker publication. Participants/ensemble edits reached; matrix test expected
+  a contiguous instrument/part label instead of its explicit notation fields.
+  Select the exact visually reviewed file UUID; no assertion/authorization weakened.
+- CI `45399921524` passed Foundation; real matrix exact override persisted through
+  reload. Stack reached preflight, where the wrapped output label includes option
+  text in its accessible name. Target the validated `variant` select explicitly.
+  Full-stack PDF/recovery/security completion and publication still pending.
+- **Verified software checkpoint:** CI `45403811456`, source head
+  `68f0fcf74c81f599a22bf46e1f8dc80de670c882`, passed 956 Linux tests, 26 browsers,
+  locked dependency audit, system/migration/format checks and complete hardened
+  container/security acceptance. Actual standalone current Compose/TLS browser:
+  interactive account/login/secure cookies/CSRF, all six original PDFs indexed,
+  every page rendered and explicit human-action inspection/approval recorded,
+  singleton worker publication, participants/ensemble/matrix override/reload,
+  acknowledged missing notes, three personal reading/regular A4/A3 print PDFs,
+  excerpt/contents, authorized downloads and anonymous denial, stale status and
+  targeted regeneration. Actual crash-after-link recovery, cancellation/partial
+  failure with denied download, immutable snapshot/exact version pins, independent
+  STATUS, host+web+worker RAW write/rename/delete denial and restart persistence
+  passed. Unrelated container/volume inventories unchanged. Trivy HIGH/CRITICAL
+  vulnerability/secret gate passed; CycloneDX SBOM/image metadata retained in CI.
+- Reviewed complete diff from verified base; no unresolved PR review, conflicts,
+  private data or unrelated changes. Final documentation-head CI, merge/main CI,
+  test-only artifact promotion/pull/stack and digest-pinned distribution remain.
+  Physical Synology/DSM/TLS/ACL/resource/restore acceptance was not performed.
+
+## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
   publication/restore/security checks. Main CI `45335478658` passed; clean synchronized

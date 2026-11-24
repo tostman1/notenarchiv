@@ -99,6 +99,45 @@ def test_combined_corrected_assignment_inspection_and_approval_are_separate_dura
     assert path.read_bytes() == before and m.AuditEvent.objects.filter(event="INSPECTED", actor=actor).count() == 1
 
 
+def test_nested_approval_acquires_sqlite_writer_before_proposal_read(review_ui):
+    from django.db import connection
+
+    from apps.archive.publication import queue_canonical
+
+    client, file, actor, *_ = review_ui
+    save(review_ui)
+    url = reverse("archive_review_detail", args=[file.pk])
+    assert client.post(url, values(file, "inspect", explicit="on")).status_code == 302
+    file.refresh_from_db()
+    statements = []
+
+    def observe(execute, sql, params, many, context):
+        statements.append(sql)
+        return execute(sql, params, many, context)
+
+    with connection.execute_wrapper(observe):
+        job = queue_canonical(file.current_proposal_id, actor=actor, expected_revision=file.revision)
+    # Target planning is deliberately read-only outside the transaction.
+    begin = next(i for i, sql in enumerate(statements) if sql.startswith("SAVEPOINT") or sql == "BEGIN")
+    assert statements[begin + 1].startswith('UPDATE "archive_archivefile"')
+    assert job.status == "QUEUED"
+
+
+def test_busy_review_returns_actionable_conflict_without_enqueuing(review_ui, monkeypatch):
+    from django.db import OperationalError
+
+    client, file, *_ = review_ui
+    existing_jobs = set(Job.objects.values_list("pk", flat=True))
+
+    def busy(*args):
+        raise OperationalError("synthetic locked database")
+
+    monkeypatch.setattr("apps.archive.review_services.act", busy)
+    response = save(review_ui)
+    assert response.status_code == 409 and "Datenbank momentan belegt" in response.content.decode()
+    assert set(Job.objects.values_list("pk", flat=True)) == existing_jobs and not file.proposals.exists()
+
+
 @pytest.mark.parametrize(
     "field,value",
     [("expected_revision", 999), ("source_version", str(uuid4())), ("sha256", "f" * 64), ("proposal", str(uuid4()))],

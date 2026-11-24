@@ -5,8 +5,8 @@ import sys
 
 
 def validate_tag(tag):
-    if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+-(preview|rc)\.[1-9][0-9]*", tag):
-        raise ValueError("Only versioned preview/rc tags are permitted before full acceptance")
+    if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+-(preview|rc|test)\.[1-9][0-9]*", tag):
+        raise ValueError("Only versioned preview/rc/test tags are permitted before full acceptance")
     return tag[1:]
 
 

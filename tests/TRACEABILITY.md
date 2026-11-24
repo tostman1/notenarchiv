@@ -1,5 +1,30 @@
 # Implemented acceptance traceability
 
+## Current-feature Synology test acceptance — software verified
+
+CI `45403811456` at `68f0fcf74c81f599a22bf46e1f8dc80de670c882` passed 956 Linux
+tests/26 existing browsers and the actual NAS-profile Compose/TLS browser stack:
+
+- OP-01/03/06, UI-01–03, GR-13/14: hardened web/worker/gateway, interactive setup,
+  login/secure cookies/CSRF/host/HTTPS, local CSS/HTMX/PDF.js, disabled capabilities
+  and direct-route denial, digest packaging, dependency/image/secret scans and SBOM.
+- GR-01–06, AR-01–14: original demo indexing, independent STATUS, actual rendering
+  of every PDF page, explicit inspection/correction/approval, real immutable CLEAN
+  publication, RAW host/mount negatives, unchanged source bytes and isolated binds.
+- PR-01–07, AS-01–08, EX-01/02/04/07–10, GR-07–12/15: participants/ensemble/matrix
+  choice and reload, reserves/missing acknowledgment, shared personal reading and
+  regular A4/A3 print PDFs, excerpts/contents, authenticated downloads, stale/targeted
+  generation, immutable snapshots and exact source pins, retained prior artifacts.
+- OP-02/05: actual worker process death after publication, automatic recovery,
+  cancellation/partial failure without exposed complete batch, singleton/maintenance
+  exclusion, restart/database/file persistence and existing full backup/restore smoke.
+
+Drivers: `scripts/synology_stack_smoke.py`, `browser/synology_stack.cjs`,
+`tests/synology_scenario.py`, `tests/test_synology_distribution.py`,
+`tests/test_feature_availability.py`, `tests/test_review_ui.py` and
+`tests/test_review_publication.py`. NAS hardware acceptance remains unverified.
+Publication requires separate exact-source candidate and published-digest checks.
+
 ## WP-39 export library (verification in progress)
 
 - EX-10/GR-15/AR-17: `test_export_library.py` verifies specific per-person part/edition/
@@ -391,3 +416,13 @@ scoped work packages; this register does not claim those gates were exercised.
   hardened image/Compose actual synthetic batch/reset and full vulnerability/secret
   checks. Final documentation-head/merged-main gates remain. No NAS acceptance
   or preflight/generation completion inferred.
+# Current-feature Synology test distribution
+
+OP-01–06, GR-01–15, UI-01–03: `tests/test_feature_availability.py`,
+`tests/test_synology_distribution.py`, `scripts/synology_stack_smoke.py` and
+`browser/synology_stack.cjs` extend the existing acceptance. The real NAS-profile
+Compose/TLS browser scenario exercises index/manual review/publication, matrix,
+missing acknowledgements, reading/print/excerpt/contents and downloads; actual
+worker publication crashes/cancellation/failure/pins/RAW/persistence use Linux
+containers and isolated synthetic binds. New scenarios are not verified until
+the corresponding final-head CI succeeds. Physical DSM acceptance remains separate.

@@ -15,14 +15,14 @@ COPY scripts/collect_static.py ./collect_static.py
 RUN /opt/venv/bin/python collect_static.py
 
 FROM python-base
-ARG APP_VERSION=0.1.0-preview.1
+ARG APP_VERSION=unpublished-ci
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.source="https://github.com/tostman1/notenarchiv" \
-      org.opencontainers.image.title="Notenarchiv technical preview" \
+      org.opencontainers.image.title="Notenarchiv" \
       org.opencontainers.image.version=$APP_VERSION \
       org.opencontainers.image.revision=$VCS_REF
 ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
-    NOTENARCHIV_PROFILE=nas NOTENARCHIV_RELEASE=$APP_VERSION
+    NOTENARCHIV_PROFILE=nas NOTENARCHIV_RELEASE=$APP_VERSION DJANGO_SETTINGS_MODULE=config.settings
 WORKDIR /app
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /opt/staticfiles /app/staticfiles

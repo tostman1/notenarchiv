@@ -115,7 +115,13 @@ jobs:
           printf '%s\n' "$REFERENCE" > release-digest.txt
           printf 'digest=%s\n' "${REFERENCE#*@}" >> "$GITHUB_OUTPUT"
           docker image inspect "$IMAGE:$VERSION" > published-image-metadata.json
+          test "$(docker image inspect "$REFERENCE" --format '{{.Id}}')" = "$CANDIDATE"
           printf 'Published `%s` from `%s`. No NAS deployment was performed.\n' "$REFERENCE" "$SOURCE_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify published test digest in the complete synthetic stack
+        if: contains(env.RELEASE_TAG, '-test.')
+        run: |
+          npm install --prefix "$RUNNER_TEMP/stack-browser" --no-audit --no-fund --ignore-scripts playwright-core@1.62.1
+          sudo env NODE_PATH="$RUNNER_TEMP/stack-browser/node_modules" python3 -m scripts.synology_stack_smoke --image "$(cat release-digest.txt)"
       - name: Attest source provenance
         if: github.event_name == 'push'
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
@@ -181,7 +187,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.validate.outputs.tag }}
         run: |
-          if [ -f scripts/package_install.py ]; then
+          if [[ "$RELEASE_TAG" == *-test.* ]]; then
+            python3 scripts/package_synology_test.py --digest-file release-digest.txt --output notenarchiv-synology-test.tar.gz
+            python3 - <<'PY'
+            import tarfile
+            with tarfile.open('notenarchiv-synology-test.tar.gz') as archive:
+                for name in ('compose.yaml', 'README.de.md'):
+                    with open(name, 'wb') as output:
+                        output.write(archive.extractfile(name).read())
+            PY
+            gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "$RELEASE_TAG" \
+              --notes-file docs/SYNOLOGY_TEST_RELEASE.md notenarchiv-synology-test.tar.gz compose.yaml README.de.md \
+              release-digest.txt image-sbom.cdx.json published-image-metadata.json
+            exit 0
+          elif [ -f scripts/package_install.py ]; then
             python3 scripts/package_install.py --digest-file release-digest.txt --output notenarchiv-preview-install.tar.gz
           else
             # Historical source recovery keeps the original install layout.

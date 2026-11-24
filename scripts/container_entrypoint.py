@@ -24,7 +24,7 @@ def main():
         from config.env import env
 
         if env.profile != "nas" or env.bind != "127.0.0.1" or env.print_enabled:
-            raise RuntimeError("Preview requires the NAS profile, loopback binding and disabled printing")
+            raise RuntimeError("Container requires the NAS profile, loopback binding and disabled printing")
         if "*" in env.allowed_hosts or "127.0.0.1" not in env.allowed_hosts or len(env.secret_key) < 50:
             raise RuntimeError("Explicit hosts, loopback health and a strong secret are required")
         if not env.csrf_trusted_origins or any(
@@ -34,7 +34,10 @@ def main():
         from apps.jobs.services.storage import validate_storage
         from core.locking import ProcessLock
 
-        validate_storage(env, "web")
+        service = "worker" if command == ["worker"] else "web"
+        if env.service != service:
+            raise RuntimeError("Configured service does not match the container operation")
+        validate_storage(env, service)
     except Exception:
         sys.stderr.write(
             json.dumps({"event": "startup_rejected", "error": "Invalid identity, storage or configuration"}) + "\n"
@@ -42,6 +45,8 @@ def main():
         return 1
     if command == ["web"]:
         os.execvp("gunicorn", ["gunicorn", "--config", "config/gunicorn.conf.py", "config.wsgi:application"])
+    if command == ["worker"]:
+        os.execvp(sys.executable, [sys.executable, "manage.py", "run_worker"])
     if command[0] in {"backup", "restore"}:
         operation = "backup_installation" if command[0] == "backup" else "restore_installation"
         return subprocess.call([sys.executable, "manage.py", operation, *command[1:]])
@@ -55,10 +60,13 @@ def main():
         return 1
     operation = ["migrate", "--noinput"] if command[0] == "migrate" else ["create_archivist", *command[1:]]
     try:
-        with ProcessLock(env.database_path.parent / ".maintenance.lock"):
+        with (
+            ProcessLock(env.database_path.parent / ".maintenance.lock"),
+            ProcessLock(env.database_path.parent / "worker.lock"),
+        ):
             return subprocess.call([sys.executable, "manage.py", *operation])
     except OSError:
-        sys.stderr.write("Stop the web service before maintenance and verify DATA permissions\n")
+        sys.stderr.write("Stop web and worker before maintenance and verify DATA permissions\n")
         return 1
 
 

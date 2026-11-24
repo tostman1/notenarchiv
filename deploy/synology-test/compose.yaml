@@ -1,0 +1,115 @@
+# Current-feature isolated test distribution. No .env file required.
+# NOT INSTALLABLE YET: publication is gated by full-stack CI. Packaging replaces
+# this fail-closed build input with the verified published digest, never a guessed tag.
+name: notenarchiv-test
+x-runtime: &runtime
+  image: ${VERIFIED_TEST_IMAGE:?Publication pending - use the verified installation bundle}
+  pull_policy: missing
+  platform: linux/amd64
+  # EDIT 1: actual non-admin service UID and dedicated GID from prepare.sh.
+  user: "CHANGE_UID:CHANGE_GID"
+  init: true
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 512m
+  cpus: 1.0
+  tmpfs: ["/tmp:size=64m,mode=1777"]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+x-environment: &environment
+  NOTENARCHIV_PROFILE: nas
+  NOTENARCHIV_SERVICE: web
+  NOTENARCHIV_TEST_DISTRIBUTION: "TRUE"
+  APP_BIND: 127.0.0.1
+  # EDIT 2: private HTTPS host; EDIT 3: matching https:// origin.
+  APP_ALLOWED_HOSTS: notenarchiv-test.example.invalid,localhost,127.0.0.1
+  APP_CSRF_TRUSTED_ORIGINS: https://notenarchiv-test.example.invalid
+  TZ: Europe/Vienna
+  DJANGO_SECRET_KEY_FILE: /run/secrets/django_secret_key
+  DATABASE_PATH: /data/notenarchiv.sqlite3
+  SOURCE_DIR: /archive/raw
+  CURATED_DIR: /archive/clean
+  PROCESSED_DIR: /archive/processed
+  STATUS_DIR: /archive/status
+  EXPORT_DIR: /archive/export
+  PRINT_ENABLED: "0"
+x-web-volumes: &web-volumes
+  - {type: bind, source: /volume1/docker/notenarchiv-test/raw, target: /archive/raw, read_only: true, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/clean, target: /archive/clean, read_only: true, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/processed, target: /archive/processed, read_only: true, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/status, target: /archive/status, read_only: true, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/export, target: /archive/export, read_only: true, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/data, target: /data, bind: {create_host_path: false}}
+  - {type: bind, source: /volume1/docker/notenarchiv-test/secrets/django_secret_key, target: /run/secrets/django_secret_key, read_only: true, bind: {create_host_path: false}}
+services:
+  notenarchiv-test-web:
+    <<: *runtime
+    container_name: notenarchiv-test-web
+    command: [web]
+    restart: unless-stopped
+    environment: *environment
+    volumes: *web-volumes
+    networks: {backend: {aliases: [web]}}
+  notenarchiv-test-worker:
+    <<: *runtime
+    container_name: notenarchiv-test-worker
+    command: [worker]
+    restart: unless-stopped
+    stop_grace_period: 60s
+    mem_limit: 768m
+    environment:
+      <<: *environment
+      NOTENARCHIV_SERVICE: worker
+    volumes:
+      - {type: bind, source: /volume1/docker/notenarchiv-test/raw, target: /archive/raw, read_only: true, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/clean, target: /archive/clean, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/processed, target: /archive/processed, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/status, target: /archive/status, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/export, target: /archive/export, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/data, target: /data, bind: {create_host_path: false}}
+      - {type: bind, source: /volume1/docker/notenarchiv-test/secrets/django_secret_key, target: /run/secrets/django_secret_key, read_only: true, bind: {create_host_path: false}}
+    networks: [backend]
+    healthcheck:
+      test: [CMD, python, manage.py, worker_healthcheck]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+  notenarchiv-test-gateway:
+    <<: *runtime
+    container_name: notenarchiv-test-gateway
+    command: [gateway]
+    restart: unless-stopped
+    mem_limit: 64m
+    cpus: 0.25
+    ports: ["127.0.0.1:8090:8000"]
+    networks: [backend, frontend]
+    depends_on:
+      notenarchiv-test-web: {condition: service_healthy}
+  initialize:
+    <<: *runtime
+    profiles: [tools]
+    command: [migrate]
+    restart: "no"
+    environment: *environment
+    volumes: *web-volumes
+    networks: [backend]
+    healthcheck: {disable: true}
+  archivist:
+    <<: *runtime
+    profiles: [tools]
+    command: [provision]
+    restart: "no"
+    environment: *environment
+    volumes: *web-volumes
+    networks: [backend]
+    stdin_open: true
+    tty: true
+    logging: {driver: none}
+    healthcheck: {disable: true}
+networks:
+  backend: {internal: true}
+  frontend: {}
