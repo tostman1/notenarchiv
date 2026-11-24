@@ -31,6 +31,8 @@ def detail(request, run_id):
             "participants": run.snapshot.payload["participants"],
             "artifacts": list(run.artifacts.all()) if complete else [],
             "job_status": run.job.get_status_display(),
+            "library_url": "/exports/"
+            + ("?project=" + str(run.snapshot.project_id) if run.snapshot.project_id else "?kind=ARCHIVE_NOTES"),
             "print_token": print_services.token(run.snapshot, request.user)
             if complete
             and run.snapshot.payload.get("output_variant") != "PRINT"
@@ -46,6 +48,8 @@ def detail(request, run_id):
 def download(request, artifact_id):
     artifact = get_object_or_404(ExportArtifact.objects.select_related("run__job", "run__snapshot"), pk=artifact_id)
     run = artifact.run
+    if request.GET.get("project") and str(run.snapshot.project_id) != request.GET["project"]:
+        raise Http404
     if not verified_complete(run):
         raise Http404
     try:
@@ -70,6 +74,7 @@ def download(request, artifact_id):
     response = FileResponse(BytesIO(data), as_attachment=True, filename=filename, content_type="application/pdf")
     response["X-Content-Type-Options"] = "nosniff"
     response["Content-Security-Policy"] = "default-src 'none'; sandbox"
+    response["Cross-Origin-Resource-Policy"] = "same-origin"
     return response
 
 

@@ -1,8 +1,12 @@
 from django.urls import path
 
-from apps.exports import archive_views, selection_views, views
+from apps.exports import archive_views, library_views, selection_views, views
 
 urlpatterns = [
+    path("", library_views.library, name="export_library"),
+    path("batch-download/", library_views.batch_download, name="export_batch_download"),
+    path("artifacts/<uuid:artifact_id>/regenerate/", library_views.regenerate, name="export_regenerate"),
+    path("archive/generate/", archive_views.generate, {"variant": "READING"}, name="archive_generated_export"),
     path("archive/print/", archive_views.generate, name="archive_print_export"),
     path("runs/<uuid:run_id>/print/", views.print_run, name="generation_print"),
     path("artifacts/<uuid:artifact_id>/preview/", views.viewer, name="generation_preview"),

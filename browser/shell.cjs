@@ -37,7 +37,7 @@ async function smoke(origin) {
         const nav = page.getByRole("navigation", { name: "Hauptnavigation" });
         assert.deepEqual(await nav.getByRole("link").allTextContents(), [
             "Übersicht", "Notenbibliothek", "Werke und Arrangements", "Instrumente und Stimmen", "Mitglieder",
-            "Projekte", "Indizierung", "Prüfwarteschlange", "Aufträge",
+            "Projekte", "Notenausgaben", "Indizierung", "Prüfwarteschlange", "Aufträge",
         ]);
         assert.deepEqual(await nav.locator('[aria-disabled="true"]').allTextContents(), [
             "Scanaufbereitung",

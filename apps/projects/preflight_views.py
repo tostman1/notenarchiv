@@ -18,7 +18,17 @@ from apps.projects.preflight_services import build_report, validate_acknowledgem
 def preflight(request, project_id, kind="FULL"):
     project = get_object_or_404(Project, pk=project_id)
     selection = PreflightSelection(request.POST if request.method == "POST" else None, project=project)
+    if request.method == "GET":
+        for field in ("participants", "positions"):
+            if request.GET.getlist(field):
+                selection.initial[field] = request.GET.getlist(field)
     context = {"project": project, "selection": selection, "excerpt": kind == "EXCERPT"}
+    variant = (request.POST if request.method == "POST" else request.GET).get("variant", "READING")
+    if variant not in {"READING", "PRINT"}:
+        from django.http import HttpResponseBadRequest
+
+        return HttpResponseBadRequest(_("Ungültige Ausgabeart."))
+    context["variant"] = variant
     status = 200
     if request.method == "POST" and selection.is_valid():
         try:
@@ -28,6 +38,8 @@ def preflight(request, project_id, kind="FULL"):
                 position_ids=selection.cleaned_data["positions"],
             )
             context["report"] = report
+            if variant == "PRINT":
+                report.payload["output_variant"] = "PRINT"
             context["pending_count"] = len(report.payload["pending"])
             context["ack_form"] = PreflightAcknowledgement(report=report, actor=request.user)
             context["full_scope"] = set(report.session.positions) == set(
@@ -59,6 +71,7 @@ def preflight(request, project_id, kind="FULL"):
                         acknowledgements=form.cleaned_data["acknowledgements"],
                         actor=request.user,
                         kind=kind,
+                        variant=variant,
                     )
                     context["authorized_run"] = run
         except ValidationError as exc:

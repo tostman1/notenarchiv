@@ -45,6 +45,41 @@ reflect actual completed work only.
 
 ## Owner-approved print PDF and export management — 2026-11-23
 
+- WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
+  final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
+  publication/restore/security checks. Main CI `45335478658` passed; clean synchronized
+  primary main matched reviewed tree before WP-39. No duplicate integration.
+- WP-39 in progress on `feature/wp-39-export-library`: unified bounded artifact/run
+  library, per-person current-scope stale reasons vs historical exact input/output
+  integrity, targeted preflight and variant binding, independent archive reading
+  artifacts and secure ZIP. Initial six library cases and subsequent 42 export/
+  snapshot/preflight/print regression passed. Real Linux one-person/archive crash/
+  history tests and actual browser/container acceptance added; full gates pending.
+- Targeted library/authorization/snapshot rerun passed 32 tests. Expanded 13 library
+  tests passed; concurrent full-suite execution caused three existing parser-lock/
+  availability failures in unrelated historical/preflight tests. No parser guards,
+  timeouts or assertions changed. Serial final regression is required.
+- Full local WP-39 regression passed: 812 tests/129 Windows platform skips in
+  1105.51 s before final classification/ZIP/metadata guards; affected rerun passed
+  48 tests. Added explicit damaged-batch-member gating and actual two-document
+  project-free archive reading acceptance through real copy/review/publish services.
+  Browser regression and mandatory Linux final-head/merge/main gates pending.
+- Final affected suite passed 48 tests; classification denies a damaged batch's
+  otherwise intact member without claiming source invalidity. Multi-document archive
+  fixture requires the container matrix acceptance to use its explicitly pinned
+  preferred assignment instead of assuming one physical edition; assertions retained.
+- Final 16 export-library cases passed, including role changes and unchanged project
+  archiving. Browser rerun passed all 22 local cases/four POSIX skips in 274.37 s;
+  exact shell menu expectation includes the approved Notenausgaben link. Ruff/format/
+  system/migration/lock/diff checks passed; complete final diff reviewed. Linux final-
+  head CI and conditional PR/main gates remain. No extra work package started.
+- First WP-39 PR CI `45344509420`: 946 Linux tests passed; library ZIP browser
+  failed because scratch was derived from the shared local log root instead of
+  canonical file-backed SQLite DATA. Anchor real ZIP scratch to DB parent (isolated
+  in-memory unit profile retained). Container multi-edition fixture exposed missing
+  deliberate preference before later excerpt acceptance; order fixture after the
+  existing preference gate. No auth/root/hash/assertion weakened; corrected CI pending.
+
 - WP-38a integrated PR #48 as `4659575c3a3c1841b721fc9990297071183e5e67`;
   final CI `45265622771` passed 888 Linux tests/24 browsers and full container/security.
   Post-merge main CI `45268896712` passed; exact reviewed tree matched, main clean.

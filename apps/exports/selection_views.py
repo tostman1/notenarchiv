@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods
 
-from apps.exports.models import GenerationRun, GenerationSnapshot
+from apps.exports.models import GenerationSnapshot
 from apps.exports.selection_services import authorize_selection, contents_report, historical_report, selection_token
 from apps.projects.models import Project
 
@@ -30,12 +30,9 @@ class HistoricalSelection(forms.Form):
 @require_GET
 def project_runs(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    runs = (
-        GenerationRun.objects.filter(snapshot__project=project)
-        .select_related("snapshot", "job")
-        .order_by("-created_at")[:100]
-    )
-    return render(request, "exports/runs.html", {"project": project, "runs": runs})
+    from django.urls import reverse
+
+    return redirect(reverse("export_library") + "?project=" + str(project.pk))
 
 
 @never_cache

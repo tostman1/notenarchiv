@@ -1,5 +1,17 @@
 # Implemented acceptance traceability
 
+## WP-39 export library (verification in progress)
+
+- EX-10/GR-15/AR-17: `test_export_library.py` verifies specific per-person part/edition/
+  list/selection/catalog stale reasons, unaffected outputs, preserved historical bytes,
+  actual file/input corruption distinctions, read-only classification and targeted scope.
+- EX-03/09/OP-03: generated archive reading order/project-free exact pins/variant binding,
+  fresh targeted print authorization, auth/CSRF/filter/project/download/ZIP isolation;
+  existing direct archive download tests remain required.
+- OP-02/EX-10: real Linux `test_export_library_publication.py` targeted one-person and
+  archive reading publication/crash/replay preserve prior artifacts; browser library/
+  targeted preflight/ZIP/archive download and hardened container acceptance required.
+
 ## WP-38b print renderer (verification in progress)
 
 - EX-07/PT-01/02/GR-11/12: `test_print_pdf.py` exercises actual isolated 1-40-page

@@ -39,9 +39,11 @@ def report(identifiers):
     return selected
 
 
-def token(selected, actor):
+def token(selected, actor, variant="PRINT"):
     return signing.dumps(
-        {"files": signature(selected), "actor": str(actor.pk), "request": str(uuid4())}, salt=SALT, compress=True
+        {"files": signature(selected), "actor": str(actor.pk), "request": str(uuid4()), "variant": variant},
+        salt=SALT,
+        compress=True,
     )
 
 
@@ -60,6 +62,7 @@ def authorize(identifiers, authorization, actor, variant="PRINT"):
         value.get("files") != signature(selected)
         or value.get("actor") != str(actor.pk)
         or variant not in {"READING", "PRINT"}
+        or value.get("variant") != variant
     ):
         raise ValidationError(_("Archiv-Auswahl geändert; erneut prüfen."))
     entries = [
