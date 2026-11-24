@@ -22,9 +22,15 @@ def contents(image, source=None):
             raise ValueError("Missing or unsafe installation source")
         result[name] = path.read_bytes()
     template = result["compose.yaml"].decode("utf-8")
-    assert template.count(CANDIDATE) == 1
+    references = re.findall(r"ghcr\.io/tostman1/notenarchiv@sha256:[0-9a-f]{64}", template)
+    if template.count(CANDIDATE) == 1 and not references:
+        original = CANDIDATE
+    elif len(references) == 1 and CANDIDATE not in template:
+        original = references[0]
+    else:
+        raise ValueError("Exactly one source image reference is required")
     result["compose.yaml"] = (
-        template.replace(CANDIDATE, image)
+        template.replace(original, image)
         .replace(
             "# NOT INSTALLABLE YET: publication is gated by full-stack CI. Packaging replaces\n"
             "# this fail-closed build input with the verified published digest, never a guessed tag.\n",

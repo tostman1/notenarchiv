@@ -189,16 +189,11 @@ jobs:
         run: |
           if [[ "$RELEASE_TAG" == *-test.* ]]; then
             python3 scripts/package_synology_test.py --digest-file release-digest.txt --output notenarchiv-synology-test.tar.gz
-            python3 - <<'PY'
-            import tarfile
-            with tarfile.open('notenarchiv-synology-test.tar.gz') as archive:
-                for name in ('compose.yaml', 'README.de.md'):
-                    with open(name, 'wb') as output:
-                        output.write(archive.extractfile(name).read())
-            PY
+            python3 -c "import tarfile; a=tarfile.open('notenarchiv-synology-test.tar.gz'); [open(n,'wb').write(a.extractfile(n).read()) for n in ('compose.yaml','README.de.md')]"
             gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "$RELEASE_TAG" \
               --notes-file docs/SYNOLOGY_TEST_RELEASE.md notenarchiv-synology-test.tar.gz compose.yaml README.de.md \
               release-digest.txt image-sbom.cdx.json published-image-metadata.json
+            if [ -f release-origin.json ]; then gh release upload "$RELEASE_TAG" release-origin.json; fi
             exit 0
           elif [ -f scripts/package_install.py ]; then
             python3 scripts/package_install.py --digest-file release-digest.txt --output notenarchiv-preview-install.tar.gz

@@ -1,9 +1,8 @@
 # Current-feature isolated test distribution. No .env file required.
-# NOT INSTALLABLE YET: publication is gated by full-stack CI. Packaging replaces
-# this fail-closed build input with the verified published digest, never a guessed tag.
+# Published test-only image pinned by verified immutable digest.
 name: notenarchiv-test
 x-runtime: &runtime
-  image: ${VERIFIED_TEST_IMAGE:?Publication pending - use the verified installation bundle}
+  image: ghcr.io/tostman1/notenarchiv@sha256:f628501dbc3fbe65c4e53bb2ab6c4723bd4014bca582656383ffd528df543e5a
   pull_policy: missing
   platform: linux/amd64
   # EDIT 1: actual non-admin service UID and dedicated GID from prepare.sh.

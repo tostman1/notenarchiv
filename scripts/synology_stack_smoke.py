@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import pwd
+import re
 import ssl
 import subprocess
 import sys
@@ -89,6 +90,7 @@ def smoke(parent, image):
         execute(["docker", "pull", image])
     else:
         template = template.replace(CANDIDATE, image)
+        template = re.sub(r"ghcr\.io/tostman1/notenarchiv@sha256:[0-9a-f]{64}", image, template)
     suffix = uuid4().hex[:12]
     for service in (WEB, WORKER, GATEWAY):
         template = template.replace(f"container_name: {service}", f"container_name: {service}-{suffix}")
