@@ -10,6 +10,7 @@ from scripts.wait_for_ci import (
     EXIT_UNAVAILABLE,
     Response,
     WaitConfig,
+    _repo_from_url,
     build_arg_parser,
     run,
 )
@@ -338,3 +339,12 @@ def test_cli_argument_parsing_defaults():
     assert args.long_interval == 120.0
     assert args.max_duration == 1800.0
     assert args.transient_retries == 3
+
+
+def test_repo_parsing_from_remote_url_forms():
+    assert _repo_from_url("https://github.com/tostman1/notenarchiv.git") == "tostman1/notenarchiv"
+    assert _repo_from_url("https://github.com/tostman1/notenarchiv") == "tostman1/notenarchiv"
+    assert _repo_from_url("git@github.com:tostman1/notenarchiv.git") == "tostman1/notenarchiv"
+    assert _repo_from_url("ssh://git@github.com/tostman1/notenarchiv.git") == "tostman1/notenarchiv"
+    assert _repo_from_url("https://github.example.com:443/owner/repo.git") == "owner/repo"
+    assert _repo_from_url("not a remote") is None

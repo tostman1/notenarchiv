@@ -368,6 +368,13 @@ def default_transport(method, url, headers, body=None) -> Response:
         return Response(0, {}, b"")
 
 
+def _repo_from_url(url: str) -> str | None:
+    """Extract owner/name from a git remote URL (https, ssh, scp-like, .git suffix)."""
+    # Match the final owner/repo path segment without matching the URL scheme colon.
+    match = re.search(r"[:/]([^/]+?)/([^/]+?)(?:\.git)?/?$", url)
+    return f"{match.group(1)}/{match.group(2)}" if match else None
+
+
 def _repo_from_git() -> str | None:
     try:
         out = subprocess.check_output(
@@ -375,8 +382,7 @@ def _repo_from_git() -> str | None:
         ).strip()
     except (subprocess.CalledProcessError, OSError):
         return None
-    match = re.search(r"[:/](\S+?)(?:\.git)?/?$", out)
-    return match.group(1) if match else None
+    return _repo_from_url(out)
 
 
 def _resolve_token() -> str:
@@ -437,7 +443,7 @@ def main(argv=None) -> int:
 
     result_file = None
     if not args.no_result_file:
-        suffix = f"{args.run_id}" if args.mode == "run" else f"pr-{args.pr}"
+        suffix = args.run_id if args.mode == "run" else args.pr
         result_file = args.result_file or str(Path(RESULT_DIRNAME) / f"{args.mode}-{suffix}.json")
 
     cfg = WaitConfig(
