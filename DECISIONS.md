@@ -19,6 +19,15 @@ This register distinguishes binding product decisions from recommended implement
 | DEC-09 | Owner priority shift 2026-11-20: first deliver an empty/synthetic-data web-only technical preview on DS224+. Advance deployment-compatible WP-09/06/07/08/10 and preview backup/install/rollback slices of WP-47a/48/49. Worker recovery, OCR, printing and generation do not block this web-only variant; their original requirements and full-scope dependencies remain. Actual GHCR release/tag and NAS deployment retain their applicable approval gates; no real archive attachment or live NAS deployment is authorized. | OP-01–06, UI-01–03, GR-01/13/14; IMPLEMENTATION_PLAN.md preview gate |
 
 ## Recommended defaults for owner acceptance
+Owner authorization, 2026-11-24 (DEC-10): deliver a separate current-feature
+synthetic Synology test distribution through integrated WP-39, including web,
+worker, private gateway, honest availability UI and a new test-only GHCR image.
+Full stack/browser/security verification and promotion of the same tested bytes
+are mandatory. No stable release, actual NAS deployment, real-data attachment,
+OCR/enhancement/marchbook/printer implementation or unrelated package is approved.
+This supersedes DEC-09's web-only limitation for this distribution, not for the
+immutable historical preview. OP-01–06, UI-01–03 and all integrity invariants apply.
+
 
 These defaults are used to make the plan concrete. They are reversible design choices, not new confirmed requirements. The owner can adjust them without another full review.
 

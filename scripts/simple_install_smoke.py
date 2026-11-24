@@ -22,8 +22,8 @@ from scripts.container_smoke import PASSWORD, authentication, request
 REPOSITORY = Path(__file__).resolve().parent.parent
 
 
-def execute(arguments, *, success=True, cwd=None):
-    result = subprocess.run(arguments, cwd=cwd, capture_output=True, text=True, timeout=180)
+def execute(arguments, *, success=True, cwd=None, timeout=180):
+    result = subprocess.run(arguments, cwd=cwd, capture_output=True, text=True, timeout=timeout)
     if success:
         assert result.returncode == 0, (
             f"Synthetic install command failed: {arguments[:2]}\n{result.stdout}\n{result.stderr}"
@@ -33,10 +33,10 @@ def execute(arguments, *, success=True, cwd=None):
     return result
 
 
-def provision(command):
+def provision(command, *, service="admin"):
     master, slave = pty.openpty()
     process = subprocess.Popen(
-        [*command, "--profile", "tools", "run", "--rm", "admin"], stdin=slave, stdout=slave, stderr=slave
+        [*command, "--profile", "tools", "run", "--rm", service], stdin=slave, stdout=slave, stderr=slave
     )
     os.close(slave)
     transcript, stage = b"", 0

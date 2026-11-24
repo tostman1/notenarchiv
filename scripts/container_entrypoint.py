@@ -60,9 +60,11 @@ def main():
         return 1
     operation = ["migrate", "--noinput"] if command[0] == "migrate" else ["create_archivist", *command[1:]]
     try:
-        with ProcessLock(env.database_path.parent / ".maintenance.lock"):
-            with ProcessLock(env.database_path.parent / "worker.lock"):
-                return subprocess.call([sys.executable, "manage.py", *operation])
+        with (
+            ProcessLock(env.database_path.parent / ".maintenance.lock"),
+            ProcessLock(env.database_path.parent / "worker.lock"),
+        ):
+            return subprocess.call([sys.executable, "manage.py", *operation])
     except OSError:
         sys.stderr.write("Stop web and worker before maintenance and verify DATA permissions\n")
         return 1

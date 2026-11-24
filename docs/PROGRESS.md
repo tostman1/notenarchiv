@@ -44,6 +44,25 @@ reflect actual completed work only.
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
 ## Owner-approved print PDF and export management — 2026-11-23
+## Current-feature Synology test distribution — 2026-11-24
+
+- Verified base `fd0ed9ce0b4efeb05c7210f237dcb7896c38a31a`, integrated PR #50;
+  final PR CI `45347700944` and post-merge main CI `45350687436` passed. No open
+  PRs or unfinished WP-38b/WP-39 work found. Existing deployment drafts preserved
+  on dedicated `feature/synology-current-test` as checkpoint `fcc8547`.
+- In progress: worker-aware container entrypoint/maintenance ownership, isolated
+  standalone Compose/tools, guarded host preparation, German runbook, original
+  demo PDFs through normal manual review, corrected capability UI, full actual
+  Compose/TLS-browser verification and immutable digest packaging/publication.
+- Local Docker unavailable. New Linux stack acceptance and publication remain
+  unverified until CI runs; no test image/digest or NAS success claimed. Main is
+  not branch-protected (API 404); manual reviewed-green-head gate remains required.
+- Stop after this package. No OCR/enhancement/marchbook/printer development.
+- Targeted local tests: 43 passed/one Windows symlink skip; Ruff/lock/system and
+  migration drift passed. Full regression started; local browser attempt failed
+  because Node.js is absent (22 failed before driver start/four POSIX skips), not
+  a browser success. Linux CI must exercise the complete browser/container gate.
+
 
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened

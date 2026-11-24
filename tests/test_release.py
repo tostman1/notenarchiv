@@ -8,7 +8,7 @@ from config.container import ensure_database_ready
 from scripts.check_release import validate_tag
 
 
-@pytest.mark.parametrize("tag", ["v0.1.0-preview.1", "v0.2.0-rc.2"])
+@pytest.mark.parametrize("tag", ["v0.1.0-preview.1", "v0.2.0-rc.2", "v0.1.0-test.1"])
 def test_preview_tags_are_versioned(tag):
     assert validate_tag(tag) == tag[1:]
 

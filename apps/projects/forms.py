@@ -16,6 +16,10 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.initial["expected_revision"] = self.instance.revision if not self.instance._state.adding else 0
+        self.fields["layout"].help_text = _(
+            "Normale Mappen: Lese- und reguläre A4/A3-Druck-PDF verfügbar. "
+            "Marschbuch: Konfiguration vorhanden; spezifisches Drucklayout noch nicht verfügbar (WP-42)."
+        )
 
 
 class RevisionForm(forms.Form):

@@ -13,7 +13,7 @@
 <body>
 <a class="skip-link" href="#inhalt">{% translate "Zum Inhalt" %}</a>
 <header class="site-header">
-    <a class="brand" href="{% url 'home' %}">Notenarchiv <span class="preview-label">{% translate "Vorschau" %}</span></a>
+    <a class="brand" href="{% url 'home' %}">Notenarchiv <span class="preview-label">{% if test_distribution %}{% translate "Testversion" %}{% else %}{% translate "Vorschau" %}{% endif %}</span></a>
     {% if user.is_authenticated %}
         <span class="mode-badge">{% if diagnostics_enabled %}{% translate "Diagnosemodus" %}{% else %}{% translate "Deploy" %}{% endif %}</span>
         <form method="post" action="{% url 'logout' %}" class="session">
@@ -41,12 +41,13 @@
         {% endif %}
         <p id="planned">{% translate "In Entwicklung" %}</p>
         <ul aria-labelledby="planned">
-            <li aria-disabled="true">{% translate "Scanaufbereitung" %}</li>
-            <li aria-disabled="true">{% translate "Einstellungen" %}</li>
+            <li><button type="button" disabled aria-disabled="true">{% translate "Scanaufbereitung – Noch nicht verfügbar" %}</button></li>
+            <li><button type="button" disabled aria-disabled="true">{% translate "Einstellungen – Noch nicht verfügbar" %}</button></li>
         </ul>
     </nav>
 {% endif %}
 <main id="inhalt" tabindex="-1">
+    {% if test_distribution %}<p class="preview-warning" role="note">{% translate "Testversion – ausschließlich für Testdaten" %}</p>{% endif %}
     {% if messages %}
         <ul class="messages" aria-live="polite">
             {% for message in messages %}

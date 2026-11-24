@@ -40,10 +40,10 @@ async function smoke(origin) {
             "Projekte", "Notenausgaben", "Indizierung", "Prüfwarteschlange", "Aufträge",
         ]);
         assert.deepEqual(await nav.locator('[aria-disabled="true"]').allTextContents(), [
-            "Scanaufbereitung",
-            "Einstellungen",
+            "Scanaufbereitung – Noch nicht verfügbar",
+            "Einstellungen – Noch nicht verfügbar",
         ]);
-        assert.equal(await nav.locator("li :is(a, button, [tabindex])").count(), 0);
+        assert.equal(await nav.locator("li :is(a, button:not(:disabled), [tabindex])").count(), 0);
         assert.equal(await nav.getByText("Debug / Logs").count(), 0);
         assert.equal((await page.request.get(`${origin}/diagnostics/`)).status(), 404);
         assert.equal(await page.locator(".dashboard").evaluate(el => getComputedStyle(el).display), "grid");

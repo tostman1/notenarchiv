@@ -391,3 +391,13 @@ scoped work packages; this register does not claim those gates were exercised.
   hardened image/Compose actual synthetic batch/reset and full vulnerability/secret
   checks. Final documentation-head/merged-main gates remain. No NAS acceptance
   or preflight/generation completion inferred.
+# Current-feature Synology test distribution
+
+OP-01–06, GR-01–15, UI-01–03: `tests/test_feature_availability.py`,
+`tests/test_synology_distribution.py`, `scripts/synology_stack_smoke.py` and
+`browser/synology_stack.cjs` extend the existing acceptance. The real NAS-profile
+Compose/TLS browser scenario exercises index/manual review/publication, matrix,
+missing acknowledgements, reading/print/excerpt/contents and downloads; actual
+worker publication crashes/cancellation/failure/pins/RAW/persistence use Linux
+containers and isolated synthetic binds. New scenarios are not verified until
+the corresponding final-head CI succeeds. Physical DSM acceptance remains separate.

@@ -20,6 +20,7 @@ Profiles:
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from config.db import _apply_sqlite_pragmas  # noqa: F401 - registers the connection_created signal
@@ -117,6 +118,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.diagnostics",
+                "config.features.availability",
             ],
         },
     },
