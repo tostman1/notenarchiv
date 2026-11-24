@@ -85,6 +85,11 @@ reflect actual completed work only.
   revision and atomic enqueue; report bounded DB contention as actionable 409.
   Add query-order and independent file-backed SQLite writer regression. Temporary
   CI frame capture removed; actual stock NAS-profile stack remains mandatory.
+- CI `45396565551`: Foundation passed with SQLite writer regression; stock
+  full stack confirmed all six original synthetic PDFs through actual UI and
+  worker publication. Participants/ensemble edits reached; matrix test expected
+  a contiguous instrument/part label instead of its explicit notation fields.
+  Select the exact visually reviewed file UUID; no assertion/authorization weakened.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened

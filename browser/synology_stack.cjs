@@ -54,11 +54,13 @@ async function run(origin, ids) {
   for(let i=0;i<120&&await links().count()!==6;i++){await page.reload();await page.waitForTimeout(500);}
   assert.equal(await links().count(),6);
   const urls=await links().evaluateAll(elements=>elements.map(el=>el.href));
+  const reviewedFiles={};
   for(const url of urls){
    await page.goto(url);await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
    const body=await page.locator('main > p').filter({hasText:'.pdf'}).first().innerText();
    const title=Object.keys(ids.arrangements).find(title=>body.includes(title));assert.ok(title);
    const part=body.includes('Posaune 1.pdf')?ids.parts[0]:ids.parts[1];
+   reviewedFiles[`${title}:${part}`]=new URL(url).pathname.split('/').filter(Boolean).at(-1);
    await page.getByLabel('Arrangement / Ausgabe',{exact:false}).selectOption(ids.arrangements[title]);
    await page.getByLabel('Instrumentenvarianten',{exact:false}).selectOption(ids.instrument);
    await page.getByLabel('Musikalische Stimmen',{exact:false}).selectOption(part);
@@ -103,7 +105,9 @@ async function run(origin, ids) {
   for(let i=0;i<120&&!await cell().getByLabel('Spielbare Stimme und konkrete Ausgabe').count();i++){await page.reload();await page.waitForTimeout(500);}
   await page.waitForFunction(()=>!!window.htmx);
   const choice=cell().getByLabel('Spielbare Stimme und konkrete Ausgabe');
-  const value=await choice.locator('option').filter({hasText:'Posaune 2'}).first().getAttribute('value');
+   const pinnedFile=reviewedFiles[`Testmarsch Alpha:${ids.parts[1]}`];
+   assert.ok(pinnedFile);
+   const value=await choice.locator('option').filter({hasText:pinnedFile}).first().getAttribute('value');
   assert.ok(value);await choice.selectOption(value);
   const revision=Number(await page.locator('#matrix-panel').getAttribute('data-revision'));
   await cell().getByRole('button',{name:'Persönliche Ausgabe speichern'}).click();
