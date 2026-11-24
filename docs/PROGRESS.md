@@ -79,6 +79,12 @@ reflect actual completed work only.
   indexing and PDF rendering, then its strict label selector failed against the
   required-field label suffix. Match the established review browser selector;
   no business/UI/security behavior changed. Stack and publication remain pending.
+- Real stack `45393521026` isolated HTTP-500 cause to SQLite reader-to-writer
+  upgrade in nested canonical approval while the singleton worker writes.
+  Add write-first conditional no-op CAS before nested approval, preserve exact
+  revision and atomic enqueue; report bounded DB contention as actionable 409.
+  Add query-order and independent file-backed SQLite writer regression. Temporary
+  CI frame capture removed; actual stock NAS-profile stack remains mandatory.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened

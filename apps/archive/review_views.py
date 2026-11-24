@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db import DatabaseError
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, render
@@ -43,6 +44,11 @@ def detail(request, file_id):
         if failed_form.is_valid():
             try:
                 result = services.act(file, action, failed_form.cleaned_data, request.user)
+            except DatabaseError:
+                failed_form.add_error(
+                    None, _("Datenbank momentan belegt. Prüfseite neu laden und den Auftrag bewusst erneut versuchen.")
+                )
+                status = 409
             except (ValidationError, ValueError, OSError, Http404):
                 failed_form.add_error(
                     None,

@@ -156,6 +156,16 @@ def queue_canonical(proposal_id, *, actor, expected_revision, using="default"):
         file.root_kind, canonical_path(proposal, using=using), file.source_version_id, exclude=file.pk, using=using
     )
     with transaction.atomic(using=using):
+        # request_approval resolves a proposal before its own write-first block.
+        # When nested here, that read would establish a SQLite reader snapshot
+        # which cannot safely upgrade while the worker holds a writer lock.
+        # Acquire the short writer boundary first without incrementing twice.
+        if (
+            not m.ArchiveFile.objects.using(using)
+            .filter(pk=file.pk, revision=expected_revision)
+            .update(revision=F("revision"))
+        ):
+            raise s.ArchiveConflict()
         proposal = s.request_approval(proposal_id, actor=actor, expected_revision=expected_revision, using=using)
         file = m.ArchiveFile.objects.using(using).get(pk=file.pk)
         existing = proposal.operations.using(using).filter(job__status__in=["QUEUED", "RUNNING"]).first()

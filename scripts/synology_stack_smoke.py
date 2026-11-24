@@ -94,7 +94,6 @@ def smoke(parent, image):
         template = template.replace(f"container_name: {service}", f"container_name: {service}-{suffix}")
     template = template.replace("https://notenarchiv-test.example.invalid", "https://127.0.0.1:9443")
     template = template.replace("notenarchiv-test.example.invalid", HOST)
-    template = template.replace("NOTENARCHIV_PROFILE: nas", "PYTHONPATH: /data:/app\n  NOTENARCHIV_PROFILE: nas")
     compose_file = root / "config/compose.yaml"
     compose_file.write_text(
         template.replace("CHANGE_UID:CHANGE_GID", f"{uid}:{gid}").replace("/volume1/docker/notenarchiv-test", str(root))
@@ -147,26 +146,6 @@ def smoke(parent, image):
     }
     try:
         compose("config", "--quiet")
-        # Capture only technical exception frames in this disposable synthetic CI
-        # web process. No messages, locals, request content or product flag changes.
-        capture = """import logging,logging.config,json,traceback
-class SyntheticFrames(logging.Handler):
-    def emit(self, record):
-        if record.exc_info and record.levelno >= logging.ERROR:
-            error=record.exc_info
-            frames=[{'file':f.filename,'line':f.lineno,'function':f.name}
-                    for f in traceback.extract_tb(error[2])]
-            print('SYNTHETIC_EXCEPTION='+json.dumps({'type':error[0].__name__,'frames':frames}),flush=True)
-original=logging.config.dictConfig
-def configured(config):
-    original(config)
-    logging.getLogger('django.request').addHandler(SyntheticFrames())
-logging.config.dictConfig=configured
-"""
-        harness = root / "data" / "sitecustomize.py"
-        harness.write_text(capture)
-        os.chown(harness, uid, gid)
-        harness.chmod(0o600)
         compose("run", "--rm", "--no-deps", WEB, success=False)
         compose("--profile", "tools", "run", "--rm", "initialize")
         provision(command, service="archivist")
