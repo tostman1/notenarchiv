@@ -41,9 +41,7 @@ async function run(origin, ids) {
   }
   assert.equal((await page.request.get(`${origin}/diagnostics/`)).status(),404);
   for(const path of ['/ocr/','/printing/','/scan-enhancement/'])assert.equal((await page.request.post(origin+path)).status(),404);
-  for(const resource of ['/static/css/base.css','/static/vendor/htmx.min.js','/static/archive/preview.mjs']){
-   // HTMX is also exercised by the actual matrix below.
-   if(resource.includes('htmx'))continue;
+  for(const resource of ['/static/css/base.css','/static/vendor/htmx/htmx.min.js','/static/archive/preview.mjs']){
    assert.equal((await page.request.get(origin+resource)).status(),200);
   }
   const cookies=await context.cookies();assert.ok(cookies.find(c=>c.name==='notenarchiv_sessionid'&&c.secure&&c.httpOnly));
@@ -56,7 +54,7 @@ async function run(origin, ids) {
   const urls=await links().evaluateAll(elements=>elements.map(el=>el.href));
   for(const url of urls){
    await page.goto(url);await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
-   const body=await page.locator('body').innerText();
+   const body=await page.locator('main > p').first().innerText();
    const title=Object.keys(ids.arrangements).find(title=>body.includes(title));assert.ok(title);
    const part=body.includes('Posaune 1.pdf')?ids.parts[0]:ids.parts[1];
    await page.getByLabel('Arrangement / Ausgabe',{exact:true}).selectOption(ids.arrangements[title]);
@@ -120,8 +118,7 @@ async function run(origin, ids) {
   await submit(page.getByRole('button',{name:'Persönliche Mappen verbindlich erstellen'}));
   await page.getByRole('link',{name:'Ergebnis und Auftrag öffnen'}).click();
   // The selected library artifact may be either reading or print.
-  for(let i=0;i<160&&!await page.getByRole('link',{name:/PDF herunterladen/}).count();i++){await page.reload();await page.waitForTimeout(500);}
-  assert.ok(await page.getByRole('link',{name:/PDF herunterladen/}).count());
+  await download('Persönliche Lese-PDF herunterladen',1);
   assert.deepEqual(external,[]);assert.deepEqual(errors,[]);
  }finally{await browser.close();}
 }
