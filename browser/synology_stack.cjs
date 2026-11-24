@@ -46,6 +46,7 @@ async function run(origin, ids) {
   }
   const cookies=await context.cookies();assert.ok(cookies.find(c=>c.name==='notenarchiv_sessionid'&&c.secure&&c.httpOnly));
   await page.goto(`${origin}/archive/index/`);
+  await page.getByLabel('Auswahl indizieren',{exact:false}).check();
   await submit(page.getByRole('button',{name:'Indizieren',exact:true}));
   await page.goto(`${origin}/archive/review/`);
   const links=()=>page.getByRole('link',{name:'Version prüfen und zuordnen',exact:true});

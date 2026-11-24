@@ -65,6 +65,15 @@ reflect actual completed work only.
   multi-page inspection, independent STATUS markers, exact-version/model pins,
   disabled direct routes and denied partial-batch downloads; not yet CI verified.
   Subsequent packaging/persistence/release/gateway affected suite: 26 passed.
+- CI `45377092525` at `0dceb27`: Foundation passed all 953 Linux tests and 26
+  browsers, dependency audit/system/migration checks. Container build, existing
+  smoke/publication/restore and simple installation passed. New stack browser
+  stopped at required indexing confirmation checkbox absent from the test;
+  test corrected without weakening the mandatory user confirmation. Full stack,
+  final-head CI, merge and publication remain pending.
+- First local full regression ran during demo changes: 823 passed/129 platform
+  skips/one stale collected one-page expectation failed against updated two-page
+  demo. Current targeted demo passed; immutable-source full rerun in progress.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
