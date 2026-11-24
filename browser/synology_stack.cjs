@@ -54,7 +54,7 @@ async function run(origin, ids) {
   const urls=await links().evaluateAll(elements=>elements.map(el=>el.href));
   for(const url of urls){
    await page.goto(url);await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
-   const body=await page.locator('main > p').first().innerText();
+   const body=await page.locator('main > p').filter({hasText:'.pdf'}).first().innerText();
    const title=Object.keys(ids.arrangements).find(title=>body.includes(title));assert.ok(title);
    const part=body.includes('Posaune 1.pdf')?ids.parts[0]:ids.parts[1];
    await page.getByLabel('Arrangement / Ausgabe',{exact:true}).selectOption(ids.arrangements[title]);
