@@ -10,6 +10,8 @@ Build the local German-language Notenarchiv & Marschbuch-Generator for a Synolog
 - `ARCHITECTURE.md`: technical target and invariants.
 - `DECISIONS.md`: confirmed product decisions, recommended defaults and actual evidence still needed.
 - `IMPLEMENTATION_PLAN.md`: work packages, dependencies, acceptance and release gates.
+- `docs/PROCESS.md`: canonical development workflow, the "waiting is not reasoning" rule, and checkpoint/recovery policy.
+- `docs/standard-checks.md`: exact local checks, deterministic CI waiting commands, defaults, exit codes, and diagnostics.
 - `README.md`: overview, not a conflicting specification.
 - The latest explicit owner decision takes precedence over older conflicting user-level project instructions. Record approved changes in relevant documents. Do not silently change requirements.
 
@@ -73,3 +75,7 @@ These paths are informational only: always verify the actual repository root; us
 4. If the gate passes, follow the full takeover procedure: inspect `AGENTS.md`, `docs/HANDOFF.md`, `docs/PROGRESS.md`, and relevant requirements; review **all commits and diffs since the recorded base**, not just the final marker commit. If histories diverged or a PR was merged, determine the correct comparison from Git/PR evidence. Verify actual test/CI status, open issues, and unfinished work before resuming the approved assignment. A valid handoff marker authorizes inspection and safe continuation, **not** an automatic merge, release, NAS deployment, or claim of feature completion.
 
 `docs/HANDOFF.md` stores the latest transfer snapshot, while `docs/PROGRESS.md` stores ongoing work-package history. Incomplete work may be transferred on a pushed feature branch; do not represent it as complete or merge it automatically. Never include secrets, actual music PDFs or personal data in either file.
+
+## CI verification and waiting
+
+Waiting is not reasoning: never use LLM-driven polling, repeated status checks, or repeated context reconstruction to wait for GitHub Actions, PR checks, mergeability, or any external operation. Follow [docs/PROCESS.md](docs/PROCESS.md) for the canonical workflow (implement → test → commit → push → one deterministic SHA-bound CI wait → compact result → continue) and [docs/standard-checks.md](docs/standard-checks.md) for the exact commands, `scripts/wait_for_ci.py` usage, defaults, exit codes, and failure diagnostics. Bind every wait to the exact expected commit SHA and the required checks; one CI phase is one waiting operation and one final result. Missing, skipped, stale, mismatched, failed, timed-out, or rate-limited results are never a successful verification and are never grounds to merge. If the environment cannot wait reliably, checkpoint and stop instead of polling manually. All existing review, approval, merge, release, and deployment gates remain unchanged.

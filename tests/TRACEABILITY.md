@@ -1,5 +1,17 @@
 # Implemented acceptance traceability
 
+## Development governance: deterministic CI waiting
+
+DEC-08/DEC-11, GR-14, AGENTS.md, docs/PROCESS.md, docs/standard-checks.md:
+`tests/test_wait_for_ci.py` verifies the `scripts/wait_for_ci.py` contract with a
+mocked GitHub transport and a deterministic clock — exact-SHA binding, pending
+polling at the bounded intervals, missing/required-check mismatch, foreign-SHA
+and PR-head mismatch, failed and cancelled results, timeout, Retry-After
+rate-limit waiting within and beyond the budget, unavailable after bounded
+transient retries, run-mode 404 discovery, and CLI defaults. No real GitHub
+workflow is triggered. Governance consolidation (AGENTS.md pointer, PROCESS.md,
+standard-checks.md) keeps all review/approval/merge/release gates unchanged.
+
 ## Current-feature Synology test acceptance — software verified
 
 CI `45403811456` at `68f0fcf74c81f599a22bf46e1f8dc80de670c882` passed 956 Linux

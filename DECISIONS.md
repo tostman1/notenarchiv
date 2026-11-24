@@ -17,6 +17,7 @@ This register distinguishes binding product decisions from recommended implement
 | DEC-07 | Deploy default; optional `DEBUG_MODE="TRUE"` enables application GUI and file diagnostics, never Django DEBUG. | OP-04 |
 | DEC-08 | All development instructions/docs English; GUI and archivist manuals German. Owner update 2026-11-20: routine commits, pushes, PRs and merges within agreed implementation scope proceed without repeated approval after successful relevant checks/CI and diff review, with no unresolved errors, review findings or conflicts. Blocking decisions and actions beyond this scope retain their approval requirements. | UI-02, OP-06, AGENTS.md |
 | DEC-09 | Owner priority shift 2026-11-20: first deliver an empty/synthetic-data web-only technical preview on DS224+. Advance deployment-compatible WP-09/06/07/08/10 and preview backup/install/rollback slices of WP-47a/48/49. Worker recovery, OCR, printing and generation do not block this web-only variant; their original requirements and full-scope dependencies remain. Actual GHCR release/tag and NAS deployment retain their applicable approval gates; no real archive attachment or live NAS deployment is authorized. | OP-01–06, UI-01–03, GR-01/13/14; IMPLEMENTATION_PLAN.md preview gate |
+| DEC-11 | Development-agent governance: CI verification waits are deterministic, SHA-bound automation (docs/PROCESS.md, docs/standard-checks.md, scripts/wait_for_ci.py); LLM-driven polling, repeated status checks and context reconstruction to wait for GitHub are prohibited. Only exact-commit, non-skipped, non-stale green checks are successful verification; timeout/rate-limit is not success; all existing review, approval, merge, release and deployment gates remain binding. | DEC-08; AGENTS.md; docs/PROCESS.md; docs/standard-checks.md |
 
 ## Recommended defaults for owner acceptance
 Owner authorization, 2026-11-24 (DEC-10): deliver a separate current-feature
@@ -47,6 +48,7 @@ These defaults are used to make the plan concrete. They are reversible design ch
 | D-12 | M3 is useful personal-folder MVP, not a claim of full feature completion. Full product release includes OCR, ensemble, marchbook, printing and operations; if hardware blocks printing, release only explicitly limited scope with owner approval. | WP-53 |
 | D-13 | Minimal common navigation early; use synthetic UI acceptance fixtures and the German mockup as an interaction reference, not as production code or normative behavior. | WP-03a |
 | D-14 | 10 MiB/5 backups per writer, one writer per log file. Deploy preserves existing debug files; no debug GUI. | WP-04a / WP-04b |
+| D-15 | CI waiting defaults: 90 s initial, 60 s normal / 120 s long polling, 30 min max duration, 3 bounded transient retries with exponential backoff, deterministic Retry-After honoring; result file outside Git. Revisit only with actual timing evidence. | docs/standard-checks.md |
 
 ## Hardware and evidence still outstanding
 
