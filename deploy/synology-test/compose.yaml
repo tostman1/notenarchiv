@@ -15,7 +15,7 @@ x-runtime: &runtime
   pids_limit: 64
   mem_limit: 512m
   cpus: 1.0
-  tmpfs: [/tmp:size=64m,mode=1777]
+  tmpfs: ["/tmp:size=64m,mode=1777"]
   logging:
     driver: json-file
     options: {max-size: 10m, max-file: "3"}

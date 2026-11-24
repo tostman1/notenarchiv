@@ -68,6 +68,8 @@ def wait_until(check, message, seconds=120):
 
 
 def smoke(parent, image):
+    other_containers = execute(["docker", "ps", "-aq"]).stdout.split()
+    other_volumes = execute(["docker", "volume", "ls", "-q"]).stdout.split()
     account = pwd.getpwnam("nobody")
     uid, gid = account.pw_uid, account.pw_gid
     os.chown(parent, 0, gid)
@@ -223,6 +225,7 @@ def smoke(parent, image):
             server.server_close()
             thread.join(timeout=10)
         assert len(action("files")) == 6 and all(f["review"] == "CONFIRMED" for f in action("files"))
+        assert list((root / "status").rglob("*.json")), "Index status was not independently published"
         # Actual worker crash after filesystem publication; regular service recovers.
         compose("stop", WORKER)
         recovery = action("authorize", identities)
@@ -241,6 +244,15 @@ def smoke(parent, image):
             ids = action("authorize", identities)
             compose("run", "--rm", "--no-deps", "--entrypoint", "python", WORKER, "-c", code, fault)
             assert action("state", ids)["status"] == expected
+            for artifact in action("state", ids)["artifacts"]:
+                denied_code = (
+                    "import django; django.setup(); from django.test import Client; "
+                    "from django.contrib.auth import get_user_model; "
+                    "c=Client(); c.force_login(get_user_model().objects.get(username='synthetic-archivist')); "
+                    f"assert c.get('/exports/artifacts/{artifact}/download/', "
+                    "HTTP_HOST='127.0.0.1', HTTP_X_FORWARDED_PROTO='https').status_code == 404"
+                )
+                compose("exec", "-T", WEB, "python", "-c", denied_code)
             compose("up", "-d", WORKER)
             wait_until(health, "Worker did not restart after negative path")
         # RAW create/write/rename/delete denied in both services and host identity.
@@ -285,6 +297,8 @@ for operation in (lambda:note.write_bytes(b'changed'),lambda:note.unlink(),
         raise
     finally:
         compose("down", "--timeout", "10")
+        assert other_containers == execute(["docker", "ps", "-aq"]).stdout.split()
+        assert other_volumes == execute(["docker", "volume", "ls", "-q"]).stdout.split()
 
 
 if __name__ == "__main__":

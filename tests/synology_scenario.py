@@ -88,6 +88,7 @@ def authorize(ids):
 
 
 def check_pins(ids):
+    from django.core.exceptions import ValidationError
     from django.db.models.deletion import ProtectedError
 
     run = GenerationRun.objects.get(pk=ids["run"])
@@ -99,6 +100,16 @@ def check_pins(ids):
         pass
     else:
         raise AssertionError("Exact version protection failed")
+    original = run.snapshot.sha256
+    run.snapshot.sha256 = "0" * 64
+    try:
+        run.snapshot.save()
+    except ValidationError:
+        pass
+    else:
+        raise AssertionError("Immutable snapshot mutation succeeded")
+    run.snapshot.refresh_from_db()
+    assert run.snapshot.sha256 == original
     return {"protected": True}
 
 

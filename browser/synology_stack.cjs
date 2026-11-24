@@ -62,6 +62,12 @@ async function run(origin, ids) {
    await page.getByLabel('Musikalische Stimmen',{exact:false}).selectOption(part);
    await submit(page.getByRole('button',{name:'Zuordnung speichern'}));
    await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+   const pages=Number(await page.locator('#pdf-count').innerText());
+   for(let number=2;number<=pages;number++){
+    await page.locator('#pdf-next').click();
+    await page.waitForFunction(number=>document.querySelector('#pdf-page').value===String(number),number);
+    await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+   }
    assert.equal(await page.getByRole('button',{name:'Freigabe beauftragen'}).isDisabled(),true);
    await page.getByLabel('Ich habe alle Seiten',{exact:false}).check();
    await submit(page.getByRole('button',{name:'Visuelle Prüfung speichern'}));
@@ -71,6 +77,24 @@ async function run(origin, ids) {
   await page.goto(`${origin}/archive/review/`);
   for(let i=0;i<120&&await links().count();i++){await page.reload();await page.waitForTimeout(500);}
   assert.equal(await links().count(),0);
+  await page.goto(`${origin}/projects/${ids.project}/participants/`);
+  assert.equal(await page.locator('input[name="member"]:checked').count(),3);
+  await submit(page.getByRole('button',{name:'Auswahl dieser Seite speichern'}));
+  await page.reload();assert.equal(await page.locator('input[name="member"]:checked').count(),3);
+  await page.goto(`${origin}/projects/${ids.project}/ensemble/`);
+  await page.getByRole('link',{name:'Rolle hinzufügen'}).click();
+  await page.getByLabel('Rollenkürzel').fill('Test');
+  await page.getByLabel('Musikalische Rollenbezeichnung').fill('Synthetische Testrolle');
+  await submit(page.getByRole('button',{name:'Ensemblezuordnung speichern'}));
+  const first=page.locator(`[data-participant="${ids.people[0]}"]`);
+  const role=await first.locator('select option').nth(1).getAttribute('value');
+  await first.getByLabel('Musikalische Rolle').selectOption(role);
+  await submit(first.getByRole('button',{name:'Teilnehmerrolle speichern'}));
+  await page.getByRole('link',{name:'Mapping hinzufügen'}).click();
+  await page.getByLabel('Musikalische Rolle').selectOption(role);
+  await page.getByLabel('Spielbare Instrumentenvariante').selectOption(ids.instrument);
+  await page.getByLabel('Spielbare Stimme',{exact:false}).selectOption(ids.parts[0]);
+  await submit(page.getByRole('button',{name:'Ensemblezuordnung speichern'}));
   // Publication is asynchronous, but a successful queue action alone is not acceptance.
   await page.goto(`${origin}/projects/${ids.project}/matrix/`);
   const cell=()=>page.locator(`tr[data-position="${ids.positions[0]}"] td[data-participant="${ids.people[2]}"]`);
@@ -79,8 +103,9 @@ async function run(origin, ids) {
   const choice=cell().getByLabel('Spielbare Stimme und konkrete Ausgabe');
   const value=await choice.locator('option').filter({hasText:'Posaune 2'}).first().getAttribute('value');
   assert.ok(value);await choice.selectOption(value);
+  const revision=Number(await page.locator('#matrix-panel').getAttribute('data-revision'));
   await cell().getByRole('button',{name:'Persönliche Ausgabe speichern'}).click();
-  await page.waitForFunction(()=>document.querySelector('#matrix-panel').dataset.revision==='2');
+  await page.waitForFunction(revision=>Number(document.querySelector('#matrix-panel').dataset.revision)===revision+1,revision);
   await page.reload();assert.match(await cell().innerText(),/Persönlicher Stück-Override/);
   assert.equal(await page.locator(`tr[data-position="${ids.positions[1]}"] :is(select,button,input,a)`).count(),0);
   for(const variant of ['READING','PRINT']){
@@ -117,7 +142,6 @@ async function run(origin, ids) {
   for(const check of await page.locator('input[name="acknowledgements"]').all())await check.check();
   await submit(page.getByRole('button',{name:'Persönliche Mappen verbindlich erstellen'}));
   await page.getByRole('link',{name:'Ergebnis und Auftrag öffnen'}).click();
-  // The selected library artifact may be either reading or print.
   await download('Persönliche Lese-PDF herunterladen',1);
   assert.deepEqual(external,[]);assert.deepEqual(errors,[]);
  }finally{await browser.close();}

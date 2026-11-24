@@ -43,7 +43,6 @@ reflect actual completed work only.
 | WP-33b | Exact direct matrix cell and saved-default edits | Merged, software verified | PR #39, merge `88ef45a` | 714 Linux tests, eighteen browsers; final PR CI `45085495233` and main CI `45086565420` passed | Private NAS acceptance separate | Complete software scope |
 | WP-33c | Atomic matrix batch edits and retained reset | Software verified; integration pending | PR #40, source `04d2ff0` | Local 652 passed/81 skips before final refinements; 736 Linux tests, nineteen browsers; full CI `45090329532` passed | Private NAS acceptance separate | Final docs-head CI, merge/main then stop |
 
-## Owner-approved print PDF and export management — 2026-11-23
 ## Current-feature Synology test distribution — 2026-11-24
 
 - Verified base `fd0ed9ce0b4efeb05c7210f237dcb7896c38a31a`, integrated PR #50;
@@ -62,8 +61,7 @@ reflect actual completed work only.
   migration drift passed. Full regression started; local browser attempt failed
   because Node.js is absent (22 failed before driver start/four POSIX skips), not
   a browser success. Linux CI must exercise the complete browser/container gate.
-
-
+## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
   publication/restore/security checks. Main CI `45335478658` passed; clean synchronized
