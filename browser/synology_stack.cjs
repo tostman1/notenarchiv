@@ -15,7 +15,8 @@ async function run(origin, ids) {
   });
   const page=await context.newPage();page.on('pageerror', e=>errors.push(e.message));
   async function submit(button){
-   await Promise.all([page.waitForNavigation({waitUntil:'load'}),button.click()]);
+   const [response]=await Promise.all([page.waitForNavigation({waitUntil:'load'}),button.click()]);
+   assert.notEqual(response.status(),500,'Synthetic browser submission returned HTTP 500');
   }
   async function download(label, count){
    const link=page.getByRole('link',{name:label,exact:true});

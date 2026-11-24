@@ -294,6 +294,30 @@ for operation in (lambda:note.write_bytes(b'changed'),lambda:note.unlink(),
         )
     except Exception:
         sys.stderr.write(compose("logs", "--no-color").stdout)
+        diagnosis = """
+import django,json,traceback
+django.setup()
+from django.test import Client
+from django.contrib.auth import get_user_model
+from apps.archive.models import ArchiveFile
+from apps.jobs.models import Job
+c=Client(); c.force_login(get_user_model().objects.get(username='synthetic-archivist'))
+for file in ArchiveFile.objects.all():
+    print('SYNTHETIC_FILE',file.pk,file.review_state,file.revision,file.current_proposal_id)
+    try:
+        response=c.get('/archive/review/'+str(file.pk)+'/',HTTP_HOST='127.0.0.1',HTTP_X_FORWARDED_PROTO='https')
+        print('SYNTHETIC_REVIEW_STATUS',response.status_code)
+    except Exception:
+        traceback.print_exc()
+print('SYNTHETIC_JOBS',list(Job.objects.values('id','status','error_code')))
+"""
+        diagnostic = subprocess.run(
+            [*command, "exec", "-T", WEB, "python", "-c", diagnosis],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        sys.stderr.write(diagnostic.stdout + diagnostic.stderr)
         raise
     finally:
         compose("down", "--timeout", "10")
