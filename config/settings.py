@@ -181,3 +181,4 @@ PRINT_ENABLED = env.print_enabled
 
 LOGGING = logging_config(env.debug_mode, env.service, env.log_dir, file_logging=file_logging_enabled())
 DIAGNOSTIC_LOG_DIR = env.log_dir
+TEST_DISTRIBUTION = os.environ.get("NOTENARCHIV_TEST_DISTRIBUTION", "FALSE").strip().upper() == "TRUE"

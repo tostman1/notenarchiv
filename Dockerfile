@@ -18,7 +18,7 @@ FROM python-base
 ARG APP_VERSION=0.1.0-preview.1
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.source="https://github.com/tostman1/notenarchiv" \
-      org.opencontainers.image.title="Notenarchiv technical preview" \
+      org.opencontainers.image.title="Notenarchiv" \
       org.opencontainers.image.version=$APP_VERSION \
       org.opencontainers.image.revision=$VCS_REF
 ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
