@@ -2,6 +2,7 @@
 {% block title %}{% translate "Notenbibliothek" %} — Notenarchiv{% endblock %}
 {% block content %}
 <h1>{% translate "Notenbibliothek" %}</h1>
+<p><a href="{% url 'archive_print_export' %}">{% translate "Druck-PDF aus bestätigten Archivnoten" %}</a></p>
 <form method="get" class="filters" id="library-search">{{ form.as_p }}<button>{% translate "Suchen" %}</button></form>
 <p>{% translate "Titel und Aliasse werden auch mitten im Wort gefunden. Erkennung und Prüfstand sind keine Freigabe. Vollständigkeit gilt nur für die festgelegte Besetzung, nicht für ein Projekt." %}</p>
 <div id="library-results" aria-live="polite" data-query="{{ form.q.value|default:'' }}">

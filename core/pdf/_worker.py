@@ -61,6 +61,7 @@ def main(stage):
         if request["operation"] == "inspect":
             response = inspect(readers[0], infos[0], limits, request["include_text"])
         else:
+            metadata = {}
             with (stage / "output").open("xb") as raw:
                 stream = BoundedOutput(raw, limits.max_output_bytes)
                 if request["operation"] == "render":
@@ -85,10 +86,14 @@ def main(stage):
                 elif request["operation"] == "compose":
                     from core.pdf.composition import compose
 
-                    compose(readers, request, limits, stream)
+                    metadata = {"origins": compose(readers, request, limits, stream)}
+                elif request["operation"] == "print":
+                    from core.pdf.printing import render
+
+                    metadata = {"plan": render(readers[0], request["origins"], request["mode"], limits, stream)}
                 else:
                     raise PdfError("INVALID_PDF")
-            response = {"ok": True}
+            response = {"ok": True, **metadata}
     except PdfError as error:
         response = {"error": error.code}
     except MemoryError:

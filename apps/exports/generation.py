@@ -56,16 +56,27 @@ def personal_pieces(snapshot, pins, person_id, checkpoint=lambda: None):
 
 
 def output_path(snapshot, person):
+    if snapshot.kind == "ARCHIVE_NOTES":
+        return f"Einzelnoten/run-{snapshot.run.pk.hex}/" + (
+            "Druck-PDF.pdf" if snapshot.payload.get("output_variant") == "PRINT" else "Lese-PDF.pdf"
+        )
     project = "Projekt-" + component(snapshot.payload["project_name"], maximum=64) + "--" + snapshot.project_id.hex
     if snapshot.kind == "CONTENTS":
-        return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Inhaltsverzeichnis/Inhaltsverzeichnis.pdf"
+        filename = "Druck-PDF.pdf" if snapshot.payload.get("output_variant") == "PRINT" else "Inhaltsverzeichnis.pdf"
+        return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Inhaltsverzeichnis/{filename}"
     name = "Person-" + component(person["name"], maximum=64) + "--" + person["id"].replace("-", "")
     filename = "Auszug.pdf" if snapshot.kind == "EXCERPT" else "Lese-PDF.pdf"
+    if snapshot.payload.get("output_variant") == "PRINT":
+        filename = "Druck-PDF.pdf"
     return f"Projekte/{project}/run-{snapshot.run.pk.hex}/Personen/{name}/{filename}"
 
 
 def targets(snapshot):
-    return [{"id": None, "name": ""}] if snapshot.kind == "CONTENTS" else snapshot.payload["participants"]
+    return (
+        [{"id": None, "name": ""}]
+        if snapshot.kind in {"CONTENTS", "ARCHIVE_NOTES"}
+        else snapshot.payload["participants"]
+    )
 
 
 def effect_key(publication):
@@ -138,7 +149,23 @@ def _existing(publication, root, checkpoint):
 
 
 def _compose(context, snapshot, pins, person, processor, publication, root):
-    if snapshot.kind == "CONTENTS":
+    if snapshot.kind == "ARCHIVE_NOTES":
+        pieces = []
+        total_input = 0
+        for cell in snapshot.payload["archive_files"]:
+            total_input += cell["size"]
+            if total_input > min(settings.PDF_MAX_BYTES, 104_857_600):
+                raise ValidationError("Archive print input bound exceeded")
+            processor.checkpoint()
+            data = preview.snapshot(
+                settings.CURATED_DIR if cell["root"] == "CLEAN" else settings.PROCESSED_DIR,
+                cell["path"],
+                maximum=cell["size"],
+                sha256=cell["hash"],
+                size=cell["size"],
+            )
+            pieces.append({"number": cell["ordinal"], "title": cell["title"], "state": "MUSIC", "data": data})
+    elif snapshot.kind == "CONTENTS":
         pieces = [
             {"number": p["order"], "title": p["title"], "state": "RESERVE", "data": None}
             for p in snapshot.payload["positions"]
@@ -158,40 +185,48 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
     )
     dependencies = snapshot.payload["dependencies"]
     assignment = ""
-    if snapshot.kind != "CONTENTS":
+    if snapshot.kind not in {"CONTENTS", "ARCHIVE_NOTES"}:
         part = next(p for p in dependencies["parts"] if p["id"] == person["part"])
         instrument = next(p for p in dependencies["instruments"] if p["id"] == part["instrument_id"])
         assignment = f"{instrument['name']} {part['code']}"
     if person.get("role"):
         role = next(r for r in dependencies["roles"] if r["id"] == person["role"])
         assignment += f" · {role['label']}"
-    data = processor.compose(
+    data, composition = processor.compose(
         pieces,
         project=options["cover_title"] or snapshot.payload["project_name"],
         participant=person["name"],
         assignment=assignment,
         cover=options["cover_enabled"] and snapshot.kind == "FULL",
-        contents=snapshot.kind != "EXCERPT",
+        contents=snapshot.kind not in {"EXCERPT", "ARCHIVE_NOTES"},
         music=snapshot.kind != "CONTENTS",
         page_size=size,
+        with_manifest=True,
     )
     del pieces
+    print_plan = None
+    if snapshot.payload.get("output_variant") == "PRINT":
+        data, print_result = processor.print_pdf(data, composition["origins"], mode=snapshot.kind)
+        print_plan = print_result["plan"]
     path = f".staging/{publication.pk.hex}/attempt-{context.attempt_number}.pdf"
     stage, info = stage_bytes(root, path, data, processor, processor.checkpoint)
     del data
     try:
         manifest = {
             "schema": 1,
-            "renderer": "reading-v1",
+            "renderer": "print-v1" if print_plan else "reading-v2",
             "kind": snapshot.kind,
             "snapshot_id": str(snapshot.pk),
             "snapshot_sha256": snapshot.sha256,
             "participant_id": person["id"],
-            "participant_name": person["name"] or "Inhaltsverzeichnis",
+            "participant_name": person["name"]
+            or ("Einzelnoten" if snapshot.kind == "ARCHIVE_NOTES" else "Inhaltsverzeichnis"),
             "positions": logical,
             "inputs": [c for c in snapshot.payload["cells"] if c["participant_id"] == person["id"]],
             "pages": [asdict(p) for p in info.pages],
             "page_count": len(info.pages),
+            "origins": composition["origins"],
+            "print_plan": print_plan,
         }
         manifest = json.loads(json.dumps(manifest))
         recorded = context.commit_metadata(
@@ -276,7 +311,7 @@ def run(context):
     snapshot, pins = load_pinned_inputs(context.payload["snapshot_id"], checkpoint=context.checkpoint)
     if (
         snapshot.run.job_id != context.job_id
-        or snapshot.kind not in {"FULL", "EXCERPT", "CONTENTS"}
+        or snapshot.kind not in {"FULL", "EXCERPT", "CONTENTS", "ARCHIVE_NOTES"}
         or snapshot.sha256 != context.payload["sha256"]
     ):
         raise ValidationError("Unsupported or foreign generation authorization")
@@ -341,6 +376,7 @@ def acknowledge(context, intent):
             "byte_size": stage.byte_size,
             "manifest": stage.manifest,
             "intent": intent,
+            "variant": publication.run.snapshot.payload.get("output_variant", "READING"),
         },
     )
     artifact.full_clean()

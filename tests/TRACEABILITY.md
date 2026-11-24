@@ -1,5 +1,17 @@
 # Implemented acceptance traceability
 
+## WP-38b print renderer (verification in progress)
+
+- EX-07/PT-01/02/GR-11/12: `test_print_pdf.py` exercises actual isolated 1-40-page
+  layouts, exact A3/A4 media, both left/right vector visual fixtures, rotation/UserUnit,
+  native A3/landscape/custom/crop, origins/generated boundaries and invalid inputs.
+- GR-15/EX-09/OP-03: `test_print_authorization.py` checks exact copied source pins,
+  separate snapshots, auth/CSRF/source-state/token/replay and project-free archive pins.
+- OP-02/EX-10: `test_print_publication.py` executes real Linux full/excerpt/contents/
+  archive no-clobber print effects with process death/restart/cancellation and retained
+  reading bytes. `browser/test_print_exports.py` exercises actual local PDF.js and
+  print download; hardened container smoke generates/verifies all print kinds.
+
 ## WP-38a regular print plan (verification in progress)
 
 - GR-11/PT-01/02/EX-07: `test_print_layout.py` checks 1-6 and >6 arbitrary A4 runs,

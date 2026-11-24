@@ -1,6 +1,6 @@
 {% load static i18n %}
 <link rel="stylesheet" href="{% static 'archive/preview.css' %}">
-<section id="pdf-preview" data-document-url="{% url 'archive_preview:document' file.id %}"
+<section id="pdf-preview" data-document-url="{% if export_document_url %}{{ export_document_url }}{% else %}{% url 'archive_preview:document' file.id %}{% endif %}"
     data-worker-url="{% static 'vendor/pdfjs/build/pdf.worker.mjs' %}"
     data-assets-url="{% static 'vendor/pdfjs/' %}"
     data-error="{% translate 'Die PDF-Vorschau ist nicht verfügbar. Bitte laden Sie die Seite erneut oder prüfen Sie den Dateistatus.' %}"

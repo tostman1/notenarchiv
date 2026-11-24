@@ -62,6 +62,7 @@ class Processor:
         cover=False,
         contents=True,
         music=True,
+        with_manifest=False,
         page_size=(595.2756, 841.8898),
     ):
         """Explicit ordered music/reserve/missing inputs; no resolver or publication."""
@@ -113,7 +114,12 @@ class Processor:
             contents=bool(contents),
             music=bool(music),
             page_size=page_size,
+            with_manifest=with_manifest,
         )
+
+    def print_pdf(self, data, origins, *, mode="FULL"):
+        """Render a validated plan in the isolated worker; never infer boundaries."""
+        return self._invoke("print", [data], origins=origins, mode=mode, with_manifest=True)
 
     def render(self, data: bytes, page=0, *, dpi=144) -> bytes:
         if type(dpi) is not int or not 1 <= dpi <= 600:
@@ -188,7 +194,8 @@ class Processor:
             self.checkpoint()
             if operation == "inspect":
                 return result
-            return self._read(stage / "output", self.limits.max_output_bytes)
+            data = self._read(stage / "output", self.limits.max_output_bytes)
+            return (data, result) if options.get("with_manifest") else data
 
     @staticmethod
     def _write(path, data):

@@ -45,6 +45,27 @@ reflect actual completed work only.
 
 ## Owner-approved print PDF and export management — 2026-11-23
 
+- WP-38a integrated PR #48 as `4659575c3a3c1841b721fc9990297071183e5e67`;
+  final CI `45265622771` passed 888 Linux tests/24 browsers and full container/security.
+  Post-merge main CI `45268896712` passed; exact reviewed tree matched, main clean.
+- WP-38b in progress on `feature/wp-38b-print-pdf`: isolated renderer/Form XObjects,
+  explicit composition origins, immutable separate print authorization/variant,
+  project-free archive print pins, safe shared publication and local PDF.js preview.
+  Targeted renderer/authorization/download/project suite: 45 passed. New real Linux
+  publication/crash/cancel and browser/container print acceptance added; full gates pending.
+- Final print authorization/renderer/download refinement rerun passed 33 tests;
+  explicit transformed-media overflow negative passed. Both visual A4 halves match
+  synthetic originals at exact physical pixel scale; transparency/active-content
+  and original crop/rotation preservation covered. All 22 local browsers passed,
+  three physical Windows skips. Full regression and Linux exact-head gates pending.
+- Full WP-38b local regression passed: 798 tests/125 platform skips in 1024.27 s
+  before final complete-source/hash/manifest guards, which passed 33 affected tests
+  and explicit overflow rejection. All 22 local browsers passed/three POSIX skips.
+  Ruff/format/system/migration/lock/diff checks passed. Full diff reviewed: no printer,
+  no reading overwrite, no insecure preview or weakened file/DB guards. Minimal
+  archive schema slice required by archive print output documented in PRINT_PDF.md.
+  Real Linux final-head acceptance and merge/main gates remain; WP-39 not started.
+
 - Reverified actual WP-37c integration: PR #47 merged at
   `06e8b3546d690d9395515fe9cce708ca8a8da27a`, final CI `45256041092` and
   main CI `45259372536` successful (859 Linux tests/24 browsers). No review threads;

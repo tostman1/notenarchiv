@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% load static i18n %}
+{% block content %}<h1>{% translate "Druck-PDF-Vorschau" %}</h1><p>{% translate "Seiten" %}: {{ artifact.manifest.page_count }}</p>
+{% include "archive/_pdf_viewer.html" %}
+<a href="{% url 'generation_download' artifact.pk %}">{% translate "Druck-PDF herunterladen" %}</a>{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}
