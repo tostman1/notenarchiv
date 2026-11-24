@@ -112,6 +112,23 @@ reflect actual completed work only.
   private data or unrelated changes. Final documentation-head CI, merge/main CI,
   test-only artifact promotion/pull/stack and digest-pinned distribution remain.
   Physical Synology/DSM/TLS/ACL/resource/restore acceptance was not performed.
+- PR #51 merged as `4ccd2698204a1e69ec7c1c4f128acf8e6c65d809`; final head CI
+  `45407719536` and post-merge main CI `45411431365` passed. Reviewed merge tree
+  matched; primary worktree clean/main before publishing `v0.1.0-test.1`.
+- Release `45415635235`: all mandatory checks/candidate export passed; published
+  exact tested bytes to `ghcr.io/tostman1/notenarchiv:0.1.0-test.1`, digest
+  `sha256:f628501dbc3fbe65c4e53bb2ab6c4723bd4014bca582656383ffd528df543e5a`.
+  Pulled digest and complete stack passed again, provenance/SBOM attestations
+  completed. Only announcement packaging failed due to indented bash heredoc.
+  Preserve image/tag; fix packaging and recover original hash-verified artifact,
+  do not rebuild. Final source Compose now pins this actually verified digest.
+  Packaging completion is not yet claimed.
+- PR #52 packaging recovery uses `fix/synology-test-publication` from synchronized
+  main, not unfinished business work. Targeted packaging/release/availability CI
+  tests: 26 passed/one Windows bash skip. Independent anonymous GHCR manifests
+  verified version tag equals published immutable digest. Local cryptographic
+  source/SBOM attestations verified against exact original source/signer workflow.
+  New Linux CI must also parse all multiline release shell blocks with bash -n.
 
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;

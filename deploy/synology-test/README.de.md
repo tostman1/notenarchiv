@@ -18,6 +18,12 @@ fertige `compose.yaml`, diese Anleitung, Vorbereitung, Zugriffsprüfung und Demo
 Die YAML enthält bereits den veröffentlichten Image-Digest; nicht ersetzen.
 Eine Quellcode-YAML mit „Publication pending“ ist **kein Installationspaket**.
 
+Version **0.1.0-test.1**, Quelle `4ccd2698204a1e69ec7c1c4f128acf8e6c65d809`.
+Verifizierter Digest:
+`sha256:f628501dbc3fbe65c4e53bb2ab6c4723bd4014bca582656383ffd528df543e5a`.
+Das Image wurde nach Veröffentlichung aus GHCR gezogen und erneut mit Web,
+Worker, Gateway, Browser und synthetischen PDF-Aufträgen geprüft.
+
 ## 2. Dienstkonto und getrennte Ordner
 
 **Systemsteuerung → Benutzer und Gruppe:** eigenes Konto `svc_notenarchiv_test`
