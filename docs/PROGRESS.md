@@ -49,12 +49,12 @@ reflect actual completed work only.
   final PR CI `45347700944` and post-merge main CI `45350687436` passed. No open
   PRs or unfinished WP-38b/WP-39 work found. Existing deployment drafts preserved
   on dedicated `feature/synology-current-test` as checkpoint `fcc8547`.
-- In progress: worker-aware container entrypoint/maintenance ownership, isolated
+- Implemented: worker-aware container entrypoint/maintenance ownership, isolated
   standalone Compose/tools, guarded host preparation, German runbook, original
   demo PDFs through normal manual review, corrected capability UI, full actual
   Compose/TLS-browser verification and immutable digest packaging/publication.
-- Local Docker unavailable. New Linux stack acceptance and publication remain
-  unverified until CI runs; no test image/digest or NAS success claimed. Main is
+- Local Docker unavailable. Full Linux stack acceptance verified below; publication
+  still pending, no test image/digest or NAS success claimed. Main is
   not branch-protected (API 404); manual reviewed-green-head gate remains required.
 - Stop after this package. No OCR/enhancement/marchbook/printer development.
 - Targeted local tests: 43 passed/one Windows symlink skip; Ruff/lock/system and
@@ -94,6 +94,25 @@ reflect actual completed work only.
   reload. Stack reached preflight, where the wrapped output label includes option
   text in its accessible name. Target the validated `variant` select explicitly.
   Full-stack PDF/recovery/security completion and publication still pending.
+- **Verified software checkpoint:** CI `45403811456`, source head
+  `68f0fcf74c81f599a22bf46e1f8dc80de670c882`, passed 956 Linux tests, 26 browsers,
+  locked dependency audit, system/migration/format checks and complete hardened
+  container/security acceptance. Actual standalone current Compose/TLS browser:
+  interactive account/login/secure cookies/CSRF, all six original PDFs indexed,
+  every page rendered and explicit human-action inspection/approval recorded,
+  singleton worker publication, participants/ensemble/matrix override/reload,
+  acknowledged missing notes, three personal reading/regular A4/A3 print PDFs,
+  excerpt/contents, authorized downloads and anonymous denial, stale status and
+  targeted regeneration. Actual crash-after-link recovery, cancellation/partial
+  failure with denied download, immutable snapshot/exact version pins, independent
+  STATUS, host+web+worker RAW write/rename/delete denial and restart persistence
+  passed. Unrelated container/volume inventories unchanged. Trivy HIGH/CRITICAL
+  vulnerability/secret gate passed; CycloneDX SBOM/image metadata retained in CI.
+- Reviewed complete diff from verified base; no unresolved PR review, conflicts,
+  private data or unrelated changes. Final documentation-head CI, merge/main CI,
+  test-only artifact promotion/pull/stack and digest-pinned distribution remain.
+  Physical Synology/DSM/TLS/ACL/resource/restore acceptance was not performed.
+
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
