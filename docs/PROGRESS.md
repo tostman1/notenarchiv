@@ -74,6 +74,11 @@ reflect actual completed work only.
 - First local full regression ran during demo changes: 823 passed/129 platform
   skips/one stale collected one-page expectation failed against updated two-page
   demo. Current targeted demo passed; immutable-source full rerun in progress.
+- Immutable-source local rerun passed: 824 tests/129 Windows platform skips in
+  1325.56 s. CI `45380788140` passed Foundation again; the stack performed actual
+  indexing and PDF rendering, then its strict label selector failed against the
+  required-field label suffix. Match the established review browser selector;
+  no business/UI/security behavior changed. Stack and publication remain pending.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened

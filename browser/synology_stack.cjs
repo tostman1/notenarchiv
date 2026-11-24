@@ -58,7 +58,7 @@ async function run(origin, ids) {
    const body=await page.locator('main > p').filter({hasText:'.pdf'}).first().innerText();
    const title=Object.keys(ids.arrangements).find(title=>body.includes(title));assert.ok(title);
    const part=body.includes('Posaune 1.pdf')?ids.parts[0]:ids.parts[1];
-   await page.getByLabel('Arrangement / Ausgabe',{exact:true}).selectOption(ids.arrangements[title]);
+   await page.getByLabel('Arrangement / Ausgabe',{exact:false}).selectOption(ids.arrangements[title]);
    await page.getByLabel('Instrumentenvarianten',{exact:false}).selectOption(ids.instrument);
    await page.getByLabel('Musikalische Stimmen',{exact:false}).selectOption(part);
    await submit(page.getByRole('button',{name:'Zuordnung speichern'}));
