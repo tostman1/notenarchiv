@@ -1,5 +1,45 @@
 # Published technical previews
 
+## 0.1.0-test.1 — current-feature synthetic distribution, 2026-11-24
+
+Test-only image through integrated WP-39. PR #51 merged as
+`4ccd2698204a1e69ec7c1c4f128acf8e6c65d809`; final PR CI `45407719536` and main CI
+`45411431365` passed 956 Linux tests/26 browsers and complete hardened Compose,
+private TLS/browser, indexing/review/publication/matrix/PDF/download/recovery/RAW
+acceptance plus dependency/image/secret scans. No NAS deployment or real data.
+
+Published image, independently verified anonymous GHCR tag/digest manifests:
+
+```text
+ghcr.io/tostman1/notenarchiv:0.1.0-test.1
+ghcr.io/tostman1/notenarchiv@sha256:f628501dbc3fbe65c4e53bb2ab6c4723bd4014bca582656383ffd528df543e5a
+```
+
+Exact application source: `4ccd2698204a1e69ec7c1c4f128acf8e6c65d809`.
+Original release/check/publish run: `45415635235`; promotion loaded the verified
+candidate artifact without rebuilding, checked identity/version/source, pushed
+and pulled the registry digest. The published digest passed the complete
+synthetic Compose stack again. Source and CycloneDX SBOM attestations were signed
+and stored in GHCR. Local `gh attestation verify` cryptographically verified both
+`https://slsa.dev/provenance/v1` and `https://cyclonedx.org/bom` against this exact
+digest, repository, original source SHA and signer `.github/workflows/release.yml`.
+
+Original verified-container artifact `14932487454`, archive digest
+`sha256:a6379515a170ac09badf649f7d3175672b2e379ac59e629db5954d5eaf6d33b5`.
+Published-evidence artifact `14933417646`, archive digest
+`sha256:f5856cacdbb1b66fa4c86b64ec2b14483ee50edd8f90bb5bda408de68a7812d7`.
+**Packaging completion pending:** only the original announcement shell failed
+on an indented heredoc after checks, publication, pulled-stack and attestations
+had succeeded. PR #52 fixes the shell and pins source install Compose to the
+real digest. Recovery must reuse the original hash-verified candidate, preserve
+image/tag and publish the final installation assets; no completion claimed yet.
+
+Final source Compose: `deploy/synology-test/compose.yaml`; German guide:
+`deploy/synology-test/README.de.md`. The separately published installation bundle
+is `notenarchiv-synology-test.tar.gz`. Hardware DSM/ACL/TLS/firewall, local
+SQLite/WAL, RAM/recovery/scratch and complete NAS restore acceptance remain.
+Existing `v0.1.0-preview.1` artifacts are unchanged.
+
 ## 0.1.0-preview.1 — 2026-11-20
 
 Owner-approved web-only, empty/synthetic-data preview. No live NAS deployment

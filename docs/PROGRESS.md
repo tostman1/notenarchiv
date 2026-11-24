@@ -123,6 +123,12 @@ reflect actual completed work only.
   Preserve image/tag; fix packaging and recover original hash-verified artifact,
   do not rebuild. Final source Compose now pins this actually verified digest.
   Packaging completion is not yet claimed.
+- PR #52 packaging recovery uses `fix/synology-test-publication` from synchronized
+  main, not unfinished business work. Targeted packaging/release/availability CI
+  tests: 26 passed/one Windows bash skip. Independent anonymous GHCR manifests
+  verified version tag equals published immutable digest. Local cryptographic
+  source/SBOM attestations verified against exact original source/signer workflow.
+  New Linux CI must also parse all multiline release shell blocks with bash -n.
 
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
