@@ -116,7 +116,7 @@ async function run(origin, ids) {
   assert.equal(await page.locator(`tr[data-position="${ids.positions[1]}"] :is(select,button,input,a)`).count(),0);
   for(const variant of ['READING','PRINT']){
    await page.goto(`${origin}/projects/${ids.project}/preflight/`);
-   await page.getByLabel('Ausgabeart',{exact:true}).selectOption(variant);
+   await page.locator('select[name="variant"]').selectOption(variant);
    await submit(page.getByRole('button',{name:'Auswahl prüfen'}));
    assert.ok(await page.locator('input[name="acknowledgements"]').count()>0);
    await submit(page.getByRole('button',{name:'Persönliche Mappen verbindlich erstellen'}));

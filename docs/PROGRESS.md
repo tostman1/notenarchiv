@@ -90,6 +90,10 @@ reflect actual completed work only.
   worker publication. Participants/ensemble edits reached; matrix test expected
   a contiguous instrument/part label instead of its explicit notation fields.
   Select the exact visually reviewed file UUID; no assertion/authorization weakened.
+- CI `45399921524` passed Foundation; real matrix exact override persisted through
+  reload. Stack reached preflight, where the wrapped output label includes option
+  text in its accessible name. Target the validated `variant` select explicitly.
+  Full-stack PDF/recovery/security completion and publication still pending.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened
