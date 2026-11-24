@@ -285,6 +285,18 @@ Deployment variables are parsed/validated centrally; business settings (printer,
 
 ### 9.2 Compose design (illustrative, implementation and NAS checks pending)
 
+The separately approved current-feature test distribution (DEC-10, 2026-11-24)
+is implemented under `deploy/synology-test/`. It extends the existing image
+entrypoint with the durable worker rather than replacing the queue. The web
+retains read-only archive mounts, worker alone gets managed-root writes, and the
+mount-free gateway remains the loopback-only private HTTPS backend. Migration
+and interactive provisioning take both maintenance and canonical worker locks;
+both long-running writers must be stopped. Candidate source Compose is fail-
+closed until the publisher packages its actually pulled immutable digest.
+`configuration.yaml` and the old preview artifacts retain their historical
+web-only scope. Linux software acceptance does not establish DSM ACL/network,
+RAM, SQLite or production acceptance.
+
 DEC-09 (2026-11-20) permits an initial web-only technical preview. The shipped
 `compose.yaml` starts web and provides explicit one-shot migrate/admin tools;
 it does not deploy the worker or processing actions. The full two-service

@@ -61,6 +61,10 @@ reflect actual completed work only.
   migration drift passed. Full regression started; local browser attempt failed
   because Node.js is absent (22 failed before driver start/four POSIX skips), not
   a browser success. Linux CI must exercise the complete browser/container gate.
+- Dedicated PR #51 opened. Full NAS-profile acceptance also covers ensemble UI,
+  multi-page inspection, independent STATUS markers, exact-version/model pins,
+  disabled direct routes and denied partial-batch downloads; not yet CI verified.
+  Subsequent packaging/persistence/release/gateway affected suite: 26 passed.
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;
   final CI `45278315093` passed 926 Linux tests/25 browsers plus full hardened

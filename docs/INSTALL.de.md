@@ -1,5 +1,10 @@
 # Notenarchiv auf der Synology installieren
 
+**Aktuelle Funktionen bis WP-39 testen:** verwenden Sie die eigenständige
+[Synology-Testanleitung](../deploy/synology-test/README.de.md) und deren neue
+verifizierte Testausgabe. Die folgende Anleitung beschreibt weiterhin das
+historische web-only Preview und aktualisiert dessen Image nicht.
+
 Diese Anleitung richtet eine **neue, leere Testinstallation** ein. Verbinden Sie
 noch keine echten Noten oder Mitgliederdaten. Die mitgelieferte `configuration.yaml`
 verwendet ein festes, veröffentlichtes Image. Im aktuellen Quellpaket ist dies

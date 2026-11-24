@@ -61,6 +61,27 @@ shift. Full WP-47a and the original RAW/backup gates precede real ingestion.
 
 See docs/DEVELOPMENT_SEQUENCE.md for all 71 packages, counts and parallel lanes.
 
+### Current-feature synthetic Synology distribution — 2026-11-24
+
+DEC-10 authorizes a standalone test deployment/release package from verified
+integrated main through WP-39. This is not the next unfinished business package
+and does not start OCR, enhancement, marchbook or printing work. Extend the
+existing image/Compose/release infrastructure with the durable worker, guarded
+isolated binds/secret, one-shot initialization, German installation/demo guide
+and accurate minimal availability UI. Preserve every integrity/security rule.
+
+Release gate: final-head Foundation/browser and Container/security checks,
+actual NAS-profile Linux/amd64 Compose stack through private TLS, interactive
+account, indexing/visual review/publication, projects/ensemble/matrix, preflight/
+missing decisions, immutable pins, reading/regular print/excerpt/contents PDFs,
+authorized downloads, worker crash recovery/cancellation/failure, host+mount RAW
+negatives and persistence. Merge only after these pass; verify post-merge main.
+Publish a new test-only tag by promoting the exact tested image artifact, pull
+and exercise its digest, sign provenance/SBOM and package the digest-pinned
+standalone install YAML. No stable/latest tag, old-preview mutation or NAS access.
+Actual DSM/ACL/network/TLS/resources/SQLite/restore remain explicit hardware gates.
+Record evidence in docs/PROGRESS.md and docs/RELEASES.md, then stop this package.
+
 ## 2. Work packages by execution phase
 ## M0 — Foundation and deployment baseline
 
