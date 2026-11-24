@@ -158,7 +158,8 @@ def smoke(image, root):
     print_action("FULL", generation_ids)
     print_action("ARCHIVE", generation_ids)
     library_scenario = Path("tests/export_library_scenario.py").read_text(encoding="utf-8")
-    for mode in ("targeted", "archive"):
+
+    def library_action(mode):
         args = [
             "run",
             "--rm",
@@ -181,6 +182,8 @@ def smoke(image, root):
         )
         worker()
         assert "SCENARIO_RESULT=" in docker(*args, "check", json.dumps(target)).stdout
+
+    library_action("targeted")
     for kind in ("EXCERPT", "CONTENTS", "HISTORICAL"):
         args = [
             "run",
@@ -230,6 +233,9 @@ assert result.origin=='ARCHIVE' and result.assignment.pk==assignment.pk
         preference_code,
         json.dumps(identities),
     )
+    # The multi-edition fixture must not create ambiguity for earlier current
+    # project acceptance. Establish the deliberate preference before adding it.
+    library_action("archive")
     download_code = """
 import django,json,sys,zipfile,hashlib
 django.setup()

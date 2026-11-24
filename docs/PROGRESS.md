@@ -73,6 +73,12 @@ reflect actual completed work only.
   exact shell menu expectation includes the approved Notenausgaben link. Ruff/format/
   system/migration/lock/diff checks passed; complete final diff reviewed. Linux final-
   head CI and conditional PR/main gates remain. No extra work package started.
+- First WP-39 PR CI `45344509420`: 946 Linux tests passed; library ZIP browser
+  failed because scratch was derived from the shared local log root instead of
+  canonical file-backed SQLite DATA. Anchor real ZIP scratch to DB parent (isolated
+  in-memory unit profile retained). Container multi-edition fixture exposed missing
+  deliberate preference before later excerpt acceptance; order fixture after the
+  existing preference gate. No auth/root/hash/assertion weakened; corrected CI pending.
 
 - WP-38a integrated PR #48 as `4659575c3a3c1841b721fc9990297071183e5e67`;
   final CI `45265622771` passed 888 Linux tests/24 browsers and full container/security.

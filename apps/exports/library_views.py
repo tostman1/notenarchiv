@@ -151,12 +151,20 @@ def batch_download(request):
     from pathlib import Path
 
     from django.conf import settings
+    from django.db import connections
 
     from apps.archive.download_services import StagedDownload
     from core import downloads
     from core.locking import ProcessLock
 
-    parent = Path(settings.DIAGNOSTIC_LOG_DIR).parent
+    database = str(connections["default"].settings_dict["NAME"])
+    # Production/browser SQLite DATA is the canonical scratch boundary. The
+    # in-memory unit profile supplies its explicitly isolated synthetic log root.
+    parent = (
+        Path(settings.DIAGNOSTIC_LOG_DIR).parent
+        if database == ":memory:" or database.startswith("file:")
+        else Path(database).absolute().parent
+    )
     for root in (
         settings.SOURCE_DIR,
         settings.CURATED_DIR,
