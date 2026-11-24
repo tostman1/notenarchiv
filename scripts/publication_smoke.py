@@ -37,6 +37,10 @@ def smoke(image, root):
     data = base64.b64decode(action("pdf"))
     source = paths["raw"] / "correct.pdf"
     source.write_bytes(data)
+    second_source = paths["raw"] / "correct-second.pdf"
+    second_source.write_bytes(data)
+    os.chown(second_source, 0, GID)
+    second_source.chmod(0o440)
     os.chown(source, 0, GID)
     source.chmod(0o440)
     raw_negatives(image, paths, "none")
@@ -153,6 +157,30 @@ def smoke(image, root):
 
     print_action("FULL", generation_ids)
     print_action("ARCHIVE", generation_ids)
+    library_scenario = Path("tests/export_library_scenario.py").read_text(encoding="utf-8")
+    for mode in ("targeted", "archive"):
+        args = [
+            "run",
+            "--rm",
+            *arguments(paths, "none", service="worker"),
+            "-e",
+            "DJANGO_SETTINGS_MODULE=config.settings",
+            "--entrypoint",
+            "python",
+            image,
+            "-c",
+            library_scenario,
+        ]
+        output = docker(*args, mode, json.dumps(generation_ids)).stdout
+        target = json.loads(
+            next(
+                line.removeprefix("SCENARIO_RESULT=")
+                for line in output.splitlines()
+                if line.startswith("SCENARIO_RESULT=")
+            )
+        )
+        worker()
+        assert "SCENARIO_RESULT=" in docker(*args, "check", json.dumps(target)).stdout
     for kind in ("EXCERPT", "CONTENTS", "HISTORICAL"):
         args = [
             "run",
@@ -374,7 +402,8 @@ assert len(matrix['rows'])==2 and len(matrix['participants'])==2
 assert any(cell['resolution'].usable for row in matrix['rows'] for cell in row['cells'])
 from apps.projects import matrix_edit_services as manual
 from apps.archive.models import ArchiveAssignment
-assignment=ArchiveAssignment.objects.usable().filter(part_id=part.pk).get()
+assignment=preference.assignment
+assert ArchiveAssignment.objects.usable().filter(pk=assignment.pk,part_id=part.pk).exists()
 token=manual.choice_token(assignment,actor)
 manual.set_cell(project.pk,slot.pk,participant.pk,token,actor=actor,expected_revision=10)
 resolved=resolution.resolve_cell(project.pk,slot.pk,participant.pk)

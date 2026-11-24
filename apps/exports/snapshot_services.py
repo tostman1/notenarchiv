@@ -19,11 +19,19 @@ from apps.projects.resolution_services import ResolutionSession
 from apps.projects.services import reviewer
 
 
-def authorize(project_id, *, participant_ids, position_ids, token, acknowledgements, actor, kind="FULL"):
+def authorize(
+    project_id, *, participant_ids, position_ids, token, acknowledgements, actor, kind="FULL", variant="READING"
+):
     if kind not in {"FULL", "EXCERPT"}:
         raise ValidationError(_("Nicht unterstützter Generierungstyp."))
     # Long hash/parser work runs before acquiring the SQLite writer lock.
     report = build_report(project_id, participant_ids=participant_ids, position_ids=position_ids)
+    if variant not in {"READING", "PRINT"}:
+        raise ValidationError(_("Ungültige Ausgabeart."))
+    if variant == "PRINT":
+        if report.payload["options"]["layout"] != "REGULAR":
+            raise ValidationError(_("Reguläre Druck-PDF benötigt ein reguläres Projektlayout."))
+        report.payload["output_variant"] = "PRINT"
     participant_ids = list(report.session.participants)
     position_ids = list(report.session.positions)
     validate_acknowledgement(report, token, acknowledgements, actor)
