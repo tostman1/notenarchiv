@@ -149,7 +149,7 @@ def smoke(parent, image):
         compose("config", "--quiet")
         # Capture only technical exception frames in this disposable synthetic CI
         # web process. No messages, locals, request content or product flag changes.
-        capture = """import logging,json,traceback
+        capture = """import logging,logging.config,json,traceback
 class SyntheticFrames(logging.Handler):
     def emit(self, record):
         if record.exc_info and record.levelno >= logging.ERROR:
@@ -157,7 +157,11 @@ class SyntheticFrames(logging.Handler):
             frames=[{'file':f.filename,'line':f.lineno,'function':f.name}
                     for f in traceback.extract_tb(error[2])]
             print('SYNTHETIC_EXCEPTION='+json.dumps({'type':error[0].__name__,'frames':frames}),flush=True)
-logging.getLogger('django.request').addHandler(SyntheticFrames())
+original=logging.config.dictConfig
+def configured(config):
+    original(config)
+    logging.getLogger('django.request').addHandler(SyntheticFrames())
+logging.config.dictConfig=configured
 """
         harness = root / "data" / "sitecustomize.py"
         harness.write_text(capture)
