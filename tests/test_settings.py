@@ -149,6 +149,25 @@ class TestHostAndBinding:
         with pytest.raises(ConfigError, match="OCR_DPI"):
             parse_env(local_env(tmp_path, OCR_DPI="0"))
 
+    @pytest.mark.parametrize(
+        "overrides",
+        [
+            {"SOURCE_DIR": "raw", "CURATED_DIR": "raw/clean"},
+            {"SOURCE_DIR": "raw/nested", "CURATED_DIR": "raw"},
+            {"SOURCE_DIR": ""},
+            {"DATABASE_PATH": "raw/data.sqlite3"},
+            {"DATABASE_PATH": "secret.key"},
+            {"DATABASE_PATH": "logs/data.sqlite3"},
+            {"SOURCE_DIR": "logs/raw"},
+        ],
+    )
+    def test_conflicting_local_paths_fail_before_initialization(self, tmp_path, overrides):
+        root = tmp_path / "uninitialized"
+        configured = {name: str(root / value) for name, value in overrides.items()}
+        with pytest.raises(ConfigError):
+            parse_env(local_env(root, **configured))
+        assert not root.exists()
+
     def test_boolean_flag_validation(self, tmp_path) -> None:
         assert parse_env(local_env(tmp_path)).print_enabled is False
         parsed = parse_env(local_env(tmp_path, PRINT_ENABLED="1"))
