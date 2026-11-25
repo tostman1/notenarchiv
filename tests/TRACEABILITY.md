@@ -12,6 +12,16 @@ transient retries, run-mode 404 discovery, and CLI defaults. No real GitHub
 workflow is triggered. Governance consolidation (AGENTS.md pointer, PROCESS.md,
 standard-checks.md) keeps all review/approval/merge/release gates unchanged.
 
+P0 hardening: `tests/test_ci_waiter_regressions.py` reproduces default/explicit
+required-check bypass, missing/malformed SHA and aggregate-run false greens
+(11 failures against the baseline). It verifies full required jobs in both modes,
+the exact-diff cached docs-only exception with successful classification,
+malformed/incomplete/ambiguous evidence, and individual run-job conclusions.
+Combined targeted suite: 78 passed locally, including capped initial delay and
+single transient-backoff regressions. Synthetic fixtures only; no product
+functionality or CI/review/authorization gate changed. Final delivery CI is
+reported on the PR; merge requires separate owner authorization.
+
 ## Current-feature Synology test acceptance — software verified
 
 CI `45403811456` at `68f0fcf74c81f599a22bf46e1f8dc80de670c882` passed 956 Linux

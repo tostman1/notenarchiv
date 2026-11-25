@@ -4,6 +4,20 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## Workflow efficiency P0 — CI waiter hardening (2026-11-25)
+
+- Baseline `0d24dae03711254e48a0c167c36ff44a74de4600`; branch `fix/ci-waiter-p0`.
+- Implemented non-removable Foundation/Container gates, verified cached exact-diff
+  docs-only exception, strict SHA evidence, and individual run-job verification.
+  Malformed, ambiguous and incomplete pages fail closed; no replacement waiter,
+  product change, P1/P2, CI weakening or integration authorization change.
+- Synthetic baseline reproduction: 11 failed / 6 passed; corrected targeted suite:
+  78 passed. Ruff lint/format, lockfile, Django system and migration checks passed.
+- Full local Python suite: 902 passed / 131 platform skips; browser suite:
+  22 passed / 4 POSIX skips on Windows. Earlier outer timeouts were not successes.
+  Final-head Linux CI remains a delivery gate; results recorded on PR.
+  Not merged; separate explicit owner authorization is required for merge.
+
 | WP | Scope | Status | Commit / PR | Test evidence | Blockers | Next |
 | --- | --- | --- | --- | --- | --- | --- |
 | WP-01 | Repository, development tooling and minimal CI | Verified | PR #1 merged (merge commit `bcdf272`) | Local checks (below) + GitHub Actions run 44694745130, job "Foundation (ruff + pytest)" success | None | WP-02 |

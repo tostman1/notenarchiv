@@ -38,6 +38,11 @@ from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
+try:
+    from scripts.ci_changes import docs_only
+except ModuleNotFoundError:  # Direct script invocation puts scripts/ on sys.path.
+    from ci_changes import docs_only
+
 API_BASE = "https://api.github.com"
 
 EXIT_SUCCESS = 0
@@ -51,8 +56,10 @@ EXIT_USAGE = 64
 
 HARD_FAIL = {"failure", "timed_out", "startup_failure", "action_required"}
 CANCELLED = {"cancelled", "canceled"}
-PENDING_STATUS = {"queued", "in_progress"}
-DEFAULT_REQUIRED = ("Foundation (ruff + pytest)",)
+PENDING_STATUS = {"queued", "in_progress", "waiting", "pending", "requested"}
+FOUNDATION = "Foundation (ruff + pytest)"
+CONTAINER = "Container (amd64 + security + synthetic smoke)"
+DEFAULT_REQUIRED = (FOUNDATION, CONTAINER)
 RESULT_DIRNAME = ".dev/ci-wait"
 
 _MESSAGES = {
@@ -103,6 +110,7 @@ class WaitConfig:
     result_file: str | None = None
     api_base: str = API_BASE
     token: str = ""
+    classification_cache: dict = field(default_factory=dict)
 
 
 def _norm_header(header: dict) -> dict:
@@ -151,17 +159,61 @@ def _checks_list(checks) -> list:
     return [{"name": c.name, "status": c.status, "conclusion": c.conclusion} for c in checks]
 
 
-def _evaluate_pr(checks, bound_sha: str, cfg: WaitConfig) -> dict:
+def _valid_sha(value) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{40}", value) is not None
+
+
+def _verified_docs_only(pr, cfg: WaitConfig) -> bool:
+    """Use the workflow's exact direct diff, never caller-asserted classification."""
+    base = (pr.get("base") or {}).get("sha")
+    head = (pr.get("head") or {}).get("sha")
+    if not _valid_sha(base) or head != cfg.sha:
+        return False
+    key = (base, head)
+    if key not in cfg.classification_cache:
+        verified = False
+        try:
+            for sha in key:
+                resolved = subprocess.check_output(
+                    ["git", "rev-parse", "--verify", f"{sha}^{{commit}}"],
+                    text=True,
+                    stderr=subprocess.DEVNULL,
+                    timeout=10,
+                ).strip()
+                if resolved != sha:
+                    raise ValueError("unresolved classification commit")
+            # -z preserves filenames containing newlines; disable external diff drivers.
+            paths = (
+                subprocess.check_output(
+                    ["git", "diff", "--no-ext-diff", "--name-only", "-z", base, head],
+                    stderr=subprocess.DEVNULL,
+                    timeout=10,
+                )
+                .decode("utf-8")
+                .split("\0")
+            )
+            verified = paths[-1] == "" and docs_only(paths[:-1])
+        except (OSError, subprocess.SubprocessError, ValueError):
+            pass  # Unknown evidence requires full scope.
+        cfg.classification_cache[key] = verified
+    return cfg.classification_cache[key]
+
+
+def _evaluate_pr(checks, bound_sha: str, cfg: WaitConfig, *, docs_exception=False) -> dict:
+    if not _valid_sha(bound_sha) or bound_sha != cfg.sha:
+        return {"kind": "mismatch", "message": "invalid or mismatched bound SHA"}
     if not checks:
         return {"kind": "pending", "head_sha": bound_sha, "note": "no check runs yet"}
     for c in checks:
-        if c.head_sha and c.head_sha != bound_sha:
+        if not _valid_sha(c.head_sha) or c.head_sha != bound_sha:
             return {
                 "kind": "mismatch",
                 "head_sha": bound_sha,
                 "checks": _checks_list(checks),
-                "message": f"check '{c.name}' targets {c.head_sha[:7]}, not {bound_sha[:7]}",
+                "message": f"check '{c.name}' has invalid or mismatched SHA evidence",
             }
+        if c.status not in PENDING_STATUS | {"completed"}:
+            return {"kind": "mismatch", "message": f"check '{c.name}' has invalid status"}
     if any(c.status in PENDING_STATUS for c in checks):
         return {"kind": "pending", "head_sha": bound_sha, "checks": _checks_list(checks)}
     if any(c.conclusion in CANCELLED for c in checks):
@@ -175,7 +227,16 @@ def _evaluate_pr(checks, bound_sha: str, cfg: WaitConfig) -> dict:
             "failed_checks": hard_fail,
         }
     by_name = {c.name: c for c in checks}
-    missing = [n for n in cfg.required_checks if n not in by_name]
+    required = tuple(dict.fromkeys((*DEFAULT_REQUIRED, *cfg.required_checks)))
+    if docs_exception:
+        classification = by_name.get("changes")
+        if not classification or classification.status != "completed" or classification.conclusion != "success":
+            return {"kind": "mismatch", "message": "docs-only exception lacks successful classification job"}
+        required = tuple(n for n in required if n != CONTAINER)
+        container = by_name.get(CONTAINER)
+        if container and container.conclusion not in ("success", "skipped"):
+            return {"kind": "mismatch", "head_sha": bound_sha, "checks": _checks_list(checks)}
+    missing = [n for n in required if n not in by_name]
     if missing:
         return {
             "kind": "mismatch",
@@ -183,10 +244,10 @@ def _evaluate_pr(checks, bound_sha: str, cfg: WaitConfig) -> dict:
             "checks": _checks_list(checks),
             "message": f"missing required checks: {', '.join(missing)}",
         }
-    not_ok = [n for n in cfg.required_checks if by_name[n].conclusion != "success"]
+    not_ok = [n for n in required if by_name[n].conclusion != "success" or by_name[n].status != "completed"]
     if not_ok:
         return {
-            "kind": "failed",
+            "kind": "mismatch",
             "head_sha": bound_sha,
             "checks": _checks_list(checks),
             "failed_checks": not_ok,
@@ -195,6 +256,44 @@ def _evaluate_pr(checks, bound_sha: str, cfg: WaitConfig) -> dict:
 
 
 def poll_once(cfg: WaitConfig, transport, now_epoch: float) -> dict:
+    """Malformed evidence never escapes as a false green or unhandled exception."""
+    if not _valid_sha(cfg.sha):
+        return {"kind": "mismatch", "message": "invalid expected SHA"}
+    try:
+        return _poll_once(cfg, transport, now_epoch)
+    except (ValueError, TypeError, AttributeError, KeyError):
+        return {"kind": "mismatch", "message": "malformed GitHub evidence"}
+
+
+def _fetch_checks(cfg, transport, headers, now_epoch, url, key):
+    resp = transport("GET", url, headers)
+    rw = _rate_wait(resp, now_epoch)
+    if rw is not None:
+        return None, {"kind": "rate_limited", "wait_seconds": rw}
+    if resp.status == 404:
+        return None, {"kind": "pending", "note": "checks not discoverable yet"}
+    if resp.status != 200:
+        return None, {"kind": "error", "status": resp.status}
+    data = resp.json()
+    rows = data[key]
+    count = data["total_count"]
+    # Reject incomplete pages rather than silently dropping jobs/checks.
+    if not isinstance(rows, list) or type(count) is not int or count != len(rows) or count > 100:
+        return None, {"kind": "mismatch", "message": "incomplete check/job evidence"}
+    checks = []
+    for row in rows:
+        name, status, conclusion = row["name"], row["status"], row["conclusion"]
+        if not isinstance(name, str) or not name or not isinstance(status, str):
+            return None, {"kind": "mismatch", "message": "malformed check/job identity"}
+        if conclusion is not None and not isinstance(conclusion, str):
+            return None, {"kind": "mismatch", "message": "malformed conclusion"}
+        checks.append(CheckRun(name, status, (conclusion or "").lower(), row.get("head_sha")))
+    if len({c.name for c in checks}) != len(checks):
+        return None, {"kind": "mismatch", "message": "ambiguous duplicate check/job names"}
+    return checks, None
+
+
+def _poll_once(cfg: WaitConfig, transport, now_epoch: float) -> dict:
     """Perform a single read-only poll and return a normalized outcome."""
     base = cfg.api_base.rstrip("/")
     headers = {"Accept": "application/vnd.github+json", "User-Agent": "notenarchiv-ci-wait/1.0"}
@@ -215,24 +314,34 @@ def poll_once(cfg: WaitConfig, transport, now_epoch: float) -> dict:
         data = resp.json()
         head_sha = data.get("head_sha") or ""
         run_url = data.get("html_url") or ""
-        if data.get("status") != "completed":
-            return {"kind": "pending", "head_sha": head_sha, "run_url": run_url}
-        if cfg.sha and head_sha and head_sha != cfg.sha:
+        if not _valid_sha(head_sha) or head_sha != cfg.sha:
             return {
                 "kind": "mismatch",
                 "head_sha": head_sha,
                 "run_url": run_url,
-                "message": f"run head {head_sha[:7]} != expected {cfg.sha[:7]}",
+                "message": "invalid or mismatched run SHA",
             }
+        if data.get("status") != "completed":
+            return {"kind": "pending", "head_sha": head_sha, "run_url": run_url}
         conclusion = (data.get("conclusion") or "").lower()
-        checks = [CheckRun(data.get("name", ""), "completed", conclusion, head_sha)]
-        return {
-            "kind": _conclusion_kind(conclusion),
-            "head_sha": head_sha,
-            "run_url": run_url,
-            "checks": _checks_list(checks),
-            "conclusion": conclusion,
-        }
+        checks, error = _fetch_checks(
+            cfg,
+            transport,
+            headers,
+            now_epoch,
+            f"{base}/repos/{cfg.repo}/actions/runs/{cfg.run_id}/jobs?per_page=100",
+            "jobs",
+        )
+        if error:
+            return {**error, "head_sha": head_sha, "run_url": run_url}
+        outcome = _evaluate_pr(checks, head_sha, cfg)
+        if not checks:
+            outcome = {"kind": "mismatch", "message": "completed run has no required jobs"}
+        if conclusion in HARD_FAIL or conclusion in CANCELLED:
+            outcome["kind"] = _conclusion_kind(conclusion)
+        elif conclusion != "success" and outcome["kind"] == "success":
+            outcome["kind"] = "mismatch"
+        return {**outcome, "head_sha": head_sha, "run_url": run_url}
 
     # mode == "pr"
     resp = transport("GET", f"{base}/repos/{cfg.repo}/pulls/{cfg.pr}", headers)
@@ -245,34 +354,24 @@ def poll_once(cfg: WaitConfig, transport, now_epoch: float) -> dict:
         return {"kind": "error", "status": resp.status}
     pr = resp.json()
     head_sha = (pr.get("head") or {}).get("sha") or ""
-    if cfg.sha and head_sha and head_sha != cfg.sha:
+    if not _valid_sha(head_sha) or head_sha != cfg.sha:
         return {
             "kind": "mismatch",
             "head_sha": head_sha,
-            "message": f"PR head {head_sha[:7]} != expected {cfg.sha[:7]}",
+            "message": "invalid or mismatched PR SHA",
         }
     bound_sha = head_sha
-    resp = transport("GET", f"{base}/repos/{cfg.repo}/commits/{bound_sha}/check-runs?per_page=100", headers)
-    if resp.status == 0:
-        return {"kind": "error"}
-    rw = _rate_wait(resp, now_epoch)
-    if rw is not None:
-        return {"kind": "rate_limited", "wait_seconds": rw}
-    if resp.status == 404:
-        return {"kind": "pending", "head_sha": head_sha, "note": "check runs not created yet"}
-    if resp.status != 200:
-        return {"kind": "error", "status": resp.status}
-    runs = resp.json().get("check_runs", [])
-    checks = [
-        CheckRun(
-            r.get("name", ""),
-            r.get("status", ""),
-            (r.get("conclusion") or "").lower(),
-            r.get("head_sha", ""),
-        )
-        for r in runs
-    ]
-    return _evaluate_pr(checks, bound_sha, cfg)
+    checks, error = _fetch_checks(
+        cfg,
+        transport,
+        headers,
+        now_epoch,
+        f"{base}/repos/{cfg.repo}/commits/{bound_sha}/check-runs?per_page=100",
+        "check_runs",
+    )
+    if error:
+        return {**error, "head_sha": head_sha}
+    return _evaluate_pr(checks, bound_sha, cfg, docs_exception=_verified_docs_only(pr, cfg))
 
 
 def _interval(elapsed: float, cfg: WaitConfig) -> float:
@@ -328,7 +427,7 @@ def run(cfg: WaitConfig, transport, *, sleep, monotonic, now_epoch) -> dict:
         if now >= deadline:
             return _terminal("timeout", cfg, last, attempts, rate_waits)
         if now < next_poll:
-            sleep(next_poll - now)
+            sleep(min(next_poll, deadline) - now)
             continue
         attempts += 1
         outcome = poll_once(cfg, transport, now_epoch())
@@ -347,8 +446,7 @@ def run(cfg: WaitConfig, transport, *, sleep, monotonic, now_epoch) -> dict:
             if transient > cfg.transient_retries:
                 return _terminal("unavailable", cfg, outcome, attempts, rate_waits)
             backoff = cfg.interval * (2 ** (transient - 1))
-            sleep(backoff)
-            next_poll = monotonic() + backoff
+            next_poll = min(deadline, monotonic() + backoff)
             continue
         last = outcome
         if kind == "pending":
@@ -430,6 +528,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_arg_parser().parse_args(argv)
+    if not _valid_sha(args.sha):
+        print("error: --sha must be a full 40-hex commit SHA", file=sys.stderr)
+        return EXIT_USAGE
     repo = args.repo or _repo_from_git()
     if not repo:
         print("error: no --repo given and no origin remote found", file=sys.stderr)
