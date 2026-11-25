@@ -9,6 +9,9 @@ Portable inventory boundary: `tests/test_inventory_contract.py` exercises
 directory/file classification, fingerprints, limits, repeated identity and
 changed-directory rejection without OS handles. `tests/test_inventory.py`
 retains actual POSIX link/hash tests and checks mutation during enumeration.
+The shared staging writer retains the archive copy and generated publication
+suites. Direct POSIX regressions in `tests/test_archive_files.py` cover bounded
+input, producer failure cleanup and no-clobber identity preservation.
 
 ## Development governance: deterministic CI waiting
 

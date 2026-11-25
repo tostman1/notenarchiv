@@ -52,6 +52,9 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   The backend owns no-follow enumeration and directory mutation detection.
   Cycle detection, relative references and entry budgets stay in inventory
   policy and can be tested independently on both platforms.
+  Archive copies and generated PDF staging share the backend's bounded
+  exclusive writer. Their independent byte/hash verification and PDF inspection
+  remain in the processing layer.
 * core/processes.py already binds descendants to a Windows Job or Linux process
   group. Preserve bounded CPU, memory, time, input and output for PDF and OCR.
   Windows output writers must enforce byte bounds explicitly. WP-24 should use

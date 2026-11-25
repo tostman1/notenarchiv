@@ -16,6 +16,14 @@ directory mutation checks and platform-independent inventory policy.
 Two portable contract tests pass on Windows; three actual POSIX inventory
 tests remain for Linux verification. Updated delivery-package/tool-first
 instructions accompany this functional increment in PROCESS.md.
+The same increment consolidates bounded exclusive staging writes for archive
+copies and generated PDFs in the filesystem boundary. Focused Windows checks
+passed with 16 tests and 22 POSIX skips. New Linux staging tests cover empty and
+oversized input, producer failure cleanup and preservation of existing bytes.
+Full local Windows Python verification passed with 906 tests and 133 platform
+skips. Separate browser verification passed with 22 tests and four POSIX skips.
+Ruff, Actionlint and Django system/migration checks passed. Full package diff
+reviewed. PR Linux/Container and integration verification remain pending.
 
 The owner accepted takeover and authorized controlled P0 integration at
 `b9e9e9d84818fcdb006933d016fa02863c4b2db5`. PR #55 merged at
