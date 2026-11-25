@@ -16,6 +16,13 @@ Requirement IDs below are stable. `ARCHITECTURE.md` defines technical implementa
 
 ## 2. Non-negotiable business rules
 
+**Distribution scope (owner decision, 2026-11-25).** Preserve the existing server
+edition. A future Windows installer supplies an executable and shortcut, shared
+UI, bundled runtime, SQLite, PDF and OCR dependencies. Users choose archive, data
+and export directories in application settings. The application owns startup
+and shutdown on one workstation. No end-user Docker, Python, database server,
+OCR installation or service management is required.
+
 | ID | Rule |
 | --- | --- |
 | GR-01 | RAW is read-only both at the NAS permission boundary and in the container. No application operation may create, rename, move, modify or delete anything in RAW, including status markers. |

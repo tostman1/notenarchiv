@@ -51,7 +51,9 @@ def _stop_posix(process):
         time.sleep(0.01)
 
 
-def run_process(arguments, *, timeout, checkpoint=lambda: None, memory_bytes=None, cpu_seconds=None, file_bytes=None):
+def run_process(
+    arguments, *, timeout, checkpoint=lambda: None, memory_bytes=None, cpu_seconds=None, file_bytes=None, cwd=None
+):
     """No shell, no inherited stdin, no logged/captured free-text output.
 
     Processes may stage results; only the worker's fenced publication callback
@@ -85,6 +87,7 @@ def run_process(arguments, *, timeout, checkpoint=lambda: None, memory_bytes=Non
     try:
         process = subprocess.Popen(
             command,
+            cwd=cwd,
             stdin=subprocess.PIPE if launcher else subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

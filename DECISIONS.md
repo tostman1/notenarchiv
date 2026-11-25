@@ -6,6 +6,11 @@ This register distinguishes binding product decisions from recommended implement
 
 ## Confirmed product decisions
 
+The owner authorized a second, single-workstation Windows distribution on
+2026-11-25. Use the shared application and the sequencing recorded in AGENTS.md.
+The desktop packaging recommendation and outstanding acceptance evidence are
+tracked in [desktop portability](docs/PORTABILITY.md).
+
 | ID | Decision | Requirements |
 | --- | --- | --- |
 | DEC-01 | Independent local application; RAW is never modified; byte-identical physical CLEAN copies; separate STATUS marking; manual visual review even for clearly named files. | GR-01–06, AR-01–14 |

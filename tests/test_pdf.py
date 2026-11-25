@@ -37,7 +37,8 @@ def png(data):
     return width, height, pixels
 
 
-def test_vector_text_and_image_only_scan_are_distinct(processor):
+def test_vector_text_and_image_only_scan_are_distinct(processor, monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     vector, scan = pdf(), pdf(text=False, scan=True)
     result = processor.inspect(vector, include_text=True)
     assert result.sha256 == hashlib.sha256(vector).hexdigest()

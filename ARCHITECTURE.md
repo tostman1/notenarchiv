@@ -31,6 +31,12 @@ Web handles authentication, rendering, forms, catalog/project edits, review inte
 
 ## 2. Technology baseline
 
+The server and future single-workstation Windows edition share Django, templates,
+domain services, database migrations, PDF processing and the job protocol.
+The server retains its Compose deployment and DS224+ limits. The desktop target
+bundles its runtime and manages its own processes. See [desktop portability](docs/PORTABILITY.md)
+for storage and lifecycle boundaries.
+
 | Area | Choice | Notes |
 | --- | --- | --- |
 | Runtime | CPython 3.12 | Keep development, CI and image in sync; verify actual wheels before locking. |

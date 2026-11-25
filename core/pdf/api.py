@@ -174,6 +174,7 @@ class Processor:
             try:
                 run_process(
                     [sys.executable, "-m", "core.pdf._worker", str(stage)],
+                    cwd=Path(__file__).resolve().parents[2],
                     timeout=self.limits.timeout_seconds,
                     memory_bytes=self.limits.memory_bytes,
                     cpu_seconds=self.limits.cpu_seconds,

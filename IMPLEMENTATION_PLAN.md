@@ -368,6 +368,13 @@ Record evidence in docs/PROGRESS.md and docs/RELEASES.md, then stop this package
 
 ## M2 — OCR and version reconciliation
 
+Before WP-24, integrate the shared-runtime portability foundation. New processing
+packages must take validated roots and executable locations from the runtime,
+preserve both platforms' cancellation/resource limits, and exercise synthetic
+inputs on Windows and Linux. See [desktop portability](docs/PORTABILITY.md)
+for remaining native acceptance gates. Real-data and physical validation retain
+their separate authorization requirements.
+
 ### WP-24 — Bounded local OCR engine
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-17, WP-06  
