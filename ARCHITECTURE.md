@@ -144,8 +144,8 @@ Review approval applies to exact PDF version/hash and proposed assignments. Manu
 
 ## 5. Domain model
 
-Revision-3 extensions below are a proposed additive target for the owner-approved
-product direction. Their implementation decision is pending in DECISIONS.md.
+Revision-3 extensions below are the additive target approved by the owner in
+DEC-13 on 2026-11-25. Implementation follows portability and the rebaselined plan.
 Existing tables and confirmed single-work workflows remain the compatibility
 baseline. RecognitionCandidate.region is recognition evidence, not a confirmed
 content reference or a sufficient segmentation model.

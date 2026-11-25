@@ -20,6 +20,18 @@ precision handle metadata and validate mutation/race behavior.
 
 ## Verified checkpoint and remaining foundation gates
 
+The shared-runtime proof in `scripts/portable_runtime_smoke.py` now exercises
+fresh actual migrations, an exclusively owned application lock, loopback WSGI
+requests with normal authentication/CSRF, one worker's lease/release, bounded
+shutdown and an isolated SQLite backup/restore. Its subprocess regression uses
+a foreign working directory and conflicting inherited installation settings;
+the protected synthetic sentinel is unchanged. Targeted Windows execution
+passed with twelve startup/worker/runtime tests. Exact Linux/Windows integration
+CI is pending. The WSGI reference server is test-only. This is evidence for the
+shared lifecycle building blocks, not a shipped launcher or desktop edition.
+Native archive safety, managed production serving, full installation restore,
+packaging and physical acceptance retain their separate contracts.
+
 PR #56/57 are integrated at main
 `ca8647cfb04d26e3d61048e22e8885e6b5c460bb`; exact Main CI 45640472935 passed
 Foundation, Container, Windows shared runtime and changes. This verifies shared

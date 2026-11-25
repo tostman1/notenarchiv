@@ -1,5 +1,18 @@
 # Implemented acceptance traceability
 
+## Shared managed-runtime proof
+
+OP-07, GR-13, OP-02/03: `tests/test_portable_runtime.py` executes the synthetic
+tool in a fresh process with a 60-second timeout and a foreign working directory.
+It proves that inherited NAS/data/root/bind/diagnostics/print settings cannot
+redirect the fixture into a protected sentinel installation. The tool exercises
+actual Django migrations, single-instance exclusion, HTTP login/auth/CSRF,
+worker ownership/shutdown/lock release and SQLite migration/user/lease data
+parity after isolated restore (integrity and foreign-key checks included).
+It emits only bounded fixed evidence. Existing production storage, publication,
+worker recovery and backup/restore tests remain distinct; no native Windows
+archive, installed desktop or physical acceptance is inferred.
+
 ## Portable filesystem consumers
 
 `tests/test_backup_inventory_contract.py` exercises bounded traversal,

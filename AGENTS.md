@@ -10,8 +10,6 @@ Build the local German-language Notenarchiv & Marschbuch-Generator for a Synolog
 - `ARCHITECTURE.md`: technical target and invariants.
 - `DECISIONS.md`: confirmed product decisions, recommended defaults and actual evidence still needed.
 - `IMPLEMENTATION_PLAN.md`: work packages, dependencies, acceptance and release gates.
-- `docs/PROCESS.md`: canonical development workflow, deterministic waiting and checkpoint/recovery policy.
-- `docs/standard-checks.md`: exact local checks, CI waiting commands, exit codes and diagnostics.
 - `docs/PROCESS.md`: canonical development workflow, the "waiting is not reasoning" rule, and checkpoint/recovery policy.
 - `docs/standard-checks.md`: exact local checks, deterministic CI waiting commands, defaults, exit codes, and diagnostics.
 - `README.md`: overview, not a conflicting specification.
@@ -42,8 +40,6 @@ deployment and physical acceptance. Existing delivery gates still apply.
 Documentation can be updated as part of an approved documentation task or to reflect an approved implementation. Owner authorization (2026-11-20): within agreed implementation scope, proceed with routine commits, pushes, PR creation and merges without repeated approval when relevant checks and CI pass, the diff is reviewed, and no unresolved errors, review findings or conflicts remain. Report the results. Ask only for genuinely blocking scope, architecture, security or data-integrity decisions. New scope, branch deletion, release, deployment and external infrastructure changes still require applicable owner authorization. After approval, execute the specified action directly without redundant confirmation. Approval for a documentation task is not approval for unrelated implementation, external infrastructure changes or deployment.
 
 Use feature branches from `main` unless the owner selects another active branch. Use small English Conventional Commits in the form `type(scope): imperative summary` (scope optional); types: `feat`, `fix`, `test`, `docs`, `refactor`, `perf`, `chore` (e.g. `feat(archive): implement RAW/CLEAN indexing`, `chore(ci): add container build workflow`). Never force-push or discard user changes without explicit approval. Report if CI or branch protection is unavailable rather than fabricating it.
-
-For every OpenCode and Codex commit, including handoff commits, use the agent's file-writing tool to write the complete message as UTF-8 to `.agent-commit-message.txt` in the current repository worktree, then run `git commit -F .agent-commit-message.txt` instead of passing the message as shell arguments. Remove the ignored file after success; on failure, preserve it until resolved or the message is no longer needed. Existing commit subject and trailer rules remain unchanged.
 
 For every OpenCode and Codex commit, including handoff commits, use the agent's file-writing tool to write the complete message as UTF-8 to `.agent-commit-message.txt` in the current repository worktree, then run `git commit -F .agent-commit-message.txt` instead of passing the message as shell arguments. Remove the ignored file after success; on failure, preserve it until resolved or the message is no longer needed. Existing commit subject and trailer rules remain unchanged.
 
