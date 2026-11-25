@@ -1,5 +1,16 @@
 # Safe file publication (WP-14)
 
+## Compound-source extension
+
+AR-26 keeps one verified byte-identical base copy per source revision for compound
+documents. Its neutral readable source/collection path cannot imply a single
+work/part or an unchanged excerpt. Existing simple naming/publication remains
+supported. New document-publication and content-confirmation services must reuse
+the durable no-clobber primitives while preserving legacy ArchiveFile constraints.
+They require DEC-13/WP-54 acceptance. Region crops, splits, rotation and
+recombination are derived outputs with source/revision lineage and independent
+approval eligibility. Metadata associations avoid physical source duplication.
+
 This is the physical publication backend, not indexing or a review UI. Those
 remain WP-15/16/18/19/20a. No real archive is authorized for development. The
 published preview image, configuration.yaml digest and release assets are unchanged.

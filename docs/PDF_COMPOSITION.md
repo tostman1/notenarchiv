@@ -1,5 +1,15 @@
 # Reading PDF composition (WP-37a)
 
+## Confirmed-content extension
+
+EX-11/12 and PT-06–10 extend the same composer and isolated worker to confirmed
+logical-page/region inputs. Preserve vector content, original printed numbering
+and source lineage. Explicit page-preserving/region/repeat policies govern shared
+pages. Content packing uses confirmed visual regions, without re-engraving or
+arbitrary staff/system cuts. Legacy whole-file inputs and outputs remain valid.
+New geometry/parity acceptance in the crosswalk is planned, not covered by the
+existing composition tests alone.
+
 `Processor.compose` accepts ordered explicit positions (`MUSIC`, `MISSING`,
 `RESERVE`) with shared numbers/titles and immutable PDF byte inputs. The caller
 must supply authorized snapshot inputs; this pure API performs no musical

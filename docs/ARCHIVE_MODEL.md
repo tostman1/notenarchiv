@@ -1,5 +1,15 @@
 # Archive metadata and state contract (WP-13)
 
+## Revision-3 extension boundary
+
+The implemented file model below remains the legacy contract. GR-16, AR-20/21/26,
+CAT-05/06 and OP-08 add a proposed source/page/region/content-edition layer under
+WP-54/55. See ARCHITECTURE.md for identities, typed relationships, confirmation
+and safe migration. SourceVersion.page_info and RecognitionCandidate.region do
+not establish confirmed logical-page or multi-work coverage. The new path requires
+DEC-13 and additive backfill/legacy replay tests. No existing approval is broadened
+or historical reference rewritten by this documentation change.
+
 This package supplies metadata and short transactional services, not ingestion,
 filesystem publication or a review UI. WP-14 owns verified physical publication;
 WP-18/20a own authenticated preview and explicit visual review. None of this

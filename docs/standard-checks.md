@@ -91,6 +91,15 @@ available, and never claim a fixed delay guarantees recovery.
 
 ## Local standard checks
 
+For requirements/roadmap changes, run
+`uv run python scripts/check_requirements.py` and
+`uv run pytest tests/test_requirements_traceability.py`.
+The bounded structural checker reports compact JSON for duplicate/missing source
+aliases, canonical IDs, WPs, headings and evidence paths. It does not judge
+semantic coverage or certify that a planned acceptance test passed. Reuse
+unchanged software verification for documentation consolidation; required
+exact-SHA CI classification and integration gates still apply.
+
 Run the relevant subset before pushing; a full package uses all of them:
 
 ```sh

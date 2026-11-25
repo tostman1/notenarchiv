@@ -1,5 +1,25 @@
 # Implemented acceptance traceability
 
+## Revision-3 acceptance delta
+
+The complete source-alias and reference-scenario matrix is
+[REQUIREMENTS_CROSSWALK.md](../docs/REQUIREMENTS_CROSSWALK.md).
+It maps all EXT-01–18, FUT-01–07 and REF-01–36 to canonical requirements,
+WPs, explicit measurable oracles and bounded existing evidence.
+Historical results below remain evidence for their original simple workflows.
+New collection, source-region, segmentation, geometry, migration and duplex
+criteria are planned unless individually verified. Similar test names do not
+establish that coverage. Deferred criteria gate their later capability only.
+
+Keep the existing PDF, archive, resolver, snapshot, project and export regression
+suites. Extend them with multi-page/multi-work/multi-region fixtures and the
+independent numerical/rendered oracles specified in the crosswalk. Validate
+source/CLEAN hashes, stable identities, confirmation invalidation, old-schema
+replay and isolated restore. Synthetic CI is distinct from private realistic
+OCR quality, native Windows storage, packaged desktop and physical NAS/printer
+acceptance. The current software baseline is verified Main CI 45640472935 at
+`ca8647cfb04d26e3d61048e22e8885e6b5c460bb`.
+
 Shared-runtime portability: `tests/test_pdf.py::test_vector_text_and_image_only_scan_are_distinct`
 exercises the actual isolated PDF worker from a foreign working directory;
 `tests/test_release.py::test_web_requires_initialized_database` verifies migration

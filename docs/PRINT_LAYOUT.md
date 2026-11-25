@@ -1,5 +1,17 @@
 # Regular print layout planner (WP-38a)
 
+## Revision-3 template-driven extension
+
+The implementation described below remains regular schema-1 behavior. Its
+piece-boundary A4 pairing and rejection of unsupported modes remain verified.
+PT-06–10 and DEC-13 propose explicit additional modes in the same planner/renderer,
+with template persistence in WP-57 and binding/duplex/cut/fold work in WP-42.
+Distinguish source/content/final-page/sheet/cut geometry. Calculate parity after
+covers, contents and blanks for each participant, then impose each final page
+with its own exclusions and front/back mapping. Template modes cannot reinterpret
+existing regular plans. REF-19–28/35/36 require new independent numerical and
+rendered tests. Physical printer margins and media still require actual evidence.
+
 `core.pdf.layout.plan` is a pure deterministic function over frozen logical piece/
 page/geometry records. It has no PDF parser, file/DB access, publication or printer
 communication. Output is an immutable ordered sheet plan plus serializable manifest.

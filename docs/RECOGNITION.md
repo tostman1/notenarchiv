@@ -1,5 +1,17 @@
 # Filename and text-layer recognition (WP-19)
 
+## Revision-3 OCR and segmentation scope
+
+The current file-level engine below is verified only for its existing contract.
+AR-19–25 and SC-06 require versioned page/region evidence, multiple small titles/
+numbers, cover-only instrument context and continuations across pages/documents.
+Cache source hash, page/region revision, transform, profile/runtime and rule
+version. Bound page batches and resume exact inputs. File-heading OCR alone cannot
+complete collection indexing. Segmentation suggestions remain separate from
+confirmed content. WP-24–28 are resequenced after WP-54/55 contracts and coordinated
+with WP-56 and existing inspection. The saved incomplete OCR prototype is not
+integrated feature or acceptance evidence.
+
 This package implements the recognition engine for AR-08 to AR-11. It is
 evidence and comparison only: recognition records immutable candidates and the
 file's independent `candidate_state`. It never approves, never proposes

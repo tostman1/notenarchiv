@@ -1,5 +1,16 @@
 # Immutable generation authorization (WP-36b)
 
+## Region/template snapshot extension
+
+EX-13 requires a new versioned schema alongside the existing whole-file contract.
+Pin inspected source/page/region revisions, content edition and explicit occurrence
+order, effective metadata, geometry/transforms, shared-page policy, template
+revision/options and final-page/physical-side mappings using protected relational
+references as well as canonical payloads. Changed inputs invalidate preflight for
+new runs. Never rewrite old payloads or unpin their file inputs. Legacy readers,
+exact historical replay, interrupted additive backfill and restore parity must
+pass before enabling the new path under DEC-13.
+
 Generation authorization is a server-only service exposed through authenticated,
 CSRF-protected preflight POST. WP-36b established this boundary without a renderer;
 WP-37b's personal generation handler and complete-run downloads now consume it
