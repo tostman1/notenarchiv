@@ -1,6 +1,6 @@
 # Notenarchiv & Marschbuch-Generator — Requirements
 
-**Specification revision:** 2.0 — 2026-11-19  
+**Specification revision:** 3.0 — 2026-11-25
 **Status:** Product specification; functionality is not claimed to be implemented.  
 **Audience:** Developers, coding agents and project owner.
 
@@ -15,6 +15,14 @@ All technical documentation, code, identifiers, comments, tests, logs and commit
 Requirement IDs below are stable. `ARCHITECTURE.md` defines technical implementation; `IMPLEMENTATION_PLAN.md` defines delivery order. Requirements take precedence over architectural convenience. Proposed defaults and unresolved hardware details are listed in `DECISIONS.md` and must not be mistaken for verified facts.
 
 ## 2. Non-negotiable business rules
+
+Revision 3 integrates the owner specification dated 2026-11-25, including its
+Appendix A. New core requirements are approved product direction. Implementation
+of material new content-model and layout scope requires the consolidated decision
+in DECISIONS.md. Existing delivery authority continues for unaffected work.
+Core uses shall, secondary productivity uses should, and deferred features
+remain later work. Source aliases and coverage are recorded in
+[the crosswalk](docs/REQUIREMENTS_CROSSWALK.md), which adds no independent requirements.
 
 **Distribution scope (owner decision, 2026-11-25).** Preserve the existing server
 edition. A future Windows installer supplies an executable and shortcut, shared
@@ -35,11 +43,12 @@ OCR installation or service management is required.
 | GR-08 | Full folders are personal, one per selected project participant. Independent archive-note exports and project excerpts are separate output types, not alternate full folders. |
 | GR-09 | Missing playable music never disappears silently. Warn, require explicit acknowledgement, and include a placeholder for each missing requested position in project output. Never substitute an unconfirmed PDF. |
 | GR-10 | Personal position override > saved project assignment; project assignment initially copies the member default. Explicit available selections win; substitution is only for unavailable desired playable parts, never a way to override a deliberate available selection. |
-| GR-11 | Never split a native A3 sheet. Only consecutive compatible A4 portrait pages of the same piece can be paired. Preserve reading order. |
+| GR-11 | Never split a native A3 sheet. In the existing regular print mode, only consecutive compatible A4 portrait pages of the same piece can be paired. Preserve reading order. Explicit template-driven layouts use PT-06–10 and confirmed logical regions, while preserving genuine A3 content as a complete logical unit. Composite scanner pages are a separate reviewed interpretation. |
 | GR-12 | Piece numbers appear only in the contents, UI and export metadata (or filenames). Never stamp numbers onto note pages, including marchbooks. |
 | GR-13 | `DEBUG_MODE` never enables Django `DEBUG`. Authentication and security remain enabled in both modes. |
 | GR-14 | Local processing only; no telemetry, external OCR or runtime cloud dependency. No real association music, members, secrets or sensitive OCR content in Git, external AI services, CI artifacts or technical logs. |
 | GR-15 | Generated files are tied to an immutable, validated snapshot; later edits never change an already generated file in place. Referenced archive versions are protected. |
+| GR-16 | Immutable source files, source pages, logical pages/regions, musical identity/edition and output layout are independent linked concepts. No one-file/one-work/one-part/one-logical-page assumption. Preserve the simple whole-document case. |
 
 ## 3. Users and navigation
 
@@ -48,12 +57,20 @@ OCR installation or service management is required.
 - **UI-03:** Prioritize practical desktop browser workflows, keyboard-accessible controls, clear labels and error states, few clicks and immediate feedback. Do not rely on color alone for status. Browser reload restores saved state. Show progress, cancellation and actionable errors for long-running jobs.
 - **UI-04:** Use controlled instrument/part/notation dropdowns everywhere assignments are made. Free text is permitted for descriptive master data and aliases, not as an alternative to a valid reference.
 
+- **UI-05:** A secondary integrated viewer should navigate complete sources,
+  instrumental editions, logical pages, regions, works, movements and project
+  documents, with zoom/rotation and direct navigation to song 87 in a collection.
+- **UI-06:** Deferred tablet/performance features may include digital setlists,
+  offline packages, personal/shared annotations, performance navigation and
+  synchronized page turning. A comprehensive performance application is outside
+  the initial core release.
+
 ## 4. Central archive
 
 ### 4.1 Physical archive and indexing
 
 - **AR-01:** Accept existing NAS folders organized primarily by piece, with multiple PDF files per folder. Names may include the title, instrument, part, generic scanner identifiers or combinations. Support scanned monochrome PDFs and digital/vector PDFs, portrait/landscape A4, A3 and marchbook dimensions. Digitization and source placement happen outside the app.
-- **AR-02:** Keep RAW and CLEAN physically separate. Organize CLEAN by human-readable piece title and arrangement where needed, with standardized PDF filenames including instrument, part number(s), and relevant transposition/notation. Use a stable collision suffix only if human-readable names cannot distinguish files. File-system-safe names; preserve display metadata independently. Real PDFs, not links. CLEAN is browsable through File Station/SMB without the app.
+- **AR-02:** Keep RAW and CLEAN physically separate. In simple single-work workflows organize CLEAN by human-readable piece title and arrangement where needed, with standardized PDF filenames including instrument, part number(s), and relevant transposition/notation. Compound-source naming follows AR-26. Use a stable collision suffix only if human-readable names cannot distinguish files. File-system-safe names; preserve display metadata independently. Real PDFs, not links. CLEAN is browsable through File Station/SMB without the app.
 - **AR-03:** Record source-relative path, source version, SHA-256, page metadata, destination, arrangement and assignment history. Copies must be verified before publication. Do not overwrite existing unrelated files; do not publish partial copies. Flag duplicate content, but do not automatically merge distinct musical identities.
 - **AR-04:** Index the whole archive or a selected folder on demand. Show progress and errors. Mirror source-folder status in a separate STATUS tree and in the UI, e.g. `_INDIZIERT_BITTE_PRUEFEN.txt` plus machine-readable metadata. This is the visible mark for the source folder; nothing is written into RAW. Indexing prompts the archivist to check the parts.
 - **AR-05:** Recognize added, changed and missing sources. New content creates a new pending version and requires review. A deleted/missing RAW file never triggers automatic deletion of CLEAN or historical versions. Detect unchanged confirmed versions by hash. Offer a full, manually triggered integrity check that recomputes hashes and verifies file/DB relationships; routine scans may use size/mtime as a performance hint, never as definitive proof of equality.
@@ -77,6 +94,67 @@ OCR installation or service management is required.
 - **AR-17:** Several confirmed playable versions of one arrangement/part can coexist (e.g. older/newer scans, different editions or approved enhanced derivative). Allow one archive-wide preferred version per arrangement and compatible instrument part. Explicit project/position/participant choices override the preference. A changed preference never silently replaces a pinned choice or old output; identify affected outputs as stale where relevant. If no unambiguous suitable version exists, prompt for selection or use the missing-note workflow rather than guessing.
 - **AR-18:** Directly from the library select a work, arrangement, one or more confirmed parts and concrete versions where necessary, preview, download or print the selected PDF(s), without creating a project or member. Shared combined-part PDFs are not split. If the same physical PDF is selected more than once, clearly show how many copies will be exported/printed; avoid accidental duplicates.
 
+### 4.4 Compound ingestion and source references
+
+- **AR-19:** Import complete multi-part, multi-work scan documents in batches,
+  including mixed sizes/orientations, booklets, blank backs, duplicate scans and
+  composite scanner pages. Propose boundaries using text/OCR, titles, instruments,
+  numbering, headings, geometry, whitespace and continuation evidence. Missing
+  repeated headings on continuation pages must not alone split a part. The
+  1–3/4–5/6–8/blank-9/10–11 example shall yield four reviewable part groups and a
+  blank classification. Manual batch ingestion shall work independently of inbox watching.
+- **AR-20:** Represent source pages and revisioned logical pages/regions with stable
+  identity, original page geometry, units and reproducible transforms. Multiple
+  logical pages may reference one scan, including two A4 pages on A3, four cards,
+  and facing booklet pages. Composite interpretation requires reviewed evidence.
+  Dimensions alone never split genuine A3 music. Multiple regions may span pages
+  and documents and shall retain explicit ordering and original source hashes.
+- **AR-21:** Segmentation and content associations have explicit confirmation
+  boundaries. Record inspected source/page/region revisions and musical assignments.
+  Changing source bytes, boundaries, ordering or relevant assignment invalidates
+  the affected new-use confirmation and inspection. Retain earlier revisions and
+  historical snapshots. Confidence, thumbnails and bulk selection never approve.
+  Unconfirmed regions cannot enter new exports. Correctly confirmed portions may
+  be used while the rest is visibly incomplete.
+- **AR-22:** Core ingestion shall classify blanks manually or by reviewable
+  proposals and identify byte-identical sources/pages where deterministically
+  possible. Distinguish exact duplicate, possible visual duplicate, repeated page,
+  part duplicate and different edition. Never delete, merge identities or omit
+  content automatically. Uncertain visual similarity is a warning. Basic safety,
+  duplicate and blank handling remain core. Advanced visual detection is AR-23.
+- **AR-23:** Secondary scan-quality assessment should flag orientation, skew, noise,
+  resolution, contrast, blur, potentially cropped music, dimension and sequence
+  anomalies. Advanced perceptual duplicate detection should recognize recompressed
+  copies while protecting different editions. Corrections remain non-destructive,
+  conservative proposals. REF-09 is mandatory acceptance for this secondary
+  capability when delivered, and does not make it a current core-release gate.
+- **AR-24:** A secondary configurable watched inbox should wait for stable completed
+  writes, register safely, prevent accidental duplicate imports, run configured
+  analysis and expose a review queue and import history. It must not write into RAW
+  or be required by manual ingestion. Direct scanner/phone control is deferred.
+- **AR-25:** Index a 125-piece A5/custom booklet as one immutable source per
+  instrument, with four to six independent works per page, including multi-page
+  continuations. Search and select each work or movement by identity and original
+  song number, even when pages and coordinates differ across instrumental booklets.
+  Support multiple titles/numbers on a page, cover-only instrument evidence and
+  incremental correction. Page-number equality is never musical identity.
+- **AR-26:** A compound source keeps one byte-identical CLEAN base copy with a
+  neutral human-readable source/collection identity and collision-safe path.
+  Do not imply that a logical excerpt is that unchanged original. Work/part
+  associations and original names remain metadata. Cropping, splitting, rotation,
+  deskewing, recombination and musical-region export produce traceable derivatives,
+  generated on demand where possible, without 125 duplicate source files.
+- **AR-27:** Deferred license/purchase records may store receipts, invoices,
+  publisher agreements, restrictions and digital/printing permissions. Physical
+  ownership never implies unlimited copying/distribution permission.
+- **AR-28:** Deferred Excel/CSV inventory import should support column mapping,
+  profiles, normalization, preview, validation, duplicates, matching, errors and
+  traceable history. It is independent of mandatory PDF ingestion.
+- **AR-29:** Deferred QR labels may link stable archive and location identities,
+  configurable label printing, record lookup, physical inventory and later lending.
+- **AR-30:** Optional external metadata services require separate approval and
+  privacy/compatibility assessment. Essential local workflows cannot depend on them.
+
 ## 5. Association and musical catalog
 
 - **CAT-01:** Maintain members, instruments, instrument-specific parts, transposition/key, notation/clef and aliases. Instrument display names are not unique identifiers: variants such as B-flat vs C or treble vs bass clef must be distinguishable. Allow equal human names and equal piece titles without merging records. UUIDs provide identity.
@@ -84,15 +162,55 @@ OCR installation or service management is required.
 - **CAT-03:** Maintain explicit replacement rules: e.g. Posaune 3 → Posaune 2, with global, project and position-level scope. Validate musical suitability and avoid implicit cross-instrument substitutions. Rules and aliases are editable without a new image build. No automatic musical transposition or score arrangement.
 - **CAT-04:** Distinguish a musical ensemble role from its playable instrument part. Same musical role may be performed by several instruments using different notated PDFs. Instrument families and notation variants are distinct from actual musical roles.
 
+- **CAT-05:** Distinguish collections of independent works from parent compositions
+  with movements/sections, including masses, suites, medleys and potpourris.
+  Model collection membership, parent/component, arrangement, related edition and
+  alternative-title relationships explicitly. A work/part edition may reference
+  ordered content across documents/pages/regions, and a region/page may support
+  multiple works or editions. Avoid cycles and accidental merging by title.
+  Deutsche Messe must support both complete composition and individually searchable,
+  selectable and exportable movements, including shared pages and continuations.
+- **CAT-06:** Collection metadata includes title, publisher, publication/edition,
+  instrument, collection identifier and physical format. Work/component metadata
+  includes titles, original song number, composer/arranger, section, collection
+  position and region references. Shared values may inherit with explicit local
+  overrides. Inheritance must retain provenance and reproducible snapshot values.
+- **CAT-07:** Secondary physical archive management should provide configurable,
+  searchable building/room/cabinet/shelf/compartment/folder/box hierarchies and
+  work/set locations, inventory IDs, copy counts, available/missing/damaged parts,
+  condition, acquisition date/cost, notes and availability. Physical and digital
+  availability are independent. Printable/exportable inventory reports should cover
+  complete inventory, locations, missing/damaged parts, absent digital copies,
+  digital incompleteness and acquisition history.
+- **CAT-08:** Secondary metadata/search should extend existing titles, aliases and
+  instrument/edition filters with publisher/year, genre, difficulty, duration,
+  article/external IDs, tags, custom fields, notes, related arrangements,
+  collection/movement/location filters and reference recording/audio links.
+  Support exact/partial/case-insensitive matching, accent normalization,
+  spelling variants, reasonable typo tolerance and combined filters. Local
+  recognition aliases improve proposals without overriding confirmed identity.
+- **CAT-09:** Deferred lending may track parts/sets, borrower, lending/return dates,
+  outstanding items and condition changes. It must not block digitization or printing.
+
 ## 6. Projects and shared piece list
 
-- **PR-01:** Create, name, save, reopen, edit, duplicate and archive projects. Persist all configuration across sessions/restarts. One project = one collection. Example projects: Marschbuch 2026, Weihnachtsensemble 2026, Unterhaltungsmappe, Konzertmappe.
+- **PR-01:** Create, name, save, reopen, edit, duplicate and archive projects. Persist all configuration across sessions/restarts. One project defines one common musical list, distinct from the catalog Collection entity in CAT-05. Example projects: Marschbuch 2026, Weihnachtsensemble 2026, Unterhaltungsmappe, Konzertmappe.
 - **PR-02:** Select pieces from the live-searchable library. Use drag-and-drop to order the positions. A specific arrangement is selected for each piece; an arrangement can occur multiple times and every occurrence has its own stable position ID. Replacing the arrangement in an existing position preserves that position and number; revalidate associated overrides.
 - **PR-03:** Automatically renumber after insertion, removal or reordering. The number is derived from the ordered list of positions, including explicit empty reserve slots. A reserve slot consumes a number but produces no sheet page. Example: position 5 reserved, next piece is 6. Moving a piece may shift numbers; preserve explicit reserves as slots and show the resulting contents before saving/printing. See DEC-03 for the precise proposed reserve behavior. Never add numbers to music pages.
 - **PR-04:** Select any subset of association members or valid project guests, including select all/deselect all and instrument filtering. Not every project represents the full orchestra. At addition, copy the member's regular part into the participant's saved project assignment. Later master-data changes do not automatically change existing assignments. Offer explicit adoption of updated defaults; preserve deliberate personal overrides unless reset.
 - **PR-05:** Persist project name, participant assignments, shared positions and reserves, arrangement references, ensemble mappings, part and edition overrides, replacement rules, cover/layout options and revision. Project duplication creates new identities for project/positions/participants and remaps its overrides. Project edits do not modify association master data or archive assignments.
 - **PR-06:** No personal selection, skip, additional pieces or individualized numbering in full folders. A participant may have a different playable part for any piece; if unavailable, that position remains represented by a placeholder.
 - **PR-07:** Protect against concurrent lost updates. Show a clear conflict and refresh/retry rather than silently overwriting another archivist's changes. Save and display project revision; outputs remain available after edits, with relevant stale indicators.
+
+- **PR-08:** Secondary productivity should extend project duplication/order/ensemble
+  configuration and part/edition assignment with reusable project templates,
+  participant/instrument groups, batch documents/ZIP, grouped instrument/section
+  exports, completeness/missing-part overviews and estimated printing requirements.
+  Keep all full folders on the same project list and numbering.
+- **PR-09:** Secondary revision comparison should identify changed works and
+  affected participants, select complete regeneration versus replacements and
+  optionally track printing progress. Revisions do not mutate historical exports
+  and do not turn projects into general event management.
 
 ## 7. Assignment and interactive matrix
 
@@ -121,12 +239,55 @@ OCR installation or service management is required.
 - **EX-09:** Bind the report and acknowledgement to an immutable generation snapshot (project revision, positions, selected people, resolved parts and exact file versions/hashes, edition/layout/cover options, missing decisions). Invalidate the report if relevant data changes before enqueue. All documents in a generation run use the same snapshot. Editing the project during generation does not mutate the run. Archive changes must not silently affect existing exports.
 - **EX-10:** Store manifests, generation status and output paths. Only fully generated verified artifacts are downloadable/printable. Mark affected outputs stale after relevant edits or preference changes; retain previous outputs and source versions according to a defined retention policy. Targeted regeneration must be possible. Human-readable output names and folders; protect same-name collisions. Download and optionally ZIP batches. Do not require printing to generate or download a print PDF.
 
+- **EX-11:** Export entire collections or instrumental booklets, selected works,
+  consecutive works, pages, movements or confirmed regions without fragmenting
+  sources. Support page-preserving and content-based modes. Page-preserving mode
+  retains the original song layout. Content mode may compact confirmed short
+  works onto new final pages, without arbitrary staff/system cuts or re-engraving.
+- **EX-12:** Shared source pages require an explicit deterministic policy. Preserve
+  a complete shared page once, extract selected confirmed regions, or repeat the
+  page when explicitly configured. Preserve project occurrence identity and order.
+  Show consequences before generation. Never silently omit or duplicate music.
+- **EX-13:** Extend immutable snapshots/manifests with confirmed content/region
+  revisions, source/page hashes, transforms and ordering, effective inherited
+  metadata, template revision/configuration, final logical pages, physical sheets,
+  duplex mapping, blanks, warnings and production marks. Invalidate preflight
+  on relevant changes. Protect relational source/revision references and preserve
+  exact historical replay alongside the existing whole-file snapshot schema.
+- **EX-14:** Distinguish standalone excerpts from insertion-compatible replacements.
+  Replace a work, damaged page, updated edition, movement or selected participant
+  pages using the correct position and edition. Insertion replacements should
+  reproduce original final-page parity and binding orientation or require an
+  explicit alternative. Different instruments can have different page counts
+  while preserving identical project work order and numbers.
+- **EX-15:** Important deferred forScore interoperability shall preserve stable
+  work/part/edition IDs, structured metadata, project order, participant assignments,
+  individual content exports and document versions now. Later study official
+  capabilities for PDFs, works/parts/full folders/collections, metadata, setlists,
+  bulk transfer, updates, duplicate avoidance, identity and supported annotation
+  handling. No assumed public API/import format. It must not block the core release.
+
 ## 9. Scan enhancement and marchbooks
 
 - **SC-01:** Separately accessible enhancement feature with before/after preview, adjustable parameters, and per-stage enable/disable. Input is a selected archived copy, output a new linked derivative in PROCESSED (or a clearly separated area); never alter RAW or CLEAN bytes.
 - **SC-02:** Detect slight skew using staff lines; deskew, conservatively reduce noise and edge shadows, crop excess margins and normalize page format as needed. Preserve staff lines, accidentals, dynamics and every other musical mark. Avoid destructive default filters, warn on uncertain crop/skew, allow bypass. Recheck derivative visual quality before approving it for use. Retain its source, settings, algorithm version and hash.
 - **SC-03:** Marchbook is a project format, default 170 × 120 mm landscape, adjustable per project. Normalize print pages to that physical size, preserve aspect ratio and legibility, avoid cropping and allow accurate printing at scale. Reading PDF retains selected input page formats; contents/cover use chosen project format. No printed numbers on music pages.
 - **SC-04:** Optional later adapter for already numbered folders by part (e.g. `Altsax-1/01_Radetzkymarsch.pdf`): safely index files into CLEAN and propose a common numbered project list, resolve mismatches, require confirmation. It does not create a separate full-folder mode or bypass review.
+
+- **SC-05:** A graphical segmentation/region editor shall show thumbnails and
+  full-resolution sources, boundaries, groups, confidence and associated music.
+  Support splitting/merging consecutive groups, ordering logical pages, correcting
+  work/part assignments, drawing/editing regions, marking continuations/blanks,
+  excluding irrelevant output pages, rotation/orientation, non-destructive crop
+  and restoring prior interpretation. Proposals remain distinct from confirmation.
+- **SC-06:** OCR/segmentation operates on versioned pages and regions, expands
+  beyond headings when needed and supports cover-level instrument evidence,
+  multiple small titles/numbers and continuations. Cache keys include exact
+  source hash, page/region revision, transforms, processing profile/runtime and
+  rule version. Analyze incrementally, preserve provenance and present conflicting
+  evidence locally. No filename-confidence shortcut or external AI requirement.
+- **SC-07:** Direct scanner and smartphone acquisition are deferred and require
+  later prioritization. Initial workflows accept externally produced source files.
 
 ## 10. Print layout and printer integration
 
@@ -141,10 +302,55 @@ OCR installation or service management is required.
 | 5 | A3 + A3 + A4 |
 | 6 | A3 + A3 + A3 |
 
-- **PT-02:** Never pair across position/piece boundaries, including repeated appearances of the same arrangement. Do not pair covers, contents or placeholders with note pages. A3 original sheets stay whole; for A4-only fallback a native A3 sheet may be scaled as a whole, never split. A4 landscape, mixed/custom sizes and printable margins need explicit safe layout behavior and preview; never silently crop or distort. No booklet imposition. Default single-sided physical sheets.
+- **PT-02:** In regular print mode, never pair across position/piece boundaries, including repeated appearances of the same arrangement. Do not pair covers, contents or placeholders with note pages. A3 original sheets stay whole; for A4-only fallback a native A3 sheet may be scaled as a whole, never split. A4 landscape, mixed/custom sizes and printable margins need explicit safe layout behavior and preview; never silently crop or distort. Default single-sided physical sheets. Explicit template-driven imposition is governed by PT-06–10 and EX-12.
 - **PT-03:** Choose an available/configured network printer in the UI, display capabilities/media, provide print preview, copy count and job status. Use IPP/CUPS where verified. Automatically select A4/A3/custom media only when supported and tested. Preserve page order across mixed formats; if a mixed-media job is unreliable, use consecutive media blocks with an interleaving warning. Do not globally sort sheets by paper size.
 - **PT-04:** If A3 or a custom size is unsupported, show a suitable A4 alternative and preview; require explicit confirmation before creating/submitting the fallback. No silent shrinking or clipping. For marchbook custom media, require explicit alternative if actual-size output cannot be achieved. Reading PDFs remain unchanged.
 - **PT-05:** Direct archive notes, project excerpts, full folders and contents-only outputs can be printed when supported. Print submission is never automatically repeated after a failure or uncertain acceptance. Show the printer job ID/status when known and request an intentional retry after checking the printer.
+
+- **PT-06:** Extend the same deterministic PDF planner/composer for standard music,
+  concert/march folders, songbooks, collections and replacements. Separate source
+  geometry, selected content geometry, final musical page size, physical printer
+  sheet and cut/fold size. Support one/two/four/configurable n-up, portrait/landscape,
+  configured/automatic rotation, simplex/duplex, sequential, cut-and-stack and
+  applicable folded booklets. A5 examples shall yield 2/4 logical pages per A4
+  sheet and 4/8 per A3 sheet for simplex/duplex respectively. Mixed source formats
+  and genuine A3 remain supported. Existing regular exports stay available.
+- **PT-07:** Users shall create, duplicate, edit, rename, save and reuse persistent
+  print templates, with built-in defaults. Applicable properties include explicit
+  millimeter physical/final dimensions, orientation, rows/columns/placement areas,
+  page/region mode, simplex/duplex and long/short-edge flip, left/right/top/bottom/no
+  binding, clearance/punch geometry, individual outer/printer margins, gaps,
+  original/max-fit/fixed scale, per-page/work/output scale consistency, rotation,
+  conservative/manual crop, sequential/cut-stack/booklet imposition, blank insertion,
+  optional cutting marks/cover, contents and alignment. Validate all parameters.
+  Template transfer by export/import should be supported. Pin template revisions
+  or exact settings in historical output. Shared edits never alter old outputs.
+- **PT-08:** Calculate maximum proportional fit inside printable and final page
+  boundaries after outer/printer margins, gaps, binding/ring/punch exclusions,
+  cutting tolerance and other configured protected areas. Never distort music or
+  use format-specific arbitrary percentages. A continuous binding margin is the
+  minimum, conservative rectangles may represent complex exclusions initially.
+  Crop whitespace conservatively with review and manual correction, preserving
+  titles, instruments, notes, dynamics, articulation, repeats, tempo, references,
+  annotations and handwriting. Uncertain bounds cannot silently clip content.
+- **PT-09:** Calculate odd/even binding geometry per final logical page after
+  covers, contents and blanks, independently of source page numbers or parent
+  printer-sheet parity. Support mirrored margins and all binding edges. Deterministically
+  map front/back slots, orientation, flip edge, cutting sequence and final order.
+  Configurable blanks may complete duplex/booklet sheets, start on a side, avoid
+  unrelated reverse-side works or preserve parity, without waste when disabled.
+  Where feasible support consistent per-part scale, minimum-scale warnings,
+  related-content grouping, reduced turns, front starts and manual breaks.
+- **PT-10:** Preview sources, logical music, final pages, physical sheets and both
+  sides distinctly. Show printable/binding/punch/content/cutting boundaries.
+  Preview aids enter final PDFs only as explicitly enabled production marks.
+  Preflight shall block invalid source/region references, unconfirmed content and
+  unsafe/impossible geometry and distinguish actionable warnings for missing
+  music, clipping risk, exclusions, printable overflow, duplex/pairing and excessive
+  reduction. Keep vectors where feasible and avoid repeated lossy compression or
+  needless raster resolution loss. Manifests should include project/revision,
+  participant/part, works/editions, template/settings, final pages/sheets, mode,
+  blanks, warnings and generation time. Validate geometry numerically and visually.
 
 ## 11. Operations, safety and quality
 
@@ -155,8 +361,37 @@ OCR installation or service management is required.
 - **OP-05:** Back up DB and all necessary CLEAN/PROCESSED versions, config/secrets and non-regenerable state consistently; RAW has independent NAS backup. Generated outputs optionally backed up; regenerate only where referenced versions and settings still exist. Restore to isolated environment and verify. Controlled image updates and rollback; no automatic production deployment.
 - **OP-06:** Reproducible builds and locked dependencies, local assets, automated tests, synthetic fixtures, verified third-party licenses and notices, versioned container images, clear install/update/restore runbooks. Real-data validation is performed privately on NAS without uploading actual music or members to external services.
 
+- **OP-07:** Server and future single-workstation Windows distribution share UI,
+  business logic, data model, ingestion/OCR/PDF/export and essential workflows.
+  Isolate safe platform file operations, trusted executables and runtime roots.
+  Distinguish shared-runtime tests, native Windows storage tests, packaged desktop
+  acceptance and physical NAS acceptance. The final Windows installer is later
+  distribution work, with all end-user dependencies bundled and managed startup.
+- **OP-08:** Extend data models through safe additive migrations/backfills with
+  stable IDs, integrity reports, consistent backup/restore and rollback strategy.
+  Preserve confirmed editions, project references and historical outputs. No
+  destructive real-data migration is authorized by specification consolidation.
+- **OP-09:** Prefer deterministic bounded document/geometry processing and reusable
+  validation tools with compact machine-readable evidence when beneficial.
+  Reuse existing dependencies after Windows/Linux and license evaluation.
+  Incremental page/region processing, cancellation, recovery and caches must keep
+  the web UI responsive on DS224+. Concurrency remains capped by OP-02's one-heavy-
+  worker baseline until separately approved evidence supports a change.
+  PDF libraries, Tesseract, image processing, hashes, aliases and geometry tools
+  are implementation candidates, not a mandate to add all dependencies. Optional
+  local AI-assisted investigation of ambiguous cases does not relax GR-14 or
+  create a cloud dependency.
+
 ## 12. Explicit exclusions and delivery
 
-No musician portal, multi-tenancy, differentiated business roles, individual full-folder piece lists, complete part-only folders, multiple regular parts per member, automatic transcription/transposition, booklet imposition, write access to RAW, automatic print retry or external AI/OCR service. No assumption that all printers support automatic media switching.
+No musician portal, multi-tenancy, differentiated business roles, individual full-folder piece lists, complete part-only project folders, multiple regular parts per member, automatic transcription/transposition, write access to RAW, automatic print retry or external AI/OCR service. No assumption that all printers support automatic media switching.
+
+General association administration, accounting, fees, attendance, rehearsal
+scheduling, general event organization, internal communication platforms,
+music marketplaces, publisher sales platforms, proprietary readers, full notation
+editing and full optical music recognition/transcription are excluded. Limited
+member/performance metadata serves music preparation only. Deferred AR-27–30,
+CAT-09, EX-15, SC-07 and UI-06 have separate later approval and do not gate core
+delivery. Secondary features retain their should-level priority.
 
 Deliver a useful manual archive workflow first; then OCR, personal project folders and excerpts, scan enhancement and marchbooks, printer integration, and operational validation. The full product includes ensemble support, direct note exports and printing; deferred implementation is not removal from scope. See `IMPLEMENTATION_PLAN.md` for release gates. See `DECISIONS.md` for explicit defaults and actual outstanding validation items.

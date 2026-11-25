@@ -144,6 +144,98 @@ Review approval applies to exact PDF version/hash and proposed assignments. Manu
 
 ## 5. Domain model
 
+Revision-3 extensions below are a proposed additive target for the owner-approved
+product direction. Their implementation decision is pending in DECISIONS.md.
+Existing tables and confirmed single-work workflows remain the compatibility
+baseline. RecognitionCandidate.region is recognition evidence, not a confirmed
+content reference or a sufficient segmentation model.
+
+### Source, content and edition extension
+
+Keep SourceFile/SourceVersion and verified CLEAN copy identities. SourceDocument
+provides stable document identity over source revisions. SourcePage identifies
+one zero-based PDF page within an exact SourceVersion, with MediaBox, CropBox,
+Rotate, UserUnit and page geometry fingerprint. A changed source creates new page
+references even if its page count stays equal.
+
+PageRegion has stable identity and immutable revisions referencing a SourcePage.
+Store canonical PDF coordinates in points, the effective boxes, units, transform
+chain and geometry schema. Derive UI pixel coordinates through an invertible
+display transform. Validate finite positive bounds, containment, rotation,
+round-trip tolerance and ordering. Rectangles are the initial supported region
+shape. A whole-page region is the simple case. Other shapes require a versioned
+geometry implementation and acceptance.
+
+LogicalPageRevision references a complete source page or confirmed region and
+records orientation and content bounds independently of output size. Ordered
+ContentReferences connect work/component + arrangement + playable part/edition
+to these logical pages. Multiple references may use one page/region; a content
+edition may span many pages/documents. Store explicit occurrence IDs and sequence
+numbers. Never infer relationships from equal filenames, page numbers or positions.
+ContentEdition groups this confirmed musical sequence. Existing ArchiveAssignment
+and PreferredEdition remain usable through a whole-document compatibility adapter.
+The shared resolver returns one resolved content edition with a uniform ordered
+input contract, including legacy whole-file editions.
+
+Collection and ordered CollectionMembership model independent works. Separate
+typed WorkRelationship rows model parent/movement, medley constituent and related
+arrangement/edition relationships. Validate cycles and incompatible relationship
+types. Preserve equal titles and independent UUIDs. Metadata inheritance keeps
+collection provenance and explicit local overrides; snapshot effective values.
+The 125-piece booklet remains one source per instrument. Deutsche Messe remains
+one parent composition with separately addressable movements. Neither requires
+physical PDF splitting.
+
+### Confirmation, publication and compatibility
+
+File validation/publication, segmentation proposals, inspected content revisions,
+confirmed musical assignment and completeness remain distinct. A reviewer sees
+the actual source context and affected regions before explicit confirmation.
+Record actor, exact source hash/page/region revision, ordering and proposal
+revision. A changed revision invalidates only affected eligibility for new use,
+without mutating older confirmations or outputs. Region approval never derives
+from confidence or from opening a thumbnail. Partial collection indexing exposes
+only confirmed usable content and reports remaining unknown portions.
+
+ArchiveFile currently carries one arrangement and file-scoped approval constraints.
+Do not relax those constraints to force compound copies through legacy services.
+The proposed extension adds a document-publication/content-approval path alongside
+the legacy adapter. It reuses verified byte-identical CLEAN storage and durable
+publication primitives. Confirmed content must pin inspected source/context and
+region revisions. Approval of one region cannot advertise the entire file as
+musically confirmed. This new confirmation scope needs the consolidated owner
+decision before implementation.
+
+Keep one neutral, readable compound-source copy under its source/collection
+identity. Existing simple piece/arrangement naming still operates unchanged.
+Logical work/part names are metadata and derivative download names. Region crops,
+rotations, splits and recombinations are PROCESSED/export artifacts with lineage,
+never byte-identical CLEAN originals. Generate derivatives on demand, reuse exact
+confirmed references and prevent unnecessary source duplication.
+
+### Migration and recovery target
+
+Add nullable/protected relationships and versioned payload schemas first. Backfill
+existing validated SourceVersion.page_info into source-page records with stable
+mapping receipts. Represent each old ArchiveAssignment as a whole-document content
+edition retaining original IDs through an adapter. Do not invent segmentation,
+change an approved assignment, duplicate source bytes or reconfirm by confidence.
+Ambiguous/incomplete records require manual reconciliation.
+
+Before enabling the new path, compare counts, hashes, source paths, order, edition
+preferences, project resolution and export manifests on deterministic legacy
+fixtures. Verify idempotent resumable backfill, interrupted migration, concurrent
+write exclusion and isolated backup/restore. Keep old snapshot readers and
+protected relational pins. New schema readers may extend old inputs through the
+adapter. Never rewrite historical payloads or files.
+
+Deploy additive schema with the new path disabled, run integrity reporting, then
+enable only after parity tests and the implementation decision. Roll back by
+disabling new writes and restoring the tested application/schema-compatible
+backup if required. New-schema writes prevent an untested old binary downgrade.
+Real-data migration, deployment and irreversible cleanup require separate
+authorization. No destructive migration is part of requirements consolidation.
+
 Use UUIDv4 for stable domain identities. SHA-256 is a content fingerprint, not an entity identifier. Numeric UID/GID are deployment only. Use timestamps, protected references, short transactions, indexes on common lookups, DB constraints and service validation. Logical model; fields may be refined in migrations without changing business rules.
 
 ### Catalog and members
@@ -238,6 +330,63 @@ Pure layout function takes ordered logical pieces and page descriptors and retur
 ### 7.4 Printing
 
 Printer adapter: discover/configure allowed internal printer endpoints, query capabilities and media, submit artifact and observe job IDs/status. Verify actual IPP/CUPS availability (do not presume DSM Print Service is suitable), A3 and custom size, printable margins, paper trays, ordered mixed media and fallback. Initially `PRINT_ENABLED=0`; PDF generation/download unaffected. Use one mixed-media job only after capability and output tests. Otherwise submit sequential contiguous media blocks, not global paper-size batches; warn another spool job may interleave. Avoid extra `number-up` or driver scaling when layout already imposed; validate actual-size print physically. No shell interpolation of filenames; explicit subprocess args/timeout or IPP client. Restrict endpoints to approved internal printers (prevent arbitrary network requests). Persist print intent before submission. If spool acceptance is unknown after crash/timeout, mark UNKNOWN/REVIEW_REQUIRED; do not auto-repeat. A human checks printer and explicitly initiates retry. Print cancellation best effort with actual status, not a claim that paper already printed can be recovered.
+
+### Extended layout target and validation
+
+Extend core/pdf/layout.py, its existing PrintPlan and the isolated composer/render
+entry points. Keep the regular schema-1 planner and historical renderer contract
+readable. Template-driven plans use a new versioned schema with explicit units
+and occurrence IDs. Do not build a second competing composition or resolution engine.
+
+Resolve immutable content first, normalize source coordinates, form ordered final
+logical pages, insert covers/contents/configured blanks, calculate per-final-page
+binding exclusions, and only then impose final pages on physical front/back slots.
+Keep source, content, final-page, sheet and cut/fold geometry separate. A5 two-up
+A4 and four-up A3 must yield 2/4 and 4/8 logical pages per simplex/duplex sheet.
+Native A3 remains whole. Composite scanner regions require their own confirmation.
+
+For a rectangular content box, proportional maximum fit uses the minimum of
+available-width/content-width and available-height/content-height after configured
+exclusions. Compare permitted rotations deterministically and use a documented
+tie rule. Original/fixed scale must also pass containment. Conservative rectangular
+binding exclusions are initially sufficient for complex punch geometry. Preserve
+handwriting and source printed numbers. Region recomposition never reconstructs
+notation or arbitrarily cuts systems.
+
+Calculate parity independently for each participant's final sequence after all
+insertions. Store final-page ID, parity, binding edge/exclusion, sheet number,
+front/back side, slot, affine transform, flip edge and cut/fold order. Mirroring
+one whole printer sheet is insufficient. Numerical oracles must reconstruct final
+reading order after duplex flip, cut-and-stack and fold operations. Verify all
+configured orientations/binding edges, mixed source sizes and odd tail pages.
+
+Shared-page policy is explicit per output. Deduplicate complete source pages only
+within the configured scope while retaining selected content/occurrence coverage,
+extract confirmed regions, or repeat intentionally. Project numbering still belongs
+to the common positions/contents and metadata. Full folders have identical work
+order even when physical pagination differs. Whole-booklet archive exports remain
+independent archive outputs, not a second part-only project-folder mode.
+
+Insertion-compatible replacements pin the earlier final-page sequence, binding
+orientation and template revision. A new edition or layout that cannot preserve
+the insertion contract is a blocking finding until the user deliberately chooses
+an alternative. Standalone excerpts remain distinct.
+
+Preflight validates confirmed region/source revisions, source availability,
+containment, protected areas, scaling, slot coverage and front/back correspondence.
+Preview renders the exact plan with optional overlays. Final production marks are
+explicit options. Preserve vector content and avoid repeated raster recompression.
+Pin transforms, effective metadata and template/engine schemas in immutable
+snapshots and manifests. New templates never reinterpret old exports.
+
+Validate using independent numerical geometry/permutation checks plus rendered
+synthetic visual fixtures, including 125-piece instrumental booklets, Deutsche
+Messe, composite scans and annotations at boundaries. Compare equivalent Windows
+and Linux results with defined numeric tolerances. Private music/OCR quality and
+physical duplex/cutting/NAS checks retain separate acceptance and authorization.
+Background analysis uses bounded page/region batches, private scratch, durable
+progress and cancellation with one heavy worker. Large-document limits must be
+exercised explicitly rather than silently forcing physical file splitting.
 
 ## 8. Persistent job framework
 

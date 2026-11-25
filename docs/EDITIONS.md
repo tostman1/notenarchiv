@@ -1,5 +1,15 @@
 # Preferred archive editions (WP-23a)
 
+## Content-edition extension
+
+CAT-05/06 and EX-11–14 extend a playable edition to an ordered set of confirmed
+logical pages/regions across sources. Existing whole-file edition preferences
+must retain exact behavior through the compatibility adapter and the same resolver.
+Equal hashes/page numbers do not merge musical identities. Collections and parent
+movements are separate relationships. Protect existing preferred assignments and
+historical output pins during WP-54/55 backfill. New content-level selection,
+confirmation and invalidation acceptance is pending DEC-13.
+
 `PreferredEdition` is one protected UUID scope per exact arrangement/playable part.
 The part's InstrumentVariant includes transposition and clef; an equal voice number
 or instrument name does not establish compatibility. The selected ArchiveAssignment

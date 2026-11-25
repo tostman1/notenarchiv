@@ -1,6 +1,6 @@
 # Decisions and validation register
 
-**Revision:** 2.0 — 2026-11-19
+**Revision:** 3.0 — 2026-11-25
 
 This register distinguishes binding product decisions from recommended implementation defaults and facts that require actual verification. It is not a new round of general planning. WP-01 can begin after the owner accepts the baseline and authorizes implementation; later questions block only the relevant feature. Record new decisions with a date, rationale, scope and affected requirement IDs. Do not silently promote an assumption to a product rule.
 
@@ -24,7 +24,55 @@ tracked in [desktop portability](docs/PORTABILITY.md).
 | DEC-09 | Owner priority shift 2026-11-20: first deliver an empty/synthetic-data web-only technical preview on DS224+. Advance deployment-compatible WP-09/06/07/08/10 and preview backup/install/rollback slices of WP-47a/48/49. Worker recovery, OCR, printing and generation do not block this web-only variant; their original requirements and full-scope dependencies remain. Actual GHCR release/tag and NAS deployment retain their applicable approval gates; no real archive attachment or live NAS deployment is authorized. | OP-01–06, UI-01–03, GR-01/13/14; IMPLEMENTATION_PLAN.md preview gate |
 | DEC-11 | Development-agent governance: CI verification waits are deterministic, SHA-bound automation (docs/PROCESS.md, docs/standard-checks.md, scripts/wait_for_ci.py); LLM-driven polling, repeated status checks and context reconstruction to wait for GitHub are prohibited. Only exact-commit, non-skipped, non-stale green checks are successful verification; timeout/rate-limit is not success; all existing review, approval, merge, release and deployment gates remain binding. | DEC-08; AGENTS.md; docs/PROCESS.md; docs/standard-checks.md |
 
+## Extended specification disposition — 2026-11-25
+
+**DEC-12 — Confirmed direction and integration authority.** The owner supplied
+Notenarchiv_Codex_Requirements_Integration.md including Appendix A and authorized
+its complete consolidation. REQUIREMENTS.md revision 3 preserves all source
+aliases in docs/REQUIREMENTS_CROSSWALK.md. This is product-direction/planning
+approval. The existing autonomous development authority continues for consistent
+previous scope, with portability first. Material new content/geometry scope needs
+the single consolidated implementation decision below.
+
+GR-01–15, existing confirmed editions/projects, immutable output history,
+one resolver, local processing, auth/CSRF and one heavy worker remain binding.
+DEC-06's A4 pairing restriction and PT-02's former booklet exclusion now describe
+the existing regular mode. The new product direction permits explicit
+template-driven n-up/cut/fold plans after the consolidated implementation decision.
+Genuine A3 is never split merely by size. Original printed numbers stay intact.
+
+The source's conflicting quality priority is interpreted conservatively.
+Basic duplicate/blank handling and no destructive merging are core AR-22.
+Advanced scan assessment/perceptual matching is secondary AR-23. REF-09 remains
+a required reference test for that capability when delivered. Watched inbox
+AR-24 is secondary/should and cannot block manual batch ingestion. These are
+documented source reconciliations, not new automatic processing permissions.
+Deferred features do not become release gates. Configurable concurrency remains
+capped by OP-02 until separately approved resource evidence exists.
+
+## Consolidated implementation decision required
+
+**DEC-13 — Pending owner approval.** Approve or revise the proposed additive
+source/page/region/content-edition model and its scoped visual confirmation
+contract in ARCHITECTURE.md, together with the new core template-driven layout
+scope and dependency-ordered roadmap in IMPLEMENTATION_PLAN.md.
+
+This decision is material because ArchiveFile currently has one arrangement,
+approval is file-scoped and snapshots pin file assignments. Partial collection
+use needs inspected source-context and region revisions without advertising the
+whole source as musically confirmed. The proposal preserves whole-file adapters,
+protected historical references and additive backfills, and requires explicit
+template modes for newly expanded output behavior. Implementation must not weaken
+existing approval constraints or destructively migrate data.
+
+The recommended release envelope treats EXT-01–11 as expanded core,
+EXT-12–18 as secondary/should, and FUT-01–07 as deferred. Secondary work does not
+block the core release. No separate approval is needed for ordinary implementation
+choices inside the accepted envelope after DEC-13. This decision does not
+authorize production deployment, real-data migration, physical acceptance or
+external interoperability services. Unaffected portability work continues.
 ## Recommended defaults for owner acceptance
+
 Owner authorization, 2026-11-24 (DEC-10): deliver a separate current-feature
 synthetic Synology test distribution through integrated WP-39, including web,
 worker, private gateway, honest availability UI and a new test-only GHCR image.

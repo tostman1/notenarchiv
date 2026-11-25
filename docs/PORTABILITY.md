@@ -1,5 +1,21 @@
 # Shared runtime and Windows distribution
 
+## Verified checkpoint and remaining foundation gates
+
+PR #56/57 are integrated at main
+`ca8647cfb04d26e3d61048e22e8885e6b5c460bb`; exact Main CI 45640472935 passed
+Foundation, Container, Windows shared runtime and changes. This verifies shared
+processing and the implemented boundaries. It does not prove native Windows
+archive publication, packaged desktop installation or physical NAS behavior.
+
+WP-06p tracks the remaining high-priority foundation work. Validate the native
+storage boundary without relaxing reparse/identity/no-clobber/RAW contracts and
+exercise configured roots, initialization/locking, owned loopback lifecycle,
+graceful shutdown and restore on synthetic Windows/Linux inputs. Complete these
+foundation gates before major expanded product work. The final installer remains
+separate distribution acceptance. Region/content architecture and future OCR
+dependencies must preserve these boundaries.
+
 ## Runtime recommendation
 
 Package an application directory with a private Python interpreter, pinned

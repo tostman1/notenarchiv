@@ -1,5 +1,17 @@
 # Project excerpts, exact reprints and contents-only (WP-37c)
 
+## Collections, movements and physical replacements
+
+New EX-11–14 acceptance extends selected positions/participants to their confirmed
+content editions. Keep the common list, contents numbering and stable occurrence
+identity while allowing different instrument pagination. Whole instrumental
+booklet exports belong to independent archive output, not personal project-list
+changes. Distinguish standalone excerpts from insertion-compatible replacements.
+The latter pin the previous final-page parity, binding and template revision,
+with a blocking finding when those cannot be reproduced. Existing exact
+whole-file historical output remains available. Region/collection replay and
+shared-page policies require new tests after DEC-13.
+
 Current project excerpts use the existing central resolver/preflight and WP-36b
 authorization service with kind EXCERPT. Selected active positions × participants
 are pinned together, in shared order with existing numbers. Personal exact editions

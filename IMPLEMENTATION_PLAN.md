@@ -6,6 +6,37 @@
 
 ## 1. Delivery strategy
 
+### Revision-3 rebaseline — 2026-11-25
+
+The owner specification and Appendix A are consolidated in REQUIREMENTS.md.
+Existing completed acceptance remains historical evidence for its original scope.
+New region/collection/template acceptance is not implied by earlier WP completion.
+DEC-13 is the single pending material implementation decision. Preserve routine
+autonomy for consistent work and complete portability first. Do not resume the
+file-level OCR prototype before its page/region assumptions are reconciled.
+WP identifiers are stable and are not execution order. Verified existing maximum
+was WP-53 with lettered packages. New allocations below use previously unused IDs.
+
+| Cohesive delivery boundary | Dependencies and scope | Acceptance boundary |
+| --- | --- | --- |
+| Portability completion | WP-06p with existing WP-06/07/08 contracts | Shared runtime is verified through PR #57. Complete native Windows storage isolation and supervised runtime/profile proof. Final installer and physical NAS remain separate. |
+| Source/content migration | WP-54 extends WP-13/17 | DEC-13 plus portability. Additive schema/backfill, legacy adapter, protected history, interruption/restore parity. Split as a focused high-risk migration increment. |
+| Musical identity and editions | WP-55 extends WP-11/32/35 | WP-54. Collections versus movements, metadata inheritance, ordered multi-source editions and unchanged legacy resolver behavior. |
+| Bounded ingestion and segmentation | WP-24/25 and WP-56 extend WP-15/16/19 | WP-54/55. Region/page evidence, continuations, manual batch ingestion, basic blanks/duplicates, resource bounds and recoverable jobs. |
+| Region review and archive integration | WP-26/27 with WP-20a/b extensions | Prior content/ingestion contracts. Actual-source inspection, revision-bound approval, partial indexing, safe lifecycle and correction. |
+| Universal layout and templates | WP-57 with WP-37a/38a/b extensions | Confirmed content references. One composer/planner, deterministic units, custom geometry and template persistence. |
+| Binding, duplex and imposition | WP-42 with WP-45/46 geometry/preview extensions | Template pipeline. Per-final-page parity, exclusions, cut/fold permutation, odd tails and independent numerical/rendered tests. Actual spooler work stays separately hardware-gated. |
+| Project snapshots and region exports | WP-36a/b and WP-37b/c extensions | Resolver/content/layout contracts. Common order, immutable dual-schema snapshots and granular participant/collection outputs. |
+| Replacement and historical library | WP-39 with remaining WP-45/46 extensions | Prior exports. Explicit standalone/insertion modes, pinned parity, exact replay and stale/affected detection. |
+| Secondary productivity and physical archive | WP-40d/58, then WP-59/60a–c in bounded groups | Core ingestion/layout first. Secondary should-level features retain separate acceptance and do not gate core release. |
+| Stabilization and acceptance | WP-28/40f/47–53 extended | All selected core criteria plus reference scenarios. Private quality, physical printer/NAS and licensing evidence remain distinct. |
+| Deferred backlog | WP-61a–h | Separate prioritization/approval, including important forScore study. No current core-release gate. |
+
+Keep increments moderately sized, typically two to four related WPs, with focused
+commits and targeted checks inside them. Split the above boundaries further if
+migration, security or review risk warrants it. Full regression and required
+exact-head PR/post-merge Main CI apply at integration boundaries.
+
 Build a working vertical slice early: authenticate, index a synthetic source folder into real CLEAN files, visually confirm an assignment, find and download the note. Add the project workflow and PDF output next. Do not wait for perfect OCR or printer support to make the archive useful. Each package is small enough to implement, test and review independently; larger areas use suffix IDs. Existing numbered work-package identifiers are retained where practical; numeric order is **not** execution order. Dependencies and the ordered phase lists are authoritative. All statuses initially Planned; use the work package ID in subsequent progress records.
 
 | Phase | Deliverable / exit gate |
@@ -377,6 +408,13 @@ their separate authorization requirements.
 
 ### WP-24 — Bounded local OCR engine
 
+Rebaseline dependencies include WP-54/55 geometry and content contracts.
+Accept explicit source-page/region selections and complete-source context,
+including cover-only instrument evidence, multiple titles/numbers and continuation
+regions. A fixed first-pages heading scan cannot claim collection coverage.
+Cache by exact source hash, geometry revision/transform, profile/runtime and rules.
+Measure bounds using multi-page/region fixtures and both platform runtimes.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-17, WP-06  
 **Requirements:** AR-08–11, OP-02
 
@@ -385,6 +423,11 @@ their separate authorization requirements.
 **Acceptance / tests:** Synthetic noisy/skewed headings yield candidate text/boxes; no network; timeout, resource limits, language failure and caching tests. OCR not skipped for named scans.
 
 ### WP-25 — OCR job and rule integration
+
+Extend payloads/progress/recovery at page/region granularity after WP-54/55/56.
+Manual batch launch remains independent of a watched inbox. Preserve confirmed
+editions during reanalysis. Resume exact input revisions after cancellation or
+interruption and invalidate obsolete work explicitly.
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-24, WP-15, WP-19  
 **Requirements:** AR-09–11
@@ -395,6 +438,11 @@ their separate authorization requirements.
 
 ### WP-26 — OCR evidence review UI
 
+Extend inspection to source context, segmentation and confirmed region revisions.
+Show region provenance, uncertainty, continuation and conflicts in Deploy/Debug.
+Use the existing review mechanism with additive content boundaries. No confidence
+or thumbnail approval and no unconfirmed musical region in new output.
+
 **Complexity:** S · **Priority:** Required · **Depends on:** WP-25, WP-20b  
 **Requirements:** AR-12–13
 
@@ -404,6 +452,10 @@ their separate authorization requirements.
 
 ### WP-27 — Incremental reindex, integrity and version lifecycle
 
+Include source-page/region/content-edition references and invalidation/backfill
+receipts after WP-54. Basic safe reindex primitives already exist, while full
+lifecycle/integrity remains planned. New evidence does not replace old coverage.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-15, WP-23a, WP-25  
 **Requirements:** GR-06, AR-05, AR-14, AR-17
 
@@ -412,6 +464,10 @@ their separate authorization requirements.
 **Acceptance / tests:** Unchanged hash no routine reprocessing; changed bytes even with same name need review, full scan catches same-size/mtime changes; deletion does not erase copies; corruption surfaced; prior version still referencable.
 
 ### WP-28 — OCR quality and NAS resource measurement
+
+Add collections, shared pages, continuation groups and authorized realistic
+geometry/OCR quality to acceptance. Synthetic deterministic fixtures remain in CI.
+Private real-data measurement and physical NAS acceptance stay independently gated.
 
 **Complexity:** S · **Priority:** Required · **Depends on:** WP-25, WP-22  
 **Requirements:** AR-08, OP-02
@@ -532,6 +588,11 @@ their separate authorization requirements.
 
 ### WP-37a — PDF composition primitives and German contents
 
+Revision-3 extension after WP-54/55/57 consumes confirmed ordered regions/logical
+pages through the existing composer. Preserve vectors, source numbering and
+legacy whole-file behavior. Explicit page-preserving versus content-recomposition
+mode and shared-page policy are new acceptance, including REF-17/18/34/36.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-17, WP-36b  
 **Requirements:** EX-05, EX-07, GR-12
 
@@ -540,6 +601,10 @@ their separate authorization requirements.
 **Acceptance / tests:** Structural tests: reserve numbers appear only in contents, native A3 intact, cover optional, contents pagination, placeholder per missing position; no new marks on music.
 
 ### WP-37b — Personal full-folder generation
+
+Extend the existing single resolver and common project order to content editions
+and collection/movement selections. Different participant pagination must preserve
+identical position order/numbers. New snapshots pin source/region/template revisions.
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-37a, WP-36b  
 **Requirements:** EX-01, EX-09, GR-07–08
@@ -550,6 +615,10 @@ their separate authorization requirements.
 
 ### WP-37c — Project excerpts and contents-only export
 
+Add granular region/movement selection without creating personal project lists.
+Separate standalone excerpts from insertion-compatible replacements with pinned
+earlier parity and binding configuration. Retain exact historical whole-file replay.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-37b  
 **Requirements:** EX-02, EX-04, EX-06
 
@@ -558,6 +627,11 @@ their separate authorization requirements.
 **Acceptance / tests:** Lost ABBA Medley for Riccardo uses assigned Posaune 2; multiple positions/people, no list changes; separate updated contents; no full regeneration required.
 
 ### WP-38a — Regular print layout planner
+
+Keep the verified regular-mode contract and extend the same planner with explicit
+template modes under WP-57/PT-06–10. Source, content, final-page and physical-sheet
+geometry must remain distinct. New n-up and exclusion tests do not replace old
+A4/A3 pairing tests.
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-37a  
 **Requirements:** GR-11, PT-01–02, EX-07
@@ -568,6 +642,10 @@ their separate authorization requirements.
 
 ### WP-38b — Print PDF renderer and manifest
 
+Extend rendering/preview from the exact versioned plan, including region transforms,
+final-page IDs, physical side/slot, duplex flip/cut/fold mapping and optional
+production marks. New schema readers retain legacy plans and immutable manifests.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-38a, WP-37c, WP-23b  
 **Requirements:** EX-07, PT-01–02
 
@@ -576,6 +654,11 @@ their separate authorization requirements.
 **Acceptance / tests:** Page geometry, visual fixtures and reading order verified; no clipping or splitting native A3; downloadable print output works without printer.
 
 ### WP-39 — Export library, targeted regeneration and stale status
+
+Extend stale/affected and targeted regeneration to confirmed region, content and
+template revisions. Retain historical files/snapshots. Detect insertion-incompatible
+replacement geometry and expose a deliberate alternative instead of silently
+changing the physical book.
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-37c, WP-38b, WP-36b  
 **Requirements:** EX-10, GR-15, AR-17, EX-03
@@ -624,6 +707,11 @@ their separate authorization requirements.
 
 ### WP-42 — Marchbook project and print layout
 
+Extend this existing package with template-driven maximum-fit geometry, mirrored
+per-final-page binding, simplex/duplex and cut-and-stack/applicable folded-booklet
+imposition. Include covers/contents/blanks in parity. Validate REF-19–28/35/36
+with independent numerical and rendered fixtures. No competing layout engine.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-38b, WP-41  
 **Requirements:** SC-03, GR-12
 
@@ -662,6 +750,10 @@ their separate authorization requirements.
 
 ### WP-45 — Print preview, submission and status
 
+Add distinct source/content/final-page/sheet front/back preview, exclusions and
+cut/fold aids, warnings versus blocking geometry errors, and insertion replacements.
+Numerical/PDF acceptance is separate from actual spooler/printer acceptance.
+
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-44b, WP-38b, WP-39  
 **Requirements:** PT-03, PT-05
 
@@ -670,6 +762,10 @@ their separate authorization requirements.
 **Acceptance / tests:** Mock order and partial submission; crash/timeout after possible acceptance => UNKNOWN without retry; all output types supported; actual print test only with approval.
 
 ### WP-46 — Explicit A4 fallback and custom media
+
+Evaluate template/custom geometry and each final-page parity under an explicit
+fallback. Preserve native A3 whole and make physical media/scaling consequences
+previewable. Never infer hardware support from synthetic imposition tests.
 
 **Complexity:** M · **Priority:** Required · **Depends on:** WP-45, WP-42  
 **Requirements:** PT-02–04
@@ -742,6 +838,130 @@ their separate authorization requirements.
 **Implement:** Trace all requirements to work/tests; full workflow privately on NAS from copy/review to project, excerpt, marchbook and print; record blockers and actual implemented scope. Recommend version, commit/PR/tag, GHCR publish and manual deployment for approval.
 
 **Acceptance / tests:** All required full-scope gates evidenced or explicitly excluded from a separately approved limited release; acceptance report, release notes, artifact digest, rollback point. Optional WP-43 not a blocker.
+
+## Additive revision-3 packages
+
+### WP-06p — Portability foundation completion
+
+**Requirements:** OP-07, GR-01–04/13–16, OP-02/03/05.
+**Dependencies:** existing WP-06/07, secure file/publication and job contracts.
+**Status:** Partial. PR #56/57 and exact Main CI verify shared PDF/runtime,
+inventory metadata and bounded staging boundaries on the supported backends.
+Implement and verify the remaining native Windows safe-storage boundary and
+trusted configured runtime paths, locking, initialization and managed loopback
+lifecycle proof without weakening NAS mounts/auth/CSRF. Separate writable data
+from installed code. Exercise reparse/symlink escapes, collisions, crash recovery,
+unchanged originals, graceful shutdown and isolated SQLite restore on synthetic
+Windows/Linux inputs. Keep unavailable native functions explicit until equivalent
+acceptance passes. No final installer or physical NAS acceptance in this package.
+
+### WP-54 — Source/page/region model and safe compatibility migration
+
+**Requirements:** GR-16, AR-20/21/26, EX-13, OP-08.
+**Dependencies:** DEC-13, WP-06p, existing WP-13/14/17/47a.
+**Implement:** Add stable source-page, revisioned region/logical-page and ordered
+content-reference identities. Preserve existing file identities/publication
+constraints and introduce the confirmed whole-file compatibility adapter.
+**Acceptance:** Idempotent additive backfill receipts, matching legacy counts,
+hashes/preferences/resolutions, unchanged historical snapshots, interrupted
+migration recovery, isolated restore and tested rollback boundaries. Changed
+source/region revisions invalidate affected new-use eligibility. No real-data migration.
+
+### WP-55 — Collections, work hierarchy and content editions
+
+**Requirements:** AR-25, CAT-05/06, EX-11/12/15.
+**Dependencies:** WP-54 and existing WP-11/21/32/35.
+**Implement:** Independent collection memberships and typed parent/movement/medley
+relationships, metadata inheritance/overrides and multi-source playable editions.
+Extend the existing resolver and preferred-edition rules with the legacy adapter.
+**Acceptance:** 125-piece instrumental booklet and Deutsche Messe scenarios,
+different per-instrument page locations, repeated titles, cycle rejection, partial
+indexing and explicit shared-page policy. Existing simple workflows remain valid.
+
+### WP-56 — Compound ingestion and graphical segmentation
+
+**Requirements:** AR-19–22/25, SC-05/06.
+**Dependencies:** WP-54/55 and existing WP-15/16/17/18/19.
+**Implement:** Reviewable logical-page/group/region proposals and editor through
+existing archive UI, manual batch inputs, continuation handling, blank/duplicate
+classification, ordering, rotation and recoverable page/region analysis.
+**Acceptance:** REF-01–08 and REF-11–16; no dimension-only native-A3 split, no
+automatic deletion/approval, exact input/source history preserved. OCR integration
+is coordinated with WP-24/25; region review with WP-20a/b/26.
+
+### WP-57 — Reusable print-template configuration
+
+**Requirements:** PT-06/07/08/10, EX-13.
+**Dependencies:** WP-54/55 and existing WP-37a/38a/b.
+**Implement:** Template CRUD/duplicate/persistence with explicit physical units,
+all applicable properties in PT-07, validated defaults and snapshot pinning.
+Extend the same planner/composer. Template import/export is should-level.
+**Acceptance:** A5 two-up A4/four-up A3, custom target sizes, invalid geometry,
+maximum proportional fit, mixed source formats and unchanged historical output
+after shared-template edits. Full duplex/cut/fold acceptance extends WP-42.
+
+### WP-40d — Advanced scan assessment and visual duplicates
+
+**Requirements:** AR-23, SC-02.
+**Priority:** Secondary/should. **Dependencies:** core ingestion and WP-40a–c/41.
+**Acceptance:** Reviewable quality warnings and safe correction proposals for the
+listed AR-23 defects, recompressed visual duplicates in REF-09, protected alternate
+editions in REF-10 and no destructive merge. Private quality remains WP-40f.
+
+### WP-58 — Physical archive locations, stock and reports
+
+**Requirements:** CAT-07. **Priority:** Secondary/should.
+**Dependencies:** catalog/edition identity and stable content model.
+**Acceptance:** Configurable searchable location hierarchy, independent digital/
+physical availability, copy/part/condition/acquisition fields and all listed
+inventory reports. Lending is separately deferred WP-61e.
+
+### WP-59 — Stable watched-inbox enhancement
+
+**Requirements:** AR-24. **Priority:** Secondary/should.
+**Dependencies:** WP-15/16/56 and worker recovery/storage contracts.
+**Acceptance:** Incomplete scanner writes are not imported, completed files enter
+review once, history survives restart, duplicates are proposals and manual
+ingestion works with watching disabled. No direct scanner integration.
+
+### WP-60a — Extended musical metadata and search
+
+**Requirements:** CAT-08. **Priority:** Secondary/should.
+Extend existing catalog/library services. Test all new fields, normalization,
+aliases, typo tolerance and combined collection/movement/location filters with
+equal-title identities. External metadata services remain deferred WP-61h.
+
+### WP-60b — Project templates and revision-difference productivity
+
+**Requirements:** PR-08/09. **Priority:** Secondary/should.
+Extend WP-29–39, preserving existing duplication, order, ensemble and stale/
+targeted regeneration evidence. Add reusable templates, grouped exports, print
+estimates and explicit revision comparison with affected participants. Optional
+print-progress tracking does not imply verified physical submission.
+
+### WP-60c — Content-aware archive and project viewer
+
+**Requirements:** UI-05. **Priority:** Secondary/should.
+Extend existing WP-18/20 preview and export viewing after WP-54/55. Test direct
+navigation to song 87, regions and movements, zoom/rotation and source-versus-
+generated context. Performance/offline/annotation mode remains deferred.
+
+### WP-61a–h — Deferred independently prioritized backlog
+
+| WP | Canonical scope | Acceptance before any implementation |
+| --- | --- | --- |
+| WP-61a | AR-27 license/purchase records | Approved legal/usage workflow, no inferred copying permission |
+| WP-61b | AR-28 tabular inventory import | Mapped preview, normalization, matching, errors and import history |
+| WP-61c | AR-29 QR labels/inventory | Stable record/location links and tested label/scanning workflow |
+| WP-61d | EX-15 important forScore interoperability | Officially verified capabilities and approved transfer/version/identity study |
+| WP-61e | CAT-09 lending/return | Separate approved borrower/part/set/date/condition workflow |
+| WP-61f | SC-07 scanner/smartphone acquisition | Approved platform integration and privacy/resource assessment |
+| WP-61g | UI-06 performance/annotations | Approved offline/tablet/setlist/synchronization and annotation scope |
+| WP-61h | AR-30 external metadata | Approved service/privacy/cost and identifier compatibility assessment |
+
+All are deferred and require separate prioritization. They do not gate the core
+release. Preserve stable identities and extension points without implementing
+speculative integrations.
 
 ## 3. WP-01 — immediate implementation checklist
 

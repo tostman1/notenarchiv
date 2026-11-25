@@ -1,5 +1,12 @@
 # Dependency-aware delivery sequence
 
+Current execution authority and dependency order are the revision-3 rebaseline
+in IMPLEMENTATION_PLAN.md and DEC-12/13. Portability remains first. Source/content
+compatibility precedes region OCR, and template geometry precedes extended physical
+printing. Earlier separate-PR and stop-after-WP instructions below are historical
+and are superseded by standing autonomy and cohesive package boundaries in
+AGENTS.md/PROCESS.md. Existing WPs and their evidence remain intact.
+
 Owner authorization 2026-11-23: WP-38a → WP-38b → WP-39 sequentially, separate
 primary-worktree branches/PRs, reviewed exact-head CI and post-merge main CI.
 WP-37c PR #47 already merged at `06e8b3546d690d9395515fe9cce708ca8a8da27a`;

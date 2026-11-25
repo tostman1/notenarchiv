@@ -6,6 +6,46 @@ reflect actual completed work only.
 
 ## Autonomous continuation — 2026-11-25
 
+### Current requirements checkpoint
+
+The owner supplied the complete extended specification including Appendix A.
+Consolidation is in progress on `codex/requirements-rebaseline` from verified main
+`ca8647cfb04d26e3d61048e22e8885e6b5c460bb`.
+PR #57 merged at that SHA; exact Main CI 45640472935 passed Foundation, Container,
+Windows shared runtime and changes. PR #56's Main CI 45633095503 also passed.
+There were no open PRs at the rebaseline inspection.
+
+Requirements revision 3 and its source-alias crosswalk preserve EXT-01–18,
+FUT-01–07, REF-01–36 and unnumbered clauses. Architecture and WPs are rebaselined
+for source/page/region/content independence, safe additive compatibility,
+collections/movements and template-driven layout. New acceptance is planned,
+not retrospectively verified by old test names. DEC-13 records one material
+content-model/confirmation/layout implementation decision. Existing consistent
+development autonomy continues and WP-06p portability completion remains first.
+
+The incomplete file-heading OCR draft and dependency changes were preserved in
+local Git stash `d36f3b56e06cdfbf3a1f26950e6950fe6059f0c0` from
+`codex/ocr-workflow`. It is unintegrated, unverified, has no registered product
+entry point and is not a remote transfer artifact. Reassess it after content/
+region contracts. Do not restore it over the requirements branch or claim WP-24
+implemented. Source, test and private data were not discarded.
+
+The tool runtime update removed the earlier bundled Python location. The existing
+local venv was rebound to the new bundled Python 3.12.14 using uv --allow-existing;
+locked offline sync passed. The lost Main waiter had no surviving process/result.
+Its bounded replacement verified the same exact merge SHA without rerunning CI.
+The ignored successful commit-message file was removed under the latest AGENTS rule.
+
+Next actions are to validate/integrate this single coherent consolidation boundary,
+continue unaffected WP-06p, and obtain DEC-13 before expanded content migrations
+or file-level OCR implementation that would cement superseded assumptions.
+The structural checker reports 119 unique canonical requirement definitions and
+61 source aliases without missing/duplicate IDs, WPs, headings or evidence paths.
+Its five regressions and two existing workflow contract tests passed. Ruff
+lint/format and whitespace review passed. Application behavior is unchanged, so
+the verified baseline suites are reused locally. Required exact-head CI and
+post-merge Main CI remain separate integration gates.
+
 PR #56 integrated the first shared-runtime increment at
 `f158db807bb296a4ee445faa2eaeb3ec8312c54e`. Exact-head PR CI
 `45628909037` passed Foundation, Container, changes and Windows runtime checks.
