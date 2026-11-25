@@ -22,8 +22,11 @@ from __future__ import annotations
 import os
 import re
 import secrets
+import stat
 from dataclasses import dataclass
 from pathlib import Path
+
+from core.naming import RESERVED
 
 PROFILES = ("nas", "local")
 
@@ -296,6 +299,39 @@ def _read_secret_key(path: Path) -> str:
 
 def _validate_local_paths(roots, database, secret, logs):
     """Reject conflicting configured write targets before local initialization."""
+    for path in (*roots.values(), database, secret, logs):
+        if ".." in path.parts:
+            raise ConfigError("Local runtime paths must not contain parent traversal")
+        if os.name == "nt":
+            for component in path.parts:
+                if component == path.anchor:
+                    continue
+                if (
+                    component.endswith((" ", "."))
+                    or RESERVED.match(component)
+                    or any(char in '<>:"|?*' or ord(char) < 32 for char in component)
+                ):
+                    raise ConfigError("Local runtime paths contain an unsupported Windows name")
+        absolute = path.absolute()
+        for component in (absolute, *absolute.parents):
+            try:
+                info = component.lstat()
+            except FileNotFoundError:
+                continue
+            except OSError:
+                raise ConfigError("Local runtime path metadata is unavailable") from None
+            reparse_point = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & reparse_point:
+                raise ConfigError("Local runtime paths must be free of links and reparse points")
+    for path in (database, secret):
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError:
+            raise ConfigError("Local runtime file metadata is unavailable") from None
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ConfigError("Local runtime database and secret must be single-link regular files")
     resolved = [(name, path.resolve()) for name, path in roots.items()]
     for index, (name, path) in enumerate(resolved):
         for other_name, other in resolved[index + 1 :]:

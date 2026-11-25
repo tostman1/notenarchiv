@@ -52,6 +52,10 @@ conclusion. Incomplete responses (including more than 100 checks/jobs), ambiguou
 duplicate names, and invalid SHA evidence fail closed with exit 6; the waiter
 does not infer success from truncated pages or fetch missing Git objects.
 
+For shared-runtime and platform changes, add
+`--required "Windows (shared runtime)"` to the exact-SHA waiter command so that
+the Windows job is explicitly required alongside Foundation and Container.
+
 ## Tool timeout and background waiting
 
 The shell tool timeout must exceed the wait. If the available tool cannot

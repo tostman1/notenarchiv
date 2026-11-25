@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pytest
 from django.conf import settings
 
@@ -166,6 +168,49 @@ class TestHostAndBinding:
         configured = {name: str(root / value) for name, value in overrides.items()}
         with pytest.raises(ConfigError):
             parse_env(local_env(root, **configured))
+        assert not root.exists()
+
+    @pytest.mark.parametrize("target", ["database", "secret"])
+    def test_local_runtime_rejects_hardlinked_files_without_modification(self, tmp_path, target):
+        root = tmp_path / "runtime"
+        root.mkdir()
+        original = tmp_path / "original"
+        original.write_bytes(b"Synthetic retained bytes")
+        linked = root / ("data.sqlite3" if target == "database" else "secret.key")
+        linked.hardlink_to(original)
+        overrides = {"DATABASE_PATH": str(linked)} if target == "database" else {}
+        with pytest.raises(ConfigError, match="single-link regular files"):
+            parse_env(local_env(root, **overrides))
+        assert original.read_bytes() == b"Synthetic retained bytes"
+        assert not (root / "raw").exists()
+
+    def test_linked_local_root_is_rejected_before_secret_creation(self, tmp_path):
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        linked = tmp_path / "linked"
+        try:
+            linked.symlink_to(outside, target_is_directory=True)
+        except OSError:
+            pytest.skip("Creating synthetic symlinks requires platform permission")
+        with pytest.raises(ConfigError, match="links and reparse points"):
+            parse_env(local_env(linked))
+        assert list(outside.iterdir()) == []
+
+    def test_local_path_metadata_errors_use_fixed_configuration_message(self, tmp_path, monkeypatch):
+        def denied(*args, **kwargs):
+            raise PermissionError("Synthetic private path")
+
+        monkeypatch.setattr("config.env.Path.lstat", denied)
+        with pytest.raises(ConfigError, match="Local runtime path metadata is unavailable") as error:
+            parse_env(local_env(tmp_path))
+        assert "Synthetic private path" not in str(error.value)
+
+    @pytest.mark.skipif(os.name != "nt", reason="Windows namespace normalization")
+    @pytest.mark.parametrize("source", ["raw.", "raw /nested", "CON", "COM1.txt", "raw:stream", "raw?"])
+    def test_windows_namespace_aliases_fail_before_initialization(self, tmp_path, source):
+        root = tmp_path / "uninitialized"
+        with pytest.raises(ConfigError, match="unsupported Windows name"):
+            parse_env(local_env(root, SOURCE_DIR=str(root / source), CURATED_DIR=str(root / "raw")))
         assert not root.exists()
 
     def test_boolean_flag_validation(self, tmp_path) -> None:
