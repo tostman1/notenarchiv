@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+Shared-runtime portability: `tests/test_pdf.py::test_vector_text_and_image_only_scan_are_distinct`
+exercises the actual isolated PDF worker from a foreign working directory;
+`tests/test_release.py::test_web_requires_initialized_database` verifies migration
+checks select the installed entry point regardless of launcher directory.
+
 ## Development governance: deterministic CI waiting
 
 DEC-08/DEC-11, GR-14, AGENTS.md, docs/PROCESS.md, docs/standard-checks.md:

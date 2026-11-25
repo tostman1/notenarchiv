@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+from pathlib import Path
 
 
 def ensure_database_ready(env):
@@ -9,7 +10,7 @@ def ensure_database_ready(env):
         raise RuntimeError("Initialize the database with the migration service first")
     try:
         subprocess.run(
-            [sys.executable, "manage.py", "migrate", "--check", "--noinput"],
+            [sys.executable, str(Path(__file__).resolve().parents[1] / "manage.py"), "migrate", "--check", "--noinput"],
             check=True,
             timeout=30,
             stdout=subprocess.DEVNULL,

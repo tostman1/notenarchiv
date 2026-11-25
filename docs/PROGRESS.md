@@ -4,6 +4,34 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## Autonomous continuation — 2026-11-25
+
+The owner accepted takeover and authorized controlled P0 integration at
+`b9e9e9d84818fcdb006933d016fa02863c4b2db5`. PR #55 merged at
+`cca4fa9bd4026f2d7361459280cab5136c2aacb3`. Exact post-merge Main CI
+`45621767958` passed Foundation, Container and changes at that exact SHA.
+The original wait was interrupted with the chat; its controlled replacement
+completed with exit 0 and compact local evidence under `.dev/ci-wait/`.
+Portability work is in progress on `codex/portability-foundation`.
+The owner authorized compliant package implementation and merges through product
+completion, with portability preceding WP-24. Physical acceptance and deployment
+retain separate authorization gates.
+
+The first portability increment removes working-directory assumptions in PDF
+children and migration checks, adds Windows runtime CI and records distribution
+requirements, packaging choices and outstanding native storage contracts.
+Two focused Windows regressions, locked environment sync, Ruff and Django
+system/migration checks passed. Full local Windows regression passed with
+904 tests and 129 platform skips. Actionlint and both workflow contract tests
+passed. Separate Windows browser acceptance passed with 22 tests and four
+POSIX skips. PR CI and integration of this increment remain pending.
+The first local suite produced no terminal result and was terminated without
+a success claim. Its verbose replacement identified a Windows socketpair
+accept blocked inside the sandbox in test_gateway.py. The full suite was
+restarted with approved loopback access and a 120-second stack diagnostic.
+Installed Windows distribution, native archive publication and NAS acceptance
+remain outstanding. Earlier transfer entries below describe historical snapshots.
+
 ## Current transfer summary — 2026-11-25
 
 - Latest snapshot: `docs/HANDOFF.md`; branch `fix/ci-waiter-p0`, PR #55 open.

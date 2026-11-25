@@ -1,5 +1,6 @@
 """Release policy and container startup checks without Docker or real data."""
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -25,9 +26,11 @@ def test_web_requires_initialized_database(tmp_path, monkeypatch):
         ensure_database_ready(env)
     assert not env.database_path.exists()
     env.database_path.touch()
+    monkeypatch.chdir(tmp_path)
     calls = []
     monkeypatch.setattr("config.container.subprocess.run", lambda *args, **kwargs: calls.append((args, kwargs)))
     ensure_database_ready(env)
+    assert Path(calls[0][0][0][1]) == Path(__file__).resolve().parents[1] / "manage.py"
     assert "--check" in calls[0][0][0] and calls[0][1]["timeout"] == 30
 
 
