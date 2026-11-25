@@ -129,6 +129,21 @@ reflect actual completed work only.
   verified version tag equals published immutable digest. Local cryptographic
   source/SBOM attestations verified against exact original source/signer workflow.
   New Linux CI must also parse all multiline release shell blocks with bash -n.
+- **Completed / verified test distribution, 2026-11-25:** PR #52 merged
+  `01a00d9a585bd9c7c42e3cbf8f5934860309239c`, exact-head CI `45421346339` and
+  main CI `45424991627` passed. Recovery `45434860531` succeeded using original
+  candidate archive/hash, no rebuild/overwrite; published-digest full stack passed
+  again and prerelease installation assets are available. Independently verified
+  all seven asset hashes, six safe bundled files vs exact tag source, standalone
+  Compose/guide/digest equality, final source Compose, 50-component SBOM and
+  signed recovery origin with original source/artifact pin. Bundle hash and URLs
+  recorded in docs/RELEASES.md. Image remains `0.1.0-test.1` / digest `f628501d…`.
+- Resume after server restart preserved already-completed release and PR #53 CI
+  governance work; no repeat publication, test rebuild or unrelated edits. Final
+  work is documentation only. Primary worktree returns clean/synchronized main
+  after its exact-head/documentation CI. Stop this package; physical DS224+ DSM,
+  ACL/network/TLS, SQLite/WAL, resources/recovery and restore acceptance remains
+  owner-side. No real data or NAS deployment performed.
 
 ## Owner-approved print PDF and export management — 2026-11-23
 - WP-38b integrated PR #49 as `bacc597b7bad28eece48c34271b1b344c7555417`;

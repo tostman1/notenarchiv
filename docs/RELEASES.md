@@ -28,11 +28,30 @@ Original verified-container artifact `14932487454`, archive digest
 `sha256:a6379515a170ac09badf649f7d3175672b2e379ac59e629db5954d5eaf6d33b5`.
 Published-evidence artifact `14933417646`, archive digest
 `sha256:f5856cacdbb1b66fa4c86b64ec2b14483ee50edd8f90bb5bda408de68a7812d7`.
-**Packaging completion pending:** only the original announcement shell failed
+**Packaging completed and verified:** only the original announcement shell failed
 on an indented heredoc after checks, publication, pulled-stack and attestations
-had succeeded. PR #52 fixes the shell and pins source install Compose to the
-real digest. Recovery must reuse the original hash-verified candidate, preserve
-image/tag and publish the final installation assets; no completion claimed yet.
+had succeeded. PR #52 merged as `01a00d9a585bd9c7c42e3cbf8f5934860309239c`,
+final PR CI `45421346339` and main CI `45424991627` passed. Successful recovery
+`45434860531` reused the SHA-256-verified original candidate, preserved image/tag,
+pulled and exercised the published digest again, signed recovery provenance/SBOM
+and published all installation assets. No application rebuild or NAS deployment.
+
+- [Test prerelease](https://github.com/tostman1/notenarchiv/releases/tag/v0.1.0-test.1)
+- [Complete installation bundle](https://github.com/tostman1/notenarchiv/releases/download/v0.1.0-test.1/notenarchiv-synology-test.tar.gz)
+- [Finished Compose file](https://github.com/tostman1/notenarchiv/releases/download/v0.1.0-test.1/compose.yaml)
+- [German installation guide](https://github.com/tostman1/notenarchiv/releases/download/v0.1.0-test.1/README.de.md)
+- [Successful completion workflow](https://github.com/tostman1/notenarchiv/actions/runs/45434860531)
+
+Final verification, 2026-11-25: all seven downloaded release assets match GitHub's
+SHA-256 metadata. Bundle SHA-256:
+`81a5d62579cf35390871b644869a76b3205cfaf3db7e27d4e96026c9f79cce04`.
+Its six regular files match original tag source (Compose receives only the
+verified digest/comment substitution); separately distributed Compose/guide/digest
+match the bundle. Source Compose equals the final released Compose, with no .env
+or unpublished reference. The 50-component CycloneDX SBOM and metadata identify
+Linux/amd64, non-root default, exact original source and version. The signed
+verified-release recovery predicate was cryptographically verified and pins the
+original artifact/hash and source; source and SBOM signatures were also verified.
 
 Final source Compose: `deploy/synology-test/compose.yaml`; German guide:
 `deploy/synology-test/README.de.md`. The separately published installation bundle
