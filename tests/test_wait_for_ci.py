@@ -75,7 +75,21 @@ def pr_body(sha=None):
 
 
 def check_runs(pr_sha, runs):
+    if any(r["name"] == "Foundation (ruff + pytest)" for r in runs) and not any(
+        r["name"] == "Container (amd64 + security + synthetic smoke)" for r in runs
+    ):
+        runs = [*runs, run_check("Container (amd64 + security + synthetic smoke)", "completed", "success")]
     return {"total_count": len(runs), "check_runs": runs}
+
+
+def jobs_body():
+    return {
+        "total_count": 2,
+        "jobs": [
+            run_check(name, "completed", "success")
+            for name in ("Foundation (ruff + pytest)", "Container (amd64 + security + synthetic smoke)")
+        ],
+    }
 
 
 def run_check(name, status, conclusion, sha=None):
@@ -288,7 +302,7 @@ def test_run_mode_success_bound_to_sha():
         "name": "CI",
         "html_url": f"https://github.com/{REPO}/actions/runs/777",
     }
-    scenarios = [response(run_body)]
+    scenarios = [response(run_body), response(jobs_body())]
     payload = run(
         config(mode="run", run_id=777, pr=None),
         transport_from(scenarios, list()),
@@ -304,7 +318,7 @@ def test_run_mode_success_bound_to_sha():
 def test_run_mode_not_discoverable_yet_is_pending_then_success():
     clock = FakeClock()
     run_body = {"status": "completed", "conclusion": "success", "head_sha": SHA, "name": "CI", "html_url": "u"}
-    scenarios = [Response(404, {}, b"{}"), lambda m, u, h: response(run_body)]
+    scenarios = [Response(404, {}, b"{}"), lambda m, u, h: response(run_body), response(jobs_body())]
     payload = run(
         config(mode="run", run_id=778, pr=None, initial_delay=0.0),
         transport_from(scenarios, list()),

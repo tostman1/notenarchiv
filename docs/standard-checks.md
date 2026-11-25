@@ -38,10 +38,19 @@ logs and do not re-download the same logs.
 | Switch to long interval | `--long-after` | 600 s elapsed |
 | Maximum wait duration | `--max-duration` | 1800 s (30 min) |
 | Transient network failures | `--transient-retries` | 3, exponential backoff from `--interval` |
-| Required checks (mode=pr) | `--required` | `Foundation (ruff + pytest)` |
+| Required checks (both modes) | `--required` | `Foundation (ruff + pytest)` and `Container (amd64 + security + synthetic smoke)`; repeatable additions cannot remove these gates |
 
 The waiter handles all delays internally. One waiting period is one invocation;
 never split it into repeated short LLM-driven polls.
+
+PR mode permits missing/skipped Container only after independently verifying the
+workflow's direct base/head Git diff using locally available exact commit objects,
+the existing `ci_changes.docs_only` allowlist, and a successful `changes` job.
+Unavailable or invalid classification evidence requires full scope. Run mode
+always requires full scope and validates individual jobs, not just the aggregate
+conclusion. Incomplete responses (including more than 100 checks/jobs), ambiguous
+duplicate names, and invalid SHA evidence fail closed with exit 6; the waiter
+does not infer success from truncated pages or fetch missing Git objects.
 
 ## Tool timeout and background waiting
 
