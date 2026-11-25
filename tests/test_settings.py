@@ -151,6 +151,35 @@ class TestHostAndBinding:
         with pytest.raises(ConfigError, match="OCR_DPI"):
             parse_env(local_env(tmp_path, OCR_DPI="0"))
 
+    def test_local_paths_keep_startup_locations_after_working_directory_changes(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        parsed = parse_env(
+            {"NOTENARCHIV_PROFILE": "local", "NOTENARCHIV_LOCAL_ROOT": "synthetic", "SOURCE_DIR": "raw-alternate"}
+        )
+        expected_source = tmp_path / "raw-alternate"
+        expected_data = tmp_path / "synthetic"
+        other = tmp_path / "different-start"
+        other.mkdir()
+        monkeypatch.chdir(other)
+        assert parsed.source_dir == expected_source
+        assert parsed.database_path == expected_data / "datenarchiv.sqlite3"
+        assert parsed.secret_key_file == expected_data / "secret.key"
+        assert parsed.log_dir == expected_data / "logs"
+        assert all(
+            path.is_absolute()
+            for path in (
+                parsed.source_dir,
+                parsed.curated_dir,
+                parsed.processed_dir,
+                parsed.status_dir,
+                parsed.export_dir,
+                parsed.database_path,
+                parsed.secret_key_file,
+                parsed.log_dir,
+            )
+        )
+        assert list(other.iterdir()) == []
+
     @pytest.mark.parametrize(
         "overrides",
         [

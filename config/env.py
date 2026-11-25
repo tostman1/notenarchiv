@@ -232,6 +232,16 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
             "EXPORT_DIR": export_dir,
         }
         _validate_local_paths(roots, database_path, secret_file, log_dir)
+        roots = {name: path.absolute() for name, path in roots.items()}
+        source_dir = roots["SOURCE_DIR"]
+        curated_dir = roots["CURATED_DIR"]
+        processed_dir = roots["PROCESSED_DIR"]
+        status_dir = roots["STATUS_DIR"]
+        export_dir = roots["EXPORT_DIR"]
+        database_path = database_path.absolute()
+        secret_file = secret_file.absolute()
+        secret_key_file = secret_file
+        log_dir = log_dir.absolute()
         secret_key = _read_local_secret(secret_file)
         # The local profile is explicitly selected for development; its
         # synthetic roots and the database directory are created on first

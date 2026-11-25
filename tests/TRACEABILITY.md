@@ -1,5 +1,18 @@
 # Implemented acceptance traceability
 
+## Portable filesystem consumers
+
+`tests/test_backup_inventory_contract.py` exercises bounded traversal,
+exclusions, directory replacement/mutation and unsafe metadata on both platforms.
+`tests/test_marker_files.py` covers POSIX STATUS creation/known replacement,
+foreign-content preservation and uncertain replacement errors without false
+no-effect classification. `tests/test_root_directories.py` covers actual backend
+identity, private-directory permissions, read-only denial and link rejection.
+Existing indexing, publication, download and backup/restore suites remain gates.
+The relative-path regression in `tests/test_settings.py` checks startup-pinned
+local roots, database, secret and logs after a working-directory change.
+These tests do not establish a native Windows writable backend or NAS acceptance.
+
 ## Portable runtime path initialization
 
 `tests/test_settings.py` exercises nested/aliasing archive roots, database/secret/

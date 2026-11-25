@@ -24,6 +24,10 @@ class FileError(ValueError):
         super().__init__(code)
 
 
+class MarkerConflict(FileError):
+    """A validated conflict before final marker publication."""
+
+
 def fingerprint(info):
     return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
 
@@ -93,6 +97,64 @@ class Root:
     def metadata(self, path):
         with self.parent(path) as (parent, name):
             return os.stat(name, dir_fd=parent, follow_symlinks=False)
+
+    def root_metadata(self):
+        if self.fd is None:
+            raise FileError("UNSAFE_ROOT")
+        return os.fstat(self.fd)
+
+    def ensure_private_directory(self, path):
+        """Create or validate an owned private child of a writable root."""
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        with self.parent(path) as (parent, name):
+            try:
+                os.mkdir(name, 0o700, dir_fd=parent)
+                os.fsync(parent)
+            except FileExistsError:
+                pass
+            try:
+                descriptor = os.open(name, self._directory_flags, dir_fd=parent)
+            except OSError:
+                raise FileError("UNSAFE_ROOT") from None
+            try:
+                info = os.fstat(descriptor)
+                if info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) & 0o077:
+                    raise FileError("UNSAFE_STAGING")
+            finally:
+                os.close(descriptor)
+
+    def prepare_parent(self, path):
+        with self.parent(path, create=True):
+            pass
+
+    def publish_marker(self, staged_path, path, *, expected_identity, previous, temporary):
+        """Replace known metadata only; uncertain I/O errors stay uncertain."""
+        _staging(staged_path)
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        if (
+            PurePosixPath(relative_path(path)).suffix not in {".json", ".txt"}
+            or len(PurePosixPath(relative_path(temporary)).parts) != 1
+        ):
+            raise FileError("UNSAFE_DESTINATION")
+        current = fingerprint(self.metadata(path)) if self.exists(path) else None
+        if current != previous or self.directory_spelling(path) != path:
+            raise MarkerConflict("MARKER_CHANGED")
+        with self.parent(staged_path) as (source_parent, source_name), self.parent(path) as (parent, target):
+            info = os.stat(source_name, dir_fd=source_parent, follow_symlinks=False)
+            if not stat.S_ISREG(info.st_mode) or identity(info) != expected_identity or info.st_nlink != 1:
+                raise MarkerConflict("STAGING_CHANGED")
+            if previous is None and self.collides(path):
+                raise MarkerConflict("DESTINATION_EXISTS")
+            link_target = target if previous is None else temporary
+            try:
+                os.link(source_name, link_target, src_dir_fd=source_parent, dst_dir_fd=parent, follow_symlinks=False)
+            except FileExistsError:
+                raise MarkerConflict("DESTINATION_EXISTS") from None
+            if previous is not None:
+                os.replace(temporary, target, src_dir_fd=parent, dst_dir_fd=parent)
+            os.fsync(parent)
 
     @contextmanager
     def directory_entries(self, path):

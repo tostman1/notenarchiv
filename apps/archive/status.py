@@ -2,8 +2,6 @@
 
 import hashlib
 import json
-import os
-import stat
 from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid5
@@ -23,7 +21,7 @@ def open_status(roots):
     if any(path.is_relative_to(root.path) or root.path.is_relative_to(path) for root in roots.values()):
         raise files.FileError("OVERLAPPING_ROOTS")
     with files.Root(path, writable=True) as root:
-        if files.identity(os.fstat(root.fd)) in {files.identity(os.fstat(other.fd)) for other in roots.values()}:
+        if files.identity(root.root_metadata()) in {files.identity(other.root_metadata()) for other in roots.values()}:
             raise files.FileError("OVERLAPPING_ROOTS")
         yield root
 
@@ -96,26 +94,12 @@ def publish_status(context, root, record):
                 else:
                     files.discard_stage(root, old_stage, files.identity(info))
         stage_path = f".staging/{identifier.hex}/attempt-{context.attempt_number}.pdf"
-        with root.parent(stage_path, create=True) as (parent, stage_name):
-            descriptor = os.open(stage_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-            try:
-                remaining = memoryview(data)
-                while remaining:
-                    count = os.write(descriptor, remaining)
-                    if count <= 0:
-                        raise files.FileError("FILE_IO")
-                    remaining = remaining[count:]
-                os.fchmod(descriptor, 0o440)
-                os.fsync(descriptor)
-                identity = files.identity(os.fstat(descriptor))
-            finally:
-                os.close(descriptor)
-            os.fsync(parent)
+        written = root.write_stage(stage_path, (data,), maximum=16_384, checkpoint=context.checkpoint)
+        identity = files.identity(written)
         staged_data, staged_info = root.read(stage_path, maximum=16_384, checkpoint=context.checkpoint)
         if staged_data != data or files.identity(staged_info) != identity:
             raise files.FileError("STATUS_CONFLICT")
-        with root.parent(path, create=True):
-            pass
+        root.prepare_parent(path)
 
         def apply(
             path=path,
@@ -127,27 +111,16 @@ def publish_status(context, root, record):
             data=data,
         ):
             try:
-                current = files.fingerprint(root.metadata(path)) if root.exists(path) else None
-                if current != previous or root.directory_spelling(path) != path:
-                    raise lifecycle.NoEffect("STATUS changed before publication")
-                with root.parent(stage_path) as (stage_parent, stage_name), root.parent(path) as (parent, target):
-                    info = os.stat(stage_name, dir_fd=stage_parent, follow_symlinks=False)
-                    if not stat.S_ISREG(info.st_mode) or files.identity(info) != identity or info.st_nlink != 1:
-                        raise lifecycle.NoEffect("STATUS staging changed")
-                    if previous is None:
-                        if root.collides(path):
-                            raise lifecycle.NoEffect("STATUS destination exists")
-                        os.link(stage_name, target, src_dir_fd=stage_parent, dst_dir_fd=parent, follow_symlinks=False)
-                    else:
-                        temporary = ".index-status-" + identifier.hex
-                        os.link(
-                            stage_name, temporary, src_dir_fd=stage_parent, dst_dir_fd=parent, follow_symlinks=False
-                        )
-                        os.replace(temporary, target, src_dir_fd=parent, dst_dir_fd=parent)
-                    os.fsync(parent)
+                root.publish_marker(
+                    stage_path,
+                    path,
+                    expected_identity=identity,
+                    previous=previous,
+                    temporary=".index-status-" + identifier.hex,
+                )
                 return {"sha256": payload["sha256"], "size": len(data)}
-            except FileExistsError:
-                raise lifecycle.NoEffect("STATUS destination exists") from None
+            except files.MarkerConflict as error:
+                raise lifecycle.NoEffect(f"STATUS publication conflict ({error.code})") from None
 
         context.publish(key, payload, apply)
         files.release_stage(root, stage_path, path)
