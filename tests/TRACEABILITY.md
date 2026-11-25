@@ -37,6 +37,14 @@ Drivers: `scripts/synology_stack_smoke.py`, `browser/synology_stack.cjs`,
 `tests/test_review_publication.py`. NAS hardware acceptance remains unverified.
 Publication requires separate exact-source candidate and published-digest checks.
 
+Publication software gate verified: original tag-source checks and image export
+`45415635235`, complete published-digest stack and immutable candidate recovery
+`45434860531`. PR #52 head/main `45421346339` / `45424991627` also passed the
+release bash syntax regression. All seven distributed assets/hash metadata and
+six bundle files checked against exact original source; the released Compose
+pins the real GHCR digest and equals repository source. See docs/RELEASES.md for
+exact source/digest/bundle hash and signed evidence. No physical NAS claim.
+
 ## WP-39 export library (verification in progress)
 
 - EX-10/GR-15/AR-17: `test_export_library.py` verifies specific per-person part/edition/
