@@ -4,6 +4,29 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## Current transfer summary — 2026-11-25
+
+- Latest snapshot: `docs/HANDOFF.md`; branch `fix/ci-waiter-p0`, PR #55 open.
+  Compare all work from verified main `0d24dae03711254e48a0c167c36ff44a74de4600`
+  (PR #54, Main CI `45574328173` success). Reported earlier main `3dc3eb4…`
+  (PR #53/Main CI `45512749289`) is superseded only by release-evidence docs.
+- PR #53 completed governance consolidation and deterministic SHA-bound waiting
+  (DEC-11, PROCESS, standard-checks, existing waiter); no gates/permissions weakened.
+- Current software integration includes WP-33c/d, WP-36a/b, WP-37a–c, WP-38a/b,
+  WP-39 (PR #50, `fd0ed9ce0b4efeb05c7210f237dcb7896c38a31a`) and current-feature
+  synthetic web/worker/TLS distribution PR #51/52. Older pending/preview rows below
+  are historical, not current status. WP-47a software backup is complete; physical
+  NAS/full operations remain separate. Release/digest evidence: RELEASES.md.
+- No unfinished product implementation is being transferred. P0 implementation
+  `fa675797c2f310ce476deaf4d3aebb402d23b585` is local-tested/pushed, not merged;
+  explicit separate merge authorization remains required. Transfer docs do not
+  authorize P1/P2, a new package, release or NAS use. Final marker CI is separate
+  from implementation evidence and remains discoverable in exact-head PR checks.
+- Remaining planned features: OCR/full integrity, scan enhancement, actual
+  marchbook output and physical printing; NAS/quality/restore/load/license/product
+  decisions remain as detailed in HANDOFF and DECISIONS. Recommend owner-approved
+  WP-24 next after P0 integration; no implementation started here.
+
 ## Workflow efficiency P0 — CI waiter hardening (2026-11-25)
 
 - Baseline `0d24dae03711254e48a0c167c36ff44a74de4600`; branch `fix/ci-waiter-p0`.
