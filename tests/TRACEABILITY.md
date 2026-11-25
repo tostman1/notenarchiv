@@ -1,5 +1,15 @@
 # Implemented acceptance traceability
 
+## Portable runtime path initialization
+
+`tests/test_settings.py` exercises nested/aliasing archive roots, database/secret/
+log collisions, hardlinked runtime files and linked-root rejection before secret
+or directory creation, fixed metadata errors and Windows namespace aliases.
+With `tests/test_validate_config.py`, 53 targeted Windows
+checks passed using real synthetic links under approved native access.
+These are initialization checks, not evidence of native Windows publication,
+desktop packaging or physical NAS safety acceptance.
+
 ## Revision-3 acceptance delta
 
 The complete source-alias and reference-scenario matrix is

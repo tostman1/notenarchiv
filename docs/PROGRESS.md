@@ -8,6 +8,25 @@ reflect actual completed work only.
 
 ### Current requirements checkpoint
 
+Unaffected WP-06p continuation is on `codex/portable-runtime-roots`, based on
+requirements commit `61cbe8d05ef7e1bfb6882f5628a94fdeaabde035` in PR #58.
+The documentation PR keeps its existing exact-SHA waiter.
+Focused commit `2585645` moves local initialization path validation ahead of
+secret creation. The same increment adds link/reparse and runtime hardlink guards.
+Forty-six targeted Windows configuration checks passed. The two sandbox hardlink
+setup failures were recovered by running the unchanged tests with approved native
+access. Ruff lint/format and whitespace checks passed.
+The full local regression at the link-guard checkpoint passed with 921 tests and
+133 platform skips. Subsequent fixed-error and Windows-namespace changes passed
+53 focused configuration tests. Separate browser acceptance on the final guard
+implementation passed with 22 tests and four POSIX skips. Django system and
+migration drift checks passed. Final exact-head CI and integration remain pending.
+
+Native Windows storage, independent RAW denial, supervised desktop/runtime proof
+and packaged acceptance remain separate open gates. The configuration guards
+do not complete WP-06p. DEC-13 remains the consolidated decision for expanded
+content/region/layout implementation; consistent portability work continues.
+
 The owner supplied the complete extended specification including Appendix A.
 Consolidation is in progress on `codex/requirements-rebaseline` from verified main
 `ca8647cfb04d26e3d61048e22e8885e6b5c460bb`.

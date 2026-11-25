@@ -1,5 +1,23 @@
 # Shared runtime and Windows distribution
 
+## Local initialization guard increment
+
+The local synthetic profile validates archive-root nesting and database/secret/
+log separation before creating its secret or directories. It rejects configured
+parent traversal, existing symlink/reparse components and non-regular or hardlinked
+runtime files. Fifty-three targeted Windows configuration checks passed, including
+real synthetic hardlinks and a linked-root test with no initialization writes.
+Windows reserved names, alternate-stream syntax and trailing-dot/space aliases
+are rejected before lookup/creation. Metadata errors use fixed messages.
+Sandbox-denied hardlink setup was rerun with approved native access.
+
+These are configuration-time guards. Native handle-relative access, independent
+RAW write denial, publication/recovery and packaged runtime acceptance still need
+their own WP-06p verification. A local read-only directory-handle probe confirmed
+stable inode identity while exposing different timestamp precision between
+descriptor and path metadata. The Windows backend must use consistent high-
+precision handle metadata and validate mutation/race behavior.
+
 ## Verified checkpoint and remaining foundation gates
 
 PR #56/57 are integrated at main

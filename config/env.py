@@ -22,8 +22,11 @@ from __future__ import annotations
 import os
 import re
 import secrets
+import stat
 from dataclasses import dataclass
 from pathlib import Path
+
+from core.naming import RESERVED
 
 PROFILES = ("nas", "local")
 
@@ -207,7 +210,6 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
         local_root = Path(_string(env, "NOTENARCHIV_LOCAL_ROOT", default=str(LOCAL_DEV_ROOT)))
         log_dir = local_root / "logs"
         secret_file = local_root / "secret.key"
-        secret_key = _read_local_secret(secret_file)
         allowed_hosts = _list(env, "APP_ALLOWED_HOSTS") or ["localhost", "127.0.0.1"]
         bind = _string(env, "APP_BIND", default="127.0.0.1")
         port = _int(env, "APP_PORT", default=DEFAULT_PORT, minimum=1)
@@ -229,13 +231,8 @@ def parse_env(env: dict[str, str] | None = None) -> EnvSettings:
             "STATUS_DIR": status_dir,
             "EXPORT_DIR": export_dir,
         }
-        for name, path in roots.items():
-            resolved = path.resolve()
-            for other_name, other in roots.items():
-                if other_name == name:
-                    continue
-                if other.resolve() == resolved:
-                    raise ConfigError(f"local profile roots {name} and {other_name} must be distinct paths")
+        _validate_local_paths(roots, database_path, secret_file, log_dir)
+        secret_key = _read_local_secret(secret_file)
         # The local profile is explicitly selected for development; its
         # synthetic roots and the database directory are created on first
         # use. The nas profile never auto-creates anything (WP-07 contract).
@@ -298,6 +295,56 @@ def _read_secret_key(path: Path) -> str:
     if not key:
         raise ConfigError(f"secret key file {path} is empty")
     return key
+
+
+def _validate_local_paths(roots, database, secret, logs):
+    """Reject conflicting configured write targets before local initialization."""
+    for path in (*roots.values(), database, secret, logs):
+        if ".." in path.parts:
+            raise ConfigError("Local runtime paths must not contain parent traversal")
+        if os.name == "nt":
+            for component in path.parts:
+                if component == path.anchor:
+                    continue
+                if (
+                    component.endswith((" ", "."))
+                    or RESERVED.match(component)
+                    or any(char in '<>:"|?*' or ord(char) < 32 for char in component)
+                ):
+                    raise ConfigError("Local runtime paths contain an unsupported Windows name")
+        absolute = path.absolute()
+        for component in (absolute, *absolute.parents):
+            try:
+                info = component.lstat()
+            except FileNotFoundError:
+                continue
+            except OSError:
+                raise ConfigError("Local runtime path metadata is unavailable") from None
+            reparse_point = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & reparse_point:
+                raise ConfigError("Local runtime paths must be free of links and reparse points")
+    for path in (database, secret):
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError:
+            raise ConfigError("Local runtime file metadata is unavailable") from None
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ConfigError("Local runtime database and secret must be single-link regular files")
+    resolved = [(name, path.resolve()) for name, path in roots.items()]
+    for index, (name, path) in enumerate(resolved):
+        for other_name, other in resolved[index + 1 :]:
+            if path.is_relative_to(other) or other.is_relative_to(path):
+                raise ConfigError(f"local profile roots {name} and {other_name} must be distinct paths without nesting")
+        for target in (database.resolve(), secret.resolve(), logs.resolve()):
+            if target.is_relative_to(path) or path.is_relative_to(target):
+                raise ConfigError("Local runtime files and logs must be separate from archive roots")
+    if database.resolve() == secret.resolve():
+        raise ConfigError("Local database and secret must be distinct files")
+    for target in (database.resolve(), secret.resolve()):
+        if target.is_relative_to(logs.resolve()) or logs.resolve().is_relative_to(target):
+            raise ConfigError("Local runtime files must be separate from logs")
 
 
 def _read_local_secret(path: Path) -> str:
