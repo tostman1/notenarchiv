@@ -6,6 +6,25 @@ reflect actual completed work only.
 
 ## Autonomous continuation — 2026-11-25
 
+PR #56 integrated the first shared-runtime increment at
+`f158db807bb296a4ee445faa2eaeb3ec8312c54e`. Exact-head PR CI
+`45628909037` passed Foundation, Container, changes and Windows runtime checks.
+Post-merge Main CI `45633095503` has one active SHA-bound waiter.
+The cohesive follow-up on `codex/portable-storage-runtime` is in progress.
+It moves inventory enumeration into the filesystem boundary, retaining
+directory mutation checks and platform-independent inventory policy.
+Two portable contract tests pass on Windows; three actual POSIX inventory
+tests remain for Linux verification. Updated delivery-package/tool-first
+instructions accompany this functional increment in PROCESS.md.
+The same increment consolidates bounded exclusive staging writes for archive
+copies and generated PDFs in the filesystem boundary. Focused Windows checks
+passed with 16 tests and 22 POSIX skips. New Linux staging tests cover empty and
+oversized input, producer failure cleanup and preservation of existing bytes.
+Full local Windows Python verification passed with 906 tests and 133 platform
+skips. Separate browser verification passed with 22 tests and four POSIX skips.
+Ruff, Actionlint and Django system/migration checks passed. Full package diff
+reviewed. PR Linux/Container and integration verification remain pending.
+
 The owner accepted takeover and authorized controlled P0 integration at
 `b9e9e9d84818fcdb006933d016fa02863c4b2db5`. PR #55 merged at
 `cca4fa9bd4026f2d7361459280cab5136c2aacb3`. Exact post-merge Main CI

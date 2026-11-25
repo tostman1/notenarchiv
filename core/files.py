@@ -94,12 +94,70 @@ class Root:
         with self.parent(path) as (parent, name):
             return os.stat(name, dir_fd=parent, follow_symlinks=False)
 
+    @contextmanager
+    def directory_entries(self, path):
+        """Yield stable directory metadata and lazy no-follow child metadata."""
+        path = relative_path(path, allow_root=True)
+        reference = f"{path}/placeholder" if path else "placeholder"
+        with self.parent(reference) as (descriptor, _):
+            before = os.fstat(descriptor)
+            with os.scandir(descriptor) as entries:
+                yield (
+                    before,
+                    ((entry.name, os.stat(entry.name, dir_fd=descriptor, follow_symlinks=False)) for entry in entries),
+                )
+            if fingerprint(os.fstat(descriptor)) != fingerprint(before):
+                raise FileError("SOURCE_CHANGED")
+
     def exists(self, path):
         try:
             self.metadata(path)
             return True
         except FileNotFoundError:
             return False
+
+    def write_stage(self, path, chunks, *, maximum, checkpoint=lambda: None):
+        """Create and durably close bounded staging bytes on this backend."""
+        _staging(path)
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        if type(maximum) is not int or maximum <= 0:
+            raise FileError("INVALID_LIMIT")
+        created = None
+        try:
+            with self.parent(path, create=True) as (parent, name):
+                descriptor = os.open(
+                    name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent
+                )
+                try:
+                    created = identity(os.fstat(descriptor))
+                    total = 0
+                    for chunk in chunks:
+                        checkpoint()
+                        total += len(chunk)
+                        if total > maximum:
+                            raise FileError("LIMIT_EXCEEDED")
+                        remaining = memoryview(chunk)
+                        while remaining:
+                            checkpoint()
+                            count = os.write(descriptor, remaining)
+                            if count <= 0:
+                                raise FileError("FILE_IO")
+                            remaining = remaining[count:]
+                    if total == 0:
+                        raise FileError("LIMIT_EXCEEDED")
+                    os.fchmod(descriptor, 0o440)
+                    os.fsync(descriptor)
+                    info = os.fstat(descriptor)
+                finally:
+                    os.close(descriptor)
+                os.fsync(parent)
+            return info
+        except BaseException:
+            if created is not None:
+                with suppress(OSError, FileError):
+                    discard_stage(self, path, created)
+            raise
 
     def directory_spelling(self, path):
         """Reuse actual parent spelling; reject ambiguous SMB-equivalent entries."""
@@ -235,32 +293,21 @@ def stage_copy(
         with source.reader(source_path) as (input_fd, original):
             if original.st_size != size:
                 raise FileError("SOURCE_CHANGED")
-            with destination.parent(staged_path, create=True) as (parent, name):
-                output_fd = os.open(
-                    name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent
-                )
-                created_identity = identity(os.fstat(output_fd))
-                try:
-                    digest, total = hashlib.sha256(), 0
-                    while chunk := os.read(input_fd, CHUNK):
-                        guard()
-                        total += len(chunk)
-                        if total > size:
-                            raise FileError("SOURCE_CHANGED")
-                        digest.update(chunk)
-                        remaining = memoryview(chunk)
-                        while remaining:
-                            count = os.write(output_fd, remaining)
-                            if count <= 0:
-                                raise FileError("FILE_IO")
-                            remaining = remaining[count:]
-                    if total != size or digest.hexdigest() != sha256:
+
+            def chunks():
+                digest, total = hashlib.sha256(), 0
+                while chunk := os.read(input_fd, CHUNK):
+                    guard()
+                    total += len(chunk)
+                    if total > size:
                         raise FileError("SOURCE_CHANGED")
-                    os.fchmod(output_fd, 0o440)
-                    os.fsync(output_fd)
-                finally:
-                    os.close(output_fd)
-                os.fsync(parent)
+                    digest.update(chunk)
+                    yield chunk
+                if total != size or digest.hexdigest() != sha256:
+                    raise FileError("SOURCE_CHANGED")
+
+            written = destination.write_stage(staged_path, chunks(), maximum=size, checkpoint=guard)
+            created_identity = identity(written)
             copied, info = destination.read(staged_path, maximum=size, checkpoint=guard)
             if len(copied) != size or hashlib.sha256(copied).hexdigest() != sha256:
                 raise FileError("COPY_MISMATCH")

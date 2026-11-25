@@ -24,6 +24,22 @@ weaken any CI, review, security, integration, or verification requirement.
 
 ## Canonical sequence
 
+Owner authorization (2026-11-25) permits cohesive, independently verifiable
+increments spanning typically two to four related work packages. Choose size
+by dependencies, complexity, risk and reviewability. Keep focused commits and
+durable checkpoints within the increment. Run targeted checks during development
+and full regression plus required PR and post-merge CI at integration boundaries.
+Security-critical or migration-sensitive work may justify smaller increments.
+
+Prefer existing deterministic tools for recurring mechanical work. Add bounded,
+cross-platform, testable scripts with compact machine-readable evidence when
+their recurring benefit warrants maintenance. Use repository-scoped skills when
+structured guidance is needed. Preserve human or agent judgment for product
+decisions and code review. Avoid trivial wrappers and orchestration frameworks.
+Process improvements accompany functional delivery. Working product behavior
+and practical usability take priority. These rules preserve all acceptance,
+privacy, security, review and integration gates.
+
 1. Complete the implementation within the approved scope.
 2. Run the relevant local verification (see [standard-checks.md](standard-checks.md)).
 3. Commit with a small English Conventional Commit; write the message to

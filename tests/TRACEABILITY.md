@@ -5,6 +5,14 @@ exercises the actual isolated PDF worker from a foreign working directory;
 `tests/test_release.py::test_web_requires_initialized_database` verifies migration
 checks select the installed entry point regardless of launcher directory.
 
+Portable inventory boundary: `tests/test_inventory_contract.py` exercises
+directory/file classification, fingerprints, limits, repeated identity and
+changed-directory rejection without OS handles. `tests/test_inventory.py`
+retains actual POSIX link/hash tests and checks mutation during enumeration.
+The shared staging writer retains the archive copy and generated publication
+suites. Direct POSIX regressions in `tests/test_archive_files.py` cover bounded
+input, producer failure cleanup and no-clobber identity preservation.
+
 ## Development governance: deterministic CI waiting
 
 DEC-08/DEC-11, GR-14, AGENTS.md, docs/PROCESS.md, docs/standard-checks.md:

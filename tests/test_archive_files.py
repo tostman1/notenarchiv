@@ -42,6 +42,31 @@ def stage(inputs, **kwargs):
     )
 
 
+@pytest.mark.parametrize("chunks", [[], [b"too large"]])
+def test_bounded_stage_writer_removes_only_its_failed_file(copy_inputs, chunks):
+    _source, root, _processor, _data = copy_inputs
+    with pytest.raises(files.FileError, match="LIMIT_EXCEEDED"):
+        root.write_stage(STAGED, chunks, maximum=2)
+    assert not root.exists(STAGED)
+
+
+def test_stage_writer_preserves_existing_bytes_and_cleans_generator_failure(copy_inputs):
+    _source, root, _processor, _data = copy_inputs
+
+    def interrupted():
+        yield b"synthetic"
+        raise RuntimeError("Synthetic interruption")
+
+    with pytest.raises(RuntimeError, match="Synthetic interruption"):
+        root.write_stage(STAGED, interrupted(), maximum=100)
+    assert not root.exists(STAGED)
+    info = root.write_stage(STAGED, [b"synthetic"], maximum=100)
+    with pytest.raises(FileExistsError):
+        root.write_stage(STAGED, [b"replacement"], maximum=100)
+    data, retained = root.read(STAGED, maximum=100)
+    assert data == b"synthetic" and files.identity(retained) == files.identity(info)
+
+
 def test_correctly_named_source_is_an_independent_real_verified_copy(copy_inputs):
     source, destination, _processor, data = copy_inputs
     before = source.metadata("correct.pdf")
