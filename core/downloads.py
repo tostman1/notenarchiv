@@ -7,7 +7,7 @@ import stat
 import tempfile
 import time
 import zipfile
-from contextlib import ExitStack, suppress
+from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,13 +33,8 @@ def scratch_directory(parent):
     """Only below trusted application DATA; never use archive roots as scratch."""
     parent = Path(parent)
     if os.name == "posix":
-        with Root(parent) as root:
-            with suppress(FileExistsError):
-                os.mkdir("download-scratch", 0o700, dir_fd=root.fd)
-            with Root(parent / "download-scratch") as scratch:
-                info = os.fstat(scratch.fd)
-                if info.st_uid != os.geteuid() or info.st_mode & 0o077:
-                    raise FileError("UNSAFE_STAGING")
+        with Root(parent, writable=True) as root:
+            root.ensure_private_directory("download-scratch")
     elif os.name == "nt":
         if not parent.is_absolute() or parent != parent.resolve(strict=True):
             raise FileError("UNSAFE_ROOT")

@@ -75,8 +75,8 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   Verify crash recovery, single-instance startup and database backup/restore on
   NTFS with synthetic data before enabling desktop use.
 * `core.files.Root` depends on descriptor-relative POSIX operations.
-  Inventory, publication, STATUS replacement, download staging, export cleanup
-  and backup also use directory descriptors directly. Windows archive access
+  Publication/recovery, export cleanup and backup writes still use directory
+  descriptors directly. Windows archive access
   requires handle-relative traversal, reparse rejection, independent RAW write
   denial, file identity checks, no-clobber publication and tested crash durability.
   Keep operations unavailable until the backend and its consumers pass equivalent
@@ -89,6 +89,15 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   Archive copies and generated PDF staging share the backend's bounded
   exclusive writer. Their independent byte/hash verification and PDF inspection
   remain in the processing layer.
+  STATUS services now use backend-owned metadata, bounded staging and marker
+  replacement; private download-directory creation also belongs to the backend.
+  A conflict proven before publication is distinct from uncertain replacement
+  or flush failures, which retain operation-recovery semantics. Backup traversal
+  consumes the same no-follow metadata boundary, checks reopened directory
+  identities and rejects concurrent directory mutation. Backup writes remain
+  POSIX-specific. Local-profile relative roots/runtime paths are pinned to the
+  startup directory before initialization, so later working-directory changes
+  cannot redirect them. These boundaries do not enable native Windows writes.
 * core/processes.py already binds descendants to a Windows Job or Linux process
   group. Preserve bounded CPU, memory, time, input and output for PDF and OCR.
   Windows output writers must enforce byte bounds explicitly. WP-24 should use

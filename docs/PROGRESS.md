@@ -8,6 +8,39 @@ reflect actual completed work only.
 
 ### Current requirements checkpoint
 
+The complete requirements consolidation (including Appendix A) is integrated by
+PR #58 at `d468df829d5db4d41c90936065309ed3abd14313`. Exact Main CI
+45674600196 passed Foundation, Container, Windows shared runtime and changes.
+The canonical register contains 119 requirements and the crosswalk 61 source
+aliases. The owner explicitly approved DEC-13 as proposed on 2026-11-25:
+additive content/region architecture, revision-bound inspection, protected legacy
+compatibility and expanded core templates with duplex/cut/fold. Secondary and
+deferred priorities remain unchanged. Portability completion still comes first.
+
+PR #59 passed exact-head CI 45677648319 at
+`7393829567ea0df4d53567a4f8e7c53581789335` and merged at
+`572ab2b305da228b69eee5b553357299b5845b79`. Its exact Main waiter is active;
+no Main success is claimed until that operation returns success.
+
+The cohesive follow-up `codex/portable-filesystem-boundaries` isolates STATUS
+metadata/replacement, private scratch-directory creation and backup traversal
+behind the existing filesystem boundary. Backup traversal retains limits and
+exclusions, checks reopened identities and rejects directory mutation. Proven
+pre-publication conflicts remain distinct from uncertain replacement/flush
+failures. Relative local-profile storage/runtime paths are pinned at startup.
+The native Windows writable backend and desktop/runtime gates remain open.
+
+Focused Windows configuration and portable inventory checks passed (55 tests).
+Full local regression passed (933 tests, 140 platform skips), and browser
+acceptance passed (22 tests, four POSIX skips). Marker/private-directory POSIX
+tests await Linux CI. Ruff lint/format, Actionlint, Django system/migration-drift
+and structural traceability checks passed. The first browser attempt failed
+because NODE_PATH was absent after the runtime change; the unchanged suite
+passed with the existing bundled Playwright 1.62.1 and Edge.
+No new dependency, product-model change, real-data or NAS operation was added.
+
+### Prior initialization and consolidation checkpoints
+
 Unaffected WP-06p continuation is on `codex/portable-runtime-roots`, based on
 requirements commit `61cbe8d05ef7e1bfb6882f5628a94fdeaabde035` in PR #58.
 The documentation PR keeps its existing exact-SHA waiter.

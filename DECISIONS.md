@@ -50,12 +50,15 @@ documented source reconciliations, not new automatic processing permissions.
 Deferred features do not become release gates. Configurable concurrency remains
 capped by OP-02 until separately approved resource evidence exists.
 
-## Consolidated implementation decision required
+## Consolidated implementation decision — 2026-11-25
 
-**DEC-13 — Pending owner approval.** Approve or revise the proposed additive
-source/page/region/content-edition model and its scoped visual confirmation
-contract in ARCHITECTURE.md, together with the new core template-driven layout
-scope and dependency-ordered roadmap in IMPLEMENTATION_PLAN.md.
+**DEC-13 — Approved by the owner.** The owner explicitly approved the proposal
+as presented: the additive source/page/region/content-edition model with
+revision-bound visual confirmation and protected legacy compatibility in
+ARCHITECTURE.md, together with the expanded core template scope including duplex,
+cutting and folding and the dependency-ordered roadmap in IMPLEMENTATION_PLAN.md.
+Complete the portability foundation first, then continue implementation under
+the standing autonomous authority.
 
 This decision is material because ArchiveFile currently has one arrangement,
 approval is file-scoped and snapshots pin file assignments. Partial collection
@@ -65,7 +68,7 @@ protected historical references and additive backfills, and requires explicit
 template modes for newly expanded output behavior. Implementation must not weaken
 existing approval constraints or destructively migrate data.
 
-The recommended release envelope treats EXT-01–11 as expanded core,
+The approved release envelope treats EXT-01–11 as expanded core,
 EXT-12–18 as secondary/should, and FUT-01–07 as deferred. Secondary work does not
 block the core release. No separate approval is needed for ordinary implementation
 choices inside the accepted envelope after DEC-13. This decision does not

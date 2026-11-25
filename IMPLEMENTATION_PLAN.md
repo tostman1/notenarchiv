@@ -11,7 +11,7 @@
 The owner specification and Appendix A are consolidated in REQUIREMENTS.md.
 Existing completed acceptance remains historical evidence for its original scope.
 New region/collection/template acceptance is not implied by earlier WP completion.
-DEC-13 is the single pending material implementation decision. Preserve routine
+DEC-13 was approved by the owner on 2026-11-25. Preserve routine
 autonomy for consistent work and complete portability first. Do not resume the
 file-level OCR prototype before its page/region assumptions are reconciled.
 WP identifiers are stable and are not execution order. Verified existing maximum

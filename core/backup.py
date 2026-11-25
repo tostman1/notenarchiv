@@ -11,7 +11,7 @@ from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.files import CHUNK, Root, fingerprint
+from core.files import CHUNK, FileError, Root, fingerprint, identity
 from core.paths import relative_path
 
 GROUPS = {"data", "clean", "processed", "status", "config", "secrets", "export"}
@@ -59,35 +59,31 @@ DEFAULT_LIMITS = Limits()
 def inventory(root, budget, excluded=()):
     """Never follow links, special files or unbounded directory trees."""
 
-    def walk(descriptor, prefix, depth):
+    def walk(path, depth, expected_identity=None):
         if depth > 32:
             raise BackupError("DIRECTORY_DEPTH")
-        with os.scandir(descriptor) as entries:
-            for entry in entries:
+        with root.directory_entries(path) as (directory, entries):
+            if expected_identity is not None and identity(directory) != expected_identity:
+                raise BackupError("BACKUP_CHANGED")
+            for name, info in entries:
                 budget.checkpoint()
-                path = prefix + entry.name
-                if path in excluded:
+                child = f"{path}/{name}" if path else name
+                if child in excluded:
                     continue
-                relative_path(path)
-                info = entry.stat(follow_symlinks=False)
+                relative_path(child)
                 if stat.S_ISDIR(info.st_mode):
                     budget.add(0)
-                    child = os.open(entry.name, root._directory_flags, dir_fd=descriptor)
-                    try:
-                        yield from walk(child, path + "/", depth + 1)
-                    finally:
-                        os.close(child)
+                    yield from walk(child, depth + 1, identity(info))
                 elif stat.S_ISREG(info.st_mode) and 1 <= info.st_nlink <= 2:
                     budget.add(info.st_size)
-                    yield path
+                    yield child
                 else:
                     raise BackupError("UNSAFE_BACKUP_FILE")
 
-    descriptor = os.open(".", root._directory_flags, dir_fd=root.fd)
     try:
-        yield from walk(descriptor, "", 0)
-    finally:
-        os.close(descriptor)
+        yield from walk("", 0)
+    except FileError:
+        raise BackupError("BACKUP_CHANGED") from None
 
 
 def digest(root, path, budget):
