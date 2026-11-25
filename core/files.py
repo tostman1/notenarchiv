@@ -94,6 +94,21 @@ class Root:
         with self.parent(path) as (parent, name):
             return os.stat(name, dir_fd=parent, follow_symlinks=False)
 
+    @contextmanager
+    def directory_entries(self, path):
+        """Yield stable directory metadata and lazy no-follow child metadata."""
+        path = relative_path(path, allow_root=True)
+        reference = f"{path}/placeholder" if path else "placeholder"
+        with self.parent(reference) as (descriptor, _):
+            before = os.fstat(descriptor)
+            with os.scandir(descriptor) as entries:
+                yield (
+                    before,
+                    ((entry.name, os.stat(entry.name, dir_fd=descriptor, follow_symlinks=False)) for entry in entries),
+                )
+            if fingerprint(os.fstat(descriptor)) != fingerprint(before):
+                raise FileError("SOURCE_CHANGED")
+
     def exists(self, path):
         try:
             self.metadata(path)

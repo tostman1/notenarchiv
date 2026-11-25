@@ -37,3 +37,13 @@ def test_source_mutation_during_stream_is_rejected(tmp_path):
 
         with pytest.raises(files.FileError, match="SOURCE_CHANGED"):
             inventory.read_hash(root, "input.pdf", maximum=1024, checkpoint=mutate)
+
+
+def test_directory_mutation_during_enumeration_is_rejected(tmp_path):
+    with (
+        files.Root(tmp_path) as root,
+        pytest.raises(files.FileError, match="SOURCE_CHANGED"),
+        root.directory_entries("") as (_, entries),
+    ):
+        assert list(entries) == []
+        (tmp_path / "new.pdf").write_bytes(b"synthetic external change")

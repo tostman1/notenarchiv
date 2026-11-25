@@ -48,6 +48,10 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   Keep operations unavailable until the backend and its consumers pass equivalent
   race, collision, withdrawal and recovery tests. Ordinary path normalization
   alone cannot meet this contract.
+  Inventory traversal now consumes the root's directory metadata interface.
+  The backend owns no-follow enumeration and directory mutation detection.
+  Cycle detection, relative references and entry budgets stay in inventory
+  policy and can be tested independently on both platforms.
 * core/processes.py already binds descendants to a Windows Job or Linux process
   group. Preserve bounded CPU, memory, time, input and output for PDF and OCR.
   Windows output writers must enforce byte bounds explicitly. WP-24 should use
