@@ -847,6 +847,11 @@ previewable. Never infer hardware support from synthetic imposition tests.
 **Dependencies:** existing WP-06/07, secure file/publication and job contracts.
 **Status:** Partial. PR #56/57 and exact Main CI verify shared PDF/runtime,
 inventory metadata and bounded staging boundaries on the supported backends.
+PR #59/60 add guarded startup paths and backend-owned filesystem consumers.
+The synthetic managed-runtime tool covers initialization, single-instance
+locking, loopback auth/CSRF, web/worker shutdown and SQLite restore; targeted
+Windows tests passed and its integration CI remains pending. This proves shared
+building blocks, not native archive publication or a packaged desktop launcher.
 Implement and verify the remaining native Windows safe-storage boundary and
 trusted configured runtime paths, locking, initialization and managed loopback
 lifecycle proof without weakening NAS mounts/auth/CSRF. Separate writable data

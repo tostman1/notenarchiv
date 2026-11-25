@@ -8,6 +8,27 @@ reflect actual completed work only.
 
 ### Current requirements checkpoint
 
+PR #60 passed exact-head CI 45684801969 at
+`4f4434d2e31c3f69f0e644376fc6ac14f3e781ed` and merged at
+`7df8901545c55709b3959f818cddfd9ff8a2f6e6`. Review gates were clean with no
+submitted reviews or unresolved threads. Exact Main CI 45687344097 passed all
+four jobs on that merge SHA.
+PR #59's exact Main CI 45681642452 passed at its recorded merge SHA.
+
+The next cohesive increment `codex/portable-runtime-proof` turns the successful
+Windows lifecycle experiment into a reusable synthetic tool and subprocess
+regression: actual initialization, exclusive ownership, loopback auth/CSRF,
+managed web/worker shutdown and isolated SQLite restore. Twelve targeted
+startup/worker/runtime tests passed on Windows. Ruff lint/format passed.
+Full local regression passed (934 tests, 140 platform skips). The unchanged
+application's browser evidence is reused from PR #60 (22 passed, four POSIX
+skips); required CI still exercises its own browser/container gates. Actionlint,
+Django system/migration-drift and structural traceability checks passed.
+Final exact-head Linux/Windows CI remains pending.
+The tool never accepts existing installation paths and ignores inherited
+application configuration; the production desktop launcher/native writable
+backend remain unimplemented. DEC-13 is approved; portability still comes first.
+
 The complete requirements consolidation (including Appendix A) is integrated by
 PR #58 at `d468df829d5db4d41c90936065309ed3abd14313`. Exact Main CI
 45674600196 passed Foundation, Container, Windows shared runtime and changes.

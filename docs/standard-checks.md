@@ -95,6 +95,15 @@ available, and never claim a fixed delay guarantees recovery.
 
 ## Local standard checks
 
+The synthetic shared-runtime proof is `uv run pytest tests/test_portable_runtime.py`.
+It runs `scripts/portable_runtime_smoke.py` in a fresh interpreter with a 60-second
+timeout, from a foreign working directory and with conflicting inherited
+application settings. The tool only uses an owned temporary installation and
+emits compact JSON. It exercises migrations, single-instance locking, actual
+loopback authentication/CSRF, managed worker shutdown and isolated SQLite restore.
+It is not a production HTTP server, desktop launcher, archive-backend test or
+complete archive backup/restore acceptance. Windows and Linux CI both run it.
+
 For requirements/roadmap changes, run
 `uv run python scripts/check_requirements.py` and
 `uv run pytest tests/test_requirements_traceability.py`.
