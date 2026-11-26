@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `tests/test_project_content_preflight.py`: AR-20/21, EX-13, OP-08 — opt-in
+  signed shared-resolver capture, idempotent protected project content pins,
+  changed-revision rejection and historical snapshot readability. Production
+  matrix/UI activation and full end-to-end acceptance remain open.
+
 - `test_project_content_pins.py`: EX-13, AR-20/21 — historical schema-3 personal
   content rendering preserves pinned orientation, title and order, explicit
   acknowledged missing placeholders and reserve slots. Product authorization and
