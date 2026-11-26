@@ -20,6 +20,17 @@ run. The browser scenario requires the existing CI Node/Chrome environment and
 has not run locally. It does not approve music or execute production deployment.
 Full integration and WP-54/55 acceptance remain open; Windows writes stay disabled.
 
+## Production report fixture schema correction — 2026-11-26
+
+Exact PR #84 and #85 CI failed the same existing endpoint test: its fixture
+signed a legacy schema-1 report while production preflight now requests schema 3.
+The signature mismatch correctly returned HTTP 409. The fixture now explicitly
+requests the production schema for that endpoint test; legacy service tests keep
+their schema-1 coverage. No signature, CSRF, eligibility or application safeguard
+is weakened. Sixteen snapshot/preflight tests passed in 45.22 seconds and Ruff
+passed. Fresh exact-head CI is required before integration; the failed heads
+are not merge-ready.
+
 ## Shared project content presentation — 2026-11-26
 
 The production matrix and full/excerpt preflight now request the same inspected
