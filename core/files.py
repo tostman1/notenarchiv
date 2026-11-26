@@ -1,7 +1,7 @@
-"""POSIX descriptor-anchored immutable copy/publication, without Django or RAW writes.
+"""Safe source reads and POSIX immutable publication, without Django or RAW writes.
 
-Fail closed on platforms without the required no-follow/dir-fd primitives. The
-application targets Linux containers; Windows can exercise pure naming/metadata.
+The source adapter supports POSIX and read-only local Windows NTFS. Writable
+operations fail closed without the required no-follow/dir-fd primitives.
 """
 
 import hashlib
@@ -34,6 +34,15 @@ def fingerprint(info):
 
 def identity(info):
     return info.st_dev, info.st_ino
+
+
+def source_root(path):
+    """Read-only RAW adapter; writable/backup backends are selected separately."""
+    if os.name == "nt":
+        from core.files_windows import WindowsSourceRoot
+
+        return WindowsSourceRoot(path)
+    return Root(path)
 
 
 class Root:

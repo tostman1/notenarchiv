@@ -1,5 +1,19 @@
 # Implemented acceptance traceability
 
+## Native read-only Windows source boundary
+
+GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual
+source traversal/hash/reread metadata on Windows and Linux. Windows cases use
+real handles, hardlinks and reparses: unsafe leaves/parents and namespace aliases
+are rejected; streams reject writes and conflicting opens/renames; ancestors are
+pinned; a replaced child cannot redirect later reads; directory mutation aborts
+inventory; root reentry and failed initialization cannot leak/lossily replace
+owned handles. A known 100-ns timestamp and real hardlink identity provide
+independent metadata oracles. Missing roots/writable backends cause no writes.
+The adapter is explicitly local NTFS/read-only. These tests do not prove global
+RAW ACL denial, native publication/recovery, network shares or desktop packaging.
+Existing actual POSIX indexing/publication/generation/backup suites remain gates.
+
 ## Shared managed-runtime proof
 
 OP-07, GR-13, OP-02/03: `tests/test_portable_runtime.py` executes the synthetic

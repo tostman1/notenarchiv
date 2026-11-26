@@ -849,9 +849,13 @@ previewable. Never infer hardware support from synthetic imposition tests.
 inventory metadata and bounded staging boundaries on the supported backends.
 PR #59/60 add guarded startup paths and backend-owned filesystem consumers.
 The synthetic managed-runtime tool covers initialization, single-instance
-locking, loopback auth/CSRF, web/worker shutdown and SQLite restore; targeted
-Windows tests passed and its integration CI remains pending. This proves shared
+locking, loopback auth/CSRF, web/worker shutdown and SQLite restore; PR #61 and
+exact Main CI 45694893160 verified it on Linux/Windows. This proves shared
 building blocks, not native archive publication or a packaged desktop launcher.
+The following increment implements read-only local NTFS source handles with
+native identity/time metadata and pinned no-reparse traversal. Thirteen native
+Windows tests passed; its exact integration CI is pending. Writable publication,
+network storage and independent RAW ACL enforcement remain separate open work.
 Implement and verify the remaining native Windows safe-storage boundary and
 trusted configured runtime paths, locking, initialization and managed loopback
 lifecycle proof without weakening NAS mounts/auth/CSRF. Separate writable data

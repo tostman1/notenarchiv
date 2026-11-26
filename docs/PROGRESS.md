@@ -8,6 +8,26 @@ reflect actual completed work only.
 
 ### Current requirements checkpoint
 
+Verified baseline: PR #61 passed exact-head CI 45691065700, merged at
+`ab172f6f942d5de743aec21aa6f0222caaa9798e`, and exact Main CI 45694893160
+passed all four jobs. DEC-13 is approved; the incomplete OCR draft remains in
+the recorded local stash. Existing work is preserved.
+
+`codex/windows-source-reader` implements the next cohesive WP-06p increment:
+local NTFS source handles with native identity/time metadata, shared source-root
+selection and removal of remaining root-descriptor/parent details from archive
+and export services. Thirteen actual native tests passed. Seventy-three targeted
+configuration/runtime/source tests passed before the additional timestamp oracle;
+the final native suite includes that oracle. An initial root-reentry regression
+exposed insufficient attribute-only sharing locks; READ_DATA/LIST_DIRECTORY rights
+fixed the cause and the unchanged rename assertion now passes. Ruff lint/format,
+Actionlint and Django system/migration-drift checks passed. Full regression is
+running; exact-head Linux/Windows/Container and integration gates remain pending.
+Native writes, independent process-wide RAW denial and desktop acceptance remain
+open. No new dependency, real-data migration, release or NAS operation was added.
+
+### Earlier runtime-proof checkpoint
+
 PR #60 passed exact-head CI 45684801969 at
 `4f4434d2e31c3f69f0e644376fc6ac14f3e781ed` and merged at
 `7df8901545c55709b3959f818cddfd9ff8a2f6e6`. Review gates were clean with no

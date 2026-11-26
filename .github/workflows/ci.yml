@@ -103,7 +103,7 @@ jobs:
           version: "0.13.1"
       - run: uv sync --locked
       - name: Verify shared runtime and native process limits
-        run: uv run pytest tests/test_settings.py tests/test_pdf.py tests/test_processes.py tests/test_release.py tests/test_inventory_contract.py tests/test_backup_inventory_contract.py tests/test_portable_runtime.py
+        run: uv run pytest tests/test_settings.py tests/test_pdf.py tests/test_processes.py tests/test_release.py tests/test_inventory_contract.py tests/test_backup_inventory_contract.py tests/test_portable_runtime.py tests/test_source_reader.py
       - name: Check Django and migration drift
         run: |
           uv run python manage.py check --settings tests.settings

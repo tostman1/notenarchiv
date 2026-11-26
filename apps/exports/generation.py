@@ -91,15 +91,17 @@ def _roots(stack, using="default"):
     paths.append(Path(connections[using].settings_dict["NAME"]).absolute().parent)
     if any(a.is_relative_to(b) or b.is_relative_to(a) for i, a in enumerate(paths) for b in paths[:i]):
         raise files.FileError("OVERLAPPING_ROOTS")
-    roots = [stack.enter_context(files.Root(p, writable=i >= 3)) for i, p in enumerate(paths)]
-    if len({files.identity(os.fstat(r.fd)) for r in roots}) != len(roots):
+    roots = [
+        stack.enter_context(files.source_root(path) if index == 0 else files.Root(path, writable=index >= 3))
+        for index, path in enumerate(paths)
+    ]
+    if len({files.identity(root.root_metadata()) for root in roots}) != len(roots):
         raise files.FileError("OVERLAPPING_ROOTS")
     return roots[3], roots[4]
 
 
 def _processor(data_root, checkpoint):
-    with data_root.parent(".staging/generation/placeholder", create=True):
-        pass
+    data_root.prepare_parent(".staging/generation/placeholder")
     return Processor(
         data_root.path / ".staging/generation",
         checkpoint=checkpoint,
@@ -239,8 +241,7 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             )
         )
         processor.checkpoint()
-        with root.parent(publication.relative_path, create=True):
-            pass
+        root.prepare_parent(publication.relative_path)
 
         def apply():
             try:

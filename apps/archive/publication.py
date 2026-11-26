@@ -184,8 +184,7 @@ def _operation(context):
 
 
 def _processor(data_root, checkpoint):
-    with data_root.parent(".staging/pdf/placeholder", create=True):
-        pass
+    data_root.prepare_parent(".staging/pdf/placeholder")
     return Processor(
         data_root.path / ".staging" / "pdf",
         checkpoint=checkpoint,
@@ -210,8 +209,11 @@ def _open_roots(stack, using):
         for second in paths[:index]
     ):
         raise files.FileError("OVERLAPPING_ROOTS")
-    roots = [stack.enter_context(files.Root(path, writable=index > 0)) for index, path in enumerate(paths)]
-    if len({files.identity(os.fstat(root.fd)) for root in roots}) != len(roots):
+    roots = [
+        stack.enter_context(files.source_root(path) if index == 0 else files.Root(path, writable=True))
+        for index, path in enumerate(paths)
+    ]
+    if len({files.identity(root.root_metadata()) for root in roots}) != len(roots):
         raise files.FileError("OVERLAPPING_ROOTS")
     return {"RAW": roots[0], "CLEAN": roots[1], "PROCESSED": roots[2], "DATA": roots[3]}
 
@@ -351,8 +353,7 @@ def _run(context):
                     )
                 )
                 context.checkpoint(80)
-                with target.parent(operation.target_path, create=True):
-                    pass
+                target.prepare_parent(operation.target_path)
 
                 def apply():
                     if operation.kind == "CANONICALIZE":

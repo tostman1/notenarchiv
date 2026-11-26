@@ -1,5 +1,33 @@
 # Shared runtime and Windows distribution
 
+## Native source-reader increment
+
+`core.files.source_root` selects a read-only native Windows source adapter or the
+existing POSIX source root. Archive/export services use backend-owned root
+metadata and parent preparation instead of directory descriptors. Managed writes,
+backup and publication still use the separate supported backend; selecting the
+Windows reader does not enable those operations.
+
+The initial Windows adapter supports fixed local NTFS volumes only. It pins every
+ancestor directory, rejects reparse components, device/alternate-stream/trailing-
+dot aliases and noncanonical opened paths, and opens source streams without write
+access or write/delete sharing. Native file-ID/volume and 100-ns last-write/change
+metadata are used consistently for traversal, hashes and rereads. A real rename
+test exposed that attribute-only handles did not pin directories reliably; the
+adapter now also requests READ_DATA/LIST_DIRECTORY without requesting write access.
+Thirteen native Windows tests passed, including exact timestamp/identity oracles,
+reparse and hardlink rejection, root/stream pinning, failed-initialization cleanup,
+directory mutation and child-directory replacement. Required integration CI is
+pending. The generic source/hash regression also runs on Linux.
+
+This establishes read-only handles and active sharing locks. Independent RAW ACL
+denial for every application process, native writable publication/recovery, UNC/
+network/non-NTFS storage and installed desktop acceptance remain open. No ACLs or
+original files are modified by this adapter. Unsupported operations fail closed.
+The implementation follows Microsoft's [CreateFile sharing/reparse contract](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)
+and [handle information API](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getfileinformationbyhandleex),
+including [native time fields](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_basic_info).
+
 ## Local initialization guard increment
 
 The local synthetic profile validates archive-root nesting and database/secret/
@@ -26,8 +54,9 @@ requests with normal authentication/CSRF, one worker's lease/release, bounded
 shutdown and an isolated SQLite backup/restore. Its subprocess regression uses
 a foreign working directory and conflicting inherited installation settings;
 the protected synthetic sentinel is unchanged. Targeted Windows execution
-passed with twelve startup/worker/runtime tests. Exact Linux/Windows integration
-CI is pending. The WSGI reference server is test-only. This is evidence for the
+passed with twelve startup/worker/runtime tests. PR #61 is integrated at
+`ab172f6f942d5de743aec21aa6f0222caaa9798e`; exact Main CI 45694893160 passed
+Foundation, Container, Windows and changes. The WSGI reference server is test-only. This is evidence for the
 shared lifecycle building blocks, not a shipped launcher or desktop edition.
 Native archive safety, managed production serving, full installation restore,
 packaging and physical acceptance retain their separate contracts.
