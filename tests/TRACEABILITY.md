@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `test_compound_publication_contract.py` and `test_compound_publication.py`:
+  AR-26 neutral document naming, one byte-identical unapproved BASE, reuse without
+  historical renaming and unchanged RAW. Actual POSIX worker acceptance is a CI
+  gate; the Windows naming contract alone does not certify native writes.
+
 - `browser/test_catalog_correction.py`: CAT-05/06 — real-browser explicit
   replacement, stale rejection, withdrawal and retained receipts without export
   creation. Browser execution is pending exact CI.

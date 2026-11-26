@@ -1,5 +1,23 @@
 # Progress record
 
+## Neutral compound source publication — 2026-11-26
+
+Independent retained-catalog review found no blockers. Its two coverage gaps
+are now exercised: numeric stale withdrawal and inactive-work replacement both
+leave the original current association and receipt intact. Four correction/UI
+checks passed. The catalog detail deliberately labels withdrawn history separately
+rather than advertising historical associations as current.
+
+Compound copies receive a readable `Sammlungen` path under the stable source
+document identity. Existing BASE publications and acknowledged paths are reused;
+title changes never rename history or duplicate source bytes. The existing COPY
+worker, verified staging, collision reservation and recovery remain unchanged.
+No musical assignment or whole-file confirmation is granted by this operation.
+One naming/delegation contract check passed; two real POSIX worker checks are
+skipped on this Windows host and remain required exact-CI acceptance. WP-54/55
+remain in progress, including shared project content activation. Native Windows
+writes remain disabled; no deployment or actual archive migration occurred.
+
 ## Explicit catalog correction editor — 2026-11-26
 
 The first exact browser CI failed at the action selector: Django renders the
