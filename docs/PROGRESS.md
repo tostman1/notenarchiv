@@ -1950,3 +1950,23 @@ remain unexecuted without their distinct approval. Preserve published preview as
   preferred archive editions, and independently WP-29 project model foundation.
   WP-23b direct downloads follows WP-23a; OCR/full integrity remain later work.
   None was started. Private NAS/hardware/backup/worker-operations gates remain open.
+
+
+### Manual Codex-to-OpenCode recovery - 2026-11-26
+
+The interrupted WP-06p implementation was preserved on
+codex/windows-source-reader at
+6cd6ee4ed952e482614981afbd24e51222a76ab4.
+
+Full regression completion and exact-head CI remain unconfirmed.
+
+The incomplete OCR prototype was preserved separately on
+recovery/codex-ocr-prototype at
+49477203ef9dfb7f93e9533b2334bcd563a4162b.
+
+The original local stash remains intact.
+
+This one-time manual recovery does not modify existing
+governance, authorization, verification or handoff rules.
+
+See docs/HANDOFF.md for the current transfer snapshot.
