@@ -1,5 +1,15 @@
 # Progress record
 
+## Native inventory correction — 2026-11-26
+
+PR #65 Windows CI on `567eda5d87576ea0aa5f6fac76c7b606dd6bc11e`
+failed to detect an added directory entry. Native directory timestamps alone
+are insufficient: inventory now compares a bounded-memory, order-independent
+SHA-256 name accumulator before and after enumeration, alongside the existing
+handle fingerprint. Three targeted tests passed, including unchanged metadata
+and equal-count name replacement. RAW access remains read-only and native
+Windows publication remains disabled. Exact updated-head CI is pending.
+
 ## Browser isolation correction — 2026-11-26
 
 PR #65 CI on `8846a1967cfd4b922b5b61b0f87251777d50a9c6` failed in
