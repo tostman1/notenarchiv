@@ -2,6 +2,12 @@
 
 ## Neutral compound source publication — 2026-11-26
 
+Independent retained-catalog review found no blockers. Its two coverage gaps
+are now exercised: numeric stale withdrawal and inactive-work replacement both
+leave the original current association and receipt intact. Four correction/UI
+checks passed. The catalog detail deliberately labels withdrawn history separately
+rather than advertising historical associations as current.
+
 Compound copies receive a readable `Sammlungen` path under the stable source
 document identity. Existing BASE publications and acknowledged paths are reused;
 title changes never rename history or duplicate source bytes. The existing COPY

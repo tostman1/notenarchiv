@@ -2,7 +2,7 @@
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError, transaction
 
 from apps.catalog.collection_services import (
@@ -27,6 +27,25 @@ def test_membership_correction_preserves_receipt_and_current_position():
             old.pk, actor=actor, reason="Correction", expected_revision=old.revision, work_id=second.pk, position=-1
         )
     assert not AssociationWithdrawal.objects.exists()
+    with pytest.raises(ValidationError):
+        withdraw_association("membership", old.pk, actor=actor, reason="Stale", expected_revision=old.revision + 1)
+    second.active = False
+    second.save()
+    with pytest.raises(ObjectDoesNotExist):
+        correct_membership(
+            old.pk,
+            actor=actor,
+            reason="Inactive replacement",
+            expected_revision=old.revision,
+            work_id=second.pk,
+            position=0,
+        )
+    assert not AssociationWithdrawal.objects.exists()
+    assert current_associations("membership").get().pk == old.pk
+    old.refresh_from_db()
+    assert old.metadata_snapshot == receipt
+    second.active = True
+    second.save()
     new = correct_membership(
         old.pk, actor=actor, reason="Correction", expected_revision=old.revision, work_id=second.pk, position=0
     )
