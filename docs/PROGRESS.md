@@ -1,5 +1,18 @@
 # Progress record
 
+## Incremental compound identity acceptance — 2026-11-26
+
+A synthetic 125-work collection now exercises repeated titles with independent
+UUIDs, six explicitly inspected editions across two playable instrumental parts,
+shared page references, differing continuation counts and orientation, unknown
+remaining content and exact capture/load parity. No whole-file approval or
+assignment is inferred. Four compound/collection tests passed in 9.49 seconds;
+Ruff and formatting passed. This is bounded identity/confirmation acceptance,
+not a complete 125-piece region-segmentation or physical booklet acceptance.
+WP-54/55 remain in progress, including project activation, neutral compound
+publication and correction/withdrawal workflows. Native Windows writes remain
+disabled; no actual notes, production migration or deployment were used.
+
 ## Explicit content preference editor — 2026-11-26
 
 An authenticated, CSRF-protected editor now exposes setting and clearing the
