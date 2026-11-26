@@ -1,5 +1,28 @@
 # Progress record
 
+## Explicit catalog correction editor — 2026-11-26
+
+The first exact browser CI failed at the action selector: Django renders the
+accessible form label as `Aktion:` while the new script requested exact `Aktion`.
+The selector now tolerates the normal label suffix, with a client regression
+asserting the replacement editor exposes the action control. The failed gate
+is not treated as success; the corrected head requires fresh exact CI.
+
+Authenticated, CSRF-protected correction screens expose reason-bound withdrawal
+and membership replacement with submitted revision fences. Work details link to
+current and retained association history. GET does not mutate; duplicate/stale
+replacement fails without losing the original row. Seven correction/collection
+checks and 23 catalog/view regression checks passed; Ruff and Django checks
+passed. Browser acceptance and exact CI remain pending. This increment does not
+claim complete WP-54/55 or change approval, historical exports, deployment or
+the disabled native Windows writable path.
+
+Real-browser correction coverage now exercises explicit replacement, stale
+duplicate rejection and withdrawal of the replacement, with original receipt
+and both history events retained and no generation snapshot. Nine targeted
+correction/view/traceability checks passed; Node is unavailable locally, so
+browser execution remains an exact-CI gate, not a claimed local result.
+
 ## Retained catalog corrections — 2026-11-26
 
 Explicit actor/reason-bound withdrawal events now retain memberships,

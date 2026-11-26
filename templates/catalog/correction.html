@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Katalogzuordnung korrigieren{% endblock %}
+{% block content %}
+<h1>Katalogzuordnung korrigieren</h1>
+<p>{{ kind }} · {{ association.pk }}{% if work %} · {{ work.title }}{% endif %}</p>
+<p>Frühere Zuordnungen und Metadaten bleiben unverändert erhalten. Diese Aktion bestätigt keine Noten und ändert keine früheren Ausgaben.</p>
+{{ form.non_field_errors }}
+{% if withdrawn %}<p>Diese Zuordnung wurde bereits zurückgenommen. Der historische Eintrag bleibt erhalten.</p>
+{% else %}<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Korrektur ausdrücklich speichern</button></form>{% endif %}
+{% endblock %}
