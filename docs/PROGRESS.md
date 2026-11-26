@@ -1,5 +1,18 @@
 # Progress record
 
+## Unified archive preference persistence — 2026-11-26
+
+The additive preference scope can now select either a confirmed legacy assignment
+or explicitly confirmed content edition, never both. Short SQLite CAS writes
+retain actor and previous/selected protected identities in append-only history;
+clearing or choosing legacy content clears the content choice explicitly.
+The uniform content resolver honors this choice and manual overrides. Legacy
+project readers report an unavailable content preference rather than silently
+substituting music; full project contract activation remains open WP-54/55 work.
+Sixteen targeted preference, legacy edition and uniform resolver tests passed.
+No historical export payloads were rewritten. UI and complete project resolution
+acceptance remain pending. Native Windows publication remains disabled.
+
 ## Content export selection UI — 2026-11-26
 
 WP-54/55 remain in progress. A German, authenticated and CSRF-protected selection

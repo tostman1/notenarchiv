@@ -622,8 +622,21 @@ class PreferredEdition(Record):
     assignment = models.ForeignKey(
         ArchiveAssignment, on_delete=models.PROTECT, null=True, blank=True, related_name="archive_preferences"
     )
+    content_edition = models.ForeignKey(
+        "archive.ContentEdition", on_delete=models.PROTECT, null=True, blank=True, related_name="archive_preferences"
+    )
 
     def clean(self):
+        if self.assignment_id and self.content_edition_id:
+            raise ValidationError("A preference must select one legacy or content edition, not both.")
+        if self.content_edition_id:
+            from apps.archive.content_contract import confirmed_content_edition
+
+            edition = confirmed_content_edition(
+                self.content_edition_id, using=self._state.db or "default", verify=False
+            )
+            if (edition.arrangement_id, edition.part_id) != (self.arrangement_id, self.part_id):
+                raise ValidationError("Preferred content must match the exact arrangement and playable part.")
         if not self._state.adding:
             previous = type(self).objects.using(self._state.db or "default").get(pk=self.pk)
             if (previous.arrangement_id, previous.part_id) != (self.arrangement_id, self.part_id):
@@ -641,10 +654,26 @@ class PreferredEdition(Record):
                 raise ValidationError("A preferred edition must be confirmed and available.")
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["arrangement", "part"], name="archive_one_preferred_edition")]
+        constraints = [
+            models.UniqueConstraint(fields=["arrangement", "part"], name="archive_one_preferred_edition"),
+            models.CheckConstraint(
+                condition=models.Q(assignment__isnull=True) | models.Q(content_edition__isnull=True),
+                name="archive_preferred_one_input_kind",
+            ),
+        ]
 
 
 class EditionPreferenceChange(Record):
+    previous_content = models.ForeignKey(
+        "archive.ContentEdition",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="preference_changes_from",
+    )
+    selected_content = models.ForeignKey(
+        "archive.ContentEdition", on_delete=models.PROTECT, null=True, blank=True, related_name="preference_changes_to"
+    )
     preference = models.ForeignKey(PreferredEdition, on_delete=models.PROTECT, related_name="changes")
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     previous = models.ForeignKey(
@@ -658,7 +687,13 @@ class EditionPreferenceChange(Record):
     def clean(self):
         if not self._state.adding:
             raise ValidationError("Preference history is append-only.")
+        if (self.previous_id and self.previous_content_id) or (self.selected_id and self.selected_content_id):
+            raise ValidationError("Each historical preference selection has exactly one input kind.")
         scope = reference(self, "preference")
+        for field in ("previous_content", "selected_content"):
+            edition = reference(self, field)
+            if edition and (edition.part_id != scope.part_id or edition.arrangement_id != scope.arrangement_id):
+                raise ValidationError("Preference history must retain the same arrangement and playable part.")
         for field in ("previous", "selected"):
             assignment = reference(self, field)
             if assignment and assignment.part_id != scope.part_id:

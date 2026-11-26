@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_content_preferences.py`: exact-part legacy/content preference persistence,
+  protected change history, explicit priority and unavailable-choice fail-closed
+  behavior (AR-21, CAT-05). Full project content-input activation remains pending.
+
 - `test_content_export_views.py`: AR-20/21, EX-13 — authenticated/CSRF-protected
   content selection, explicit generation authorization, idempotency and stale
   rejection. Django client evidence only; real browser acceptance remains open.
