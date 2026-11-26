@@ -36,6 +36,7 @@ def preflight(request, project_id, kind="FULL"):
                 project.pk,
                 participant_ids=selection.cleaned_data["participants"],
                 position_ids=selection.cleaned_data["positions"],
+                include_content=True,
             )
             context["report"] = report
             if variant == "PRINT":
@@ -72,6 +73,7 @@ def preflight(request, project_id, kind="FULL"):
                         actor=request.user,
                         kind=kind,
                         variant=variant,
+                        include_content=True,
                     )
                     context["authorized_run"] = run
         except ValidationError as exc:

@@ -5,7 +5,7 @@ method reuses archive edition and project mapping/rule components without querie
 No DB mutation, publication, preflight acknowledgement or generation endpoint.
 """
 
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from uuid import UUID
 
 from django.core.exceptions import ValidationError
@@ -273,8 +273,7 @@ class ResolutionSession:
         position, person = self.positions.get(position_id), self.participants.get(participant_id)
         if position is None or person is None:
             raise ValidationError("Resolution cell is outside the selected active project graph.")
-        result_type = ContentProjectResolution if self.include_content else Resolution
-        base = result_type(self.project.pk, self.project.revision, position_id, participant_id, "INVALID")
+        base = Resolution(self.project.pk, self.project.revision, position_id, participant_id, "INVALID")
         if position.arrangement_id is None:
             return replace(base, status="RESERVE")
         if not position.arrangement.active or not position.arrangement.work.active:
@@ -365,7 +364,7 @@ class ResolutionSession:
                     warnings=("EXPLICIT_PART_SUBSTITUTION",),
                 )
         if isinstance(assignment, _ContentCandidate):
-            base = replace(base, content_edition_id=assignment.pk)
+            base = ContentProjectResolution(**asdict(base), content_edition_id=assignment.pk)
         elif assignment is not None:
             file = assignment.archive_file
             base = replace(
@@ -391,8 +390,17 @@ class ResolutionSession:
             from apps.archive.services import ArchiveConflict
 
             try:
-                current = confirmed_content_edition(result.content_edition_id)
+                current = confirmed_content_edition(result.content_edition_id, verify=False)
                 if current != self.content_candidates[result.content_edition_id].edition:
+                    return replace(result, status="INVALID", reasons=("ARCHIVE_SELECTION_CHANGED",))
+                for entry in current.inputs:
+                    key = (entry.file_id, entry.file_revision, entry.sha256)
+                    if key not in self._verified:
+                        file = archive.ArchiveFile.objects.get(pk=entry.file_id)
+                        self._verified[key] = library_services.verify_publication(file)
+                    if not self._verified[key]:
+                        return replace(result, status="CORRUPT", reasons=("INPUT_INTEGRITY_FAILURE",))
+                if confirmed_content_edition(result.content_edition_id, verify=False) != current:
                     return replace(result, status="INVALID", reasons=("ARCHIVE_SELECTION_CHANGED",))
             except ArchiveConflict:
                 return replace(result, status="INVALID", reasons=("ARCHIVE_SELECTION_CHANGED",))

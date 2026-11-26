@@ -1,5 +1,18 @@
 # Progress record
 
+## Shared project content presentation — 2026-11-26
+
+The production matrix and full/excerpt preflight now request the same inspected
+content resolver and schema-3 authorization path. Content cells show their exact
+edition/context instead of constructing invalid whole-file download links.
+Session-local publication verification is cached by file identity, revision and
+hash, while current content eligibility is rechecked for each cell. Thirty-one
+targeted presentation, resolver and traceability tests passed. Legacy outcomes
+retain their original dataclass contract. A synthetic POSIX worker acceptance
+test covers signed FULL content generation after a logical revision changes;
+it has not run locally on Windows and exact CI remains required. WP-54/55 are not marked complete. Native
+Windows writes remain disabled and no production deployment is authorized.
+
 ## Opt-in project content preflight and authorization — 2026-11-26
 
 The shared preflight can explicitly capture schema-3 inspected content through

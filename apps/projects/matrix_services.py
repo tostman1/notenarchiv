@@ -43,6 +43,7 @@ REPLACEMENT_ORIGINS = {
 def cell_context(session, result):
     return {
         "resolution": result,
+        "content_edition_id": getattr(result, "content_edition_id", None),
         "desired_part": session.parts.get(result.desired_part_id),
         "effective_part": session.parts.get(result.effective_part_id),
         "reasons": [REASONS.get(code, _("Zuordnung prüfen.")) for code in result.reasons],
@@ -71,7 +72,9 @@ def matrix_page(project_id, *, row_page=None, column_page=None, filters=None):
             people_query.order_by("display_name", "pk").values_list("pk", flat=True),
             COLUMNS_PER_PAGE,
         ).get_page(column_page)
-        session = ResolutionSession(project.pk, position_ids=list(row_ids), participant_ids=list(column_ids))
+        session = ResolutionSession(
+            project.pk, position_ids=list(row_ids), participant_ids=list(column_ids), include_content=True
+        )
     rows, people = [], list(session.participants.values())
     for position in session.positions.values():
         cells = [cell_context(session, session.verified_resolution(position.pk, person.pk)) for person in people]
