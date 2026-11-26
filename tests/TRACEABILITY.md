@@ -1,5 +1,110 @@
 # Implemented acceptance traceability
 
+DEC-15 processing scratch: `tests/test_pdf.py` injects a same-size change into
+the private input copy and verifies that processing stops before parser launch.
+`tests/test_pdf_recovery.py` checks removal of owned abandoned scratch and warns
+while preserving unknown entries. Worker parser scratch is separate from
+publication staging and its recovery proof.
+
+DEC-15 acknowledged CLEAN detection: `tests/test_indexing.py` removes or alters
+a synthetic acknowledged copy, repeats indexing and checks that the unavailable
+state is recorded while the path and applied operation remain reserved. It then
+restores exact bytes at that path and verifies revalidation against the receipt.
+
+GR-01/02, AR-01/02/09, OP-02/03/07:
+`tests/test_publication_contract.py` checks platform-independent publication
+policy rejects collisions, unsafe staging and read-only mutation before backend
+effects, and requires retained identity before durable recovery acknowledgement.
+Backend proof dispatch follows byte verification and precedes PDF inspection,
+entry verification and durability; actual POSIX proof logic is exercised with
+injected metadata for mismatched identities, unsafe types and link counts.
+`tests/test_job_lifecycle.py` injects post-mutation publication failure into the
+actual worker: persisted intent stays PENDING, acknowledgement/release remain
+unreachable, proof is retained and uncertain work is not blindly retried.
+These contracts supplement, not replace, physical publication/race tests and do
+not establish a native Windows writable backend.
+
+GR-01/02, AR-02/09, OP-03/07: `tests/test_stage_ownership.py` pins the exact POSIX
+effective-UID comparison and archive/export cleanup dispatch before discard,
+including owner and metadata failures. Mock consumer metadata has no POSIX UID;
+this proves encapsulation, not native Windows ownership enforcement.
+
+GR-01, OP-07: `tests/test_windows_security.py` checks current-process TOKEN_QUERY
+access, non-inheritable handle cleanup, bounded token buffers, sanitized failures,
+private SID representation and rejection of administrative/dangerous privilege
+evidence. Native smoke is Windows-only. RAW isolation/publication remain false
+even for acceptable token evidence; no ACL or process-role certification is implied.
+
+GR-01, OP-07: `tests/test_windows_root_security.py` covers pinned-handle descriptor
+queries, allocation release, bounded SID/ACL evidence, absent/null/empty DACLs,
+private owner representation and fail-closed missing READ_CONTROL. Native synthetic
+acceptance does not modify ACLs. Snapshot evidence always leaves RAW isolation and
+publication uncertified; effective access and durable enforcement remain untested.
+The source-reader suite also checks optional security-pin rights, strict boolean
+selection, unchanged read-only stream access and initial pin cleanup. Native root
+descriptor acceptance uses the public optional mode, not private handle replacement.
+
+GR-01, OP-07: `tests/test_windows_access_security.py` checks pinned-root AccessCheck
+evidence, query-only duplicate token access, bounded privilege buffers, mutation
+masks including delete-child, owner comparison and deterministic resource cleanup.
+Native acceptance queries only a synthetic directory. Root ACL snapshots do not
+cover descendants, parent-entry deletion or all process roles; capabilities stay
+uncertified even when effective root mutation rights are absent.
+Additional source/access tests cover context-scoped relative entries and the retained
+initial-parent pin, precise file/directory mutation masks, default-mode refusal,
+drive-root refusal, junction/hardlink rejection and query-failure cleanup. This is
+single-entry snapshot coverage, not recursive ACL enforcement or process-role proof.
+
+GR-01, OP-02/07: `tests/test_windows_raw_preflight.py` covers bounded recursive
+evidence, private aggregate reports, identity/owner/token/mutation rejections and
+incomplete traversal after cancellation, limits, query failures or inventory changes.
+Native nested synthetic traversal does not provision ACLs or certify isolation;
+all certification flags remain false, including for completed clean mock evidence.
+
+GR-16, AR-20/21: `tests/test_page_geometry.py` covers pure immutable canonical
+rectangle geometry, source-geometry fingerprints, all four rotations, offset crops,
+UserUnit conversion, display-transform round trips and invalid bounds. This is
+preparatory geometry evidence only, not source revision identity, visual approval,
+legacy migration, resolver integration or completed WP-54 acceptance.
+
+`tests/test_pdf_source_geometry.py` additionally proves opt-in original/effective
+CropBox retention, geometry-fingerprint distinction for equal effective crops,
+strict legacy-metadata rejection and unchanged legacy inspection serialization/IPC.
+These contracts do not bind source versions or activate content approval.
+
+## DEC-15 revised acceptance obligations (not implemented evidence)
+
+GR-01/02, AR-01/02, OP-02/03/05/07/08 retain existing source identity, hash,
+no-clobber, uncertainty/lifecycle, backup and platform tests. POSIX directory-flush
+tests remain implementation regression safeguards; immediate permanence of every
+parent creation/disposable deletion is no longer universal product acceptance.
+Add synthetic success/failure RAW-unchanged and OS-denial tests for every role with
+reader handles closed; independent verified processing-copy/no-RAW-hardlink tests;
+mutation/interrupted staging and publication/DB-window tests; acknowledged missing,
+partial/corrupt reference detection, reconstruction with exact surviving inputs,
+historical last-copy preservation and review-required conflicts; scratch quota,
+abandoned cleanup/active-workspace/uncertain-proof protection and warning behavior;
+Windows/Linux functional parity. Existing process-kill evidence is application-
+crash recovery only. Approved/non-reproducible artifacts and authoritative DB/history
+retain backup/restore obligations. These are remaining coverage targets, not a claim
+that the revised contract, native writes or production RAW isolation is verified.
+
+## Native read-only Windows source boundary
+
+GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual
+source traversal/hash/reread metadata on Windows and Linux. Windows cases use
+real handles, hardlinks and reparses: unsafe leaves/parents and namespace aliases
+are rejected; streams reject writes and conflicting opens/renames; ancestors are
+pinned; a replaced child cannot redirect later reads; directory mutation aborts
+inventory; root reentry and failed initialization cannot leak/lossily replace
+owned handles. A known 100-ns timestamp and real hardlink identity provide
+independent metadata oracles. Missing roots/writable backends cause no writes.
+Additional real junction cases verify reparse leaves/ancestors and replaced-child
+redirection without requiring symlink creation privilege; symlink cases remain.
+The adapter is explicitly local NTFS/read-only. These tests do not prove global
+RAW ACL denial, native publication/recovery, network shares or desktop packaging.
+Existing actual POSIX indexing/publication/generation/backup suites remain gates.
+
 ## Shared managed-runtime proof
 
 OP-07, GR-13, OP-02/03: `tests/test_portable_runtime.py` executes the synthetic

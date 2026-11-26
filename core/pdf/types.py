@@ -62,6 +62,18 @@ class PageInfo:
 
 
 @dataclass(frozen=True)
+class SourcePageGeometry:
+    """Opt-in parser geometry; not part of legacy inspection IPC or manifests.
+
+    PageInfo.crop_box remains effective. Original CropBox must come from the
+    exact source page, never reconstruction from legacy metadata.
+    """
+
+    page_info: PageInfo
+    original_crop_box: tuple[float, float, float, float]
+
+
+@dataclass(frozen=True)
 class DocumentInfo:
     sha256: str
     pages: tuple[PageInfo, ...]

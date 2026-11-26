@@ -57,8 +57,8 @@ as presented: the additive source/page/region/content-edition model with
 revision-bound visual confirmation and protected legacy compatibility in
 ARCHITECTURE.md, together with the expanded core template scope including duplex,
 cutting and folding and the dependency-ordered roadmap in IMPLEMENTATION_PLAN.md.
-Complete the portability foundation first, then continue implementation under
-the standing autonomous authority.
+Complete the portability foundation first (sequencing amended by DEC-15), then
+continue implementation under the standing autonomous authority.
 
 This decision is material because ArchiveFile currently has one arrangement,
 approval is file-scoped and snapshots pin file assignments. Partial collection
@@ -74,6 +74,74 @@ block the core release. No separate approval is needed for ordinary implementati
 choices inside the accepted envelope after DEC-13. This decision does not
 authorize production deployment, real-data migration, physical acceptance or
 external interoperability services. Unaffected portability work continues.
+## Windows storage continuation decision — 2026-11-26
+
+**DEC-14 — Approved by the owner.** Use a dedicated non-administrative Windows
+application identity that does not own RAW and receives read-only access as the
+target for independent RAW isolation. Actual account/ACL provisioning, production
+deployment and physical acceptance retain separate authorization gates.
+
+The coordinator may approve and implement a bounded Windows-compatible persistence
+and recovery alternative after reviewing technical evidence. Linux and Windows
+need not use identical mechanisms, but externally observable RAW protection,
+archive integrity, durability and recovery guarantees must remain equivalent
+under the data-class-specific contract amended by DEC-15 below.
+Encapsulate platform mechanisms behind the shared backend interface and preserve
+existing Linux functionality. Windows writes remain disabled until the required
+guarantees are demonstrated and verified. Sol investigates architecture; Qwen
+provides suitable independent verification and tests. Escalate any material
+reduction of guarantees, major architectural redesign or unresolved technical
+limitation. Do not unnecessarily block independent development. This decision
+does not certify a namespace barrier or authorize changes to real RAW permissions.
+
+## Pragmatic storage safety and recovery — 2026-11-26
+
+**DEC-15 — Approved by the owner.** Partially supersedes DEC-14's strict
+external-file durability equivalence: immediate permanent persistence of every
+directory creation, rename or disposable recovery-file deletion is not a product
+requirement. Acknowledged external publications may require detectable, safe
+reconciliation or reconstruction after abrupt power loss. This is an authorized
+product-contract change, not evidence that a namespace barrier was implemented.
+
+RAW remains independently OS-protected and application-immutable. Retain the
+dedicated non-admin Windows identity, no RAW ownership/mutation rights, Linux/NAS
+read-only mounting, platform encapsulation and all unrelated security gates.
+Routine execution is non-admin; real account/ACL provisioning, installations,
+archive changes and physical acceptance need separate authorization.
+
+SQLite and confirmed metadata remain authoritative, with transaction integrity,
+appropriate durability, consistent backup/restore and preserved history. CLEAN
+remains physically independent, SHA-256-identical and independently usable.
+Reconstruct missing publications only from the exact verified source version;
+never assume historical CLEAN is disposable or delete its last surviving copy.
+Regenerate derivatives only while required inputs/settings remain available;
+preserve non-reproducible work, approved derivatives and necessary history.
+
+Potentially mutable PDF/OCR/tool inputs use a physically independent, hash-verified
+working snapshot copied through validated read-only source access with mutation
+detection and provenance. Never use RAW hardlinks or writable RAW paths; pure
+enumeration/hashing needs no copy. Reuse safe immutable snapshots within a job.
+Use bounded, validated, application-owned job scratch; cleanup must protect active
+workspaces, uncertain recovery proof and unrelated files. Disposable cleanup failure
+normally warns recoverably, rather than invalidating a successful archive operation.
+
+Retain complete verified staging, safe no-clobber publication, operation intent,
+transactional result records and reconciliation across file/DB failure windows.
+Never serve partial/corrupt/missing references as valid or blindly replay uncertain
+mutations. Preserve evidence and expose actionable review when recovery is unsafe.
+No second DB, distributed transaction, custom journal or new storage service is
+authorized merely for this contract. Existing stronger POSIX mechanisms may remain.
+
+Shared portability interfaces/read-only functionality unblock platform-independent
+WP-54/55 when their other dependencies are satisfied. Native Windows writable
+acceptance, production security configuration and final packaging are separate;
+Windows writes stay disabled until applicable revised safety tests pass. Missing
+per-directory flush or permanent temporary deletion guarantees alone no longer
+block release. Process-kill tests prove application-crash recovery, not physical
+power-loss durability. Preserve valid existing evidence and use proportionate
+acceptance against non-recoverable risks. This assignment ends with a documentation
+handoff, not implementation, merge, deployment or real-data migration.
+
 ## Recommended defaults for owner acceptance
 
 Owner authorization, 2026-11-24 (DEC-10): deliver a separate current-feature

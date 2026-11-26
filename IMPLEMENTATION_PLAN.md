@@ -12,7 +12,9 @@ The owner specification and Appendix A are consolidated in REQUIREMENTS.md.
 Existing completed acceptance remains historical evidence for its original scope.
 New region/collection/template acceptance is not implied by earlier WP completion.
 DEC-13 was approved by the owner on 2026-11-25. Preserve routine
-autonomy for consistent work and complete portability first. Do not resume the
+autonomy for consistent work. DEC-15 separates verified shared portability from
+outstanding Windows writable/security/packaging acceptance; the latter does not
+block shared WP-54/55 implementation. Do not resume the
 file-level OCR prototype before its page/region assumptions are reconciled.
 WP identifiers are stable and are not execution order. Verified existing maximum
 was WP-53 with lettered packages. New allocations below use previously unused IDs.
@@ -20,7 +22,7 @@ was WP-53 with lettered packages. New allocations below use previously unused ID
 | Cohesive delivery boundary | Dependencies and scope | Acceptance boundary |
 | --- | --- | --- |
 | Portability completion | WP-06p with existing WP-06/07/08 contracts | Shared runtime is verified through PR #57. Complete native Windows storage isolation and supervised runtime/profile proof. Final installer and physical NAS remain separate. |
-| Source/content migration | WP-54 extends WP-13/17 | DEC-13 plus portability. Additive schema/backfill, legacy adapter, protected history, interruption/restore parity. Split as a focused high-risk migration increment. |
+| Source/content migration | WP-54 extends WP-13/17 | DEC-13/15 plus verified shared portability interfaces/read-only contracts, not final Windows write/security/packaging acceptance. Additive schema/backfill, legacy adapter, protected history, interruption/restore parity. Split as a focused high-risk migration increment. |
 | Musical identity and editions | WP-55 extends WP-11/32/35 | WP-54. Collections versus movements, metadata inheritance, ordered multi-source editions and unchanged legacy resolver behavior. |
 | Bounded ingestion and segmentation | WP-24/25 and WP-56 extend WP-15/16/19 | WP-54/55. Region/page evidence, continuations, manual batch ingestion, basic blanks/duplicates, resource bounds and recoverable jobs. |
 | Region review and archive integration | WP-26/27 with WP-20a/b extensions | Prior content/ingestion contracts. Actual-source inspection, revision-bound approval, partial indexing, safe lifecycle and correction. |
@@ -849,21 +851,44 @@ previewable. Never infer hardware support from synthetic imposition tests.
 inventory metadata and bounded staging boundaries on the supported backends.
 PR #59/60 add guarded startup paths and backend-owned filesystem consumers.
 The synthetic managed-runtime tool covers initialization, single-instance
-locking, loopback auth/CSRF, web/worker shutdown and SQLite restore; targeted
-Windows tests passed and its integration CI remains pending. This proves shared
+locking, loopback auth/CSRF, web/worker shutdown and SQLite restore; PR #61 and
+exact Main CI 45694893160 verified it on Linux/Windows. This proves shared
 building blocks, not native archive publication or a packaged desktop launcher.
+The following increment implements read-only local NTFS source handles with
+native identity/time metadata and pinned no-reparse traversal. Thirteen native
+Windows tests passed; subsequent source/security/geometry increments passed exact
+PR #62 CI at `d5460588c999251e5f98a4184538528029ddbaeb`. This is not a merged
+or complete Windows edition. Writable publication,
+network storage and independent RAW ACL enforcement remain separate open work.
 Implement and verify the remaining native Windows safe-storage boundary and
 trusted configured runtime paths, locking, initialization and managed loopback
 lifecycle proof without weakening NAS mounts/auth/CSRF. Separate writable data
 from installed code. Exercise reparse/symlink escapes, collisions, crash recovery,
 unchanged originals, graceful shutdown and isolated SQLite restore on synthetic
 Windows/Linux inputs. Keep unavailable native functions explicit until equivalent
-acceptance passes. No final installer or physical NAS acceptance in this package.
+acceptance under DEC-15 passes. No final installer or physical NAS acceptance in this package.
+
+**Separate gates:** Shared interfaces/runtime/read-only source functionality are
+established prerequisites for platform-independent WP-54/55. Native Windows writes,
+production RAW security provisioning and desktop packaging have independent gates;
+do not block shared core work indefinitely or enable unsupported writes.
+**Revised acceptance:** Verified complete independent staging and working inputs,
+SHA-256 CLEAN equality, source mutation detection, no-clobber/collision/path races,
+operation intent and interruption reconciliation across publication/DB windows;
+detect invalid/missing acknowledged files before use, reconstruct reproducible
+results only from exact retained inputs, preserve last historical copies and
+confirmed metadata. Validate bounded scratch and safe inactive-workspace cleanup,
+active-job/uncertain-proof protection and recoverable disposable-cleanup warnings.
+Independent OS RAW denial across process roles remains mandatory. Missing immediate
+parent-directory or disposable deletion persistence alone is no longer a blocker.
+Reuse existing evidence; process-kill tests do not prove physical power-loss behavior.
 
 ### WP-54 — Source/page/region model and safe compatibility migration
 
 **Requirements:** GR-16, AR-20/21/26, EX-13, OP-08.
-**Dependencies:** DEC-13, WP-06p, existing WP-13/14/17/47a.
+**Dependencies:** DEC-13/15, verified shared-runtime/read-source and platform
+interfaces from WP-06p, existing WP-13/14/17/47a. Outstanding native Windows
+writable/security/packaging acceptance is not an implementation dependency.
 **Implement:** Add stable source-page, revisioned region/logical-page and ordered
 content-reference identities. Preserve existing file identities/publication
 constraints and introduce the confirmed whole-file compatibility adapter.

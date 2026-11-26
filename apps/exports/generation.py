@@ -1,7 +1,6 @@
 """Snapshot-only composition with durable, fenced, no-clobber publication."""
 
 import json
-import os
 import time
 from contextlib import ExitStack, suppress
 from dataclasses import asdict, replace
@@ -19,7 +18,7 @@ from apps.projects.preflight_services import fingerprint
 from core import files, preview
 from core.naming import component
 from core.pdf import Limits, Processor
-from core.pdf.recovery import prune
+from core.pdf.recovery import prune_disposable
 from core.pdf.staging import stage_bytes
 
 MAX_RUN_BYTES = 512 * 1024**2
@@ -91,15 +90,17 @@ def _roots(stack, using="default"):
     paths.append(Path(connections[using].settings_dict["NAME"]).absolute().parent)
     if any(a.is_relative_to(b) or b.is_relative_to(a) for i, a in enumerate(paths) for b in paths[:i]):
         raise files.FileError("OVERLAPPING_ROOTS")
-    roots = [stack.enter_context(files.Root(p, writable=i >= 3)) for i, p in enumerate(paths)]
-    if len({files.identity(os.fstat(r.fd)) for r in roots}) != len(roots):
+    roots = [
+        stack.enter_context(files.source_root(path) if index == 0 else files.Root(path, writable=index >= 3))
+        for index, path in enumerate(paths)
+    ]
+    if len({files.identity(root.root_metadata()) for root in roots}) != len(roots):
         raise files.FileError("OVERLAPPING_ROOTS")
     return roots[3], roots[4]
 
 
 def _processor(data_root, checkpoint):
-    with data_root.parent(".staging/generation/placeholder", create=True):
-        pass
+    data_root.prepare_parent(".staging/generation/placeholder")
     return Processor(
         data_root.path / ".staging/generation",
         checkpoint=checkpoint,
@@ -123,8 +124,7 @@ def _cleanup(context, publication, root):
         path = f".staging/{publication.pk.hex}/attempt-{number}.pdf"
         if root.exists(path):
             info = root.metadata(path)
-            if info.st_uid != os.geteuid():
-                raise files.FileError("UNSAFE_STAGING")
+            root.validate_stage_owner(info)
             files.discard_stage(root, path, files.identity(info))
 
 
@@ -239,8 +239,7 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             )
         )
         processor.checkpoint()
-        with root.parent(publication.relative_path, create=True):
-            pass
+        root.prepare_parent(publication.relative_path)
 
         def apply():
             try:
@@ -325,7 +324,7 @@ def run(context):
     with ExitStack() as stack:
         root, data_root = _roots(stack, context.using)
         processor = _processor(data_root, guard)
-        prune(data_root, ".staging/generation")
+        prune_disposable(data_root, ".staging/generation")
         total = 0
         for index, person in enumerate(targets(snapshot)):
             context.checkpoint(min(90, index * 90 // len(targets(snapshot))))
@@ -408,7 +407,7 @@ def recover_cleanup(context):
     with ExitStack() as stack:
         root, data_root = _roots(stack, context.using)
         _processor(data_root, context.checkpoint)
-        prune(data_root, ".staging/generation")
+        prune_disposable(data_root, ".staging/generation")
         for publication in ExportPublication.objects.filter(run__job_id=context.job_id):
             intents = OperationIntent.objects.filter(job_id=context.job_id, key=effect_key(publication))
             intent = intents.first()
@@ -420,8 +419,7 @@ def recover_cleanup(context):
                 path = f".staging/{publication.pk.hex}/attempt-{number}.pdf"
                 if root.exists(path):
                     info = root.metadata(path)
-                    if info.st_uid != os.geteuid():
-                        raise files.FileError("UNSAFE_STAGING")
+                    root.validate_stage_owner(info)
                     files.discard_stage(root, path, files.identity(info))
 
 

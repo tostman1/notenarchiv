@@ -1,5 +1,105 @@
 # Shared runtime and Windows distribution
 
+## Native source-reader increment
+
+`core.files.source_root` selects a read-only native Windows source adapter or the
+existing POSIX source root. Archive/export services use backend-owned root
+metadata and parent preparation instead of directory descriptors. Managed writes,
+backup and publication still use the separate supported backend; selecting the
+Windows reader does not enable those operations.
+
+Shared publication policy now dispatches no-clobber publication, exact entry
+verification, retained-stage proof, durability and cleanup through backend-owned methods.
+POSIX retains its descriptor-relative implementation and directory flushes.
+Stage cleanup ownership checks also belong to the backend; the POSIX effective-
+UID check is unchanged. Archive/export consumers no longer interpret POSIX UID
+fields themselves. This is not a native Windows ownership implementation.
+`tests/test_publication_contract.py` checks the shared policy/effect boundary on
+both platforms; these mock-backed contracts do not prove native writable storage.
+The actual worker lifecycle regression retains PENDING proof and requires review
+after an injected post-mutation durability failure; it proves uncertainty handling,
+not power-loss durability.
+
+DEC-14 selects a dedicated non-admin Windows application identity that does not
+own RAW; account and ACL provisioning require separate authorization. All data-
+capable process roles must share independently enforced RAW denial, including
+when reader handles are closed. DEC-15 partially supersedes strict namespace
+durability equivalence: missing non-admin barriers for separately created parents
+or permanent disposable recovery-file deletion alone no longer block acceptance.
+Native writes remain disabled because safe writable publication/reconciliation
+and independent production RAW isolation are not implemented/verified. Preserve
+complete content, identity/no-clobber checks, authoritative DB history and detection
+of invalid file references; reconstruct only from exact retained verified inputs.
+An acknowledged file may need reconciliation after abrupt power loss. This does
+not make historical CLEAN disposable or permit blind retry. Process-kill evidence
+remains application-crash evidence, not physical power-loss proof.
+
+`core.windows_security` queries only the current primary process token with
+TOKEN_QUERY. It gathers private identity comparison inputs, elevation, enabled
+administrator membership and privilege presence; dangerous privileges are rejected
+even when disabled. SID bytes are excluded from the default representation.
+Its capability result always leaves RAW isolation and writable publication
+uncertified. Root ownership, descendant ACL/effective access, parent delete-child
+exposure, configured identity, thread impersonation and child-process enforcement
+still require separate checks. Production startup is not changed by this adapter.
+
+`core.windows_root_security` queries owner/DACL descriptor evidence from an
+already pinned source-root handle. It never reopens a pathname or changes handle
+access. Default source pins lack READ_CONTROL, so the query fails closed.
+Explicit `WindowsSourceRoot(..., inspect_security=True)` requests it only during
+initial root/ancestor pinning; native synthetic acceptance uses this public mode.
+Source streams remain read-only with unchanged sharing and access. The shared
+source factory and production startup do not opt into this evidence mode.
+Absent, null, empty and protected DACLs are distinguished, with bounded descriptor
+and ACE sizes and private owner-SID representation. These snapshots do not prove
+effective access or persistent RAW enforcement and never certify publication.
+
+`core.windows_access_security` adds read-only AccessCheck evidence for the pinned
+root directory against a query-only duplicate of the current primary token.
+It records effective mutation rights, ownership comparison and token risks;
+descriptor allocation includes owner/group/DACL and is released after the check.
+No thread impersonation or write attempts occur. Explicit inspection mode also
+supports context-scoped relative file/directory evidence through validated pinned
+traversal, with read-only entry sharing, reparse/hardlink rejection and post-use
+metadata checks. Immediate-parent evidence uses its retained initial traversal pin,
+never a reopened parent pathname; drive-root parent requests fail closed. File and
+directory mutation masks differ. This adapter alone supplies no recursive coverage,
+dedicated identity matching or enforcement across process roles. Even zero mutation rights
+never certify RAW isolation or stable ACL enforcement.
+
+`core.windows_raw_preflight` aggregates root, parent and recursive descendant
+evidence with bounded entry/depth/time limits and cancellation checkpoints.
+Reports contain only counts and rejection codes, not paths or SIDs. Disappearing,
+changed, unsafe or unqueryable entries produce an incomplete result; a completely
+traversed but unsafe inventory remains distinguishable. Directory baselines are
+rechecked after descendants. This is not an atomic ACL snapshot or persisted
+security policy: identity provisioning, parent-chain protection and process/thread
+enforcement still require separate work. Certification flags always remain false.
+
+The initial Windows adapter supports fixed local NTFS volumes only. It pins every
+ancestor directory, rejects reparse components, device/alternate-stream/trailing-
+dot aliases and noncanonical opened paths, and opens source streams without write
+access or write/delete sharing. Native file-ID/volume and 100-ns last-write/change
+metadata are used consistently for traversal, hashes and rereads. A real rename
+test exposed that attribute-only handles did not pin directories reliably; the
+adapter now also requests READ_DATA/LIST_DIRECTORY without requesting write access.
+Thirteen native Windows tests passed, including exact timestamp/identity oracles,
+reparse and hardlink rejection, root/stream pinning, failed-initialization cleanup,
+directory mutation and child-directory replacement. PR #62 passed Foundation,
+Container and Windows checks at `d299efe18328f25e1b1ece896253099eaca542e8`;
+later implementation passed exact checks at
+`d5460588c999251e5f98a4184538528029ddbaeb`; any newer transfer HEAD requires its
+own verification before integration. The generic source/hash
+regression also runs on Linux.
+
+This establishes read-only handles and active sharing locks. Independent RAW ACL
+denial for every application process, native writable publication/recovery, UNC/
+network/non-NTFS storage and installed desktop acceptance remain open. No ACLs or
+original files are modified by this adapter. Unsupported operations fail closed.
+The implementation follows Microsoft's [CreateFile sharing/reparse contract](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)
+and [handle information API](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getfileinformationbyhandleex),
+including [native time fields](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_basic_info).
+
 ## Local initialization guard increment
 
 The local synthetic profile validates archive-root nesting and database/secret/
@@ -26,8 +126,9 @@ requests with normal authentication/CSRF, one worker's lease/release, bounded
 shutdown and an isolated SQLite backup/restore. Its subprocess regression uses
 a foreign working directory and conflicting inherited installation settings;
 the protected synthetic sentinel is unchanged. Targeted Windows execution
-passed with twelve startup/worker/runtime tests. Exact Linux/Windows integration
-CI is pending. The WSGI reference server is test-only. This is evidence for the
+passed with twelve startup/worker/runtime tests. PR #61 is integrated at
+`ab172f6f942d5de743aec21aa6f0222caaa9798e`; exact Main CI 45694893160 passed
+Foundation, Container, Windows and changes. The WSGI reference server is test-only. This is evidence for the
 shared lifecycle building blocks, not a shipped launcher or desktop edition.
 Native archive safety, managed production serving, full installation restore,
 packaging and physical acceptance retain their separate contracts.
@@ -42,9 +143,25 @@ WP-06p tracks the remaining high-priority foundation work. Validate the native
 storage boundary without relaxing reparse/identity/no-clobber/RAW contracts and
 exercise configured roots, initialization/locking, owned loopback lifecycle,
 graceful shutdown and restore on synthetic Windows/Linux inputs. Complete these
-foundation gates before major expanded product work. The final installer remains
-separate distribution acceptance. Region/content architecture and future OCR
-dependencies must preserve these boundaries.
+shared foundation contracts for expanded product work; remaining Windows writable
+acceptance and production security configuration do not block WP-54/55 on supported
+backends. The final installer remains separate distribution acceptance.
+Region/content architecture and future OCR dependencies must preserve these boundaries.
+
+## Revised acceptance obligations (DEC-15)
+
+Reuse verified source/policy/lifecycle tests; they are not retrospective proof of
+unimplemented recovery. Add targeted synthetic tests for unchanged RAW through
+success/failure and OS-denied writes with handles closed across every process role;
+physically independent hash-verified working copies and source mutation; interrupted
+staging/publication/DB acknowledgement; missing/corrupt acknowledged references and
+safe reconstruction; preserved last historical CLEAN; collision races/no-clobber;
+abandoned scratch cleanup, active-workspace and uncertain-proof protection; bounded
+scratch/memory; and Windows/Linux parity. Isolated DB/necessary-file backup/restore
+remains mandatory. Disposable cleanup warnings are acceptable; deleting unknown,
+active, referenced or last-copy files is not. Process termination tests cover
+application crashes; physical power-loss testing needs proportional risk assessment
+and separate authorized facilities. No actual permissions or data are changed here.
 
 ## Runtime recommendation
 
@@ -90,7 +207,8 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   Publication/recovery, export cleanup and backup writes still use directory
   descriptors directly. Windows archive access
   requires handle-relative traversal, reparse rejection, independent RAW write
-  denial, file identity checks, no-clobber publication and tested crash durability.
+  denial, file identity checks, no-clobber publication and tested abrupt-failure
+  integrity/reconciliation under DEC-15, not immediate namespace permanence.
   Keep operations unavailable until the backend and its consumers pass equivalent
   race, collision, withdrawal and recovery tests. Ordinary path normalization
   alone cannot meet this contract.

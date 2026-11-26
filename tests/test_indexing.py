@@ -118,6 +118,73 @@ def test_complete_new_import_verifies_copies_and_raw_is_identical(indexed_instal
     assert not list((root / "raw").rglob("INDEXSTATUS.json"))
 
 
+@pytest.mark.parametrize("state", ["MISSING", "CORRUPT"])
+def test_index_records_unavailable_clean_without_replacing_publication(indexed_installation, state):
+    installation = indexed_installation
+    identities = installation.action("setup")
+    installation.worker()
+    identities = installation.action("review", identities)
+    installation.worker()
+    approved = installation.action("check-approved", identities)
+    clean = installation.root / "clean"
+    copy = clean / approved["path"]
+    (historical,) = set(clean.rglob("*.pdf")) - {copy}
+    original = copy.read_bytes()
+    revision, receipt = installation.code(
+        "from apps.archive import models as m\nfile=m.ArchiveFile.objects.get()\n"
+        "print(file.revision,file.publication_operation_id)\n",
+        {},
+    ).split()
+    if state == "MISSING":
+        copy.unlink()
+    else:
+        replacement = installation.root / "synthetic-corrupt-copy"
+        corrupted = original[:-1] + bytes([original[-1] ^ 1])
+        replacement.write_bytes(corrupted)
+        replacement.replace(copy)
+
+    for _ in range(2):
+        job = enqueue(installation)
+        installation.worker()
+        installation.code(
+            "from apps.archive import models as m\nfrom apps.jobs.models import Job\n"
+            "file=m.ArchiveFile.objects.get()\n"
+            "assert file.publication_state==data['state'] and file.review_state=='CONFIRMED'\n"
+            "assert not m.ArchiveFile.objects.usable().exists()\n"
+            "assert file.operations.count()==2 and file.publication_operation.kind=='CANONICALIZE'\n"
+            "assert file.publication_operation.state=='APPLIED'\n"
+            "assert str(file.revision)==data['revision'] and str(file.publication_operation_id)==data['receipt']\n"
+            "entry=Job.objects.get(pk=data['job']).index_scan.entries.get()\n"
+            "assert entry.state=='FAILED' and entry.error_code=='CLEAN_'+data['state']\n",
+            {"job": job, "state": state, "revision": revision, "receipt": receipt},
+        )
+    if state == "MISSING":
+        assert list(clean.rglob("*.pdf")) == [historical]
+    else:
+        assert set(clean.rglob("*.pdf")) == {copy, historical} and copy.read_bytes() == corrupted
+    assert historical.read_bytes() == original
+
+    restored = installation.root / "synthetic-restored-copy"
+    restored.write_bytes(original)
+    restored.chmod(0o440)
+    restored.replace(copy)
+    job = enqueue(installation)
+    installation.worker()
+    installation.code(
+        "from apps.archive import models as m\nfrom apps.jobs.models import Job\n"
+        "file=m.ArchiveFile.objects.get()\n"
+        "assert file.publication_state=='AVAILABLE' and file.review_state=='CONFIRMED'\n"
+        "assert m.ArchiveFile.objects.usable().get()==file\n"
+        "assert file.operations.count()==2 and file.publication_operation.kind=='CANONICALIZE'\n"
+        "assert file.publication_operation.state=='APPLIED'\n"
+        "assert str(file.revision)==data['revision'] and str(file.publication_operation_id)==data['receipt']\n"
+        "assert Job.objects.get(pk=data['job']).index_scan.entries.get().state=='COPIED'\n",
+        {"job": job, "revision": revision, "receipt": receipt},
+    )
+    assert set(clean.rglob("*.pdf")) == {copy, historical}
+    assert copy.read_bytes() == historical.read_bytes() == original
+
+
 def test_changed_missing_corrupt_and_unchanged_sources_preserve_history(indexed_installation):
     installation = indexed_installation
     root = installation.root

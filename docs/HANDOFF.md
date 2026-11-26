@@ -1,187 +1,124 @@
 # Development handoff — OpenCode to Codex
 
-Date: 2026-11-25. This is the latest transfer snapshot, not a new product design.
-Git and the binding repository documents are authoritative; no chat is required.
+## Transfer snapshot — 2026-11-26
 
-## Transfer target and authorization
+- Repository: `tostman1/notenarchiv`
+- Transfer branch: `codex/windows-source-reader` (upstream same branch at origin).
+- Comparison base: `ab172f6f942d5de743aec21aa6f0222caaa9798e` (integrated PR #61;
+  exact Main CI `45694893160`). Review all commits/diffs since this base.
+- Last implementation checkpoint: `d5460588c999251e5f98a4184538528029ddbaeb`.
+- Pre-amendment documentation checkpoint: `65c94e1155b88fe86a197e42f9ed601be513c747`.
+- Active PR: #62, open **draft**; unfinished, not merge-ready.
+- WP-06p: partial; native writes disabled. WP-54: geometry preparation only,
+  models/migrations/workflows not activated. WP-55 remains planned.
 
-- Repository: `tostman1/notenarchiv`; remote: `https://github.com/tostman1/notenarchiv.git`.
-- Transfer branch: `fix/ci-waiter-p0`; PR [#55](https://github.com/tostman1/notenarchiv/pull/55), open, targeting `main`.
-- Comparison base / current verified main: `0d24dae03711254e48a0c167c36ff44a74de4600`.
-- P0 implementation commit: `fa675797c2f310ce476deaf4d3aebb402d23b585`.
-- The reported older baseline `3dc3eb4e5cde0e3ed6761564ceefb29e956693f2`
-  integrated PR #53; Main CI `45512749289` succeeded at that exact SHA.
-  Since then PR #54 integrated release-evidence documentation at the comparison
-  base; Main CI `45574328173` succeeded at that exact SHA. No application change
-  occurred between those two main checkpoints.
-- P0 is implemented on the feature branch, **not merged**. Its owner instruction
-  requires separate explicit merge authorization; this handoff does not supply it.
-  No P1/P2, new product package, release, deployment, NAS access or branch deletion
-  is authorized. Preserve existing branches and work.
-- The final pushed branch HEAD must have subject exactly
-  `chore(handoff): prepare agent transfer` and trailer `Handoff-Ready: yes`.
-  Its SHA is obtained from GitHub, not a self-referential hash in this file.
-  Any later commit invalidates that marker until another transfer commit exists.
-  Final-marker CI is separate: use the exact-HEAD PR checks recorded on GitHub;
-  never infer it from the implementation CI below.
+This snapshot is included in the final transfer commit. Its SHA cannot be embedded
+in its own contents: obtain the exact final remote HEAD and verify the mandatory
+AGENTS.md subject/trailer gate. A valid marker permits takeover, not a merge,
+release, real-data migration, permission change or production deployment.
 
-## Repository reconstruction map
+## Implemented and preserved
 
-Read `AGENTS.md`, `REQUIREMENTS.md` (binding stable IDs), `ARCHITECTURE.md`
-(target/invariants), `DECISIONS.md` (DEC-01–11, defaults D-01–15, evidence V-01–08),
-`IMPLEMENTATION_PLAN.md` (package scope/dependencies/acceptance), then
-`docs/PROCESS.md` and `docs/standard-checks.md` (canonical development/check gates).
-`docs/PROGRESS.md` contains dated evidence/history; its current summary supersedes
-older interim status rows. `docs/DEVELOPMENT_SEQUENCE.md` contains historical
-counts/authorizations, not permission to restart old packages. README's older
-preview feature list is not a current capability inventory: use
-`config/features.py`, its tests, this snapshot and the integrated source instead.
+- Native read-only fixed-local-NTFS source reader: volume/file IDs, 100-ns native
+  metadata, pinned validated traversal, namespace/reparse/hardlink rejection,
+  read-only non-inheritable streams and conflicting write/rename protection.
+- Backend-owned source selection, publication effects/proof, ownership and cleanup
+  boundaries; POSIX behavior retained. Shared failure contracts and actual worker
+  PENDING/REVIEW_REQUIRED regression preserve proof after injected effect failure.
+- Opt-in read-only Windows token, descriptor, effective access and bounded recursive
+  RAW-preflight evidence, scoped descendant/parent pins. **Always uncertified**:
+  no production ACL/account provisioning or complete process/thread RAW enforcement.
+- Immutable bounded source geometry/regions and invertible display transforms;
+  original/effective CropBox and UserUnit/rotation fingerprint; opt-in lossless
+  parser wrapper. Legacy PageInfo/inspection IPC unchanged. No region approval,
+  resolver extension, source/content models or migration is claimed implemented.
+- DEC-15 documentation amendment: revised storage authority/recovery, isolated
+  processing scratch, proportionate acceptance and decoupled shared roadmap.
 
-Actual structure: `config/` settings, URLs and capability inventory; `apps/`
-accounts/catalog/members/archive/projects/exports/printing/jobs; domain services
-under those apps; pure PDF processing in `core/pdf/`; local templates/static
-assets; migrations and synthetic tests; `scripts/`; `.github/workflows/`;
-`Dockerfile`, Compose and `deploy/synology-test/`. Presence of an app, route stub
-or target library in architecture is not evidence that its feature is complete.
+## Verification evidence and limits
 
-Domain contracts: `docs/JOB_FRAMEWORK.md`, `ARCHIVE_MODEL.md`, `FILE_PUBLICATION.md`,
-`INDEXING.md`, `RECOGNITION.md`, `PDF_CORE.md`, `PDF_PREVIEW.md`, `CATALOG.md`,
-`EDITIONS.md`, `PROJECTS.md`, `PIECE_LIST.md`, `PARTICIPANTS.md`, `ENSEMBLE.md`,
-`RULES.md`, `RESOLUTION.md`, `MATRIX.md`, `MATRIX_EDITS.md`, `MATRIX_BATCH.md`,
-`PREFLIGHT.md`, `GENERATION_SNAPSHOTS.md`, `PDF_COMPOSITION.md`,
-`PERSONAL_GENERATION.md`, `PROJECT_EXPORTS.md`, `PRINT_LAYOUT.md`, `PRINT_PDF.md`
-and `EXPORT_LIBRARY.md`. Test links/requirement coverage: `tests/TRACEABILITY.md`.
-German archivist manuals are in `docs/`; German test-install guide is
-`deploy/synology-test/README.de.md`.
+Reuse results when code is unchanged; never apply older CI to a newer SHA.
 
-## Implemented / software verified / integrated
+- Exact PR #62 Foundation, Container and Windows checks passed at
+  `d5460588c999251e5f98a4184538528029ddbaeb` via deterministic SHA-bound waiter.
+  Earlier verified checkpoints are recorded in PROGRESS.
+- Pre-amendment HEAD `65c94e1155b88fe86a197e42f9ed601be513c747`: all three checks
+  observed completed SUCCESS, workflow run `45815589039`. No outstanding checks
+  were observed before the documentation update.
+- Final documentation/transfer SHA: CI is **not verified in this snapshot**.
+  Publishing triggers CI; pending/new results must not be called green. No merge
+  is planned and no expensive full regression rerun solely for this handoff.
+- Latest geometry/source suites: 114 passed; bounded RAW preflight: 35 passed with
+  native synthetic traversal; source/access: 72 passed with exactly two known
+  privileged symlink-setup cases excluded in that focused run (assertions unchanged).
+- Full local Windows regression earlier: 942 passed, 2 failed, 143 skipped;
+  both failures were symlink setup WinError 1314, not passed assertions. Initial
+  120-second run timed out, not successful evidence. Required CI subsequently
+  passed on its Windows/Linux runners. POSIX-only skips are not local verification.
+- Existing Ruff, Django/migration-drift, requirements/traceability and exact CI
+  results remain valid within their recorded scopes. Documentation-task checks
+  are recorded in PROGRESS. No native write/recovery or physical power-loss/NAS
+  acceptance has been demonstrated. Process termination is application-crash only.
 
-- Foundation/auth/local shell/diagnostics and durable singleton jobs: WP-01–05c;
-  hardened mount/config, CI and release infrastructure: WP-08/09/10.
-- Catalog/members and manual archive: WP-11–21, WP-23a/b (including WP-20a/b;
-  excluding physical NAS WP-22 and OCR WP-24 onward). Real hash-verified CLEAN publication, read-only RAW,
-  separate STATUS, bounded PDF inspection, filename/text-layer candidates, local
-  preview, individual inspected approval, explicitly inspected batch confirmation,
-  library/completeness, edition preferences and authorized original/ZIP downloads.
-- Projects/participants/reserves/ensemble rules/one resolver/matrix: WP-29–35
-  including WP-33a–d; preflight/immutable snapshots WP-36a/b; personal reading,
-  excerpt/contents and regular print PDFs WP-37a–c/38a/b; unified historical export
-  library/targeted regeneration WP-39. PR #50 integrated WP-39 at
-  `fd0ed9ce0b4efeb05c7210f237dcb7896c38a31a`.
-- WP-47a software consistent backup/isolated restore is integrated (PR #27).
-  WP-06/07 now include the verified synthetic current-feature web/worker/private
-  TLS stack through PR #51. This is not physical NAS acceptance or completed
-  full-product operations WP-48/49/52/53.
-- Current-feature distribution PR #51 and packaging recovery PR #52 are complete;
-  source/test-only release evidence is in `docs/RELEASES.md`. Source through WP-39
-  passed 956 Linux tests/26 browsers and hardened stack/security gates. Published
-  `v0.1.0-test.1` source is `4ccd2698204a1e69ec7c1c4f128acf8e6c65d809`, **not**
-  current main or P0. Image digest:
-  `sha256:f628501dbc3fbe65c4e53bb2ab6c4723bd4014bca582656383ffd528df543e5a`.
-  Recovery `45434860531` promoted/reused verified bytes and completed install
-  assets; no rebuild/overwrite. Historical `v0.1.0-preview.1` remains unchanged.
+## Current owner decision and remaining work
 
-## Governance and P0 delivery
+Read DEC-15 and amendments to REQUIREMENTS, ARCHITECTURE, IMPLEMENTATION_PLAN,
+PORTABILITY and TRACEABILITY. It partially supersedes DEC-14: immediate durability
+of every parent creation/rename/disposable recovery deletion is no longer an
+unconditional release blocker. Missing platform documentation is not an observed
+failure; prior speculative namespace analysis must not be restarted as a gate.
 
-PR #53 consolidated governance: `docs/PROCESS.md`, SHA-bound deterministic
-`scripts/wait_for_ci.py`, exact commands/contracts in `docs/standard-checks.md`,
-and DEC-11. Main is unprotected; reviewed-green gating is manual. No model-driven
-CI polling; one deterministic wait per exact-SHA phase, compact terminal evidence,
-bounded duration/retries/rate-limit handling, no merge on missing/skipped/stale CI.
+Retain independent OS RAW denial (dedicated non-admin, non-RAW-owner Windows
+identity/read-only NTFS; Linux least privilege/read-only mount), protected SQLite
+and confirmed history, real hash-identical CLEAN, no-clobber and safe paths. CLEAN
+may be the last historical copy. Acknowledged external files may require detection,
+reconciliation or exact-input reconstruction after abrupt power loss; unavailable
+or corrupt references cannot silently remain valid. Uncertain/unknown ownership
+requires evidence-preserving review, not blind mutation retry.
 
-P0 reuses that waiter and `scripts/ci_changes.py`: Foundation and Container cannot
-be removed by caller overrides. Container omission requires verified exact local
-base/head Git classification limited to `docs/PROGRESS.md` and
-`tests/TRACEABILITY.md`, plus successful `changes` evidence; unavailable evidence
-requires full checks. Run mode always requires both individual jobs. Missing,
-malformed/mismatched SHAs and incomplete/ambiguous API pages fail closed. Original
-exit codes/compact JSON contract remain; initial delay is deadline-capped and
-transient backoff is applied once. Product/workflow functionality was not changed.
+Next cohesive implementation tasks:
+1. Reassess remaining WP-06p under DEC-15. Reuse native code/backend interfaces;
+   prefer simple established no-clobber staged publication and existing persistent
+   operation records. Implement/verify file/DB failure-window reconciliation,
+   missing-result detection/reconstruction and historical-copy protection. Do not
+   add another DB/journal/service or enable Windows writes prematurely.
+2. Formalize/reuse bounded job-owned scratch and physical hash-verified isolated
+   processing inputs, source-change checks, immutable snapshot reuse and safe
+   abandoned cleanup. Protect active workspaces/uncertain proof; disposable cleanup
+   normally warns. No writable RAW paths/hardlinks; pure hashes/enumeration need
+   no extra copy. These obligations are not retrospectively marked satisfied.
+3. Verify independent RAW denial across application roles with reader handles
+   closed. Production identity/ACL provisioning and administrative synthetic
+   facilities need their applicable explicit authorization; never modify real data.
+4. Continue platform-independent WP-54 additive model/backfill/legacy compatibility
+   and WP-55 hierarchy/editions when shared dependencies are met. Remaining native
+   Windows write acceptance, production security and packaging do not block them.
+   Preserve migration/restore/history, resolver and revision-bound review gates.
 
-Synthetic baseline reproduction: 11 failures / 6 passes; corrected focused suite
-78 passes (`tests/test_wait_for_ci.py`, `test_ci_waiter_regressions.py`,
-`test_ci_workflow.py`). Local full suite 902 passes / 131 Windows/POSIX skips;
-browsers 22 passes / 4 POSIX skips. Ruff lint/format, lockfile, Django system and
-migration drift checks passed. Earlier outer timeouts were not counted as success.
-Qwen delegation was attempted but cancelled without edits; coordinator implemented
-and reviewed P0 directly. Implementation-SHA CI was still pending at snapshot
-preparation; no success is inferred. The documentation-only transfer supersedes
-that PR head and requires its own exact-SHA CI. Its compact result is published
-on PR #55; source tests above remain reusable because implementation is unchanged.
+Acceptance targets include RAW unchanged/OS-denied writes, physical copy/hash
+equality, mutation/interrupted staging/publication, DB/file reconciliation,
+reproducible reconstruction, last historical CLEAN retention, scratch/active/proof
+cleanup safety, collision races and bounded Windows/Linux parity. Details remain
+in canonical package/traceability documents, not a new test certification here.
 
-## Outstanding scope, limitations and decisions
+## Preserved OCR recovery material
 
-- No new product implementation is in progress in this transfer. P0 integration
-  is pending authorization and exact-head CI/review. Only PR #55 was open and
-  no open GitHub issues or submitted reviews were reported at snapshot inspection;
-  that is not proof that undiscovered defects do not exist.
-- Planned: local OCR WP-24/25/26 and private quality WP-28; complete integrity/
-  lifecycle WP-27; enhancement WP-40a/b/c/f and WP-41; actual marchbook layout
-  WP-42 (basic configuration is partial, output unavailable); optional adapter
-  WP-43; physical printer WP-44a/b/45/46; private NAS WP-22/47b/52/53 and remaining
-  full operations/security/license WP-48/49/50/51. Existing filename/text evidence,
-  safe reindex primitives or regular print PDFs do not complete these packages.
-- RAW must remain host/mount read-only; never copy real notes/members/OCR/DB/secrets
-  into Git, CI, logs or external AI. Every new/changed PDF still needs visual
-  approval. No music numbering, silent substitutions, snapshot mutation or automatic
-  retry after uncertain physical print submission. `DEBUG_MODE` never enables
-  Django DEBUG or disables auth/CSRF/safe paths/non-root safeguards.
-- Known technical boundaries: unsupported POSIX publication fails closed on Windows;
-  kernel-blocked filesystem I/O cannot be given a universal hard deadline; STATUS
-  is a two-file publication with JSON authoritative. Historical Windows queue/
-  timing failures and concurrent-suite interference are recorded in PROGRESS;
-  serial P0 suite passed. CI action Node deprecation warnings and redundant older
-  status/README claims remain documentation/toolchain debt, not new authorized work.
-- Outstanding DECISIONS V-01–08: DSM/ACL/mount identity and RAW negatives; real
-  SQLite/WAL/load/recovery/resources; authorized local OCR/enhancement quality;
-  printer endpoints/media/margins/status; backup destination/retention/full restore;
-  unusual-format/cover/contents and retention choices; license/copyright and final
-  dependency notices/registry/protection evidence. Existing synthetic CI and
-  attestations must not be presented as these physical/product decisions.
+- Remote branch: `recovery/codex-ocr-prototype`
+- Verified remote SHA: `49477203ef9dfb7f93e9533b2334bcd563a4162b`
 
-## Environment and verification
+Contains incomplete `core/ocr.py` (including unresolved `_region()`), dependency
+and lockfile changes. Recovery reference only: assess reusable pieces at OCR work,
+never blindly merge/cherry-pick old dependency/lock changes. No access to an old
+machine stash is required; no recovery branch/artifacts were deleted or changed.
 
-Use Python 3.12, Django 5.2 LTS and `uv sync --locked`. Start the managed synthetic
-local profile with `./dev.ps1 start` (manual auth optional); see
-`docs/DEV_WORKFLOW.md`, `docs/DEVELOPMENT.md` and `docs/dev-workflow.de.md`.
-`.dev/`, venvs, capability tokens, browser installs and result JSON are local-only
-and are not transfer prerequisites: recreate them from pinned setup, never copy
-the local DB. Browser checks need Node, `playwright-core@1.62.1`, NODE_PATH and
-Chrome (or documented Edge channel). Local Windows used Node v24.22.3; portable
-setup is documented, no machine-specific path belongs in application files.
+## Codex takeover instruction
 
-Mandatory delivery gates are exactly `docs/standard-checks.md`: locked environment,
-Ruff lint/format, full pytest, separate browser suite, Django system/migration
-checks, and exact-SHA Foundation/Container Linux CI (runtime audit, native PDF,
-actual hardened container/Compose/security/synthetic stack/restore). Windows skips
-are not Linux acceptance. Docker was unavailable locally; Linux CI supplies that
-software evidence. This handoff changes docs only; reuse valid implementation
-tests rather than rerunning expensive local suites. HANDOFF.md is outside the
-docs-only allowlist, so this PR's final marker requires **both** CI jobs.
-
-Deployment requires separate owner authorization. Use the digest-pinned
-`deploy/synology-test/compose.yaml` and German guide for synthetic test distribution,
-not the obsolete preview image or generic source-example paths. Read
-`docs/SYNOLOGY_TEST_RELEASE.md`, `INSTALL.md`, `RESTORE.md`, `UPDATE.md`,
-`DEBUG_MODE.md` and `RELEASES.md`. No actual NAS deployment/real-data access was
-performed. Physical acceptance and production release remain blocked separately.
-
-## Exact next action and priorities
-
-1. Apply AGENTS.md takeover readiness gate to **remote HEAD** of
-   `fix/ci-waiter-p0` before checkout/edit/full review. Verify local status, fetch
-   safely, exact subject/trailer and snapshot consistency. If invalid, stop.
-2. Review **all** commits/diffs from comparison base `0d24dae03711254e48a0c167c36ff44a74de4600`,
-   including P0 and this transfer. Inspect exact-HEAD CI and PR #55 review state;
-   reconcile any newer main change without losing work. Obtain explicit P0 merge
-   authorization before integration; if granted, enforce reviewed-green-head
-   gates and one exact-merge-SHA Main CI wait. Do not merge merely to take over.
-3. Recommend WP-24 bounded local OCR engine as the next software package **for
-   owner approval**, followed by WP-25/26. Read plan WP-24, AR-08–11/OP-02 and
-   PDF/container contracts: pinned local Tesseract/pytesseract/languages, bounded
-   regions/resources/timeouts, synthetic noisy/skewed heading text/boxes, language
-   failures, exact hash/profile/rule cache, no network, no named-scan OCR bypass,
-   no automatic approval. Update lock/license/container CI and retain full gates.
-   First verify WP-17/06 prerequisites. Private WP-22 synthetic NAS acceptance is
-   a separate owner-authorized hardware priority before real use. P1/P2 and all
-   product packages remain unstarted and unauthorized by this transfer.
+Inspect local status and safely fetch `origin/codex/windows-source-reader` before
+switching or editing. Latest remote HEAD must have exact subject
+`chore(handoff): prepare agent transfer` and trailer `Handoff-Ready: yes`; otherwise
+stop as required by AGENTS.md. If valid, read AGENTS/HANDOFF/PROGRESS and DEC-15,
+review all commits/diffs from the recorded base and verify actual CI state.
+Continue the revised roadmap autonomously with cohesive delivery packages, bounded
+delegation, existing deterministic tools and exact-SHA PR/post-merge Main gates.
+Preserve deferred features and all security/integrity/review/release gates. Do not
+merge unfinished PR #62. OpenCode stops after this verified transfer.

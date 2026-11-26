@@ -37,6 +37,12 @@ changes, architecture replacements, material privacy/security trade-offs,
 destructive operations, significant new dependencies/services/costs, production
 deployment and physical acceptance. Existing delivery gates still apply.
 
+Owner amendment (2026-11-26, DEC-15): shared portability interfaces/read-only
+contracts, not complete native Windows writable/security/packaging acceptance,
+gate platform-independent WP-54/55. External-file acceptance is recoverability-
+based as documented in REQUIREMENTS.md; RAW isolation, authoritative DB/history,
+integrity and all applicable delivery/production authorization gates remain.
+
 Documentation can be updated as part of an approved documentation task or to reflect an approved implementation. Owner authorization (2026-11-20): within agreed implementation scope, proceed with routine commits, pushes, PR creation and merges without repeated approval when relevant checks and CI pass, the diff is reviewed, and no unresolved errors, review findings or conflicts remain. Report the results. Ask only for genuinely blocking scope, architecture, security or data-integrity decisions. New scope, branch deletion, release, deployment and external infrastructure changes still require applicable owner authorization. After approval, execute the specified action directly without redundant confirmation. Approval for a documentation task is not approval for unrelated implementation, external infrastructure changes or deployment.
 
 Use feature branches from `main` unless the owner selects another active branch. Use small English Conventional Commits in the form `type(scope): imperative summary` (scope optional); types: `feat`, `fix`, `test`, `docs`, `refactor`, `perf`, `chore` (e.g. `feat(archive): implement RAW/CLEAN indexing`, `chore(ci): add container build workflow`). Never force-push or discard user changes without explicit approval. Report if CI or branch protection is unavailable rather than fabricating it.

@@ -4,9 +4,285 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## Codex continuation — 2026-11-26
+
+Verified and fast-forwarded the clean checkout to the remote handoff SHA
+`b5fecb12233a8782e1e5c59480a5d1d9605dafa7` with the required transfer trailer.
+The comparison base remains `ab172f6f942d5de743aec21aa6f0222caaa9798e`.
+
+WP-06p remains in progress. The shared PDF processor verifies each physical
+scratch copy's SHA-256 before launching the parser and retains the workspace if
+termination is unproven. Archive publication and indexing use the existing
+worker recovery hook for parser scratch. Cleanup preserves marked workspaces
+after an abrupt parser interruption until child termination can be established.
+Unknown files are preserved and disposable cleanup failures warn. Publication
+still checks final name spelling through the pinned target parent. Publication
+and metadata durability boundaries are retained. Windows writes remain disabled.
+
+Reindexing the same source version records a missing or corrupt acknowledged
+CLEAN copy as unavailable without changing its approval, path or receipt.
+Repeated scans and ordinary copy requests preserve that publication for
+reconciliation rather than creating a replacement at a different path. A scan
+restores availability after exact bytes reappear at the recorded path, with
+size, SHA-256 and receipt verification and the logical revision retained for
+historical export pins. This check runs when indexing rediscovers the same RAW
+version. Direct recovery of historical copies without that RAW version and
+automatic reconstruction of missing bytes remain open.
+
+Focused checks: 75 Windows PDF/publication-contract tests passed with one POSIX
+permissions test skipped. Six final Ubuntu parser cleanup and confirmed CLEAN
+loss/restore cases passed. The geometry suites passed 118 tests. Ruff lint and
+format, Django system check, migration drift, and diff whitespace checks passed.
+
+WP-54 preparation now accepts fractional CropBox offsets with non-integer
+UserUnit across the four page orientations. The additive source/content migration
+and WP-55 work remain pending. The next storage increment is exact-path
+reconciliation of acknowledged missing CLEAN results, while preserving the
+receipt, confirmed history and existing bytes on any unsafe or conflicting path.
+
+## OpenCode continuation — 2026-11-26
+
+### Owner amendment and final Codex transfer
+
+DEC-15 authorizes recoverability-based external publication and isolated processing
+scratch. It supersedes the earlier unconditional parent-namespace/permanent-stage-
+deletion durability blocker, not RAW denial, authoritative DB/history, hash identity,
+no-clobber, confirmation or path/security guarantees. The old blocker entries below
+are historical analysis under DEC-14, not current release criteria. It was a missing
+platform-contract guarantee, not an observed lost publication or power-loss test.
+Windows writes and production RAW certification remain unavailable; workspace,
+isolated-input and acknowledged-file reconciliation obligations remain implementation
+and verification work. WP-54/55 may proceed on verified shared interfaces/supported
+backends without waiting for complete Windows production acceptance or packaging.
+
+Documentation-only owner task: no further implementation, permissions, migrations,
+merge or deployment. All continuation commits since comparison base
+`ab172f6f942d5de743aec21aa6f0222caaa9798e` and their diffs were reviewed; intended
+implementation and recovery branches are preserved. Before this update remote/local
+HEAD was `65c94e1155b88fe86a197e42f9ed601be513c747`, worktree clean, PR #62 open
+and draft. Its Foundation, Container and Windows checks were observed completed
+SUCCESS (run 45815589039); exact deterministic CI was already verified at
+`d5460588c999251e5f98a4184538528029ddbaeb`. These are prior-SHA results, not
+claims about the final documentation/transfer HEAD. See HANDOFF for the final
+snapshot and precise next action. No expensive regression repeated for this task.
+
+Execution: Sol supplied bounded read-only architecture consistency analysis;
+coordinator integrated the authorized requirements/decision/dependency changes
+and transfer documents; Qwen independently reviewed requirements/acceptance
+consistency: passed, no blocking contradictions or omissions.
+Documentation checks: `scripts/check_requirements.py` passed (119 canonical IDs,
+61 aliases, zero errors); structural traceability tests passed (5); Git whitespace
+check passed. Existing implementation evidence reused; no full suite repeated.
+
+The remote takeover gate passed at
+`dd336089fa15b23a377540b5cfae4a472cd25237` on
+`codex/windows-source-reader`; the preserved source-reader increment was reviewed
+against the recorded main base. Implementation continues on that branch.
+
+Publication, durable verification and retained-stage cleanup now dispatch through
+backend-owned operations rather than POSIX descriptors in shared policy. The
+POSIX implementation retains no-clobber linking, identity checks and directory
+flushes. New shared contracts cover policy rejection before effects, retained
+identity and durable acknowledgement. Fourteen targeted publication/inventory/
+backup-contract tests passed locally; Ruff lint/format and the five structural
+traceability tests passed. The requirements checker reports 119 definitions,
+61 aliases and no errors.
+
+The source/inventory targeted rerun passed 17 tests; two native tests failed at
+synthetic symlink setup with Windows error 1314 (missing privilege), before their
+security assertions. Assertions were not weakened or skipped. The first full
+regression exceeded its 120-second command limit and was terminated, not verified.
+The replacement full Windows regression completed in 1228.43 seconds: 942 passed,
+143 skipped and two failed at the same symlink setup privilege boundary. This is
+not a green full regression. The run started before the additional junction cases;
+those have separate targeted evidence. PR #62 exact-head CI passed for
+`d299efe18328f25e1b1ece896253099eaca542e8`: Foundation, Container and Windows
+shared-runtime checks succeeded. This evidence covers that commit only, not
+subsequent changes. The previous wait for `7bf5425` correctly rejected a changed
+PR head; it is not successful verification.
+Two additional actual Windows junction tests passed without symlink privilege:
+reparse leaves/ancestors and replacement of a child directory cannot redirect a
+source read. They supplement the unchanged symlink cases, not replace them.
+Native writable storage, independent RAW protection and the rest of WP-06p remain
+in progress; no merge, deployment or real-data operation is claimed.
+
+Execution: the coordinator implemented the backend-boundary refactor and junction
+tests directly before delegation was requested. Sol completed a read-only native
+storage security investigation without mutations or repeated verification. The
+reviewed API contracts do not yet establish a complete non-admin namespace barrier
+for the current retained-hardlink protocol. Qwen implemented shared failure tests;
+Sol's independent review found erased mock history and test-owned ordering claims.
+Qwen partly corrected them before reaching its execution step limit. Sol completed
+the fixes and added an actual worker regression: post-mutation failure retains
+PENDING proof and REVIEW_REQUIRED/OPERATION_UNCERTAIN, without acknowledgement or
+blind retry. The coordinator reviewed the corrected diff. The two targeted files
+passed 35 tests; touched-file Ruff lint/format and whitespace checks passed. These
+are policy/lifecycle contracts, not native power-loss durability evidence.
+Sol then moved retained-stage proof validation behind the backend interface,
+preserving the exact POSIX regular-file, identity and two-link checks. Shared
+verification still checks bytes first and proof before inspection/durability.
+Publication contracts, lifecycle, archive-file and marker-file tests passed
+45 cases with 25 platform skips on Windows; touched-file Ruff and whitespace
+checks passed. The coordinator reviewed the dispatch and proof-test diff.
+Sol also encapsulated the unchanged effective-UID stage ownership check in the
+backend. Archive cleanup and both export cleanup paths validate ownership before
+identity-checked discard. Twelve focused tests passed with 39 POSIX/platform
+skips on Windows; Ruff and whitespace checks passed. Consumer tests use metadata
+without POSIX ownership fields and reject ownership/metadata failures before
+discard. Linux integration coverage remains required; native Windows ownership
+enforcement is not implemented by this extraction.
+DEC-14 records the approved dedicated-identity target and bounded
+alternative persistence/recovery design authority; Windows writes remain disabled.
+
+Sol added a read-only current-process Windows token evidence adapter and 51
+passing targeted tests, including native TOKEN_QUERY smoke. Native fixed-size
+elevation-query behavior required an implementation correction and dedicated
+regressions. The adapter retains no certification of RAW isolation/publication;
+it does not inspect RAW ACLs, thread impersonation or child-process identities.
+Touched-file Ruff and whitespace checks passed. Qwen independently reviewed the
+adapter and proof extraction. Sol added group-attribute, array-boundary and
+privilege-query regressions and sanitized native buffer/argument failures.
+The proposed group-mask change was rejected against Microsoft's TOKEN_GROUPS
+contract: enabled is bit 4, not enabled-by-default bit 2. No RAW isolation or
+durability is certified.
+The proof/ownership checkpoint was pushed as `1578767`; no merge is claimed.
+
+Sol added a separate pinned-root security-descriptor evidence adapter: 26 tests
+passed, including native synthetic-root acceptance. The existing source handle
+fails closed without READ_CONTROL; a test-only handle proves the query path without
+reopening production paths or changing source access. Descriptor snapshots do not
+verify effective access, descendants or persistent RAW enforcement. Ruff and
+whitespace checks passed. Qwen's proposed LocalFree/ACL-class corrections were
+rejected against Microsoft's primary contracts: NULL means successful LocalFree,
+and AclSizeInformation is 2. Both query adapters now preserve existing FileError
+codes before sanitizing native decoding errors. The final combined targeted run
+passed 80 tests, including both actual native smoke paths. Descriptor input is
+OS-produced and validated, not an arbitrary-buffer parser. No provisioning occurred.
+The combined evidence checkpoint was pushed as
+`9aa26de069d6ded438ea5f2b93cb51321526f6a8`. Its exact-head PR #62 CI passed
+Foundation, Container and Windows shared-runtime checks. Qwen explicitly retracted
+the incorrect API findings; no blocking findings remain in this increment. WP-06p
+is incomplete and the PR remains draft; no merge or deployment is claimed.
+
+Sol integrated explicit optional `inspect_security=True` initial root/ancestor
+pinning with READ_CONTROL. Default access, source-stream rights and no-delete
+sharing are unchanged; there is no later pathname reopen or startup/factory
+enabling. Native descriptor acceptance now uses the public mode. Focused source
+and root-security tests passed 47 cases, with only the two previously recorded
+privileged symlink-setup cases explicitly deselected; assertions remain unchanged.
+Ruff and whitespace checks passed. Qwen's independent delta review found no
+blocking findings; initial pins still use OPEN_EXISTING (3), not creation.
+This increment provides inspectable descriptors, not RAW isolation certification.
+
+Sol added root-directory AccessCheck evidence using a query-only DuplicateTokenEx
+token and independently owned owner/group/DACL descriptor allocation. Thirty-nine
+targeted tests passed, including native read-only synthetic-root acceptance;
+Ruff and whitespace checks passed. Buffer limits, denial versus API failure,
+mutation rights, ownership/token risks and resource cleanup are covered. Qwen's
+independent review found no blockers. Its suggested mutation-mask change was
+rejected: 0x0116 excludes read-data (1) and read-EA (8); the existing mask is correct.
+Seven additional mask/pure-read grant regressions passed; the final AccessCheck
+targeted file passed 46 tests, with clean Ruff and whitespace checks. Files/descendants,
+parent-entry rights, configured dedicated
+identity and process/thread enforcement remain unimplemented; capabilities remain
+uncertified. The optional pinning checkpoint was pushed as `624ae5d`; exact CI
+success still applies to `9aa26de`, not this later checkpoint.
+The subsequent AccessCheck checkpoint
+`5628046caaffdc736c88b1d8571fb672166584d0` passed exact-head PR #62 Foundation,
+Container and Windows shared-runtime CI. This also covers the optional pinning
+increment. WP-06p remains incomplete and the PR remains draft.
+
+Sol added explicit-mode context-scoped single-entry security pins and retained
+initial-parent evidence, with file/directory-specific AccessCheck mutation masks.
+Native focused source/access tests passed 72 cases, with exactly the two known
+privileged symlink-setup cases deselected and unchanged. Native coverage includes
+file/directory/parent evidence, disabled-mode and drive-root refusal, junction and
+hardlink rejection, and failed-query pin cleanup. Ruff and whitespace checks passed;
+Qwen's independent delta review found no blockers. Carried mask/Python-version
+claims were rejected: the mask excludes READ_DATA and Path.hardlink_to is supported
+by the pinned Python 3.12 runtime. Initial opens remain OPEN_EXISTING (3).
+This does not certify recursive RAW protection,
+configured identity or stable ACL enforcement. No provisioning or write enabling
+occurred.
+
+Sol added bounded recursive RAW evidence aggregation with expected-user identity
+comparison, root/parent/descendant checks and aggregate-only reporting. Thirty-five
+tests passed, including native nested synthetic traversal with honest mutation
+rejection. Limits, cancellation, query failures, unsafe entries, disappearing or
+changed identities, directory mutation and cycles return incomplete reports;
+completed rejected inventories are distinct. Ruff and whitespace checks passed.
+Qwen's independent review found no blocking findings. No atomic/persistent ACL enforcement or process-role
+certification is claimed. The descendant checkpoint was pushed as `0f342a8`; the
+latest exact CI evidence remains `5628046`.
+
+Independent preparatory WP-54 work: Sol added pure immutable page/rectangle
+geometry and invertible display transforms without parser, model, migration or
+workflow activation. Seventy-nine targeted tests passed; Ruff and whitespace checks
+passed. Input boxes retain default-user-space coordinates and original CropBox;
+canonical regions use physical PDF points after UserUnit conversion. Fingerprints
+include original/effective geometry and schema. Invalid or outside regions fail
+closed without clipping. Qwen's independent review found no blockers; a possible
+floating-point endpoint rejection was reproduced and corrected by mapping exact UI
+edges to exact PDF edges, without clipping interior points or widening containment.
+The final targeted geometry run passed 91 tests with clean Ruff and whitespace checks.
+The coordinator reviewed the endpoint mapping. Future parser
+wiring must preserve the original CropBox, currently lost by PageInfo's effective
+crop normalization. WP-54 remains planned:
+WP-06p, additive migration, legacy compatibility and acceptance gates are unchanged.
+
+The combined recursive-evidence/pure-geometry checkpoint
+`5db72d4ac4d34ef1df397570a93f8ff2e4871977` passed exact-head PR #62
+Foundation, Container and Windows shared-runtime CI. The worktree was clean at
+verification. No merge is claimed: WP-06p remains incomplete, Windows writes stay
+disabled, and WP-54 geometry is preparatory rather than activated product behavior.
+
+Sol added opt-in lossless parser evidence and an explicit page-geometry bridge.
+Original CropBox is retained separately; legacy PageInfo fields, effective crop,
+inspection IPC and manifest serialization remain unchanged. Legacy metadata cannot
+invent original geometry, and inconsistent evidence fails closed. Source-geometry
+and geometry suites passed 114 tests, including actual isolated inspection IPC
+parity; Ruff and whitespace checks passed. Qwen's independent delta review found
+no findings; the coordinator reviewed the implementation and compatibility tests.
+No model, migration, source-version binding or production IPC activation is added.
+
+The opt-in source-geometry checkpoint
+`d5460588c999251e5f98a4184538528029ddbaeb` passed exact-head PR #62
+Foundation, Container and Windows shared-runtime CI. Sol then evaluated the
+specific same-volume write-through move candidate without mutations. Microsoft's
+MoveFileExW contract supports persistence of the move itself; its copy/delete
+example is not an exclusive restriction. Two preverified independent files and
+operation-bound distinct identities could preserve atomic final visibility and
+short publication transactions. However, the reviewed contracts do not establish
+durability of separately created ancestor chains or later identity-checked recovery
+copy deletion. WP-06p is blocked on that narrow platform-contract limitation, not
+on missing general design authorization. Windows writes remain disabled; PR #62
+remains draft. Next action: obtain authoritative platform evidence for those
+namespace barriers or an owner decision on a separately reviewed alternative.
+No external support contact, infrastructure change or hardware test was performed.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint
+
+Verified baseline: PR #61 passed exact-head CI 45691065700, merged at
+`ab172f6f942d5de743aec21aa6f0222caaa9798e`, and exact Main CI 45694893160
+passed all four jobs. DEC-13 is approved; the incomplete OCR draft remains in
+the recorded local stash. Existing work is preserved.
+
+`codex/windows-source-reader` implements the next cohesive WP-06p increment:
+local NTFS source handles with native identity/time metadata, shared source-root
+selection and removal of remaining root-descriptor/parent details from archive
+and export services. Thirteen actual native tests passed. Seventy-three targeted
+configuration/runtime/source tests passed before the additional timestamp oracle;
+the final native suite includes that oracle. An initial root-reentry regression
+exposed insufficient attribute-only sharing locks; READ_DATA/LIST_DIRECTORY rights
+fixed the cause and the unchanged rename assertion now passes. Ruff lint/format,
+Actionlint and Django system/migration-drift checks passed. Full regression is
+running; exact-head Linux/Windows/Container and integration gates remain pending.
+Native writes, independent process-wide RAW denial and desktop acceptance remain
+open. No new dependency, real-data migration, release or NAS operation was added.
+
+### Earlier runtime-proof checkpoint
 
 PR #60 passed exact-head CI 45684801969 at
 `4f4434d2e31c3f69f0e644376fc6ac14f3e781ed` and merged at
@@ -1930,3 +2206,23 @@ remain unexecuted without their distinct approval. Preserve published preview as
   preferred archive editions, and independently WP-29 project model foundation.
   WP-23b direct downloads follows WP-23a; OCR/full integrity remain later work.
   None was started. Private NAS/hardware/backup/worker-operations gates remain open.
+
+
+### Manual Codex-to-OpenCode recovery - 2026-11-26
+
+The interrupted WP-06p implementation was preserved on
+codex/windows-source-reader at
+6cd6ee4ed952e482614981afbd24e51222a76ab4.
+
+Full regression completion and exact-head CI remain unconfirmed.
+
+The incomplete OCR prototype was preserved separately on
+recovery/codex-ocr-prototype at
+49477203ef9dfb7f93e9533b2334bcd563a4162b.
+
+The original local stash remains intact.
+
+This one-time manual recovery does not modify existing
+governance, authorization, verification or handoff rules.
+
+See docs/HANDOFF.md for the current transfer snapshot.

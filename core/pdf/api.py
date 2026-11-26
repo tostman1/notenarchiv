@@ -2,15 +2,21 @@
 
 import hashlib
 import json
+import logging
 import os
+import shutil
 import stat
 import sys
 import tempfile
+from contextlib import contextmanager, suppress
 from dataclasses import asdict
 from pathlib import Path
 
+from core.pdf.recovery import PARSER_ACTIVE_MARKER
 from core.pdf.types import DocumentInfo, Limits, PageInfo, PdfError, Selection
-from core.processes import ProcessFailed, ProcessTimeout, run_process
+from core.processes import ProcessCleanupError, ProcessFailed, ProcessTimeout, run_process
+
+logger = logging.getLogger(__name__)
 
 _CODES = {
     "INVALID_PDF",
@@ -160,17 +166,23 @@ class Processor:
             if not data or total > self.limits.max_bytes:
                 raise PdfError("LIMIT_EXCEEDED")
         self.checkpoint()
-        with tempfile.TemporaryDirectory(prefix="pdf-", dir=self.root) as directory:
-            stage = Path(directory)
+        with self._workspace() as stage:
             for index, data in enumerate(inputs):
                 self.checkpoint()
-                self._write(stage / f"{index}.pdf", data)
+                path = stage / f"{index}.pdf"
+                self._write(path, data)
+                with path.open("rb") as stream:
+                    digest = hashlib.file_digest(stream, "sha256").digest()
+                if digest != hashlib.sha256(data).digest():
+                    raise PdfError("PROCESS_FAILED")
             self._write(
                 stage / "request.json",
                 json.dumps(
                     {"operation": operation, "inputs": len(inputs), "limits": asdict(self.limits), **options}
                 ).encode("utf-8"),
             )
+            marker = stage / PARSER_ACTIVE_MARKER
+            self._write(marker, b"")
             try:
                 run_process(
                     [sys.executable, "-m", "core.pdf._worker", str(stage)],
@@ -185,6 +197,9 @@ class Processor:
                 raise PdfError("TIMEOUT") from None
             except ProcessFailed:
                 raise PdfError("PROCESS_FAILED") from None
+            else:
+                with suppress(OSError):
+                    marker.unlink()
             response = self._read(stage / "response.json", 8_388_608)
             try:
                 result = json.loads(response)
@@ -197,6 +212,22 @@ class Processor:
                 return result
             data = self._read(stage / "output", self.limits.max_output_bytes)
             return (data, result) if options.get("with_manifest") else data
+
+    @contextmanager
+    def _workspace(self):
+        directory = Path(tempfile.mkdtemp(prefix="pdf-", dir=self.root))
+        safe_to_remove = True
+        try:
+            yield directory
+        except ProcessCleanupError:
+            safe_to_remove = False
+            raise
+        finally:
+            if safe_to_remove:
+                try:
+                    shutil.rmtree(directory)
+                except OSError:
+                    logger.warning("Could not remove disposable PDF processing workspace")
 
     @staticmethod
     def _write(path, data):

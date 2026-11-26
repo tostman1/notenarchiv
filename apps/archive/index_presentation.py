@@ -23,6 +23,8 @@ ERRORS = {
     "FILE_IO": _("Quelldatei nicht sicher lesbar."),
     "COPY_MISMATCH": _("Kopie stimmt nicht mit dem Quellhash überein."),
     "DESTINATION_EXISTS": _("Zielkonflikt; vorhandene Datei bleibt erhalten."),
+    "CLEAN_MISSING": _("Die gespeicherte CLEAN-Kopie fehlt. Den Ablagepfad prüfen."),
+    "CLEAN_CORRUPT": _("Die CLEAN-Kopie weicht vom gespeicherten Prüfsummenwert ab. Die Datei prüfen."),
     "INDEX_FILE_FAILED": _("Dateiverarbeitung fehlgeschlagen. Quelle und Auftrag prüfen."),
 }
 REVIEW = {

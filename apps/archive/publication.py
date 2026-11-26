@@ -1,6 +1,5 @@
 """Real archive worker effects, bounded staging and exact receipt reconciliation."""
 
-import os
 from contextlib import ExitStack, suppress
 from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
@@ -19,6 +18,7 @@ from core import files
 from core.naming import component, part_filename, pdf_name, with_suffix
 from core.paths import storage_key
 from core.pdf import Limits, Processor
+from core.pdf.recovery import prune_disposable
 
 
 def validate_payload(payload):
@@ -94,6 +94,8 @@ def queue_copy(version_id, *, using="default"):
             return previous, active.job
         if previous.publication_state == "AVAILABLE":
             return previous, previous.publication_operation.job
+        if previous.publication_operation_id:
+            raise ValidationError("Acknowledged archive copy requires reconciliation at its recorded path.")
     preferred = f"_Ungeprueft/{version.source_file_id.hex}/{pdf_name(version.source_file.relative_path)}"
     path = choose_target("CLEAN", preferred, version.pk, exclude=previous.pk if previous else None, using=using)
     with transaction.atomic(using=using):
@@ -106,6 +108,8 @@ def queue_copy(version_id, *, using="default"):
                 return file, active.job
             if file.publication_state == "AVAILABLE":
                 return file, file.publication_operation.job
+            if file.publication_operation_id:
+                raise ValidationError("Acknowledged archive copy requires reconciliation at its recorded path.")
         else:
             file = s.register_base(version_id, path, using=using)
         job = _enqueue(file, path, using=using)
@@ -184,8 +188,7 @@ def _operation(context):
 
 
 def _processor(data_root, checkpoint):
-    with data_root.parent(".staging/pdf/placeholder", create=True):
-        pass
+    data_root.prepare_parent(".staging/pdf/placeholder")
     return Processor(
         data_root.path / ".staging" / "pdf",
         checkpoint=checkpoint,
@@ -210,8 +213,11 @@ def _open_roots(stack, using):
         for second in paths[:index]
     ):
         raise files.FileError("OVERLAPPING_ROOTS")
-    roots = [stack.enter_context(files.Root(path, writable=index > 0)) for index, path in enumerate(paths)]
-    if len({files.identity(os.fstat(root.fd)) for root in roots}) != len(roots):
+    roots = [
+        stack.enter_context(files.source_root(path) if index == 0 else files.Root(path, writable=True))
+        for index, path in enumerate(paths)
+    ]
+    if len({files.identity(root.root_metadata()) for root in roots}) != len(roots):
         raise files.FileError("OVERLAPPING_ROOTS")
     return {"RAW": roots[0], "CLEAN": roots[1], "PROCESSED": roots[2], "DATA": roots[3]}
 
@@ -292,8 +298,7 @@ def _prune_old_stages(context, operation, root):
         path = f".staging/{operation.pk.hex}/attempt-{number}.pdf"
         if root.exists(path):
             info = root.metadata(path)
-            if info.st_uid != os.geteuid():
-                raise files.FileError("UNSAFE_STAGING")
+            root.validate_stage_owner(info)
             context.checkpoint()
             files.discard_stage(root, path, files.identity(info))
 
@@ -351,8 +356,7 @@ def _run(context):
                     )
                 )
                 context.checkpoint(80)
-                with target.parent(operation.target_path, create=True):
-                    pass
+                target.prepare_parent(operation.target_path)
 
                 def apply():
                     if operation.kind == "CANONICALIZE":
@@ -440,9 +444,23 @@ def reconcile(context, intent):
         return "APPLIED", operation.expected_receipt
 
 
+def recover_cleanup(context):
+    """The recovery context holds exclusive ownership of the dead worker's parser scratch."""
+    context.checkpoint()
+    with ExitStack() as stack:
+        roots = _open_roots(stack, context.using)
+        prune_disposable(roots["DATA"], ".staging/pdf")
+
+
 def register():
     queue.HANDLERS[Job.Kind.ARCHIVE_PUBLISH] = queue.Handler(
-        validate_payload, run, idempotent=True, max_attempts=3, reconcile=reconcile, acknowledge=acknowledge
+        validate_payload,
+        run,
+        idempotent=True,
+        max_attempts=3,
+        reconcile=reconcile,
+        acknowledge=acknowledge,
+        recover_cleanup=recover_cleanup,
     )
 
 
@@ -453,22 +471,37 @@ def verified_bytes(file_id, *, using="default", checkpoint=lambda: None):
     public download route, and never accepts a client-supplied filesystem path.
     """
     file = m.ArchiveFile.objects.using(using).select_related("publication_operation__intent").get(pk=file_id)
-    if file.publication_state != "AVAILABLE" or not file.publication_operation_id:
+    if file.publication_state != "AVAILABLE":
+        raise files.FileError("FILE_UNAVAILABLE")
+    with _root(file.root_kind) as root:
+        return verify_receipt_bytes(file, root, checkpoint=checkpoint)
+
+
+def verify_receipt_bytes(file, root, *, checkpoint):
+    """Check the exact acknowledged bytes, including copies reported unavailable."""
+    if not file.publication_operation_id:
         raise files.FileError("FILE_UNAVAILABLE")
     file.full_clean()
     operation = file.publication_operation
-    if operation.state != "APPLIED" or operation.intent.state != "APPLIED":
+    if (
+        operation.archive_file_id != file.pk
+        or operation.expected_receipt
+        != {"root": file.root_kind, "path": file.relative_path, "sha256": file.sha256, "size": file.byte_size}
+        or operation.state != "APPLIED"
+        or not operation.intent_id
+        or operation.intent.state != "APPLIED"
+        or operation.intent.result != operation.expected_receipt
+    ):
         raise files.FileError("FILE_UNAVAILABLE")
     if not 0 < file.byte_size <= min(settings.PDF_MAX_BYTES, 104_857_600):
         raise files.FileError("LIMIT_EXCEEDED")
-    with _root(file.root_kind) as root:
-        stage_path = operation.staged_path if operation.staged_path and root.exists(operation.staged_path) else None
-        data, _info = files.verify_published(
-            root,
-            file.relative_path,
-            sha256=file.sha256,
-            size=file.byte_size,
-            staged_path=stage_path,
-            checkpoint=checkpoint,
-        )
-        return data
+    stage_path = operation.staged_path if operation.staged_path and root.exists(operation.staged_path) else None
+    data, _info = files.verify_published(
+        root,
+        file.relative_path,
+        sha256=file.sha256,
+        size=file.byte_size,
+        staged_path=stage_path,
+        checkpoint=checkpoint,
+    )
+    return data
