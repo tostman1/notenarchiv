@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+DEC-15 explicit CLEAN reconstruction: `tests/test_clean_restoration.py` exercises
+exact recovery from RAW and historical CLEAN, conflicting targets, changed
+inputs, and real worker process termination after publication and acknowledgement.
+Loss of publication proof requires review and preserves the target.
+
 DEC-15 processing scratch: `tests/test_pdf.py` injects a same-size change into
 the private input copy and verifies that processing stops before parser launch.
 `tests/test_pdf_recovery.py` checks removal of owned abandoned scratch and warns

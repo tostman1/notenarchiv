@@ -6,6 +6,23 @@ reflect actual completed work only.
 
 ## Codex continuation — 2026-11-26
 
+### WP-06p explicit CLEAN reconstruction checkpoint
+
+`python manage.py restore_clean_copy <archive-file-uuid>` queues restoration at
+one missing acknowledged CLEAN path. The existing archive worker can use an
+exact verified historical CLEAN publication or fall back to the pinned RAW
+version. It stages a physically independent copy and uses the existing
+no-clobber publication and durable operation intent. The original publication
+receipt, confirmation, and logical revision remain pinned. An occupied path
+or absent ownership proof cannot authorize replacement or acknowledgement.
+Windows writes remain disabled. This command runs through the normal configured
+worker and is separate from backup restore.
+
+Seven synthetic Ubuntu restoration tests passed, including real worker exits
+after the link and after acknowledgement, loss of proof, changed RAW, and a
+racing target. The shared Windows lifecycle, publication and ownership suites
+passed 57 tests. Ruff, migration drift, and diff whitespace checks passed.
+
 Verified and fast-forwarded the clean checkout to the remote handoff SHA
 `b5fecb12233a8782e1e5c59480a5d1d9605dafa7` with the required transfer trailer.
 The comparison base remains `ab172f6f942d5de743aec21aa6f0222caaa9798e`.
