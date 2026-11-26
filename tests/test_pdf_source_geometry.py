@@ -31,6 +31,18 @@ def test_lossless_original_crop_and_legacy_effective_geometry_parity(rotation, u
     assert geometry.rotation == rotation % 360
 
 
+@pytest.mark.parametrize("rotation", [0, 90, 180, 270])
+def test_bridge_accepts_fractional_crop_with_nonunit_scale(rotation):
+    crop = (0.1, 0.3, 20.2, 40.4)
+    page = PdfReader(BytesIO(pdf(sizes=((100, 100),), crop=crop, rotation=rotation, unit=1.1))).pages[0]
+    source = source_page_geometry(page)
+
+    geometry = PageGeometry.from_source_page(source)
+
+    assert geometry.effective_box == crop
+    assert geometry.display_points == pytest.approx((source.page_info.width_points, source.page_info.height_points))
+
+
 def test_equal_effective_boxes_different_original_boxes_change_fingerprint():
     pages = [
         PdfReader(BytesIO(pdf(sizes=((100, 100),), crop=crop))).pages[0]

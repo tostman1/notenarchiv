@@ -116,10 +116,13 @@ class PageGeometry:
             raise GeometryError("ORIGINAL_CROPBOX_REQUIRED")
         info = source.page_info
         geometry = cls(info.media_box, source.original_crop_box, info.rotation, info.user_unit)
-        if geometry.effective_box != info.crop_box or geometry.display_points != (
-            info.width_points,
-            info.height_points,
-        ):
+        x0, y0, x1, y1 = geometry.effective_box
+        # Match the parser's arithmetic when checking its retained dimensions.
+        # Scaling coordinates before subtracting can round differently.
+        width, height = (x1 - x0) * geometry.user_unit, (y1 - y0) * geometry.user_unit
+        if geometry.rotation in (90, 270):
+            width, height = height, width
+        if geometry.effective_box != info.crop_box or (width, height) != (info.width_points, info.height_points):
             raise GeometryError("INCONSISTENT_SOURCE_GEOMETRY")
         return geometry
 
