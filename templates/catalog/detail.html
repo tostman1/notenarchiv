@@ -6,6 +6,11 @@
 <p>{% translate "Kennung" %}: {{ record.pk }}</p>
 <p><a href="{% url 'catalog_edit' entity record.pk %}">{% translate "Bearbeiten" %}</a> · <a href="{% url 'catalog_delete' entity record.pk %}">{% translate "Unbenutzten Datensatz löschen" %}</a></p>
 {% if entity == 'works' %}
+<h2>{% translate "Sammlungszuordnungen und historische Korrekturen" %}</h2>
+<ul>{% for item in collection_memberships %}<li>{{ item.collection.title }} · {{ item.original_song_number }} · {% if item.withdrawal %}{% translate "Zurückgenommen" %}{% else %}{% translate "Aktuell" %}{% endif %} · <a href="{% url 'catalog_correction' 'membership' item.pk %}">{% translate "Prüfen / korrigieren" %}</a></li>{% endfor %}</ul>
+<ul>{% for item in component_relationships %}<li>{{ item.get_kind_display }} · {{ item.component.title }} · {% if item.withdrawal %}{% translate "Zurückgenommen" %}{% else %}{% translate "Aktuell" %}{% endif %} · <a href="{% url 'catalog_correction' 'relationship' item.pk %}">{% translate "Prüfen / zurücknehmen" %}</a></li>{% endfor %}</ul>
+<ul>{% for item in alternative_titles %}<li>{{ item.title }} · {% if item.withdrawal %}{% translate "Zurückgenommen" %}{% else %}{% translate "Aktuell" %}{% endif %} · <a href="{% url 'catalog_correction' 'alternative_title' item.pk %}">{% translate "Prüfen / zurücknehmen" %}</a></li>{% endfor %}</ul>
+<p>{% translate "Je Gruppe werden höchstens 200 aktuelle und historische Einträge angezeigt." %}</p>
 <h2>{% translate "Arrangements dieses Werks" %}</h2>
 <ul>{% for item in arrangements %}<li><a href="{% url 'catalog_detail' 'arrangements' item.pk %}">{{ item }}</a></li>{% empty %}<li>{% translate "Noch keine Arrangements angelegt." %}</li>{% endfor %}</ul>
 <p><a href="{% url 'catalog_create' 'arrangements' %}?work={{ record.pk }}">{% translate "Arrangement hinzufügen" %}</a> · <a href="{% url 'catalog_list' 'arrangements' %}?work={{ record.pk }}">{% translate "Alle Arrangements anzeigen" %}</a></p>

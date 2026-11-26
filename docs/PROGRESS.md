@@ -1,5 +1,16 @@
 # Progress record
 
+## Explicit catalog correction editor — 2026-11-26
+
+Authenticated, CSRF-protected correction screens expose reason-bound withdrawal
+and membership replacement with submitted revision fences. Work details link to
+current and retained association history. GET does not mutate; duplicate/stale
+replacement fails without losing the original row. Seven correction/collection
+checks and 23 catalog/view regression checks passed; Ruff and Django checks
+passed. Browser acceptance and exact CI remain pending. This increment does not
+claim complete WP-54/55 or change approval, historical exports, deployment or
+the disabled native Windows writable path.
+
 ## Retained catalog corrections — 2026-11-26
 
 Explicit actor/reason-bound withdrawal events now retain memberships,

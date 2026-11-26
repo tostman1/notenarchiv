@@ -100,6 +100,13 @@ def record_detail(request, entity, record_id):
     record = get_object_or_404(screen.model.objects.select_related(*screen.related), pk=record_id)
     extra = {}
     if isinstance(record, Work):
+        extra["collection_memberships"] = record.collection_memberships.select_related("collection").order_by(
+            "position", "pk"
+        )[:200]
+        extra["component_relationships"] = record.component_relationships.select_related("component").order_by(
+            "position", "pk"
+        )[:200]
+        extra["alternative_titles"] = record.alternative_titles.order_by("title_key", "pk")[:200]
         extra["arrangements"] = record.arrangements.select_related("work").order_by(
             "arranger_key", "edition_key", "pk"
         )[:200]
