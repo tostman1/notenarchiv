@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_compound_publication_command.py`: AR-26 administrative neutral COPY
+  entry point, exact version/title forwarding and sanitized failures. No musical
+  confirmation or native Windows writable acceptance is implied.
+
 - `test_compound_publication_contract.py` and `test_compound_publication.py`:
   AR-26 neutral document naming, one byte-identical unapproved BASE, reuse without
   historical renaming and unchanged RAW. Actual POSIX worker acceptance is a CI
