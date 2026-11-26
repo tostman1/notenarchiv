@@ -24,7 +24,7 @@ async function run(origin, membership, work) {
     assert.notEqual(replacement.url, url);
     assert.equal((await submit()).status, 409);
     await page.goto(replacement.url);
-    await page.getByLabel('Aktion', {exact: true}).selectOption('withdraw');
+    await page.getByLabel('Aktion').selectOption('withdraw');
     await page.getByLabel('Begründung').fill('Synthetic withdrawal');
     await Promise.all([page.waitForNavigation({waitUntil: 'load'}), page.getByRole('button', {name: 'Korrektur ausdrücklich speichern'}).click()]);
     await page.getByText('Diese Zuordnung wurde bereits zurückgenommen.', {exact: false}).waitFor();

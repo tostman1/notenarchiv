@@ -26,7 +26,11 @@ def test_catalog_correction_ui_fences_replacement_and_retains_history():
     assert url.encode() in detail.content
     assert not AssociationWithdrawal.objects.exists()
     values = {"revision": old.revision, "action": "replace", "reason": "Wrong work", "work": second.pk, "position": 0}
-    assert client.post(url, values).status_code == 302
+    replacement_response = client.post(url, values)
+    assert replacement_response.status_code == 302
+    replacement_page = client.get(replacement_response.url)
+    assert b'<label for="id_action">Aktion:</label>' in replacement_page.content
+    assert b'value="withdraw"' in replacement_page.content
     assert client.post(url, values).status_code == 409
     assert client.get(url).status_code == 200
     assert AssociationWithdrawal.objects.count() == 1
