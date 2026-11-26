@@ -382,6 +382,62 @@ OCR installation or service management is required.
   local AI-assisted investigation of ambiguous cases does not relax GR-14 or
   create a cloud dependency.
 
+### Storage authority and recoverability — DEC-15 amendment
+
+This authorized amendment refines GR-01/02, AR-01/02, OP-02/03/05/07/08
+without renumbering them or relaxing confirmation, security or privacy rules.
+
+- RAW permits no application creation, modification, deletion, rename, movement
+  or overwrite. Independently deny writes: least-privilege Linux/Synology identity
+  plus read-only mount; dedicated non-admin Windows identity with read-only NTFS
+  permissions, no RAW ownership/mutation rights. Routine execution is non-admin.
+  Real account/ACL, production or archive changes are not authorized here.
+- SQLite and confirmed/user-generated metadata remain authoritative: preserve
+  transactions, appropriate durability settings, version history and consistent
+  backup/restore. DB transactions do not atomically commit external PDFs.
+- CLEAN stays physically independent, SHA-256-verified, byte-identical and usable
+  outside the app, with unchanged naming/version/collision rules. Missing or
+  incomplete publication may be reconstructed only from its exact verified source
+  version when available. Never overwrite/delete confirmed or historical CLEAN
+  because RAW disappeared/changed; CLEAN may be the last surviving historical copy.
+- Regenerate outputs/caches only when exact required sources, settings and metadata
+  survive. Preserve non-reproducible user work, approved derivatives and necessary
+  historical artifacts in retention/backup policy.
+- Before potentially mutable PDF/OCR/image/tool processing, copy through validated
+  read-only source access into a physically independent working file, verify its
+  SHA-256 and detect source identity/metadata changes. Close source handles when
+  no longer needed; retain provenance, reuse safe immutable snapshots per job and
+  write outputs only to approved roots. No RAW hardlink as a mutable copy, no
+  writable RAW tool paths, and no modified working copy published as CLEAN.
+  Pure enumeration and streaming hashing require no unnecessary working copy.
+- Use validated application-owned scratch and isolated collision-free job
+  workspaces, bounded disk/memory/time, safe path/link checks and closed handles
+  before cleanup. Detect/clean abandoned workspaces at controlled startup/periodic
+  points; protect active jobs and recovery evidence. Never recursively delete an
+  arbitrary configured root or escape owned scratch. Disposable cleanup failure
+  normally yields a recoverable warning, not failure of an otherwise safe operation.
+- External publication requires complete verified staging, appropriate content
+  flushing, safe no-clobber destinations/identity checks, persistent operation
+  intent, transactional result and reconciliation between DB and actual files.
+  Immediate permanence of every new directory, rename or disposable recovery
+  deletion across OS crash/power loss is not required. Even acknowledged external
+  output may need reconciliation/reconstruction: detect missing, partial, corrupt
+  or inconsistent references before treating them as valid. Never blindly retry
+  uncertain mutations; preserve files/evidence and require actionable review when
+  safe recovery is impossible. Previously confirmed metadata/history remain protected.
+- Interrupted import/OCR/generation may need repetition; disposable work/recovery
+  files may survive, directories may need recreation, and complete unregistered
+  publications may need verification/adoption through operation-bound reconciliation.
+  These outcomes are acceptable only when detectable and safely handled, never as
+  silent corruption, lost historical content or uncontrolled replacement.
+- Shared portability/read-only architecture permits WP-54/55 core development
+  independently of remaining Windows write acceptance, production security and
+  packaging. Windows writes stay disabled until applicable safety is implemented
+  and verified. Do not add another DB, distributed transaction, custom journal or
+  storage service merely for recoverability. Process termination is application-
+  crash evidence, not physical power-loss proof; investigate hardware behavior
+  proportionately to remaining non-recoverable risks and separately approved gates.
+
 ## 12. Explicit exclusions and delivery
 
 No musician portal, multi-tenancy, differentiated business roles, individual full-folder piece lists, complete part-only project folders, multiple regular parts per member, automatic transcription/transposition, write access to RAW, automatic print retry or external AI/OCR service. No assumption that all printers support automatic media switching.

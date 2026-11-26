@@ -23,11 +23,16 @@ not power-loss durability.
 DEC-14 selects a dedicated non-admin Windows application identity that does not
 own RAW; account and ACL provisioning require separate authorization. All data-
 capable process roles must share independently enforced RAW denial, including
-when reader handles are closed. Native writes remain disabled: reviewed API
-contracts have not yet established a complete namespace-durability barrier for
-the retained-hardlink protocol. An alternative backend may be approved only with
-equivalent observable integrity, durability and recovery guarantees; successful
-flush calls or process-kill tests alone cannot establish power-loss durability.
+when reader handles are closed. DEC-15 partially supersedes strict namespace
+durability equivalence: missing non-admin barriers for separately created parents
+or permanent disposable recovery-file deletion alone no longer block acceptance.
+Native writes remain disabled because safe writable publication/reconciliation
+and independent production RAW isolation are not implemented/verified. Preserve
+complete content, identity/no-clobber checks, authoritative DB history and detection
+of invalid file references; reconstruct only from exact retained verified inputs.
+An acknowledged file may need reconciliation after abrupt power loss. This does
+not make historical CLEAN disposable or permit blind retry. Process-kill evidence
+remains application-crash evidence, not physical power-loss proof.
 
 `core.windows_security` queries only the current primary process token with
 TOKEN_QUERY. It gathers private identity comparison inputs, elevation, enabled
@@ -82,7 +87,9 @@ Thirteen native Windows tests passed, including exact timestamp/identity oracles
 reparse and hardlink rejection, root/stream pinning, failed-initialization cleanup,
 directory mutation and child-directory replacement. PR #62 passed Foundation,
 Container and Windows checks at `d299efe18328f25e1b1ece896253099eaca542e8`;
-subsequent changes still require exact-head verification. The generic source/hash
+later implementation passed exact checks at
+`d5460588c999251e5f98a4184538528029ddbaeb`; any newer transfer HEAD requires its
+own verification before integration. The generic source/hash
 regression also runs on Linux.
 
 This establishes read-only handles and active sharing locks. Independent RAW ACL
@@ -136,9 +143,25 @@ WP-06p tracks the remaining high-priority foundation work. Validate the native
 storage boundary without relaxing reparse/identity/no-clobber/RAW contracts and
 exercise configured roots, initialization/locking, owned loopback lifecycle,
 graceful shutdown and restore on synthetic Windows/Linux inputs. Complete these
-foundation gates before major expanded product work. The final installer remains
-separate distribution acceptance. Region/content architecture and future OCR
-dependencies must preserve these boundaries.
+shared foundation contracts for expanded product work; remaining Windows writable
+acceptance and production security configuration do not block WP-54/55 on supported
+backends. The final installer remains separate distribution acceptance.
+Region/content architecture and future OCR dependencies must preserve these boundaries.
+
+## Revised acceptance obligations (DEC-15)
+
+Reuse verified source/policy/lifecycle tests; they are not retrospective proof of
+unimplemented recovery. Add targeted synthetic tests for unchanged RAW through
+success/failure and OS-denied writes with handles closed across every process role;
+physically independent hash-verified working copies and source mutation; interrupted
+staging/publication/DB acknowledgement; missing/corrupt acknowledged references and
+safe reconstruction; preserved last historical CLEAN; collision races/no-clobber;
+abandoned scratch cleanup, active-workspace and uncertain-proof protection; bounded
+scratch/memory; and Windows/Linux parity. Isolated DB/necessary-file backup/restore
+remains mandatory. Disposable cleanup warnings are acceptable; deleting unknown,
+active, referenced or last-copy files is not. Process termination tests cover
+application crashes; physical power-loss testing needs proportional risk assessment
+and separate authorized facilities. No actual permissions or data are changed here.
 
 ## Runtime recommendation
 
@@ -184,7 +207,8 @@ and [bundle modes](https://pyinstaller.org/en/stable/operating-mode.html).
   Publication/recovery, export cleanup and backup writes still use directory
   descriptors directly. Windows archive access
   requires handle-relative traversal, reparse rejection, independent RAW write
-  denial, file identity checks, no-clobber publication and tested crash durability.
+  denial, file identity checks, no-clobber publication and tested abrupt-failure
+  integrity/reconciliation under DEC-15, not immediate namespace permanence.
   Keep operations unavailable until the backend and its consumers pass equivalent
   race, collision, withdrawal and recovery tests. Ordinary path normalization
   alone cannot meet this contract.

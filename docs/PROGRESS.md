@@ -6,6 +6,38 @@ reflect actual completed work only.
 
 ## OpenCode continuation — 2026-11-26
 
+### Owner amendment and final Codex transfer
+
+DEC-15 authorizes recoverability-based external publication and isolated processing
+scratch. It supersedes the earlier unconditional parent-namespace/permanent-stage-
+deletion durability blocker, not RAW denial, authoritative DB/history, hash identity,
+no-clobber, confirmation or path/security guarantees. The old blocker entries below
+are historical analysis under DEC-14, not current release criteria. It was a missing
+platform-contract guarantee, not an observed lost publication or power-loss test.
+Windows writes and production RAW certification remain unavailable; workspace,
+isolated-input and acknowledged-file reconciliation obligations remain implementation
+and verification work. WP-54/55 may proceed on verified shared interfaces/supported
+backends without waiting for complete Windows production acceptance or packaging.
+
+Documentation-only owner task: no further implementation, permissions, migrations,
+merge or deployment. All continuation commits since comparison base
+`ab172f6f942d5de743aec21aa6f0222caaa9798e` and their diffs were reviewed; intended
+implementation and recovery branches are preserved. Before this update remote/local
+HEAD was `65c94e1155b88fe86a197e42f9ed601be513c747`, worktree clean, PR #62 open
+and draft. Its Foundation, Container and Windows checks were observed completed
+SUCCESS (run 45815589039); exact deterministic CI was already verified at
+`d5460588c999251e5f98a4184538528029ddbaeb`. These are prior-SHA results, not
+claims about the final documentation/transfer HEAD. See HANDOFF for the final
+snapshot and precise next action. No expensive regression repeated for this task.
+
+Execution: Sol supplied bounded read-only architecture consistency analysis;
+coordinator integrated the authorized requirements/decision/dependency changes
+and transfer documents; Qwen independently reviewed requirements/acceptance
+consistency: passed, no blocking contradictions or omissions.
+Documentation checks: `scripts/check_requirements.py` passed (119 canonical IDs,
+61 aliases, zero errors); structural traceability tests passed (5); Git whitespace
+check passed. Existing implementation evidence reused; no full suite repeated.
+
 The remote takeover gate passed at
 `dd336089fa15b23a377540b5cfae4a472cd25237` on
 `codex/windows-source-reader`; the preserved source-reader increment was reviewed

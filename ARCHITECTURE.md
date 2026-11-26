@@ -118,11 +118,52 @@ CLEAN names are human-readable; title is in directory, arrangement subfolder if 
 
 ### 4.1 Copy and publish protocol
 
+DEC-15 amends cross-platform acceptance: authoritative SQLite metadata retains
+transaction/durability/backup guarantees; external-file publication is verified
+and recoverable, not an atomic DB/filesystem transaction or a promise that every
+namespace operation survives power loss. Existing POSIX directory flushes remain
+useful implementation safeguards, not mandatory identical Windows mechanisms.
+
 1. Resolve source by trusted configured root + validated relative path. Reject symlink escapes, special files, absolute/parent traversal and untrusted arbitrary paths. Check source stability (stat/fingerprint before and after reading, retry on change; file descriptor anchored to safe root where feasible).
 2. Stream source to a unique staging file on the destination filesystem, calculate SHA-256, verify destination bytes, validate PDF size/structure and source stability. If invalid, record failure and keep it unavailable. Apply limits before expensive parsing. Do not assume file extension is proof of PDF.
 3. Reserve destination through DB intent/unique operation ID and serialize filesystem mutations in the worker. Publish only with no-clobber semantics (e.g. same-filesystem hard-link or supported exclusive rename, verified on NAS); `os.replace` is not a no-clobber operation. If a pre-existing file conflicts, compare and choose safe new suffix or report error; never discard it. Flush staged data and relevant directory metadata where supported; recover if crash occurs between DB and filesystem operations.
 4. Commit version/file metadata and availability after verified publication. Keep a durable intent with expected hash/path/attempt; reconciliation inspects actual files after restart. Partial staging files are never served. Retention removes only proven unreferenced temporary artifacts; never automatically remove old confirmed versions.
 5. Update derived folder status from DB. STATUS mirrors source paths and includes one current marker, counts, timestamp, folder UUID and fingerprint; never names of members. UI displays index and review separately. No writer or marker helper is allowed to write to RAW.
+
+An APPLIED receipt records the verified publication effect, not perpetual file
+existence. After interruption, including abrupt OS failure/power loss, detect
+missing/mismatched/corrupt referenced files before serving or resolving them as
+valid. Mark unavailable and reconcile using persistent intent, expected bytes and
+operation-bound proof. Reconstruct only from the exact verified source version
+when available; preserve historical metadata and CLEAN, including last surviving
+copies. Unknown ownership, conflicts or absent non-reproducible inputs require
+actionable review with evidence retained, never blind retry/overwrite. Newly
+created directories may be recreated; disposable recovery files may survive or
+reappear. Their immediate permanence/removal is not a release requirement.
+
+### 4.1a Isolated processing and workspace lifecycle
+
+Before potentially mutable PDF/OCR/image/external-tool processing, obtain a
+physically independent working copy through the validated read-only source
+interface. Verify SHA-256 and source identity/metadata stability; close source
+handles when no longer needed. Supply only the isolated snapshot to processors,
+retain provenance and write outputs to approved writable roots. Never hardlink RAW
+as mutable scratch, expose RAW as a writable tool path or publish modified scratch
+as byte-identical CLEAN. Enumeration and streaming hashes need no copy; reuse a
+verified immutable snapshot for related stages within a job where safe.
+
+Use existing DATA scratch/resource management and isolated job/attempt-owned
+workspaces, with collision prevention, path/link validation and bounded disk,
+memory and time. Close handles before safe cleanup. Controlled startup/periodic
+abandonment cleanup must verify ownership and inactive job state, protect active
+workspaces and necessary uncertain-operation proof, and stay inside validated
+owned scratch. Never recursively delete an arbitrary configured directory.
+Disposable cleanup failure normally warns recoverably without invalidating an
+otherwise successful archive operation. Preserve approved/non-reproducible
+derivatives and historical artifacts; regeneration requires retained exact inputs
+and settings. No second database, distributed transaction or custom storage journal
+is needed merely for this contract. These are target obligations, not a claim that
+all workspace/reconciliation acceptance is already implemented.
 
 All roots are distinct, not ancestors of one another. Validate host canonical paths before composing mounts and container mount identity/options after launch; inside-container distinct paths alone cannot prove distinct host roots. Avoid auto-creation of missing bind sources (`create_host_path: false` when supported; otherwise explicit host validation). Service-specific access checks: web tests only its writable data directory, worker tests writable managed roots and confirms RAW read-only. Never perform a potentially destructive write to a real RAW archive to validate it; inspect mount flags and test negative permission behavior on a dedicated synthetic deployment. Reject unexpected links in managed paths. No direct web access to staging, arbitrary paths, or secrets.
 
@@ -145,7 +186,9 @@ Review approval applies to exact PDF version/hash and proposed assignments. Manu
 ## 5. Domain model
 
 Revision-3 extensions below are the additive target approved by the owner in
-DEC-13 on 2026-11-25. Implementation follows portability and the rebaselined plan.
+DEC-13 on 2026-11-25, with DEC-15's dependency amendment. Shared source/content
+implementation follows verified shared portability contracts; remaining native
+Windows write/security/packaging acceptance does not block it.
 Existing tables and confirmed single-work workflows remain the compatibility
 baseline. RecognitionCandidate.region is recognition evidence, not a confirmed
 content reference or a sufficient segmentation model.

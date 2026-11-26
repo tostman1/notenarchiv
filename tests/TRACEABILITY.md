@@ -61,6 +61,23 @@ CropBox retention, geometry-fingerprint distinction for equal effective crops,
 strict legacy-metadata rejection and unchanged legacy inspection serialization/IPC.
 These contracts do not bind source versions or activate content approval.
 
+## DEC-15 revised acceptance obligations (not implemented evidence)
+
+GR-01/02, AR-01/02, OP-02/03/05/07/08 retain existing source identity, hash,
+no-clobber, uncertainty/lifecycle, backup and platform tests. POSIX directory-flush
+tests remain implementation regression safeguards; immediate permanence of every
+parent creation/disposable deletion is no longer universal product acceptance.
+Add synthetic success/failure RAW-unchanged and OS-denial tests for every role with
+reader handles closed; independent verified processing-copy/no-RAW-hardlink tests;
+mutation/interrupted staging and publication/DB-window tests; acknowledged missing,
+partial/corrupt reference detection, reconstruction with exact surviving inputs,
+historical last-copy preservation and review-required conflicts; scratch quota,
+abandoned cleanup/active-workspace/uncertain-proof protection and warning behavior;
+Windows/Linux functional parity. Existing process-kill evidence is application-
+crash recovery only. Approved/non-reproducible artifacts and authoritative DB/history
+retain backup/restore obligations. These are remaining coverage targets, not a claim
+that the revised contract, native writes or production RAW isolation is verified.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual
