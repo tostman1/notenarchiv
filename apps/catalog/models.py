@@ -244,3 +244,11 @@ class TemplatePart(Identity):
 
     def __str__(self):
         return f"{self.template} → {self.part}"
+
+
+from apps.catalog.collection_models import (  # noqa: E402,F401
+    Collection,
+    CollectionMembership,
+    WorkAlternativeTitle,
+    WorkRelationship,
+)

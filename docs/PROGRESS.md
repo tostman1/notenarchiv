@@ -1,8 +1,97 @@
 # Progress record
 
+## Collection review corrections — 2026-11-26
+
+Independent review identified mixed relationship semantics and inaccurate local
+override provenance. Containment cycle checks now traverse only movement/medley
+edges; reciprocal explicit related-edition links are allowed and require active
+arrangements. New `collection-metadata-v2` receipts identify the immutable
+membership UUID/revision for local values; existing receipts are not rewritten.
+Five targeted collection, isolated SQLite restore and backfill tests passed.
+Membership positions remain deliberately zero-based, matching source/content
+sequence conventions; original song numbers are separate human metadata.
+Withdrawal/correction services remain an open WP-55 product task, not permission
+to delete retained history. SQLite is the supported persistence target.
+
+PR #65's preceding exact head
+`8dddc58a7de4e2843eec3379d3262d6b766f7fb6` passed Foundation, Container
+and Windows. The review correction requires its own exact-head gate.
+
+## Native inventory correction — 2026-11-26
+
+PR #65 Windows CI on `567eda5d87576ea0aa5f6fac76c7b606dd6bc11e`
+failed to detect an added directory entry. Native directory timestamps alone
+are insufficient: inventory now compares a bounded-memory, order-independent
+SHA-256 name accumulator before and after enumeration, alongside the existing
+handle fingerprint. Three targeted tests passed, including unchanged metadata
+and equal-count name replacement. RAW access remains read-only and native
+Windows publication remains disabled. Exact updated-head CI is pending.
+
+## Browser isolation correction — 2026-11-26
+
+PR #65 CI on `8846a1967cfd4b922b5b61b0f87251777d50a9c6` failed in
+the browser gate: immutable DELETE triggers prevented disposable test DB flush
+because their teardown fixture was scoped only to `tests/`. The fixture is now
+root-scoped, retaining guards during every test and removing only DELETE guards
+before transactional test teardown. Production migrations remain unchanged.
+Ten targeted browser-directory isolation, migration and geometry tests passed;
+the two browser-directory cases need no Node and verify guards plus clean state
+across consecutive transactions. Exact-head CI must pass before integration.
+
 Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
+
+## OpenCode integration evidence — 2026-11-26
+
+PR #64 merged at `447a70acc332310f62b3c55aba572a34291ff6cd`;
+exact Main CI `45846091525` passed Foundation, Container and Windows.
+PR #63 passed the reviewed reconciliation head
+`995bc403c3ec4199f1596849648366826d7272ad` and merged at
+`d87a9e525463c6c786f018e9ebf79ec9e9a1d8c5`. Its exact Main CI
+`45850641258` passed Foundation, Container and Windows.
+
+Independent Qwen review of the committed content foundation found no blockers
+in its bounded persistence scope. Different/inactive confirmation actors are
+tested; published-byte verification now follows the supplied/model DB alias.
+The intended content-only approval scope does not approve an entire BASE file.
+Twenty-five targeted edition, confirmation and compatibility tests passed after
+the alias adjustment. The prior exact foundation full suite passed 1,308 tests,
+skipped 147 and failed two Windows symlink fixtures with `WinError 1314`;
+this is an environment-limited failing gate, not a successful full suite.
+
+## OpenCode content foundation — 2026-11-26
+
+WP-54/55 are **in progress**, not complete or enabled for product export.
+The additive implementation introduces stable document identities, immutable
+region and logical-page revisions, ordered occurrence manifests, explicit visual
+inspection and confirmation, and a read-only whole-file compatibility adapter.
+Changes to relevant geometry or ordering exclude affected content from new use;
+previous confirmations and legacy assignments remain retained. SQLite history
+guards cover the new records. Native Windows storage writes remain disabled.
+
+Collections, ordered membership, alternative titles and typed composition/edition
+relationships are distinct from filename/title identity. Membership snapshots
+retain effective metadata and its collection/work/local provenance. Synthetic
+tests exercise 125 independent repeated-title works and cycle rejection for a
+Deutsche Messe hierarchy. Twenty-four targeted confirmation, compatibility,
+uniform selection and existing edition tests passed. Partial content confirmation
+can span separately published unconfirmed BASE copies without approving either
+whole file. Independent logical revisions retain unrelated confirmed content.
+An isolated synthetic SQLite backup preserved identities, metadata provenance,
+integrity, foreign keys and history guards; this is not installation recovery.
+
+Current-schema ingestion also materializes the stable document bridge. Serialized
+logical-page append operations reject stale and non-integer revision tokens.
+Seventeen targeted confirmation, geometry and indexing tests passed locally;
+fourteen POSIX indexing cases were skipped on Windows. Local browser acceptance
+could not start its Node subprocess: 22 failures and four skips. Node is absent
+from the current environment; browser verification remains open, not waived.
+
+Shared project resolver/preference and generation integration, neutral compound
+publication, complete backup/restore acceptance and full delivery verification
+remain open. Schema rollback/rebuild tests are not physical power-loss or NAS
+acceptance. No actual association data or production migration was used.
 
 ## Codex to OpenCode checkpoint — 2026-11-26
 
