@@ -6,6 +6,25 @@ reflect actual completed work only.
 
 ## Codex continuation — 2026-11-26
 
+### WP-54 source-page checkpoint
+
+Stable page UUIDs identify zero-based pages within exact source versions.
+The additive migrations retain existing validation, archive assignments,
+preferences and snapshot records. Per-version backfill transactions can be
+rerun and verify previously written rows. Legacy pages retain their effective
+geometry with an explicitly unknown original CropBox. New validation records
+original and effective geometry from the same isolated parser invocation.
+Source geometry fingerprints distinguish those evidence scopes. This increment
+does not activate regions or change the legacy resolver. Logical-page, region,
+content-reference and compatibility migration acceptance remain in progress.
+
+Focused verification passed on Windows for archive models, page migrations and
+geometry, with no migration drift. Ubuntu verified synthetic new indexing and
+idempotent same-hash reindexing. The migration tests exercised schema rollback
+and deterministic rebuild with no production data.
+
+### WP-06p shared storage checkpoint
+
 Verified and fast-forwarded the clean checkout to the remote handoff SHA
 `b5fecb12233a8782e1e5c59480a5d1d9605dafa7` with the required transfer trailer.
 The comparison base remains `ab172f6f942d5de743aec21aa6f0222caaa9798e`.

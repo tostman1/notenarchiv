@@ -103,6 +103,7 @@ def test_complete_new_import_verifies_copies_and_raw_is_identical(indexed_instal
         "file=m.ArchiveFile.objects.get(); assert file.candidate_state=='UNKNOWN'\n"
         "assert file.review_state=='PENDING' and file.arrangement_id is None\n"
         "assert file.source_version.pdf_state=='VALID' and file.source_version.page_info\n"
+        "page=file.source_version.pages.get(); assert page.page_index==0 and page.original_crop_box is not None\n"
         "assert verified_bytes(file.pk) and file.publication_state=='AVAILABLE'\n"
         "assert not m.ArchiveFile.objects.usable().exists() and not file.assignments.exists()\n"
         "assert not m.SourceVersion.objects.filter(source_file__relative_path='correct.pdf').exists()\n",

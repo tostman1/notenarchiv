@@ -1,5 +1,12 @@
 # Implemented acceptance traceability
 
+GR-16, AR-20, OP-08: `tests/test_source_pages.py` checks immutable exact-version
+page references and geometry fingerprints. `tests/test_source_page_backfill.py`
+exercises additive migration with partially populated rows, schema rollback and
+idempotent rebuild of derived page identities while retaining legacy metadata.
+`tests/test_pdf_source_geometry.py` and `tests/test_indexing.py` exercise opt-in
+original CropBox retention through isolated inspection and new archive validation.
+
 DEC-15 processing scratch: `tests/test_pdf.py` injects a same-size change into
 the private input copy and verifies that processing stops before parser launch.
 `tests/test_pdf_recovery.py` checks removal of owned abandoned scratch and warns

@@ -44,8 +44,11 @@ class Processor:
             raise ValueError("PDF scratch root must be private")
         self.root, self.limits, self.checkpoint = root, limits or Limits(), checkpoint
 
-    def inspect(self, data: bytes, *, include_text=False) -> DocumentInfo:
-        result = self._invoke("inspect", [data], include_text=bool(include_text))
+    def inspect(self, data: bytes, *, include_text=False, include_source_geometry=False) -> DocumentInfo:
+        options = {"include_text": bool(include_text)}
+        if include_source_geometry:
+            options["include_source_geometry"] = True
+        result = self._invoke("inspect", [data], **options)
         return DocumentInfo(
             hashlib.sha256(data).hexdigest(),
             tuple(
@@ -53,6 +56,7 @@ class Processor:
                 for page in result["pages"]
             ),
             tuple(result["text"]) if include_text else None,
+            tuple(tuple(box) for box in result["original_crop_boxes"]) if include_source_geometry else None,
         )
 
     def extract_text(self, data: bytes) -> tuple[str, ...]:

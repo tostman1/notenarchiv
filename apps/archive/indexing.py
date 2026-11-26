@@ -175,7 +175,7 @@ def _entry(context, entry, roots, processor):
             if entry.operation_id:
                 p.run(CopyContext(context, entry.operation))
         else:
-            inspection = processor.inspect(data, include_text=True)
+            inspection = processor.inspect(data, include_text=True, include_source_geometry=True)
             if version.pdf_state == "UNCHECKED":
                 version = context.commit_metadata(
                     lambda: s.record_validation(
@@ -183,6 +183,7 @@ def _entry(context, entry, roots, processor):
                         expected_revision=version.revision,
                         pdf_state="VALID",
                         page_info=[asdict(page) for page in inspection.pages],
+                        original_crop_boxes=inspection.original_crop_boxes,
                         using=using,
                     )
                 )

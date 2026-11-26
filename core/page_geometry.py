@@ -127,6 +127,31 @@ class PageGeometry:
         return geometry
 
 
+def source_page_geometry_fingerprint(*, media_box, effective_crop_box, original_crop_box, rotation, user_unit):
+    """Fingerprint verified original geometry or explicitly incomplete legacy evidence."""
+    media, effective = _box(media_box), _box(effective_crop_box)
+    if original_crop_box is not None:
+        crop = _box(original_crop_box)
+        if effective != (
+            max(media[0], crop[0]),
+            max(media[1], crop[1]),
+            min(media[2], crop[2]),
+            min(media[3], crop[3]),
+        ):
+            raise GeometryError("INCONSISTENT_SOURCE_GEOMETRY")
+        payload = {"schema": SCHEMA, "media_box": media, "crop_box": crop, "effective_box": effective}
+    else:
+        payload = {
+            "schema": "pdf-page-legacy-effective-v1",
+            "media_box": media,
+            "effective_crop_box": effective,
+            "original_crop_box": None,
+        }
+    payload.update(rotation=rotation, user_unit=_number(user_unit))
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(encoded.encode("ascii")).hexdigest()
+
+
 @dataclass(frozen=True)
 class RectangleRegion:
     page: PageGeometry

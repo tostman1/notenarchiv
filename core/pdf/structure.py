@@ -56,8 +56,10 @@ def open_pdf(path, limits):
     return reader, infos
 
 
-def inspect(reader, infos, limits, include_text):
+def inspect(reader, infos, limits, include_text, *, include_source_geometry=False):
     result = {"pages": [asdict(info) for info in infos]}
+    if include_source_geometry:
+        result["original_crop_boxes"] = [box(page.cropbox) for page in reader.pages]
     if include_text:
         texts, count = [], 0
 
