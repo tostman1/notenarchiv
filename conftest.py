@@ -34,7 +34,10 @@ def content_history_transactional_cleanup(request):
         import_module("apps.archive.migrations.0007_content_history_guards").TABLES
         + import_module("apps.archive.migrations.0009_content_confirmation_guards").TABLES
     )
-    catalog_tables = import_module("apps.catalog.migrations.0003_catalog_association_history").TABLES
+    catalog_tables = (
+        import_module("apps.catalog.migrations.0003_catalog_association_history").TABLES
+        + import_module("apps.catalog.migrations.0005_association_current_guards").TABLES
+    )
     with connection.cursor() as cursor:
         existing = set(connection.introspection.table_names(cursor))
         for table in tables:

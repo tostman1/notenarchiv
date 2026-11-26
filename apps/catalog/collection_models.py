@@ -1,5 +1,6 @@
 """Collections are independent of composition hierarchy and title identity."""
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -72,7 +73,7 @@ class CollectionMembership(RetainedIdentity):
             raise ValidationError("Collection membership requires an exact provenance snapshot.")
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["collection", "position"], name="catalog_collection_position")]
+        constraints = []
 
 
 class WorkRelationship(RetainedIdentity):
@@ -101,7 +102,6 @@ class WorkRelationship(RetainedIdentity):
     class Meta:
         constraints = [
             models.CheckConstraint(condition=~Q(parent=models.F("component")), name="catalog_relationship_not_self"),
-            models.UniqueConstraint(fields=["parent", "kind", "position"], name="catalog_relationship_position"),
         ]
 
 
@@ -110,3 +110,41 @@ class WorkAlternativeTitle(RetainedIdentity):
     title = models.CharField(max_length=200, verbose_name=_("Alternativer Titel"))
     title_key = models.CharField(max_length=400, editable=False, db_index=True)
     normalized_fields = {"title_key": "title"}
+
+
+class AssociationWithdrawal(RetainedIdentity):
+    """An explicit terminal event preserves the original association and receipt."""
+
+    membership = models.OneToOneField(
+        CollectionMembership, null=True, blank=True, on_delete=models.PROTECT, related_name="withdrawal"
+    )
+    relationship = models.OneToOneField(
+        WorkRelationship, null=True, blank=True, on_delete=models.PROTECT, related_name="withdrawal"
+    )
+    alternative_title = models.OneToOneField(
+        WorkAlternativeTitle, null=True, blank=True, on_delete=models.PROTECT, related_name="withdrawal"
+    )
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=500)
+
+    def clean(self):
+        super().clean()
+        if (
+            sum(value is not None for value in (self.membership_id, self.relationship_id, self.alternative_title_id))
+            != 1
+        ):
+            raise ValidationError("Exactly one retained association must be withdrawn.")
+        if not self.actor.is_active or not self.reason.strip():
+            raise ValidationError("Withdrawal requires an active actor and an explicit reason.")
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(membership__isnull=False, relationship__isnull=True, alternative_title__isnull=True)
+                    | Q(membership__isnull=True, relationship__isnull=False, alternative_title__isnull=True)
+                    | Q(membership__isnull=True, relationship__isnull=True, alternative_title__isnull=False)
+                ),
+                name="catalog_withdrawal_one_association",
+            )
+        ]
