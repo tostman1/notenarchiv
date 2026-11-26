@@ -214,7 +214,9 @@ class ResolutionSession:
         result = edition_services.select_edition(
             self.choices.get((position.arrangement_id, part_id), []),
             explicit_assignment_id=selected,
-            preferred_assignment_id=archive_preference.assignment_id if archive_preference else None,
+            preferred_assignment_id=(archive_preference.content_edition_id or archive_preference.assignment_id)
+            if archive_preference
+            else None,
         )
         if origin == "NONE":
             origin = result.origin

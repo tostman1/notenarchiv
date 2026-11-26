@@ -55,13 +55,8 @@ def resolve(arrangement_id, part_id, *, explicit_assignment_id=None, using="defa
     """Exact part includes notation/transposition; same number is never compatibility."""
     choices = compatible(arrangement_id, part_id, using=using)
     preference = m.PreferredEdition.objects.using(using).filter(arrangement_id=arrangement_id, part_id=part_id).first()
-    selected = (
-        explicit_assignment_id
-        if explicit_assignment_id is not None
-        else preference.assignment_id
-        if preference
-        else None
-    )
+    preferred = (preference.content_edition_id or preference.assignment_id) if preference else None
+    selected = explicit_assignment_id if explicit_assignment_id is not None else preferred
     try:
         candidates = list(choices.filter(pk=selected)[:1]) if selected is not None else list(choices[:2])
     except (ValidationError, ValueError):
@@ -69,7 +64,7 @@ def resolve(arrangement_id, part_id, *, explicit_assignment_id=None, using="defa
     result = select_edition(
         candidates,
         explicit_assignment_id=explicit_assignment_id,
-        preferred_assignment_id=preference.assignment_id if preference else None,
+        preferred_assignment_id=preferred,
     )
     if result.assignment is not None and not library_services.verify_file(result.assignment.archive_file):
         return EditionResolution("UNAVAILABLE", result.origin)
@@ -124,13 +119,16 @@ def set_preference(arrangement_id, part_id, assignment_id, *, actor, expected_re
             arrangement_id=arrangement_id, part_id=part_id
         )
         previous = preference.assignment_id
+        previous_content = preference.content_edition_id
+        preference.content_edition_id = None
         preference.assignment_id = selected.pk if selected else None
         preference.save(using=using)
-        if previous != preference.assignment_id:
+        if previous != preference.assignment_id or previous_content is not None:
             m.EditionPreferenceChange.objects.using(using).create(
                 preference=preference,
                 actor=reviewer,
                 previous_id=previous,
+                previous_content_id=previous_content,
                 selected_id=preference.assignment_id,
                 arrangement_revision=expected_revision + 1,
             )

@@ -23,7 +23,7 @@ class Candidate:
 def resolve_content(arrangement_id, part_id, *, explicit_edition_id=None, using="default"):
     """No unavailable explicit or archived preferred choice silently falls back."""
     preference = m.PreferredEdition.objects.using(using).filter(arrangement_id=arrangement_id, part_id=part_id).first()
-    preferred = preference.assignment_id if preference else None
+    preferred = (preference.content_edition_id or preference.assignment_id) if preference else None
     selected = explicit_edition_id if explicit_edition_id is not None else preferred
     legacy = compatible(arrangement_id, part_id, using=using)
     content = m.ContentEdition.objects.using(using).filter(arrangement_id=arrangement_id, part_id=part_id)
