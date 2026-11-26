@@ -85,7 +85,7 @@ def _enqueue(file, path, *, proposal=None, using):
     return job
 
 
-def queue_copy(version_id, *, using="default"):
+def queue_copy(version_id, *, using="default", _preferred_path=None):
     version = m.SourceVersion.objects.using(using).select_related("source_file").get(pk=version_id)
     previous = m.ArchiveFile.objects.using(using).filter(source_version=version, kind="BASE").first()
     if previous:
@@ -96,7 +96,9 @@ def queue_copy(version_id, *, using="default"):
             return previous, previous.publication_operation.job
         if previous.publication_operation_id:
             raise ValidationError("Acknowledged archive copy requires reconciliation at its recorded path.")
-    preferred = f"_Ungeprueft/{version.source_file_id.hex}/{pdf_name(version.source_file.relative_path)}"
+    preferred = (
+        _preferred_path or f"_Ungeprueft/{version.source_file_id.hex}/{pdf_name(version.source_file.relative_path)}"
+    )
     path = choose_target("CLEAN", preferred, version.pk, exclude=previous.pk if previous else None, using=using)
     with transaction.atomic(using=using):
         if not m.SourceVersion.objects.using(using).filter(pk=version_id).update(revision=F("revision") + 1):
@@ -115,6 +117,23 @@ def queue_copy(version_id, *, using="default"):
         job = _enqueue(file, path, using=using)
         file.refresh_from_db(using=using)
         return file, job
+
+
+def queue_compound_copy(version_id, *, title, using="default"):
+    """Publish one neutral source copy; musical-region approval remains separate.
+
+    Existing BASE copies and their acknowledged paths are reused, never renamed
+    to satisfy new metadata. The durable COPY worker and no-clobber reservations
+    remain the only external write path (and stay disabled on native Windows).
+    """
+    from apps.archive.content_geometry_services import source_document
+
+    if not isinstance(title, str) or not title.strip() or len(title) > 200:
+        raise ValidationError("A bounded human-readable compound source title is required.")
+    version = m.SourceVersion.objects.using(using).get(pk=version_id)
+    document = source_document(version.source_file_id, using=using)
+    preferred = f"Sammlungen/{component(title)}--{document.pk.hex[:12]}/{version.pk.hex[:12]}.pdf"
+    return queue_copy(version_id, using=using, _preferred_path=preferred)
 
 
 def canonical_path(proposal, *, using="default"):

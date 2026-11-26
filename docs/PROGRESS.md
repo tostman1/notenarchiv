@@ -1,5 +1,17 @@
 # Progress record
 
+## Neutral compound source publication — 2026-11-26
+
+Compound copies receive a readable `Sammlungen` path under the stable source
+document identity. Existing BASE publications and acknowledged paths are reused;
+title changes never rename history or duplicate source bytes. The existing COPY
+worker, verified staging, collision reservation and recovery remain unchanged.
+No musical assignment or whole-file confirmation is granted by this operation.
+One naming/delegation contract check passed; two real POSIX worker checks are
+skipped on this Windows host and remain required exact-CI acceptance. WP-54/55
+remain in progress, including shared project content activation. Native Windows
+writes remain disabled; no deployment or actual archive migration occurred.
+
 ## Explicit catalog correction editor — 2026-11-26
 
 Authenticated, CSRF-protected correction screens expose reason-bound withdrawal

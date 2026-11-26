@@ -19,7 +19,7 @@ def synthetic_pdf():
     return output.getvalue()
 
 
-def setup(collision=None):
+def setup(collision=None, *, compound_title=None):
     from django.contrib.auth import get_user_model
 
     from apps.archive import models as m
@@ -53,7 +53,11 @@ def setup(collision=None):
         )
         existing.parent.mkdir(mode=0o750, parents=True)
         existing.write_bytes(data if collision == "same" else b"Synthetic existing history")
-    file, job = p.queue_copy(version.pk)
+    file, job = (
+        p.queue_compound_copy(version.pk, title=compound_title)
+        if compound_title is not None
+        else p.queue_copy(version.pk)
+    )
     actor = get_user_model().objects.create_user("synthetic-publication-reviewer")
     work = save_record(catalog.Work(title="Bereits korrekt"))
     arrangement = save_record(catalog.Arrangement(work=work, edition="Testfassung"))
