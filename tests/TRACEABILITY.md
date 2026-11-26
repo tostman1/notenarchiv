@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `test_project_content_pins.py`: EX-13, AR-20/21 — historical schema-3 personal
+  content rendering preserves pinned orientation, title and order, explicit
+  acknowledged missing placeholders and reserve slots. Product authorization and
+  worker activation remain open.
+
 - `test_project_content_pins.py`: AR-20/21, EX-13, OP-08 — additive schema-3
   project cell identity, historical content-revision retention, exact part and
   arrangement validation, payload tampering rejection and SQLite file-pin guards.

@@ -1,5 +1,17 @@
 # Progress record
 
+## Historical project content assembly — 2026-11-26
+
+The schema-3 personal assembly service now renders exact historical content-cell
+pins through the shared bounded vector-region renderer. Pinned project order and
+titles survive subsequent logical revisions; explicit missing acknowledgements
+and reserve positions produce placeholders without silent omission. Thirteen
+targeted project-pin, archive-content and traceability tests passed; Ruff and
+Django checks passed. This service is not yet activated by project authorization
+or the generation worker; the cohesive shared resolver/preflight integration
+remains open, and WP-54/55 are not complete. Main #70 exact CI 45889494523 passed;
+#71 was integrated with its exact post-merge CI pending. Windows writes stay disabled.
+
 ## Protected project content-cell pins — 2026-11-26
 
 An additive schema-3 relational cell pin now records exact project position,
