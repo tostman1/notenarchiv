@@ -14,6 +14,12 @@ writes remain disabled; no deployment or actual archive migration occurred.
 
 ## Explicit catalog correction editor — 2026-11-26
 
+The first exact browser CI failed at the action selector: Django renders the
+accessible form label as `Aktion:` while the new script requested exact `Aktion`.
+The selector now tolerates the normal label suffix, with a client regression
+asserting the replacement editor exposes the action control. The failed gate
+is not treated as success; the corrected head requires fresh exact CI.
+
 Authenticated, CSRF-protected correction screens expose reason-bound withdrawal
 and membership replacement with submitted revision fences. Work details link to
 current and retained association history. GET does not mutate; duplicate/stale
