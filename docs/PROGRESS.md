@@ -8,8 +8,13 @@ Selection checks do not approve music; explicit generation authorization pins
 already confirmed content. Original context links, source indices, bounds and
 orientation are shown. Two Django client tests passed: login/CSRF enforcement,
 no generation on inspection, idempotent explicit authorization and stale rejection.
-Real browser acceptance, project resolver/preferences and neutral compound-source
-publication remain open. Native Windows writes remain disabled.
+A synthetic real-browser test now covers signed selection, tampered-token rejection
+and idempotent authorization; execution remains pending CI because Node is absent
+locally. Review follow-ups make confirmation receipt selection deterministic and
+classify out-of-range logical pages as INVALID_PAGE. Nine targeted PDF/pin/view
+tests passed before the additional deterministic-receipt assertion. Project
+resolver/preferences and neutral compound-source publication remain open.
+Native Windows writes remain disabled.
 
 ## Content export activation — 2026-11-26
 

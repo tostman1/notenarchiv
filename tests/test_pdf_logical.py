@@ -49,6 +49,8 @@ def test_invalid_bounds_fail_closed_in_isolated_parser(tmp_path):
     source = pdf(sizes=((100, 200),))
     with pytest.raises(PdfError, match="INVALID_PAGE"):
         processor.logical_pages([source], [{"input": 0, "page": 0, "bounds": (0, 0, 101, 200), "orientation": 0}])
+    with pytest.raises(PdfError, match="INVALID_PAGE"):
+        processor.logical_pages([source], [{"input": 0, "page": 1, "bounds": (0, 0, 100, 200), "orientation": 0}])
     for bounds in ((0, 0, float("nan"), 1), (1, 0, 0, 1)):
         with pytest.raises(ValueError):
             processor.logical_pages([source], [{"input": 0, "page": 0, "bounds": bounds, "orientation": 0}])

@@ -92,6 +92,9 @@ def main(stage):
                 elif request["operation"] == "logical_pages":
                     from core.pdf.logical import logical_pages
 
+                    for selection in request["selections"]:
+                        if selection["page"] >= len(infos[selection["input"]]):
+                            raise PdfError("INVALID_PAGE")
                     logical_pages(readers, request["selections"], limits, stream)
                 elif request["operation"] == "compose":
                     from core.pdf.composition import compose
