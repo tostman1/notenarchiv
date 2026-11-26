@@ -342,7 +342,8 @@ class Root:
             final = os.stat(name, dir_fd=parent, follow_symlinks=False)
             if not stat.S_ISREG(final.st_mode) or identity(final) != identity(stage.info):
                 raise FileError("PUBLICATION_CONFLICT")
-            self.verify_entry(target_path)
+            if self._matching_names(parent, name) != [name]:
+                raise FileError("PUBLICATION_CONFLICT")
             os.fsync(parent)
 
     def verify_entry(self, path):

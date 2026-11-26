@@ -4,6 +4,42 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## Codex continuation — 2026-11-26
+
+Verified and fast-forwarded the clean checkout to the remote handoff SHA
+`b5fecb12233a8782e1e5c59480a5d1d9605dafa7` with the required transfer trailer.
+The comparison base remains `ab172f6f942d5de743aec21aa6f0222caaa9798e`.
+
+WP-06p remains in progress. The shared PDF processor verifies each physical
+scratch copy's SHA-256 before launching the parser and retains the workspace if
+termination is unproven. Archive publication and indexing use the existing
+worker recovery hook for parser scratch. Cleanup preserves marked workspaces
+after an abrupt parser interruption until child termination can be established.
+Unknown files are preserved and disposable cleanup failures warn. Publication
+still checks final name spelling through the pinned target parent. Publication
+and metadata durability boundaries are retained. Windows writes remain disabled.
+
+Reindexing the same source version records a missing or corrupt acknowledged
+CLEAN copy as unavailable without changing its approval, path or receipt.
+Repeated scans and ordinary copy requests preserve that publication for
+reconciliation rather than creating a replacement at a different path. A scan
+restores availability after exact bytes reappear at the recorded path, with
+size, SHA-256 and receipt verification and the logical revision retained for
+historical export pins. This check runs when indexing rediscovers the same RAW
+version. Direct recovery of historical copies without that RAW version and
+automatic reconstruction of missing bytes remain open.
+
+Focused checks: 75 Windows PDF/publication-contract tests passed with one POSIX
+permissions test skipped. Six final Ubuntu parser cleanup and confirmed CLEAN
+loss/restore cases passed. The geometry suites passed 118 tests. Ruff lint and
+format, Django system check, migration drift, and diff whitespace checks passed.
+
+WP-54 preparation now accepts fractional CropBox offsets with non-integer
+UserUnit across the four page orientations. The additive source/content migration
+and WP-55 work remain pending. The next storage increment is exact-path
+reconciliation of acknowledged missing CLEAN results, while preserving the
+receipt, confirmed history and existing bytes on any unsafe or conflicting path.
+
 ## OpenCode continuation — 2026-11-26
 
 ### Owner amendment and final Codex transfer

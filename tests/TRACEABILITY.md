@@ -1,5 +1,16 @@
 # Implemented acceptance traceability
 
+DEC-15 processing scratch: `tests/test_pdf.py` injects a same-size change into
+the private input copy and verifies that processing stops before parser launch.
+`tests/test_pdf_recovery.py` checks removal of owned abandoned scratch and warns
+while preserving unknown entries. Worker parser scratch is separate from
+publication staging and its recovery proof.
+
+DEC-15 acknowledged CLEAN detection: `tests/test_indexing.py` removes or alters
+a synthetic acknowledged copy, repeats indexing and checks that the unavailable
+state is recorded while the path and applied operation remain reserved. It then
+restores exact bytes at that path and verifies revalidation against the receipt.
+
 GR-01/02, AR-01/02/09, OP-02/03/07:
 `tests/test_publication_contract.py` checks platform-independent publication
 policy rejects collisions, unsafe staging and read-only mutation before backend

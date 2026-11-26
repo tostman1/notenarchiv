@@ -18,7 +18,7 @@ from apps.projects.preflight_services import fingerprint
 from core import files, preview
 from core.naming import component
 from core.pdf import Limits, Processor
-from core.pdf.recovery import prune
+from core.pdf.recovery import prune_disposable
 from core.pdf.staging import stage_bytes
 
 MAX_RUN_BYTES = 512 * 1024**2
@@ -324,7 +324,7 @@ def run(context):
     with ExitStack() as stack:
         root, data_root = _roots(stack, context.using)
         processor = _processor(data_root, guard)
-        prune(data_root, ".staging/generation")
+        prune_disposable(data_root, ".staging/generation")
         total = 0
         for index, person in enumerate(targets(snapshot)):
             context.checkpoint(min(90, index * 90 // len(targets(snapshot))))
@@ -407,7 +407,7 @@ def recover_cleanup(context):
     with ExitStack() as stack:
         root, data_root = _roots(stack, context.using)
         _processor(data_root, context.checkpoint)
-        prune(data_root, ".staging/generation")
+        prune_disposable(data_root, ".staging/generation")
         for publication in ExportPublication.objects.filter(run__job_id=context.job_id):
             intents = OperationIntent.objects.filter(job_id=context.job_id, key=effect_key(publication))
             intent = intents.first()

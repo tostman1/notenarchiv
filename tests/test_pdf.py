@@ -12,6 +12,7 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.generic import ArrayObject, DecodedStreamObject, DictionaryObject, FloatObject, NameObject, NumberObject
 
 from core.pdf import Limits, PdfError, Processor, Selection
+from core.processes import ProcessCleanupError
 from tests.pdf_fixtures import A3, A4, pdf
 
 
@@ -46,6 +47,36 @@ def test_vector_text_and_image_only_scan_are_distinct(processor, monkeypatch, tm
     assert processor.extract_text(scan) == ("",)
     assert processor.inspect(vector).text is None
     assert png(processor.thumbnail(scan))[2].count(b"\0") > 200
+
+
+def test_changed_processing_copy_is_rejected_before_parser_runs(processor, monkeypatch, tmp_path):
+    write = processor._write
+
+    def corrupt_copy(path, data):
+        write(path, data)
+        path.write_bytes(data[:-1] + bytes([data[-1] ^ 1]))
+
+    def unexpected_parser(*args, **kwargs):
+        pytest.fail("Parser received a changed processing copy")
+
+    monkeypatch.setattr(processor, "_write", corrupt_copy)
+    monkeypatch.setattr("core.pdf.api.run_process", unexpected_parser)
+    with pytest.raises(PdfError, match="PROCESS_FAILED"):
+        processor.inspect(pdf())
+    assert not list(tmp_path.iterdir())
+
+
+def test_workspace_is_retained_when_parser_stop_is_unproven(processor, monkeypatch, tmp_path):
+    def unverified_stop(*args, **kwargs):
+        raise ProcessCleanupError("Synthetic process cleanup failure")
+
+    monkeypatch.setattr("core.pdf.api.run_process", unverified_stop)
+    data = pdf()
+    with pytest.raises(ProcessCleanupError):
+        processor.inspect(data)
+
+    (workspace,) = tmp_path.iterdir()
+    assert (workspace / "0.pdf").read_bytes() == data
 
 
 @pytest.mark.parametrize("size,paper", [(A4, "A4"), (A3, "A3"), (A4[::-1], "A4"), ((481.89, 340.157), "CUSTOM")])

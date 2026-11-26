@@ -106,6 +106,38 @@ def _failure(context, entry, code):
     )
 
 
+def _verify_existing_copy(context, entry, existing, root):
+    try:
+        p.verify_receipt_bytes(existing, root, checkpoint=context.checkpoint)
+    except files.FileError as error:
+        if error.code == "COPY_MISMATCH" or (
+            error.code == "LIMIT_EXCEEDED" and root.metadata(existing.relative_path).st_size != existing.byte_size
+        ):
+            state = "CORRUPT"
+        elif error.code == "FILE_IO" and not root.exists(existing.relative_path):
+            state = "MISSING"
+        else:
+            raise
+    else:
+        state = "AVAILABLE"
+
+    def record_health():
+        # This is storage health, so the logical revision pinned by historical
+        # exports must survive an outage and exact-byte restoration.
+        if state != existing.publication_state and not m.ArchiveFile.objects.using(context.using).filter(
+            pk=existing.pk, revision=existing.revision, publication_state=existing.publication_state
+        ).update(publication_state=state):
+            raise s.ArchiveConflict()
+        if state != "AVAILABLE":
+            m.IndexEntry.objects.using(context.using).filter(pk=entry.pk).update(
+                state="FAILED", error_code="CLEAN_" + state
+            )
+
+    if state != "AVAILABLE" or state != existing.publication_state:
+        context.commit_metadata(record_health)
+    return state == "AVAILABLE"
+
+
 def _entry(context, entry, roots, processor):
     using = context.using
     version = None
@@ -137,8 +169,9 @@ def _entry(context, entry, roots, processor):
             lambda: m.IndexEntry.objects.using(using).filter(pk=entry.pk).update(source_version=version, sha256=digest)
         )
         existing = m.ArchiveFile.objects.using(using).filter(source_version=version, kind="BASE").first()
-        if existing and existing.publication_state == "AVAILABLE":
-            p.verified_bytes(existing.pk, using=using, checkpoint=context.checkpoint)
+        if existing and existing.publication_operation_id:
+            if not _verify_existing_copy(context, entry, existing, roots["CLEAN"]):
+                return
             if entry.operation_id:
                 p.run(CopyContext(context, entry.operation))
         else:
@@ -327,5 +360,11 @@ def reconcile(context, intent):
 
 def register():
     queue.HANDLERS[Job.Kind.INDEX_SCAN] = queue.Handler(
-        validate_payload, run, idempotent=True, max_attempts=3, reconcile=reconcile, acknowledge=acknowledge
+        validate_payload,
+        run,
+        idempotent=True,
+        max_attempts=3,
+        reconcile=reconcile,
+        acknowledge=acknowledge,
+        recover_cleanup=p.recover_cleanup,
     )
