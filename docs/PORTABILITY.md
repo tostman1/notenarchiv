@@ -8,6 +8,12 @@ metadata and parent preparation instead of directory descriptors. Managed writes
 backup and publication still use the separate supported backend; selecting the
 Windows reader does not enable those operations.
 
+Shared publication policy now dispatches no-clobber publication, exact entry
+verification, durability and retained-stage cleanup through backend-owned methods.
+POSIX retains its descriptor-relative implementation and directory flushes.
+`tests/test_publication_contract.py` checks the shared policy/effect boundary on
+both platforms; these mock-backed contracts do not prove native writable storage.
+
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-
 dot aliases and noncanonical opened paths, and opens source streams without write

@@ -309,6 +309,72 @@ class Root:
                     raise FileError("LIMIT_EXCEEDED")
             return bytes(data), info
 
+    def discard_stage(self, path, expected_identity):
+        _staging(path)
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        with self.parent(path) as (parent, name):
+            info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or identity(info) != expected_identity:
+                raise FileError("STAGING_CHANGED")
+            os.unlink(name, dir_fd=parent)
+            os.fsync(parent)
+
+    def publish_stage(self, stage, target_path):
+        _staging(stage.path)
+        target_path = relative_path(target_path)
+        if not self.writable or target_path.startswith(".staging/"):
+            raise FileError("READ_ONLY_ROOT")
+        with self.parent(stage.path) as (source_parent, source_name), self.parent(target_path) as (parent, name):
+            current = os.stat(source_name, dir_fd=source_parent, follow_symlinks=False)
+            if (
+                not stat.S_ISREG(current.st_mode)
+                or current.st_nlink != 1
+                or fingerprint(current) != fingerprint(stage.info)
+            ):
+                raise FileError("STAGING_CHANGED")
+            os.link(source_name, name, src_dir_fd=source_parent, dst_dir_fd=parent, follow_symlinks=False)
+            final = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(final.st_mode) or identity(final) != identity(stage.info):
+                raise FileError("PUBLICATION_CONFLICT")
+            self.verify_entry(target_path)
+            os.fsync(parent)
+
+    def verify_entry(self, path):
+        with self.parent(path) as (parent, name):
+            if self._matching_names(parent, name) != [name]:
+                raise FileError("PUBLICATION_CONFLICT")
+
+    def durable_entry(self, path, expected, *, staged_path=None):
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        with (
+            self.parent(path) as (parent, _),
+            self.reader(path, links=2 if staged_path else 1) as (descriptor, checked),
+        ):
+            if fingerprint(checked) != fingerprint(expected):
+                raise FileError("SOURCE_CHANGED")
+            os.fsync(descriptor)
+            os.fsync(parent)
+        if staged_path:
+            with self.parent(staged_path) as (stage_parent, _):
+                os.fsync(stage_parent)
+
+    def release_stage(self, staged_path, target_path):
+        _staging(staged_path)
+        if not self.writable:
+            raise FileError("READ_ONLY_ROOT")
+        try:
+            with self.parent(staged_path) as (parent, name):
+                staged = os.stat(name, dir_fd=parent, follow_symlinks=False)
+                final = self.metadata(target_path)
+                if not stat.S_ISREG(staged.st_mode) or identity(staged) != identity(final) or staged.st_nlink != 2:
+                    raise FileError("PUBLICATION_CONFLICT")
+                os.unlink(name, dir_fd=parent)
+                os.fsync(parent)
+        except FileNotFoundError:
+            return
+
 
 @dataclass(frozen=True)
 class Stage:
@@ -331,12 +397,7 @@ def discard_stage(root, path, expected_identity):
     _staging(path)
     if not root.writable:
         raise FileError("READ_ONLY_ROOT")
-    with root.parent(path) as (parent, name):
-        info = os.stat(name, dir_fd=parent, follow_symlinks=False)
-        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or identity(info) != expected_identity:
-            raise FileError("STAGING_CHANGED")
-        os.unlink(name, dir_fd=parent)
-        os.fsync(parent)
+    root.discard_stage(path, expected_identity)
 
 
 def stage_copy(
@@ -405,24 +466,7 @@ def publish(root, stage, target_path):
     try:
         if root.directory_spelling(target_path) != target_path or root.collides(target_path):
             raise FileError("DESTINATION_EXISTS")
-        with (
-            root.parent(stage.path) as (source_parent, source_name),
-            root.parent(target_path) as (target_parent, target_name),
-        ):
-            current = os.stat(source_name, dir_fd=source_parent, follow_symlinks=False)
-            if (
-                not stat.S_ISREG(current.st_mode)
-                or current.st_nlink != 1
-                or fingerprint(current) != fingerprint(stage.info)
-            ):
-                raise FileError("STAGING_CHANGED")
-            os.link(source_name, target_name, src_dir_fd=source_parent, dst_dir_fd=target_parent, follow_symlinks=False)
-            final = os.stat(target_name, dir_fd=target_parent, follow_symlinks=False)
-            if not stat.S_ISREG(final.st_mode) or identity(final) != identity(stage.info):
-                raise FileError("PUBLICATION_CONFLICT")
-            if root._matching_names(target_parent, target_name) != [target_name]:
-                raise FileError("PUBLICATION_CONFLICT")
-            os.fsync(target_parent)
+        root.publish_stage(stage, target_path)
     except FileExistsError:
         raise FileError("DESTINATION_EXISTS") from None
     except OSError:
@@ -443,20 +487,11 @@ def verify_published(
             raise FileError("PUBLICATION_CONFLICT")
     if processor is not None:
         processor.inspect(data)
-    with root.parent(target_path) as (parent, name):
-        if root._matching_names(parent, name) != [name]:
-            raise FileError("PUBLICATION_CONFLICT")
-        if durable:
-            if not root.writable:
-                raise FileError("READ_ONLY_ROOT")
-            with root.reader(target_path, links=2 if staged_path else 1) as (descriptor, checked):
-                if fingerprint(checked) != fingerprint(final):
-                    raise FileError("SOURCE_CHANGED")
-                os.fsync(descriptor)
-                os.fsync(parent)
-            if staged_path:
-                with root.parent(staged_path) as (stage_parent, _stage_name):
-                    os.fsync(stage_parent)
+    root.verify_entry(target_path)
+    if durable:
+        if not root.writable:
+            raise FileError("READ_ONLY_ROOT")
+        root.durable_entry(target_path, final, staged_path=staged_path)
     return data, final
 
 
@@ -465,13 +500,4 @@ def release_stage(root, staged_path, target_path):
     _staging(staged_path)
     if not root.writable:
         raise FileError("READ_ONLY_ROOT")
-    try:
-        with root.parent(staged_path) as (parent, name):
-            staged = os.stat(name, dir_fd=parent, follow_symlinks=False)
-            final = root.metadata(target_path)
-            if not stat.S_ISREG(staged.st_mode) or identity(staged) != identity(final) or staged.st_nlink != 2:
-                raise FileError("PUBLICATION_CONFLICT")
-            os.unlink(name, dir_fd=parent)
-            os.fsync(parent)
-    except FileNotFoundError:
-        return
+    root.release_stage(staged_path, target_path)

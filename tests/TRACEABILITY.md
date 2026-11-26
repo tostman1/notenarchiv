@@ -1,5 +1,12 @@
 # Implemented acceptance traceability
 
+GR-01/02, AR-01/02/09, OP-02/03/07:
+`tests/test_publication_contract.py` checks platform-independent publication
+policy rejects collisions, unsafe staging and read-only mutation before backend
+effects, and requires retained identity before durable recovery acknowledgement.
+These contracts supplement, not replace, physical publication/race tests and do
+not establish a native Windows writable backend.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual

@@ -4,6 +4,30 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## OpenCode continuation — 2026-11-26
+
+The remote takeover gate passed at
+`dd336089fa15b23a377540b5cfae4a472cd25237` on
+`codex/windows-source-reader`; the preserved source-reader increment was reviewed
+against the recorded main base. Implementation continues on that branch.
+
+Publication, durable verification and retained-stage cleanup now dispatch through
+backend-owned operations rather than POSIX descriptors in shared policy. The
+POSIX implementation retains no-clobber linking, identity checks and directory
+flushes. New shared contracts cover policy rejection before effects, retained
+identity and durable acknowledgement. Fourteen targeted publication/inventory/
+backup-contract tests passed locally; Ruff lint/format and the five structural
+traceability tests passed. The requirements checker reports 119 definitions,
+61 aliases and no errors.
+
+The source/inventory targeted rerun passed 17 tests; two native tests failed at
+synthetic symlink setup with Windows error 1314 (missing privilege), before their
+security assertions. Assertions were not weakened or skipped. The first full
+regression exceeded its 120-second command limit and was terminated, not verified;
+a replacement run has a 30-minute limit. Required exact-head CI is pending.
+Native writable storage, independent RAW protection and the rest of WP-06p remain
+in progress; no merge, deployment or real-data operation is claimed.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint
