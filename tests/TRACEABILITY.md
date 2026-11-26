@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `tests/test_catalog_corrections.py`: CAT-05/06 — explicit actor/reason-bound
+  withdrawal, atomic replacement rollback, retained provenance and identities,
+  current containment traversal, active-position bulk-insert guards and
+  alternative-title history. Catalog correction UI acceptance remains open.
+
 - `tests/test_compound_content_acceptance.py`: AR-21/25, CAT-05/06 — 125
   independent repeated-title work identities, partial explicit confirmation,
   shared page occurrences and differing instrumental sequence/orientation with

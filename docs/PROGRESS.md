@@ -1,5 +1,20 @@
 # Progress record
 
+## Retained catalog corrections — 2026-11-26
+
+Explicit actor/reason-bound withdrawal events now retain memberships,
+relationships and alternative titles. Atomic membership correction preserves
+the old provenance receipt and rolls back withdrawal if replacement validation
+fails. Current reads exclude terminal events; containment validation ignores
+withdrawn edges. SQLite guards retain history and enforce occupied positions
+among current associations, including bulk inserts. Ten targeted correction,
+collection, migration/isolated-restore and disposable-test isolation checks
+passed in 11.23 seconds; Ruff, Django checks and migration drift passed.
+This service-level increment has no catalog editor yet. Do not downgrade after
+replacement rows reuse historical positions: use a schema-compatible backup.
+WP-54/55 remain in progress, including shared project content activation and
+neutral compound publication. Native Windows writes remain disabled.
+
 ## Incremental compound identity acceptance — 2026-11-26
 
 A synthetic 125-work collection now exercises repeated titles with independent

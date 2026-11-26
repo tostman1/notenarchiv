@@ -247,6 +247,7 @@ class TemplatePart(Identity):
 
 
 from apps.catalog.collection_models import (  # noqa: E402,F401
+    AssociationWithdrawal,
     Collection,
     CollectionMembership,
     WorkAlternativeTitle,
