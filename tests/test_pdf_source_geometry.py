@@ -84,3 +84,12 @@ def test_existing_isolated_inspection_ipc_unchanged(tmp_path):
     result = Processor(tmp_path).inspect(data)
     assert result.pages == (legacy,)
     assert "original_crop_box" not in asdict(result.pages[0])
+    assert result.original_crop_boxes is None
+
+
+def test_opt_in_isolated_inspection_retains_raw_crop_without_changing_effective_geometry(tmp_path):
+    data = pdf(sizes=((15000, 100),), crop=(-10, 0, 100, 100))
+    result = Processor(tmp_path).inspect(data, include_source_geometry=True)
+
+    assert result.original_crop_boxes == ((-10, 0, 100, 100),)
+    assert result.pages[0].crop_box == (0, 0, 100, 100)

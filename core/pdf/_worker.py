@@ -59,7 +59,13 @@ def main(stage):
             readers.append(reader)
             infos.append(pages)
         if request["operation"] == "inspect":
-            response = inspect(readers[0], infos[0], limits, request["include_text"])
+            response = inspect(
+                readers[0],
+                infos[0],
+                limits,
+                request["include_text"],
+                include_source_geometry=request.get("include_source_geometry", False),
+            )
         else:
             metadata = {}
             with (stage / "output").open("xb") as raw:

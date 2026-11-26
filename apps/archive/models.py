@@ -12,6 +12,7 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from apps.archive.validation import bounded_json, page_metadata, path_value, reference, region_metadata
+from core.page_geometry import GeometryError, source_page_geometry_fingerprint
 from core.paths import storage_key
 
 HASH = RegexValidator(r"\A[0-9a-f]{64}\Z", "A lowercase SHA-256 is required.")
@@ -163,6 +164,63 @@ class SourceVersion(Record):
             models.CheckConstraint(
                 condition=Q(pdf_state__in=["UNCHECKED", "VALID", "INVALID", "LIMIT_EXCEEDED"]),
                 name="archive_version_valid_pdf_state",
+            ),
+        ]
+
+
+class SourcePage(Record):
+    """Immutable physical page within one exact source version."""
+
+    source_version = models.ForeignKey(SourceVersion, on_delete=models.PROTECT, related_name="pages")
+    page_index = models.PositiveSmallIntegerField()
+    media_box = models.JSONField()
+    effective_crop_box = models.JSONField()
+    original_crop_box = models.JSONField(null=True, blank=True)
+    rotation = models.PositiveSmallIntegerField()
+    user_unit = models.FloatField()
+    geometry_fingerprint = models.CharField(max_length=64, editable=False, validators=[HASH])
+
+    def clean(self):
+        if not self._state.adding:
+            raise ValidationError("Source page identity and geometry are immutable.")
+        if not self.source_version_id:
+            return
+        version = reference(self, "source_version")
+        if (
+            version.pdf_state != SourceVersion.PdfState.VALID
+            or type(self.page_index) is not int
+            or not 0 <= self.page_index < min(1000, len(version.page_info))
+        ):
+            raise ValidationError("Source page requires a recorded valid PDF page.")
+        legacy = version.page_info[self.page_index]
+        if (
+            not isinstance(self.media_box, (list, tuple))
+            or not isinstance(self.effective_crop_box, (list, tuple))
+            or list(self.media_box) != list(legacy["media_box"])
+            or list(self.effective_crop_box) != list(legacy["crop_box"])
+            or self.rotation != legacy["rotation"]
+            or self.user_unit != legacy["user_unit"]
+        ):
+            raise ValidationError("Source page geometry must match the recorded PDF page.")
+        try:
+            self.geometry_fingerprint = source_page_geometry_fingerprint(
+                media_box=self.media_box,
+                effective_crop_box=self.effective_crop_box,
+                original_crop_box=self.original_crop_box,
+                rotation=self.rotation,
+                user_unit=self.user_unit,
+            )
+        except GeometryError:
+            raise ValidationError("Original source page geometry is inconsistent.") from None
+
+    class Meta:
+        ordering = ["source_version", "page_index"]
+        constraints = [
+            models.UniqueConstraint(fields=["source_version", "page_index"], name="archive_source_page_once"),
+            models.CheckConstraint(condition=Q(page_index__lt=1000), name="archive_source_page_index_bound"),
+            models.CheckConstraint(condition=Q(rotation__in=[0, 90, 180, 270]), name="archive_source_page_rotation"),
+            models.CheckConstraint(
+                condition=Q(user_unit__gt=0, user_unit__lte=75000), name="archive_source_page_user_unit"
             ),
         ]
 

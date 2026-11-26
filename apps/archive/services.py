@@ -11,6 +11,7 @@ from django.db.models import F
 from django.utils import timezone
 
 from apps.archive import models as m
+from apps.archive.source_pages import record_source_pages
 from apps.catalog.models import Arrangement, Part
 from apps.jobs.models import AttemptRecord, OperationIntent
 
@@ -86,6 +87,8 @@ def observe_version(
         )
         if version.byte_size != byte_size:
             raise ValidationError("Known source hash has inconsistent byte size.")
+        if new_version and version.pdf_state == m.SourceVersion.PdfState.VALID:
+            record_source_pages(m.SourcePage, version, using=using)
         changed = source.current_version_id is not None and source.current_version_id != version.pk
         reappeared = source.presence == m.SourceFile.Presence.MISSING
         source.current_version = version
@@ -121,7 +124,9 @@ def mark_source_missing(identifier, *, expected_revision, using="default"):
         return source
 
 
-def record_validation(identifier, *, expected_revision, pdf_state, page_info, using="default"):
+def record_validation(
+    identifier, *, expected_revision, pdf_state, page_info, original_crop_boxes=None, using="default"
+):
     with transaction.atomic(using=using):
         if (
             not m.SourceVersion.objects.using(using)
@@ -137,6 +142,8 @@ def record_validation(identifier, *, expected_revision, pdf_state, page_info, us
         previous = version.pdf_state
         version.pdf_state, version.page_info = pdf_state, page_info
         version.save(using=using)
+        if pdf_state == m.SourceVersion.PdfState.VALID:
+            record_source_pages(m.SourcePage, version, using=using, original_crop_boxes=original_crop_boxes)
         if previous != pdf_state:
             _audit(
                 version,

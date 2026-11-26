@@ -78,6 +78,7 @@ class DocumentInfo:
     sha256: str
     pages: tuple[PageInfo, ...]
     text: tuple[str, ...] | None = None
+    original_crop_boxes: tuple[tuple[float, float, float, float], ...] | None = None
 
 
 @dataclass(frozen=True)
