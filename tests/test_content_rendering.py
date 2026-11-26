@@ -25,7 +25,7 @@ def test_confirmed_repeated_content_render_preserves_source_and_history(edition_
     )
     confirmation = confirm_content(inspection.pk, actor=edition_inputs[0])
     scratch = tmp_path / "scratch"
-    scratch.mkdir()
+    scratch.mkdir(mode=0o700)
     worker = Processor(scratch)
     result = PdfReader(io.BytesIO(render_content(identity.pk, processor=worker)))
     assert len(result.pages) == 2
@@ -46,7 +46,7 @@ def test_legacy_render_uses_whole_document_without_invented_regions(edition_inpu
     file = edition_inputs[3]
     assignment = file.assignments.first()
     scratch = tmp_path / "scratch"
-    scratch.mkdir()
+    scratch.mkdir(mode=0o700)
     assert (
         len(PdfReader(io.BytesIO(render_content(assignment.pk, legacy=True, processor=Processor(scratch)))).pages) == 1
     )

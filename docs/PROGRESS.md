@@ -52,6 +52,22 @@ remain open. This service implementation is not completion of either package.
    rendering. Legacy whole-document editions retain their existing input semantics.
 - This continuation starts from PR #65's `db216da0a2af114bc5af682531b46b33ba5e80a0`.
   It does not change native Windows writable acceptance or authorize deployment.
+PR #66 CI on `8de0257b1091cb0c057df2e787f789927b1c2764` rejected two
+rendering fixtures because their POSIX scratch directories were not private.
+Fixtures now create mode `0700`; parser safeguards remain unchanged. Five
+targeted rendering and browser-isolation tests passed locally. POSIX acceptance
+and exact renewed CI remain pending.
+
+## Browser isolation correction — 2026-11-26
+
+PR #65 CI on `8846a1967cfd4b922b5b61b0f87251777d50a9c6` failed in
+the browser gate: immutable DELETE triggers prevented disposable test DB flush
+because their teardown fixture was scoped only to `tests/`. The fixture is now
+root-scoped, retaining guards during every test and removing only DELETE guards
+before transactional test teardown. Production migrations remain unchanged.
+Ten targeted browser-directory isolation, migration and geometry tests passed;
+the two browser-directory cases need no Node and verify guards plus clean state
+across consecutive transactions. Exact-head CI must pass before integration.
 
 Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below

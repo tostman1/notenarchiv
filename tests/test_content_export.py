@@ -45,7 +45,7 @@ def test_authorized_content_keeps_historical_sequence_after_edit(edition_inputs,
         services.report([identity.pk])
     snapshot, pins = load_pinned_inputs(run.snapshot_id)
     scratch = tmp_path / "pdf"
-    scratch.mkdir()
+    scratch.mkdir(mode=0o700)
     result = pieces(snapshot, pins, Processor(scratch))
     assert len(result) == 1
     assert len(PdfReader(BytesIO(result[0]["data"])).pages) == 2
