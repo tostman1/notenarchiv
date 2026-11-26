@@ -173,17 +173,20 @@ def part_rows(arrangement):
     )
 
 
-def verify_file(file):
+def verify_file(file, *, using=None):
     """Read-only actual-byte verification of one eligible displayed edition."""
-    if not m.ArchiveFile.objects.usable().filter(pk=file.pk).exists():
+    using = using or file._state.db or "default"
+    if not m.ArchiveFile.objects.using(using).usable().filter(pk=file.pk).exists():
         return False
-    return verify_publication(file)
+    return verify_publication(file, using=using)
 
 
-def verify_publication(file):
+def verify_publication(file, *, using=None):
     """Verify published bytes/receipt without implying musical whole-file approval."""
+    using = using or file._state.db or "default"
     if (
-        not m.ArchiveFile.objects.filter(pk=file.pk, revision=file.revision, publication_state="AVAILABLE")
+        not m.ArchiveFile.objects.using(using)
+        .filter(pk=file.pk, revision=file.revision, publication_state="AVAILABLE")
         .exclude(review_state__in=["REJECTED", "WITHDRAWN"])
         .exists()
     ):
