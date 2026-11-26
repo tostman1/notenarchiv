@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `browser/test_project_content.py` verifies shared matrix/excerpt content selection,
+  original-context visibility, signed authorization and idempotent schema-3 pins
+  (AR-20/21, EX-13, OP-08). Browser execution is an exact CI gate, not a local claim.
+
 - Shared project content presentation: `tests/test_project_content_preflight.py`
   verifies matrix/preflight agreement, safe original-context links and per-session
   physical verification caching; `tests/test_project_content_publication.py`
