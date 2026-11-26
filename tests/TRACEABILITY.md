@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_interrupted_content_backfill.py`: AR-20 / OP-08 — committed additive
+  document mapping batches survive interruption, resume idempotently, and retain
+  deterministic receipts and source identities. Synthetic SQLite evidence.
+
 - `test_content_preflight_blocking.py`: AR-21 / EX-13 — isolated-parser rejection
   blocks content authorization without deleting visual confirmation history or
   creating a generation snapshot. Synthetic deterministic fault injection.
