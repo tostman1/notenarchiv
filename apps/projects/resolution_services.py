@@ -96,10 +96,25 @@ def bounded(query, limit=MAX_INPUTS):
     return rows
 
 
+@dataclass(frozen=True)
+class ContentProjectResolution(Resolution):
+    """Versioned selection result; legacy schema-1 results remain unchanged."""
+
+    content_edition_id: UUID | None = None
+
+
+@dataclass(frozen=True)
+class _ContentCandidate:
+    pk: UUID
+    edition: object
+
+
 class ResolutionSession:
     """Request-local consistent inputs; reuse across cells, never persist/cache globally."""
 
-    def __init__(self, project_id, *, position_ids=None, participant_ids=None):
+    def __init__(self, project_id, *, position_ids=None, participant_ids=None, include_content=False):
+        self.include_content = include_content
+        self.content_candidates = {}
         with transaction.atomic():
             self.project = m.Project.objects.get(pk=project_id)
             positions = self.project.positions.filter(active=True).select_related("arrangement__work")
@@ -193,6 +208,25 @@ class ResolutionSession:
             for rule in [*self.local_rules, *self.global_rules]:
                 self.parts[rule.desired_part_id] = rule.desired_part
                 self.parts[rule.replacement_part_id] = rule.replacement_part
+            if include_content:
+                from apps.archive.content_contract import confirmed_content_edition
+                from apps.archive.services import ArchiveConflict
+
+                editions = bounded(
+                    archive.ContentEdition.objects.filter(arrangement_id__in=arrangements).select_related(
+                        "part__instrument"
+                    ),
+                    10_000,
+                )
+                for edition in editions:
+                    try:
+                        ordered = confirmed_content_edition(edition.pk, verify=False)
+                    except (ValidationError, ArchiveConflict):
+                        continue
+                    candidate = _ContentCandidate(edition.pk, ordered)
+                    self.content_candidates[edition.pk] = candidate
+                    self.choices.setdefault((edition.arrangement_id, edition.part_id), []).append(candidate)
+                    self.parts[edition.part_id] = edition.part
         self._verified = {}
         self._current_assignments = {}
 
@@ -239,7 +273,8 @@ class ResolutionSession:
         position, person = self.positions.get(position_id), self.participants.get(participant_id)
         if position is None or person is None:
             raise ValidationError("Resolution cell is outside the selected active project graph.")
-        base = Resolution(self.project.pk, self.project.revision, position_id, participant_id, "INVALID")
+        result_type = ContentProjectResolution if self.include_content else Resolution
+        base = result_type(self.project.pk, self.project.revision, position_id, participant_id, "INVALID")
         if position.arrangement_id is None:
             return replace(base, status="RESERVE")
         if not position.arrangement.active or not position.arrangement.work.active:
@@ -329,7 +364,9 @@ class ResolutionSession:
                     reasons=reasons,
                     warnings=("EXPLICIT_PART_SUBSTITUTION",),
                 )
-        if assignment is not None:
+        if isinstance(assignment, _ContentCandidate):
+            base = replace(base, content_edition_id=assignment.pk)
+        elif assignment is not None:
             file = assignment.archive_file
             base = replace(
                 base,
@@ -349,6 +386,18 @@ class ResolutionSession:
     def verified_resolution(self, position_id, participant_id):
         """Byte-verified boundary for matrix/preflight callers, once per file/session."""
         result = self.resolve(position_id, participant_id)
+        if isinstance(result, ContentProjectResolution) and result.content_edition_id is not None:
+            from apps.archive.content_contract import confirmed_content_edition
+            from apps.archive.services import ArchiveConflict
+
+            try:
+                current = confirmed_content_edition(result.content_edition_id)
+                if current != self.content_candidates[result.content_edition_id].edition:
+                    return replace(result, status="INVALID", reasons=("ARCHIVE_SELECTION_CHANGED",))
+            except ArchiveConflict:
+                return replace(result, status="INVALID", reasons=("ARCHIVE_SELECTION_CHANGED",))
+            except ValidationError:
+                return replace(result, status="CORRUPT", reasons=("INPUT_INTEGRITY_FAILURE",))
         if result.assignment_id is not None:
             state = self.assignment_state(result.assignment_id)
             if state == "CHANGED":
@@ -379,17 +428,32 @@ class ResolutionSession:
         return "VERIFIED" if self._verified[file.pk] else "CORRUPT"
 
     def ordered_inputs(self, position_id, participant_id):
-        """Expose the uniform legacy contract without changing selection or snapshots.
+        """Expose the uniform ordered contract without changing historical snapshots.
 
-        No proposal is approved here. New content project activation must add
-        versioned relational pins before expanding the currently legacy-only
-        resolution path. An unavailable explicit/preferred choice never falls back.
+        No proposal is approved here. Content candidates are opt-in for versioned
+        consumers; existing matrix/preflight callers keep their legacy schema until
+        capture and generation integration is complete. Failed choices never fall back.
         """
         from apps.archive.content_contract import legacy_content_edition
 
         result = self.verified_resolution(position_id, participant_id)
         if not result.usable:
             return result, None
+        if isinstance(result, ContentProjectResolution) and result.content_edition_id is not None:
+            from apps.archive.content_contract import confirmed_content_edition
+
+            edition = confirmed_content_edition(result.content_edition_id)
+            if edition != self.content_candidates[result.content_edition_id].edition:
+                raise ValidationError("Resolved project content inputs changed while adapting the ordered contract.")
+            current = ResolutionSession(
+                self.project.pk,
+                position_ids=[position_id],
+                participant_ids=[participant_id],
+                include_content=True,
+            ).resolve(position_id, participant_id)
+            if current != result:
+                raise ValidationError("Project selection changed while adapting the ordered contract.")
+            return result, edition
         edition = legacy_content_edition(result.assignment_id)
         if (
             edition.arrangement_id != self.positions[position_id].arrangement_id
@@ -408,7 +472,10 @@ class ResolutionSession:
             raise ValidationError("Resolved project inputs changed while adapting the ordered contract.")
         # Reject a concurrent approval/eligibility change after the byte check.
         current = ResolutionSession(
-            self.project.pk, position_ids=[position_id], participant_ids=[participant_id]
+            self.project.pk,
+            position_ids=[position_id],
+            participant_ids=[participant_id],
+            include_content=self.include_content,
         ).resolve(position_id, participant_id)
         if current != result:
             raise ValidationError("Project selection changed while adapting the ordered contract.")
