@@ -66,7 +66,9 @@ class CollectionMembership(RetainedIdentity):
         super().clean()
         from apps.catalog.collection_services import metadata_snapshot
 
-        if self.metadata_snapshot != metadata_snapshot(self.collection, self.work, self.local_overrides):
+        if self.metadata_snapshot != metadata_snapshot(
+            self.collection, self.work, self.local_overrides, membership_id=self.pk, membership_revision=self.revision
+        ):
             raise ValidationError("Collection membership requires an exact provenance snapshot.")
 
     class Meta:

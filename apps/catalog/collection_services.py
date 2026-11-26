@@ -8,7 +8,7 @@ from apps.catalog.collection_models import validate_metadata
 from apps.catalog.models import Collection, CollectionMembership, Work, WorkRelationship
 
 
-def metadata_snapshot(collection, work, overrides):
+def metadata_snapshot(collection, work, overrides, *, membership_id, membership_revision=0):
     validate_metadata(collection.metadata)
     validate_metadata(overrides)
     values = {
@@ -23,8 +23,13 @@ def metadata_snapshot(collection, work, overrides):
             "revision": work.revision,
         }
     for key, value in overrides.items():
-        values[key] = {"value": value, "origin": "LOCAL", "identity": str(work.pk), "revision": work.revision}
-    return {"schema": "collection-metadata-v1", "values": values}
+        values[key] = {
+            "value": value,
+            "origin": "LOCAL",
+            "identity": str(membership_id),
+            "revision": membership_revision,
+        }
+    return {"schema": "collection-metadata-v2", "values": values}
 
 
 def add_membership(collection_id, work_id, *, position, original_song_number="", local_overrides=None, using="default"):
@@ -34,14 +39,18 @@ def add_membership(collection_id, work_id, *, position, original_song_number="",
         collection = Collection.objects.using(using).get(pk=collection_id)
         work = Work.objects.using(using).get(pk=work_id, active=True)
         overrides = local_overrides or {}
-        return CollectionMembership.objects.using(using).create(
+        membership = CollectionMembership(
             collection=collection,
             work=work,
             position=position,
             original_song_number=original_song_number,
             local_overrides=overrides,
-            metadata_snapshot=metadata_snapshot(collection, work, overrides),
         )
+        membership.metadata_snapshot = metadata_snapshot(
+            collection, work, overrides, membership_id=membership.pk, membership_revision=membership.revision
+        )
+        membership.save(using=using)
+        return membership
 
 
 def validate_relationship(row, *, using):
@@ -53,12 +62,20 @@ def validate_relationship(row, *, using):
             raise ValidationError("Related editions require both explicit arrangements.")
         if row.parent_arrangement.work_id != row.parent_id or row.component_arrangement.work_id != row.component_id:
             raise ValidationError("Related arrangements must belong to their explicit works.")
+        if not row.parent_arrangement.active or not row.component_arrangement.active:
+            raise ValidationError("Related editions require active arrangements.")
     elif any(arrangements):
         raise ValidationError("Composition hierarchy cannot imply arrangement relationships.")
     if row.kind not in WorkRelationship.Kind.values:
         raise ValidationError("Unsupported work relationship type.")
+    if row.kind == WorkRelationship.Kind.RELATED:
+        return
     # Bound traversal, with no filename/title identity inference.
-    edges = list(WorkRelationship.objects.using(using).values_list("parent_id", "component_id")[:10001])
+    edges = list(
+        WorkRelationship.objects.using(using)
+        .filter(kind__in=(WorkRelationship.Kind.MOVEMENT, WorkRelationship.Kind.MEDLEY))
+        .values_list("parent_id", "component_id")[:10001]
+    )
     if len(edges) > 10000:
         raise ValidationError("Relationship graph exceeds the supported validation bound.")
     adjacency = {}
