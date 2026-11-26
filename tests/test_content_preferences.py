@@ -46,6 +46,25 @@ def test_content_preference_history_explicit_priority_and_no_legacy_fallback(edi
     assert preference.content_edition_id is None
     assert preference.changes.order_by("created_at", "id").last().previous_content_id == identity.pk
     assert resolve_content(arrangement.pk, parts[0].pk).edition.edition_id == manual.pk
+    arrangement.refresh_from_db()
+    stale = arrangement.revision - 1
+    with pytest.raises(ArchiveConflict):
+        set_content_preference(arrangement.pk, parts[0].pk, None, actor=actor, expected_revision=stale)
+    before = arrangement.revision
+    actor.is_active = False
+    actor.save()
+    with pytest.raises(ValidationError):
+        set_content_preference(arrangement.pk, parts[0].pk, None, actor=actor, expected_revision=before)
+    arrangement.refresh_from_db()
+    assert arrangement.revision == before
+    preference.refresh_from_db()
+    assert preference.assignment_id == manual.pk
+    actor.is_active = True
+    actor.save()
+    set_content_preference(arrangement.pk, parts[0].pk, None, actor=actor, expected_revision=before)
+    preference.refresh_from_db()
+    assert preference.assignment_id is None and preference.content_edition_id is None
+    assert preference.changes.order_by("created_at", "id").last().previous_id == manual.pk
 
 
 def test_content_preference_rejects_wrong_scope_unconfirmed_and_stale_revision(edition_inputs):

@@ -701,6 +701,16 @@ class EditionPreferenceChange(Record):
 
     class Meta:
         ordering = ["created_at", "id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(previous__isnull=True) | models.Q(previous_content__isnull=True),
+                name="archive_preference_history_previous_kind",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(selected__isnull=True) | models.Q(selected_content__isnull=True),
+                name="archive_preference_history_selected_kind",
+            ),
+        ]
 
 
 class ReviewInspection(Record):

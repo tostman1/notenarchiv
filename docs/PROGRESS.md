@@ -2,6 +2,13 @@
 
 ## Unified archive preference persistence — 2026-11-26
 
+Independent Qwen review found no blockers. Follow-up now enforces history input
+kind exclusivity in SQLite constraints as well as model validation. Additional
+assertions cover numeric stale revisions, explicit clearing, and rollback when
+actor validation fails after CAS. Fifteen preference/legacy tests passed after
+these corrections. The project reason-code distinction is deferred to its
+complete content-contract UI activation; no substitution is enabled.
+
 The additive preference scope can now select either a confirmed legacy assignment
 or explicitly confirmed content edition, never both. Short SQLite CAS writes
 retain actor and previous/selected protected identities in append-only history;
