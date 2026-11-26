@@ -1,5 +1,15 @@
 # Progress record
 
+## Mixed historical project input acceptance — 2026-11-26
+
+One shared schema-3 authorization now exercises an inspected two-occurrence
+content edition alongside an explicit personal whole-file edition. The exact
+disjoint relational pin inventories survive a subsequent logical-page edit;
+historical generation retains both ordered music positions and 2/1 page counts.
+The targeted test passed in 10.61 seconds. Ruff and traceability checks are local
+evidence only; exact CI and preceding integration gates remain required.
+WP-54/55 are not yet marked complete, and native Windows writes stay disabled.
+
 ## Synthetic mass and movement sequences — 2026-11-26
 
 A parent composition and three independent equal-title movements have separate

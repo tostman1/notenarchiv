@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `test_mixed_project_content_inputs.py`: AR-20 / AR-21 / EX-13 — shared signed
+  authorization with disjoint whole-file/content cell pins, personal explicit
+  edition precedence, ordered historical rendering after logical-page edits,
+  and no music-position omission. Synthetic evidence; integration gates remain.
+
 - `test_mass_content_sequences.py`: CAT-05 / AR-20 / AR-21 — independently
   inspected parent/movement editions, explicit shared continuations across
   sources, repeated-title identities, ordered vector rendering and historical
