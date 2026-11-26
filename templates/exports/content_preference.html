@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}
+<h1>{% translate "Archivweite Inhaltspräferenz" %}</h1>
+<p>{{ edition.arrangement }} · {{ edition.part }}</p>
+<p>{% translate "Die Präferenz gilt nur für diese Bearbeitung und spielbare Stimme. Explizite Ausgabenwahlen haben Vorrang. Das Speichern bestätigt keine Musik. Die vollständige Projektverwendung von Inhaltsausgaben ist noch nicht verfügbar." %}</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<p>{% translate "Aktuelle Inhaltsausgabe" %}: {{ preference.content_edition_id|default:"—" }} · {% translate "Aktuelle Ganzdatei-Ausgabe" %}: {{ preference.assignment_id|default:"—" }}</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="revision" value="{{ revision }}"><button name="action" value="set">{% translate "Diese bestätigte Inhaltsausgabe bevorzugen" %}</button><button name="action" value="clear">{% translate "Präferenz für diese Stimme entfernen" %}</button></form>
+<p><a href="{% url 'content_generated_export' %}">{% translate "Zur Inhaltsauswahl" %}</a></p>
+{% endblock %}
