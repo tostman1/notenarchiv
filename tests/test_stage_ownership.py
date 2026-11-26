@@ -64,7 +64,7 @@ def test_cleanup_checks_backend_ownership_before_discard(monkeypatch, consumer, 
         record.participant_id = None
         monkeypatch.setattr(generation, "_roots", Mock(return_value=(root, Mock())))
         monkeypatch.setattr(generation, "_processor", Mock())
-        monkeypatch.setattr(generation, "prune", Mock())
+        monkeypatch.setattr(generation, "prune_disposable", Mock())
         monkeypatch.setattr(generation.ExportPublication.objects, "filter", Mock(return_value=[record]))
         monkeypatch.setattr(OperationIntent.objects, "filter", Mock(return_value=Mock(first=Mock(return_value=None))))
 
