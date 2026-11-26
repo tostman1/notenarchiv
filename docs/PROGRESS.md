@@ -1,5 +1,16 @@
 # Progress record
 
+## Browser isolation correction — 2026-11-26
+
+PR #65 CI on `8846a1967cfd4b922b5b61b0f87251777d50a9c6` failed in
+the browser gate: immutable DELETE triggers prevented disposable test DB flush
+because their teardown fixture was scoped only to `tests/`. The fixture is now
+root-scoped, retaining guards during every test and removing only DELETE guards
+before transactional test teardown. Production migrations remain unchanged.
+Ten targeted browser-directory isolation, migration and geometry tests passed;
+the two browser-directory cases need no Node and verify guards plus clean state
+across consecutive transactions. Exact-head CI must pass before integration.
+
 Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
