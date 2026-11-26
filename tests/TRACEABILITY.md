@@ -44,6 +44,18 @@ initial-parent pin, precise file/directory mutation masks, default-mode refusal,
 drive-root refusal, junction/hardlink rejection and query-failure cleanup. This is
 single-entry snapshot coverage, not recursive ACL enforcement or process-role proof.
 
+GR-01, OP-02/07: `tests/test_windows_raw_preflight.py` covers bounded recursive
+evidence, private aggregate reports, identity/owner/token/mutation rejections and
+incomplete traversal after cancellation, limits, query failures or inventory changes.
+Native nested synthetic traversal does not provision ACLs or certify isolation;
+all certification flags remain false, including for completed clean mock evidence.
+
+GR-16, AR-20/21: `tests/test_page_geometry.py` covers pure immutable canonical
+rectangle geometry, source-geometry fingerprints, all four rotations, offset crops,
+UserUnit conversion, display-transform round trips and invalid bounds. This is
+preparatory geometry evidence only, not source revision identity, visual approval,
+legacy migration, resolver integration or completed WP-54 acceptance.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual

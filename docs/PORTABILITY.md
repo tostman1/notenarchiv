@@ -58,9 +58,18 @@ supports context-scoped relative file/directory evidence through validated pinne
 traversal, with read-only entry sharing, reparse/hardlink rejection and post-use
 metadata checks. Immediate-parent evidence uses its retained initial traversal pin,
 never a reopened parent pathname; drive-root parent requests fail closed. File and
-directory mutation masks differ. Recursive coverage, dedicated identity matching
-and enforcement across process roles remain absent. Even zero mutation rights
+directory mutation masks differ. This adapter alone supplies no recursive coverage,
+dedicated identity matching or enforcement across process roles. Even zero mutation rights
 never certify RAW isolation or stable ACL enforcement.
+
+`core.windows_raw_preflight` aggregates root, parent and recursive descendant
+evidence with bounded entry/depth/time limits and cancellation checkpoints.
+Reports contain only counts and rejection codes, not paths or SIDs. Disappearing,
+changed, unsafe or unqueryable entries produce an incomplete result; a completely
+traversed but unsafe inventory remains distinguishable. Directory baselines are
+rechecked after descendants. This is not an atomic ACL snapshot or persisted
+security policy: identity provisioning, parent-chain protection and process/thread
+enforcement still require separate work. Certification flags always remain false.
 
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-

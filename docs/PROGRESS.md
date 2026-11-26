@@ -137,6 +137,31 @@ This does not certify recursive RAW protection,
 configured identity or stable ACL enforcement. No provisioning or write enabling
 occurred.
 
+Sol added bounded recursive RAW evidence aggregation with expected-user identity
+comparison, root/parent/descendant checks and aggregate-only reporting. Thirty-five
+tests passed, including native nested synthetic traversal with honest mutation
+rejection. Limits, cancellation, query failures, unsafe entries, disappearing or
+changed identities, directory mutation and cycles return incomplete reports;
+completed rejected inventories are distinct. Ruff and whitespace checks passed.
+Qwen's independent review found no blocking findings. No atomic/persistent ACL enforcement or process-role
+certification is claimed. The descendant checkpoint was pushed as `0f342a8`; the
+latest exact CI evidence remains `5628046`.
+
+Independent preparatory WP-54 work: Sol added pure immutable page/rectangle
+geometry and invertible display transforms without parser, model, migration or
+workflow activation. Seventy-nine targeted tests passed; Ruff and whitespace checks
+passed. Input boxes retain default-user-space coordinates and original CropBox;
+canonical regions use physical PDF points after UserUnit conversion. Fingerprints
+include original/effective geometry and schema. Invalid or outside regions fail
+closed without clipping. Qwen's independent review found no blockers; a possible
+floating-point endpoint rejection was reproduced and corrected by mapping exact UI
+edges to exact PDF edges, without clipping interior points or widening containment.
+The final targeted geometry run passed 91 tests with clean Ruff and whitespace checks.
+The coordinator reviewed the endpoint mapping. Future parser
+wiring must preserve the original CropBox, currently lost by PageInfo's effective
+crop normalization. WP-54 remains planned:
+WP-06p, additive migration, legacy compatibility and acceptance gates are unchanged.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint
