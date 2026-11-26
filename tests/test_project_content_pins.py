@@ -2,7 +2,7 @@ from io import BytesIO
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, transaction
 from pypdf import PdfReader
 
 from apps.archive import models as archive
@@ -92,6 +92,18 @@ def test_historical_project_content_cell_is_protected(resolver_inputs, tmp_path)
     assert rendered[0]["title"] == "Synthetic pinned title"
     assert len(PdfReader(BytesIO(rendered[0]["data"])).pages) == 1
     assert original[(str(positions[0].pk), str(people[1].pk))].inputs[0].orientation == 0
+    with (
+        pytest.raises(IntegrityError, match="immutable generation"),
+        transaction.atomic(),
+        connection.cursor() as cursor,
+    ):
+        cursor.execute(
+            "UPDATE exports_snapshotprojectcontentinput SET part_id=%s WHERE id=%s", [parts[0].pk.hex, pin.pk.hex]
+        )
+    snapshot.preflight_sha256 = "0" * 64
+    with pytest.raises(ValidationError, match="fingerprint"):
+        load_project_content_pins(snapshot)
+    snapshot.preflight_sha256 = snapshot.sha256
     with pytest.raises(IntegrityError, match="pinned generation"), transaction.atomic():
         archive.ArchiveFile.objects.filter(pk=file.pk).update(relative_path="changed.pdf")
     with pytest.raises(ValidationError):

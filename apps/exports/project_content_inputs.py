@@ -6,6 +6,11 @@ from apps.exports.content_inputs import load_content
 
 
 def load_project_content_pins(snapshot, *, checkpoint=lambda: None):
+    from apps.projects.preflight_services import fingerprint
+
+    snapshot.full_clean()
+    if snapshot.sha256 != fingerprint(snapshot.payload) or snapshot.preflight_sha256 != snapshot.sha256:
+        raise ValidationError("Project content snapshot fingerprint mismatch.")
     if snapshot.payload.get("schema") != 3 or snapshot.kind not in {"FULL", "EXCERPT"}:
         raise ValidationError("Unsupported project content snapshot schema.")
     expected = {}
