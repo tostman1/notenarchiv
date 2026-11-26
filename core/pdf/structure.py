@@ -5,7 +5,7 @@ from dataclasses import asdict
 
 from pypdf import PdfReader
 
-from core.pdf.types import PageInfo, PdfError
+from core.pdf.types import PageInfo, PdfError, SourcePageGeometry
 
 
 def box(value):
@@ -31,6 +31,16 @@ def page_info(page):
     if rotation in (90, 270):
         width, height = height, width
     return PageInfo(media, crop, unit, rotation, width, height)
+
+
+def source_page_geometry(page):
+    """Opt-in original/effective retention inside the isolated parser boundary.
+
+    Existing inspection and rendering keep using page_info, with unchanged
+    validation/serialization. The geometry bridge may enforce its own limits.
+    """
+    info = page_info(page)
+    return SourcePageGeometry(info, box(page.cropbox))
 
 
 def open_pdf(path, limits):

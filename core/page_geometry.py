@@ -107,6 +107,22 @@ class PageGeometry:
     def region(self, bounds):
         return RectangleRegion(self, bounds)
 
+    @classmethod
+    def from_source_page(cls, source):
+        """Bridge explicit lossless parser evidence, never legacy PageInfo alone."""
+        from core.pdf.types import SourcePageGeometry
+
+        if not isinstance(source, SourcePageGeometry):
+            raise GeometryError("ORIGINAL_CROPBOX_REQUIRED")
+        info = source.page_info
+        geometry = cls(info.media_box, source.original_crop_box, info.rotation, info.user_unit)
+        if geometry.effective_box != info.crop_box or geometry.display_points != (
+            info.width_points,
+            info.height_points,
+        ):
+            raise GeometryError("INCONSISTENT_SOURCE_GEOMETRY")
+        return geometry
+
 
 @dataclass(frozen=True)
 class RectangleRegion:

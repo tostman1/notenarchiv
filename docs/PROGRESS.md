@@ -162,6 +162,21 @@ wiring must preserve the original CropBox, currently lost by PageInfo's effectiv
 crop normalization. WP-54 remains planned:
 WP-06p, additive migration, legacy compatibility and acceptance gates are unchanged.
 
+The combined recursive-evidence/pure-geometry checkpoint
+`5db72d4ac4d34ef1df397570a93f8ff2e4871977` passed exact-head PR #62
+Foundation, Container and Windows shared-runtime CI. The worktree was clean at
+verification. No merge is claimed: WP-06p remains incomplete, Windows writes stay
+disabled, and WP-54 geometry is preparatory rather than activated product behavior.
+
+Sol added opt-in lossless parser evidence and an explicit page-geometry bridge.
+Original CropBox is retained separately; legacy PageInfo fields, effective crop,
+inspection IPC and manifest serialization remain unchanged. Legacy metadata cannot
+invent original geometry, and inconsistent evidence fails closed. Source-geometry
+and geometry suites passed 114 tests, including actual isolated inspection IPC
+parity; Ruff and whitespace checks passed. Qwen's independent delta review found
+no findings; the coordinator reviewed the implementation and compatibility tests.
+No model, migration, source-version binding or production IPC activation is added.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint

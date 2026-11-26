@@ -56,6 +56,11 @@ UserUnit conversion, display-transform round trips and invalid bounds. This is
 preparatory geometry evidence only, not source revision identity, visual approval,
 legacy migration, resolver integration or completed WP-54 acceptance.
 
+`tests/test_pdf_source_geometry.py` additionally proves opt-in original/effective
+CropBox retention, geometry-fingerprint distinction for equal effective crops,
+strict legacy-metadata rejection and unchanged legacy inspection serialization/IPC.
+These contracts do not bind source versions or activate content approval.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual
