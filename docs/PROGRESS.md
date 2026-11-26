@@ -1,5 +1,17 @@
 # Progress record
 
+## Versioned project worker input path — 2026-11-26
+
+The existing generation loader and composer now recognize schema-3 project
+content pins alongside protected legacy whole-file pins. Complete participant,
+position and usable-cell inventories are checked before historical rendering;
+content in an old schema is rejected. Mixed composition retains exact order,
+missing acknowledgements and reserves, with bounded input/output bytes. Eleven
+targeted project-pin, snapshot-persistence and generation/export checks passed.
+No project authorization currently produces this schema: shared dependency and
+preflight capture remain open, so WP-54/55 are still in progress. Existing
+schema-1 behavior and native Windows write disabling remain unchanged.
+
 ## Versioned shared project content resolution — 2026-11-26
 
 ResolutionSession now supports explicit opt-in content candidates while retaining
