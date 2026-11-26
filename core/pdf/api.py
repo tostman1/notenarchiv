@@ -127,6 +127,33 @@ class Processor:
             with_manifest=with_manifest,
         )
 
+    def logical_pages(self, inputs, selections):
+        """Explicit ordered occurrences; no inferred splitting or musical approval.
+
+        Bounds use unrotated canonical PDF physical points. Orientation is an
+        additional clockwise quarter-turn, independent of output paper size.
+        Source bytes remain unchanged; the result is a derivative, never CLEAN.
+        """
+        from core.page_geometry import PageGeometry
+
+        if not isinstance(inputs, (list, tuple)) or not 1 <= len(inputs) <= 16:
+            raise ValueError("Logical pages require between 1 and 16 source inputs")
+        if not isinstance(selections, (list, tuple)) or not 1 <= len(selections) <= self.limits.max_pages:
+            raise ValueError("Logical page occurrences exceed the supported bound")
+        normalized = []
+        for selection in selections:
+            if not isinstance(selection, dict) or set(selection) != {"input", "page", "bounds", "orientation"}:
+                raise ValueError("Invalid logical page occurrence")
+            index, page, orientation = (selection[key] for key in ("input", "page", "orientation"))
+            if type(index) is not int or not 0 <= index < len(inputs):
+                raise ValueError("Invalid logical page source index")
+            self._page(page)
+            if type(orientation) is not int or orientation not in (0, 90, 180, 270):
+                raise ValueError("Invalid logical page orientation")
+            bounds = PageGeometry(selection["bounds"], selection["bounds"]).region(selection["bounds"]).bounds
+            normalized.append({"input": index, "page": page, "bounds": bounds, "orientation": orientation})
+        return self._invoke("logical_pages", list(inputs), selections=normalized)
+
     def print_pdf(self, data, origins, *, mode="FULL"):
         """Render a validated plan in the isolated worker; never infer boundaries."""
         return self._invoke("print", [data], origins=origins, mode=mode, with_manifest=True)

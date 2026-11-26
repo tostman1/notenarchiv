@@ -1,5 +1,15 @@
 # Implemented acceptance traceability
 
+- `tests/test_content_rendering.py` exercises verified content-to-derivative inputs,
+  repeated occurrences, legacy whole-document compatibility and fail-closed
+  concurrent revision changes (AR-20/21/26). Product authorization and immutable
+  generation snapshot integration remain open.
+
+- `tests/test_pdf_logical.py`: AR-20/AR-26 explicit vector region derivatives,
+  physical points, CropBox offsets, rotation/UserUnit, repeated ordered references,
+  native A3 preservation and fail-closed annotations. Product authorization and
+  generation integration remain separate pending acceptance.
+
 WP-54/55 incremental evidence (packages still in progress):
 `tests/test_content_geometry_models.py` exercises immutable region/logical
 revisions, canonical bounds, retained pins and stale append rejection.

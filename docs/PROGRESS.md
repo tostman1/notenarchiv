@@ -1,5 +1,24 @@
 # Progress record
 
+## Explicit logical-page rendering — 2026-11-26
+
+- WP-54/55 remain in progress. The separate rendering continuation adds a bounded
+  isolated-parser primitive for explicitly ordered page/rectangle occurrences.
+  It preserves vector graphics, original source bytes, physical-point CropBox
+  offsets and UserUnit, with explicit quarter-turn orientation. No dimensions
+  trigger splitting; native A3 remains one page unless explicit regions are supplied.
+- Four targeted synthetic tests passed locally: native A3, repeated/multi-source
+  ordering, rotation and units, invalid bounds, nonzero crop origins and fail-closed
+  visible annotations. This is a derivative primitive, not CLEAN publication or
+  musical approval. Product authorization, relational snapshot pins and generation
+   integration are still open. The PDF/print/traceability regression run passed
+   78 tests with one platform skip. A read-only bridge now verifies exact published
+   bytes, renders currently confirmed content and rechecks eligibility before
+   returning; three integration tests passed, including revision changes during
+   rendering. Legacy whole-document editions retain their existing input semantics.
+- This continuation starts from PR #65's `db216da0a2af114bc5af682531b46b33ba5e80a0`.
+  It does not change native Windows writable acceptance or authorize deployment.
+
 Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
