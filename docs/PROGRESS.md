@@ -4,6 +4,24 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## OpenCode integration evidence — 2026-11-26
+
+PR #64 merged at `447a70acc332310f62b3c55aba572a34291ff6cd`;
+exact Main CI `45846091525` passed Foundation, Container and Windows.
+PR #63 passed the reviewed reconciliation head
+`995bc403c3ec4199f1596849648366826d7272ad` and merged at
+`d87a9e525463c6c786f018e9ebf79ec9e9a1d8c5`. Its exact Main CI
+`45850641258` is pending verification in this record.
+
+Independent Qwen review of the committed content foundation found no blockers
+in its bounded persistence scope. Different/inactive confirmation actors are
+tested; published-byte verification now follows the supplied/model DB alias.
+The intended content-only approval scope does not approve an entire BASE file.
+Twenty-five targeted edition, confirmation and compatibility tests passed after
+the alias adjustment. The prior exact foundation full suite passed 1,308 tests,
+skipped 147 and failed two Windows symlink fixtures with `WinError 1314`;
+this is an environment-limited failing gate, not a successful full suite.
+
 ## OpenCode content foundation — 2026-11-26
 
 WP-54/55 are **in progress**, not complete or enabled for product export.
@@ -37,6 +55,30 @@ publication, complete backup/restore acceptance and full delivery verification
 remain open. Schema rollback/rebuild tests are not physical power-loss or NAS
 acceptance. No actual association data or production migration was used.
 
+## Codex to OpenCode checkpoint — 2026-11-26
+
+PR #62 merged at `5f99344e803b14f9a2ab77bbb298e4edf9810204`. Exact post-merge
+Main CI `45834711455` passed Foundation, Container, and Windows. The merged
+PR head `97a9d9e8e67cc16d965bd133b91aedf874e6a6ab` passed exact PR CI
+`45831584098` after a stale export cleanup test fixture was corrected.
+
+WP-06p POSIX exact CLEAN reconstruction is implemented in open draft PR #64.
+Exact CI `45833447636` passed at implementation checkpoint
+`b4a571d0b92e4a0a7b09f0fad52e4f417af68303`. The transfer adds only this progress
+record and the handoff snapshot. The new head needs its own exact CI. Native
+Windows writable storage and independent OS RAW-denial acceptance remain open.
+
+WP-54 stable source-page identity, repeatable legacy backfill, and original
+CropBox capture for new indexing are implemented in open draft PR #63. Exact
+CI `45831729109` passed at `1cde38a59b51bbd2cbf55f0345a344d10e6a0d6d`. WP-54
+region/logical-page and content references, the confirmed whole-file adapter,
+and compatibility acceptance remain in progress. WP-55 remains planned.
+
+Both drafts target `main`. Continue the reviewed exact-head integration gates
+and verify exact Main CI after each merge. Continue WP-54 and WP-55 according
+to their dependencies with remaining Windows acceptance tracked separately.
+See `docs/HANDOFF.md` for complete refs, evidence, and recovery material.
+
 ## Codex continuation — 2026-11-26
 
 ### WP-54 source-page checkpoint
@@ -55,6 +97,23 @@ Focused verification passed on Windows for archive models, page migrations and
 geometry, with no migration drift. Ubuntu verified synthetic new indexing and
 idempotent same-hash reindexing. The migration tests exercised schema rollback
 and deterministic rebuild with no production data.
+
+### WP-06p explicit CLEAN reconstruction checkpoint
+
+`python manage.py restore_clean_copy <archive-file-uuid>` queues restoration at
+one missing acknowledged CLEAN path. The existing archive worker can use an
+exact verified historical CLEAN publication or fall back to the pinned RAW
+version. It stages a physically independent copy and uses the existing
+no-clobber publication and durable operation intent. The original publication
+receipt, confirmation, and logical revision remain pinned. An occupied path
+or absent ownership proof cannot authorize replacement or acknowledgement.
+Windows writes remain disabled. This command runs through the normal configured
+worker and is separate from backup restore.
+
+Seven synthetic Ubuntu restoration tests passed, including real worker exits
+after the link and after acknowledgement, loss of proof, changed RAW, and a
+racing target. The shared Windows lifecycle, publication and ownership suites
+passed 57 tests. Ruff, migration drift, and diff whitespace checks passed.
 
 ### WP-06p shared storage checkpoint
 

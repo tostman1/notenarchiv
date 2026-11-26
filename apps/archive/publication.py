@@ -453,14 +453,37 @@ def recover_cleanup(context):
 
 
 def register():
+    from apps.archive import recovery
+
+    def validate_job(payload):
+        return recovery.validate_payload(payload) if "restore_file_id" in payload else validate_payload(payload)
+
+    def run_job(context):
+        return recovery.run(context) if "restore_file_id" in context.payload else run(context)
+
+    def reconcile_job(context, intent):
+        if "restore_file_id" in context.payload:
+            return recovery.reconcile(context, intent)
+        return reconcile(context, intent)
+
+    def acknowledge_job(context, intent):
+        if "restore_file_id" in context.payload:
+            return recovery.acknowledge(context, intent)
+        return acknowledge(context, intent)
+
+    def cleanup_job(context):
+        if "restore_file_id" in context.payload:
+            recovery.recover_cleanup(context)
+        recover_cleanup(context)
+
     queue.HANDLERS[Job.Kind.ARCHIVE_PUBLISH] = queue.Handler(
-        validate_payload,
-        run,
+        validate_job,
+        run_job,
         idempotent=True,
         max_attempts=3,
-        reconcile=reconcile,
-        acknowledge=acknowledge,
-        recover_cleanup=recover_cleanup,
+        reconcile=reconcile_job,
+        acknowledge=acknowledge_job,
+        recover_cleanup=cleanup_job,
     )
 
 
