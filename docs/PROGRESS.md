@@ -106,6 +106,20 @@ Ruff and whitespace checks passed. Qwen's independent delta review found no
 blocking findings; initial pins still use OPEN_EXISTING (3), not creation.
 This increment provides inspectable descriptors, not RAW isolation certification.
 
+Sol added root-directory AccessCheck evidence using a query-only DuplicateTokenEx
+token and independently owned owner/group/DACL descriptor allocation. Thirty-nine
+targeted tests passed, including native read-only synthetic-root acceptance;
+Ruff and whitespace checks passed. Buffer limits, denial versus API failure,
+mutation rights, ownership/token risks and resource cleanup are covered. Qwen's
+independent review found no blockers. Its suggested mutation-mask change was
+rejected: 0x0116 excludes read-data (1) and read-EA (8); the existing mask is correct.
+Seven additional mask/pure-read grant regressions passed; the final AccessCheck
+targeted file passed 46 tests, with clean Ruff and whitespace checks. Files/descendants,
+parent-entry rights, configured dedicated
+identity and process/thread enforcement remain unimplemented; capabilities remain
+uncertified. The optional pinning checkpoint was pushed as `624ae5d`; exact CI
+success still applies to `9aa26de`, not this later checkpoint.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint

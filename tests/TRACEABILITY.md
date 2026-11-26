@@ -33,6 +33,13 @@ The source-reader suite also checks optional security-pin rights, strict boolean
 selection, unchanged read-only stream access and initial pin cleanup. Native root
 descriptor acceptance uses the public optional mode, not private handle replacement.
 
+GR-01, OP-07: `tests/test_windows_access_security.py` checks pinned-root AccessCheck
+evidence, query-only duplicate token access, bounded privilege buffers, mutation
+masks including delete-child, owner comparison and deterministic resource cleanup.
+Native acceptance queries only a synthetic directory. Root ACL snapshots do not
+cover descendants, parent-entry deletion or all process roles; capabilities stay
+uncertified even when effective root mutation rights are absent.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual

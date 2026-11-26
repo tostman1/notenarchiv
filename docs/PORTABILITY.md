@@ -49,6 +49,14 @@ Absent, null, empty and protected DACLs are distinguished, with bounded descript
 and ACE sizes and private owner-SID representation. These snapshots do not prove
 effective access or persistent RAW enforcement and never certify publication.
 
+`core.windows_access_security` adds read-only AccessCheck evidence for the pinned
+root directory against a query-only duplicate of the current primary token.
+It records effective mutation rights, ownership comparison and token risks;
+descriptor allocation includes owner/group/DACL and is released after the check.
+No thread impersonation, path reopening or access attempts occur. Descendant-file
+and parent-entry checks, dedicated identity matching and enforcement across process
+roles remain absent. Even zero mutation rights never certify RAW isolation.
+
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-
 dot aliases and noncanonical opened paths, and opens source streams without write
