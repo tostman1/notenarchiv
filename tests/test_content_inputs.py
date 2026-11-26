@@ -26,8 +26,13 @@ def test_historical_inputs_remain_exact_after_new_logical_revision(edition_input
     inspection = inspect_content(
         proposal.pk, actor=actor, expected_fingerprint=proposal.fingerprint, visually_reviewed=True
     )
-    confirm_content(inspection.pk, actor=actor)
+    first_confirmation = confirm_content(inspection.pk, actor=actor)
     payload = capture_content(identity.pk)
+    second_inspection = inspect_content(
+        proposal.pk, actor=actor, expected_fingerprint=proposal.fingerprint, visually_reviewed=True
+    )
+    confirm_content(second_inspection.pk, actor=actor)
+    assert capture_content(identity.pk)["confirmation_id"] == str(first_confirmation.pk)
     original = deepcopy(payload)
     resolved = load_content(payload)
     assert len(resolved.inputs) == 2

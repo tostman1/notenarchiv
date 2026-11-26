@@ -1,5 +1,21 @@
 # Progress record
 
+## Content export selection UI — 2026-11-26
+
+WP-54/55 remain in progress. A German, authenticated and CSRF-protected selection
+screen exposes the signed schema-2 content export service from the output library.
+Selection checks do not approve music; explicit generation authorization pins
+already confirmed content. Original context links, source indices, bounds and
+orientation are shown. Two Django client tests passed: login/CSRF enforcement,
+no generation on inspection, idempotent explicit authorization and stale rejection.
+A synthetic real-browser test now covers signed selection, tampered-token rejection
+and idempotent authorization; execution remains pending CI because Node is absent
+locally. Review follow-ups make confirmation receipt selection deterministic and
+classify out-of-range logical pages as INVALID_PAGE. Nine targeted PDF/pin/view
+tests passed before the additional deterministic-receipt assertion. Project
+resolver/preferences and neutral compound-source publication remain open.
+Native Windows writes remain disabled.
+
 ## Content export activation — 2026-11-26
 
 WP-54/55 remain **in progress**. A service-level content export path now binds

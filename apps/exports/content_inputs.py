@@ -34,7 +34,12 @@ def capture_content(edition_id, *, using="default"):
         if revision is None:
             raise ValidationError("Content revision is unavailable.")
         _latest(revision, using)
-        confirmation = ContentConfirmation.objects.using(using).filter(inspection__revision=revision).first()
+        confirmation = (
+            ContentConfirmation.objects.using(using)
+            .filter(inspection__revision=revision)
+            .order_by("created_at", "id")
+            .first()
+        )
         if confirmation is None:
             raise ValidationError("Exact content confirmation is required.")
         inputs = []
