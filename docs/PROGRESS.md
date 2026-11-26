@@ -1,5 +1,39 @@
 # Progress record
 
+## Owner-requested daily stop — 2026-11-26
+
+The owner requested completion of the current checkpoint and no further work
+until an explicit instruction to continue tomorrow. Do not start new packages,
+PR integrations or deployment while paused. This is a daily checkpoint, not an
+agent-transfer handoff; the older handoff snapshot is historical.
+
+- Main includes PRs #64 through #74. Current Main is
+  `599d1ff8fe82d24967245ef3b9c2c464b691877c` (#74); its exact post-merge CI is
+  still awaiting the already-running deterministic waiter at this checkpoint.
+  Previous Main `cb785410dc5c7ca405255756b3db02074a4642b4` passed exact CI
+  run `45899267585` after #73.
+- PRs #75–87 have reviewed, exact green heads, including corrected #84
+  `27821dc88b99bee4091493426608e5725dac953e` and #87
+  `8c9d1aa3555c7f5fd1f601bd9199940be19eade0`. These are not merged merely
+  because their PR CI passed. Sequential reviewed integration and exact Main
+  gates remain required.
+- Reviewed acceptance PR #88 `2e3332ca360522a50fccff1610a62cef1184f6a5`,
+  #89 `a4cbea660d54c49bbcb3c50a673aa77ee696d6ac`, and #90
+  `39af67013c534eed9a651bf2eb2b8377eaafe70d` have their exact waiters running;
+  no green result is claimed here. All implementation checkpoints are pushed.
+- The final local batch/backfill/isolated SQLite restore/traceability selection
+  passed eight tests in 11.67 seconds; Ruff and format checks passed. Independent
+  production-activation review of #84 found no blockers and reused exact CI.
+- WP-54/55 remain in progress pending integration and consolidated acceptance.
+  Native Windows writes remain disabled under DEC-15. No real-data migration,
+  production deployment, privilege change or physical NAS acceptance occurred.
+
+After explicit resumption, use repository/Git evidence and completed waiter
+results rather than repeating successful reviews or suites. Diagnose any failed
+gate once; do not treat pending, timed-out or stale results as success. The next
+integration is #75 only after exact Main #74 CI passes. Continue the dependency
+chain and then reconcile package acceptance before marking WP-54/55 complete.
+
 ## Interrupted additive document mapping acceptance — 2026-11-26
 
 A deterministic interruption after the first committed 100-source mapping batch
