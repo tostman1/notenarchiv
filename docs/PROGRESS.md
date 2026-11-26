@@ -23,6 +23,32 @@ rendering fixtures because their POSIX scratch directories were not private.
 Fixtures now create mode `0700`; parser safeguards remain unchanged. Five
 targeted rendering and browser-isolation tests passed locally. POSIX acceptance
 and exact renewed CI remain pending.
+## Collection review corrections — 2026-11-26
+
+Independent review identified mixed relationship semantics and inaccurate local
+override provenance. Containment cycle checks now traverse only movement/medley
+edges; reciprocal explicit related-edition links are allowed and require active
+arrangements. New `collection-metadata-v2` receipts identify the immutable
+membership UUID/revision for local values; existing receipts are not rewritten.
+Five targeted collection, isolated SQLite restore and backfill tests passed.
+Membership positions remain deliberately zero-based, matching source/content
+sequence conventions; original song numbers are separate human metadata.
+Withdrawal/correction services remain an open WP-55 product task, not permission
+to delete retained history. SQLite is the supported persistence target.
+
+PR #65's preceding exact head
+`8dddc58a7de4e2843eec3379d3262d6b766f7fb6` passed Foundation, Container
+and Windows. The review correction requires its own exact-head gate.
+
+## Native inventory correction — 2026-11-26
+
+PR #65 Windows CI on `567eda5d87576ea0aa5f6fac76c7b606dd6bc11e`
+failed to detect an added directory entry. Native directory timestamps alone
+are insufficient: inventory now compares a bounded-memory, order-independent
+SHA-256 name accumulator before and after enumeration, alongside the existing
+handle fingerprint. Three targeted tests passed, including unchanged metadata
+and equal-count name replacement. RAW access remains read-only and native
+Windows publication remains disabled. Exact updated-head CI is pending.
 
 ## Browser isolation correction — 2026-11-26
 
@@ -46,7 +72,7 @@ exact Main CI `45846091525` passed Foundation, Container and Windows.
 PR #63 passed the reviewed reconciliation head
 `995bc403c3ec4199f1596849648366826d7272ad` and merged at
 `d87a9e525463c6c786f018e9ebf79ec9e9a1d8c5`. Its exact Main CI
-`45850641258` is pending verification in this record.
+`45850641258` passed Foundation, Container and Windows.
 
 Independent Qwen review of the committed content foundation found no blockers
 in its bounded persistence scope. Different/inactive confirmation actors are
