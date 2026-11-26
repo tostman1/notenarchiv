@@ -18,6 +18,18 @@ effective-UID comparison and archive/export cleanup dispatch before discard,
 including owner and metadata failures. Mock consumer metadata has no POSIX UID;
 this proves encapsulation, not native Windows ownership enforcement.
 
+GR-01, OP-07: `tests/test_windows_security.py` checks current-process TOKEN_QUERY
+access, non-inheritable handle cleanup, bounded token buffers, sanitized failures,
+private SID representation and rejection of administrative/dangerous privilege
+evidence. Native smoke is Windows-only. RAW isolation/publication remain false
+even for acceptable token evidence; no ACL or process-role certification is implied.
+
+GR-01, OP-07: `tests/test_windows_root_security.py` covers pinned-handle descriptor
+queries, allocation release, bounded SID/ACL evidence, absent/null/empty DACLs,
+private owner representation and fail-closed missing READ_CONTROL. Native synthetic
+acceptance does not modify ACLs. Snapshot evidence always leaves RAW isolation and
+publication uncertified; effective access and durable enforcement remain untested.
+
 ## Native read-only Windows source boundary
 
 GR-01/02, AR-01/02/09, OP-02/03/07: `tests/test_source_reader.py` exercises actual

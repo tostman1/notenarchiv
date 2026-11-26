@@ -66,6 +66,31 @@ enforcement is not implemented by this extraction.
 DEC-14 records the approved dedicated-identity target and bounded
 alternative persistence/recovery design authority; Windows writes remain disabled.
 
+Sol added a read-only current-process Windows token evidence adapter and 51
+passing targeted tests, including native TOKEN_QUERY smoke. Native fixed-size
+elevation-query behavior required an implementation correction and dedicated
+regressions. The adapter retains no certification of RAW isolation/publication;
+it does not inspect RAW ACLs, thread impersonation or child-process identities.
+Touched-file Ruff and whitespace checks passed. Qwen independently reviewed the
+adapter and proof extraction. Sol added group-attribute, array-boundary and
+privilege-query regressions and sanitized native buffer/argument failures.
+The proposed group-mask change was rejected against Microsoft's TOKEN_GROUPS
+contract: enabled is bit 4, not enabled-by-default bit 2. No RAW isolation or
+durability is certified.
+The proof/ownership checkpoint was pushed as `1578767`; no merge is claimed.
+
+Sol added a separate pinned-root security-descriptor evidence adapter: 26 tests
+passed, including native synthetic-root acceptance. The existing source handle
+fails closed without READ_CONTROL; a test-only handle proves the query path without
+reopening production paths or changing source access. Descriptor snapshots do not
+verify effective access, descendants or persistent RAW enforcement. Ruff and
+whitespace checks passed. Qwen's proposed LocalFree/ACL-class corrections were
+rejected against Microsoft's primary contracts: NULL means successful LocalFree,
+and AclSizeInformation is 2. Both query adapters now preserve existing FileError
+codes before sanitizing native decoding errors. The final combined targeted run
+passed 80 tests, including both actual native smoke paths. Descriptor input is
+OS-produced and validated, not an arbitrary-buffer parser. No provisioning occurred.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint

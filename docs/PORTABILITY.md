@@ -29,6 +29,23 @@ the retained-hardlink protocol. An alternative backend may be approved only with
 equivalent observable integrity, durability and recovery guarantees; successful
 flush calls or process-kill tests alone cannot establish power-loss durability.
 
+`core.windows_security` queries only the current primary process token with
+TOKEN_QUERY. It gathers private identity comparison inputs, elevation, enabled
+administrator membership and privilege presence; dangerous privileges are rejected
+even when disabled. SID bytes are excluded from the default representation.
+Its capability result always leaves RAW isolation and writable publication
+uncertified. Root ownership, descendant ACL/effective access, parent delete-child
+exposure, configured identity, thread impersonation and child-process enforcement
+still require separate checks. Production startup is not changed by this adapter.
+
+`core.windows_root_security` queries owner/DACL descriptor evidence from an
+already pinned source-root handle. It never reopens a pathname or changes handle
+access. Current source pins lack READ_CONTROL, so the query fails closed; native
+synthetic acceptance separately exercises a test-only read-control handle.
+Absent, null, empty and protected DACLs are distinguished, with bounded descriptor
+and ACE sizes and private owner-SID representation. These snapshots do not prove
+effective access or persistent RAW enforcement and never certify publication.
+
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-
 dot aliases and noncanonical opened paths, and opens source streams without write
