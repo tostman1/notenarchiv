@@ -119,6 +119,23 @@ parent-entry rights, configured dedicated
 identity and process/thread enforcement remain unimplemented; capabilities remain
 uncertified. The optional pinning checkpoint was pushed as `624ae5d`; exact CI
 success still applies to `9aa26de`, not this later checkpoint.
+The subsequent AccessCheck checkpoint
+`5628046caaffdc736c88b1d8571fb672166584d0` passed exact-head PR #62 Foundation,
+Container and Windows shared-runtime CI. This also covers the optional pinning
+increment. WP-06p remains incomplete and the PR remains draft.
+
+Sol added explicit-mode context-scoped single-entry security pins and retained
+initial-parent evidence, with file/directory-specific AccessCheck mutation masks.
+Native focused source/access tests passed 72 cases, with exactly the two known
+privileged symlink-setup cases deselected and unchanged. Native coverage includes
+file/directory/parent evidence, disabled-mode and drive-root refusal, junction and
+hardlink rejection, and failed-query pin cleanup. Ruff and whitespace checks passed;
+Qwen's independent delta review found no blockers. Carried mask/Python-version
+claims were rejected: the mask excludes READ_DATA and Path.hardlink_to is supported
+by the pinned Python 3.12 runtime. Initial opens remain OPEN_EXISTING (3).
+This does not certify recursive RAW protection,
+configured identity or stable ACL enforcement. No provisioning or write enabling
+occurred.
 
 ## Autonomous continuation — 2026-11-25
 

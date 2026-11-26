@@ -132,6 +132,16 @@ def root_access_evidence(root):
     try:
         if not stat.S_ISDIR(root.root_metadata().st_mode):
             raise FileError("UNSAFE_ROOT")
+        return _handle_access_evidence(root._handle, directory=True)
+    except FileError:
+        raise
+    except (OSError, AttributeError, ValueError, c.ArgumentError):
+        raise _failure() from None
+
+
+def _handle_access_evidence(handle, *, directory):
+    """Inspect a borrowed handle only while its caller retains all pins."""
+    try:
         api, token_api, descriptor_api = _api(), tokens._api(), descriptors._api()
         with ExitStack() as resources:
             primary = c.c_void_p()
@@ -146,7 +156,7 @@ def root_access_evidence(root):
             resources.callback(_close, token_api, duplicate)
             _noninheritable(token_api, duplicate)
             descriptor = c.c_void_p()
-            result = descriptor_api.GetSecurityInfo(root._handle, 1, 7, None, None, None, None, c.byref(descriptor))
+            result = descriptor_api.GetSecurityInfo(handle, 1, 7, None, None, None, None, c.byref(descriptor))
             if descriptor.value is not None:
                 resources.callback(_free, descriptor_api, descriptor)
             if result or descriptor.value is None:
@@ -158,9 +168,9 @@ def root_access_evidence(root):
                 evidence.user_sid,
                 owner == evidence.user_sid,
                 granted,
-                granted & DIRECTORY_MUTATION_MASK,
+                granted & (DIRECTORY_MUTATION_MASK if directory else FILE_MUTATION_MASK),
                 allowed,
-                True,
+                directory,
                 any(name in tokens.DANGEROUS_PRIVILEGES for name, _ in evidence.privileges),
                 evidence.elevated or evidence.elevation_type == 2 or evidence.administrator_enabled,
             )
@@ -168,3 +178,23 @@ def root_access_evidence(root):
         raise
     except (OSError, AttributeError, ValueError, c.ArgumentError):
         raise _failure() from None
+
+
+def relative_entry_access_evidence(root, relative):
+    """Single-entry snapshot; not recursive isolation or stable ACL enforcement."""
+    if os.name != "nt":
+        raise FileError("UNSUPPORTED_SECURITY_API")
+    if not isinstance(root, WindowsSourceRoot):
+        raise FileError("UNSAFE_ROOT")
+    with root.security_entry(relative) as (handle, info):
+        return _handle_access_evidence(handle, directory=stat.S_ISDIR(info.st_mode))
+
+
+def parent_access_evidence(root):
+    """Immediate parent snapshot includes DELETE_CHILD and ACL/owner mutation."""
+    if os.name != "nt":
+        raise FileError("UNSUPPORTED_SECURITY_API")
+    if not isinstance(root, WindowsSourceRoot):
+        raise FileError("UNSAFE_ROOT")
+    with root.security_parent() as (handle, _):
+        return _handle_access_evidence(handle, directory=True)

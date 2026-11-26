@@ -53,9 +53,14 @@ effective access or persistent RAW enforcement and never certify publication.
 root directory against a query-only duplicate of the current primary token.
 It records effective mutation rights, ownership comparison and token risks;
 descriptor allocation includes owner/group/DACL and is released after the check.
-No thread impersonation, path reopening or access attempts occur. Descendant-file
-and parent-entry checks, dedicated identity matching and enforcement across process
-roles remain absent. Even zero mutation rights never certify RAW isolation.
+No thread impersonation or write attempts occur. Explicit inspection mode also
+supports context-scoped relative file/directory evidence through validated pinned
+traversal, with read-only entry sharing, reparse/hardlink rejection and post-use
+metadata checks. Immediate-parent evidence uses its retained initial traversal pin,
+never a reopened parent pathname; drive-root parent requests fail closed. File and
+directory mutation masks differ. Recursive coverage, dedicated identity matching
+and enforcement across process roles remain absent. Even zero mutation rights
+never certify RAW isolation or stable ACL enforcement.
 
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-

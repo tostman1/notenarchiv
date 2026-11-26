@@ -234,3 +234,42 @@ def test_native_readonly_tmp_root_access_evidence(tmp_path):
         assert result.directory and result.owner_sid and result.user_sid
         assert result.mutation_access == result.granted_access & security.DIRECTORY_MUTATION_MASK
         assert not result.raw_isolation_certified and not result.writable_publication
+
+
+@pytest.mark.parametrize("directory", [False, True])
+def test_borrowed_handle_uses_file_or_directory_mutation_mask(monkeypatch, directory):
+    adapters(monkeypatch)
+    monkeypatch.setattr(security, "_check", Mock(return_value=(True, 0x40 | 0x40000 | 0x80000)))
+    result = security._handle_access_evidence(25, directory=directory)
+    assert result.directory is directory
+    assert result.mutation_access == (0x40 | 0x40000 | 0x80000 if directory else 0x40000 | 0x80000)
+    assert not result.raw_isolation_certified and not result.writable_publication
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Native Windows descendant/parent AccessCheck")
+def test_native_file_directory_and_parent_access_evidence(tmp_path):
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    (raw / "nested").mkdir()
+    (raw / "nested" / "score.pdf").write_bytes(b"synthetic")
+    with WindowsSourceRoot(raw, inspect_security=True) as root:
+        for path, directory in (("nested", True), ("nested/score.pdf", False)):
+            result = security.relative_entry_access_evidence(root, path)
+            assert result.directory is directory
+            mask = security.DIRECTORY_MUTATION_MASK if directory else security.FILE_MUTATION_MASK
+            assert result.mutation_access == result.granted_access & mask
+            assert not result.raw_isolation_certified and not result.writable_publication
+        parent = security.parent_access_evidence(root)
+        assert parent.directory
+        assert parent.mutation_access == parent.granted_access & security.DIRECTORY_MUTATION_MASK
+        assert not parent.raw_isolation_certified and not parent.writable_publication
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Native Windows security mode guard")
+def test_access_entry_and_parent_disabled_without_explicit_mode(tmp_path, monkeypatch):
+    with WindowsSourceRoot(tmp_path) as root:
+        monkeypatch.setattr(security, "_handle_access_evidence", lambda *_, **__: pytest.fail("No disabled query"))
+        with pytest.raises(FileError, match="UNSAFE_ROOT"):
+            security.relative_entry_access_evidence(root, "score.pdf")
+        with pytest.raises(FileError, match="UNSAFE_ROOT"):
+            security.parent_access_evidence(root)

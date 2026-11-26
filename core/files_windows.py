@@ -109,13 +109,13 @@ def information(handle):
 
 
 @contextmanager
-def opened(path, *, stream=False, inspect_security=False):
+def opened(path, *, stream=False, inspect_security=False, pin_read=False):
     # READ_DATA/LIST_DIRECTORY participates in sharing checks; attributes alone
     # do not reliably pin a directory against rename. Never request write access.
     handle = kernel().CreateFileW(
         str(path),
         0x80000000 if stream else 0x81 | (0x20000 if inspect_security else 0),
-        1 if stream else 3,
+        1 if stream or pin_read else 3,
         None,
         3,
         0x02200000,
@@ -160,6 +160,7 @@ class WindowsSourceRoot:
         # Explicit initial pin access only; no later pathname reopen or escalation.
         self.inspect_security = inspect_security
         self._stack, self._handle = None, None
+        self._parent_handle = None
 
     def __enter__(self):
         if self._stack is not None:
@@ -179,9 +180,11 @@ class WindowsSourceRoot:
             current = Path(self.path.anchor)
             if kernel().GetDriveTypeW(str(current)) != 3:
                 raise FileError("UNSUPPORTED_FILESYSTEM_API")
+            handle, parent_handle = None, None
             for name in (None, *self.path.parts[1:]):
                 if name is not None:
                     current /= name
+                parent_handle = handle
                 handle, _ = stack.enter_context(opened(current, inspect_security=self.inspect_security))
                 if not stat.S_ISDIR(information(handle).st_mode):
                     raise FileError("UNSAFE_ROOT")
@@ -193,6 +196,7 @@ class WindowsSourceRoot:
             if filesystem.value != "NTFS":
                 raise FileError("UNSUPPORTED_FILESYSTEM_API")
             self._stack, self._handle = stack, handle
+            self._parent_handle = parent_handle
         except BaseException as error:
             stack.close()
             if isinstance(error, OSError):
@@ -204,6 +208,7 @@ class WindowsSourceRoot:
         if self._stack is not None:
             self._stack.close()
             self._stack, self._handle = None, None
+            self._parent_handle = None
 
     def root_metadata(self):
         if self._handle is None:
@@ -211,7 +216,7 @@ class WindowsSourceRoot:
         return information(self._handle)
 
     @contextmanager
-    def _directory(self, reference):
+    def _directory(self, reference, *, inspect_security=False):
         reference = relative_path(reference, allow_root=True)
         if self._stack is None:
             raise FileError("UNSAFE_ROOT")
@@ -223,10 +228,45 @@ class WindowsSourceRoot:
             for name in parts:
                 component(name)
                 current /= name
-                handle, _ = stack.enter_context(opened(current))
+                handle, _ = stack.enter_context(opened(current, inspect_security=inspect_security))
                 if not stat.S_ISDIR(information(handle).st_mode):
                     raise FileError("UNSAFE_PATH")
             yield current, handle
+
+    @contextmanager
+    def security_entry(self, reference):
+        """Borrow one no-reparse entry with read-control for this context only."""
+        if not self.inspect_security or self._stack is None:
+            raise FileError("UNSAFE_ROOT")
+        parts = PurePosixPath(relative_path(reference)).parts
+        component(parts[-1])
+        parent_reference = str(PurePosixPath(*parts[:-1])) if len(parts) > 1 else ""
+        try:
+            with (
+                self._directory(parent_reference, inspect_security=True) as (parent, _),
+                opened(parent / parts[-1], inspect_security=True, pin_read=True) as (handle, _),
+            ):
+                before = information(handle)
+                if not stat.S_ISDIR(before.st_mode) and (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1):
+                    raise FileError("UNSAFE_FILE")
+                yield handle, before
+                after = information(handle)
+                if fingerprint(after) != fingerprint(before) or after.st_nlink != before.st_nlink:
+                    raise FileError("SOURCE_CHANGED")
+        except OSError:
+            raise FileError("FILE_IO") from None
+
+    @contextmanager
+    def security_parent(self):
+        """Borrow the immediate parent pin retained at initial root traversal."""
+        if not self.inspect_security or self._stack is None or self._parent_handle is None:
+            raise FileError("UNSAFE_ROOT")
+        before = information(self._parent_handle)
+        if not stat.S_ISDIR(before.st_mode):
+            raise FileError("UNSAFE_ROOT")
+        yield self._parent_handle, before
+        if fingerprint(information(self._parent_handle)) != fingerprint(before):
+            raise FileError("SOURCE_CHANGED")
 
     @contextmanager
     def _leaf(self, reference, *, stream=False):

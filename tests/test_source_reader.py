@@ -258,3 +258,65 @@ def test_native_child_junction_replacement_cannot_redirect_read(tmp_path):
         finally:
             nested.rmdir()
     assert (outside / "score.pdf").read_bytes() == b"foreign synthetic"
+
+
+@windows
+def test_security_entry_rejects_junction_hardlink_and_releases_failed_query(tmp_path):
+    from core.files_windows import WindowsSourceRoot
+
+    raw, outside = tmp_path / "raw", tmp_path / "outside"
+    raw.mkdir()
+    outside.mkdir()
+    (raw / "score.pdf").write_bytes(b"synthetic")
+    (raw / "alias.pdf").hardlink_to(raw / "score.pdf")
+    junction(raw / "linked", outside)
+    try:
+        with WindowsSourceRoot(raw, inspect_security=True) as root:
+            for path in ("score.pdf", "linked", "linked/score.pdf"):
+                with pytest.raises(files.FileError), root.security_entry(path):
+                    pass
+            (raw / "alias.pdf").unlink()
+            with pytest.raises(RuntimeError, match="Synthetic query failure"), root.security_entry("score.pdf"):
+                raise RuntimeError("Synthetic query failure")
+            (raw / "score.pdf").rename(raw / "renamed.pdf")
+            with root.security_entry("renamed.pdf"), pytest.raises(PermissionError):
+                (raw / "renamed.pdf").write_bytes(b"changed")
+            with pytest.raises(ValueError), root.security_entry("../outside"):
+                pass
+    finally:
+        (raw / "linked").rmdir()
+
+
+@windows
+def test_security_parent_uses_initial_pin_without_new_opens(tmp_path, monkeypatch):
+    from core.files_windows import WindowsSourceRoot, kernel
+
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    with WindowsSourceRoot(raw, inspect_security=True) as root:
+        monkeypatch.setattr(kernel(), "CreateFileW", lambda *_: pytest.fail("Parent evidence must not reopen"))
+        with root.security_parent() as (_, info):
+            assert files.identity(info) == files.identity(tmp_path.stat())
+            with pytest.raises(PermissionError):
+                raw.rename(tmp_path / "moved")
+    assert root._parent_handle is None
+
+
+@windows
+def test_security_default_mode_and_drive_parent_fail_before_opens(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    from core.files_windows import WindowsSourceRoot, kernel
+
+    with WindowsSourceRoot(tmp_path) as root:
+        monkeypatch.setattr(kernel(), "CreateFileW", lambda *_: pytest.fail("Disabled security mode must not open"))
+        for context in (root.security_entry("score.pdf"), root.security_parent()):
+            with pytest.raises(files.FileError, match="UNSAFE_ROOT"), context:
+                pass
+    monkeypatch.undo()
+    with (
+        WindowsSourceRoot(Path(tmp_path.anchor), inspect_security=True) as drive,
+        pytest.raises(files.FileError, match="UNSAFE_ROOT"),
+        drive.security_parent(),
+    ):
+        pass

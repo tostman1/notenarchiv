@@ -39,6 +39,10 @@ masks including delete-child, owner comparison and deterministic resource cleanu
 Native acceptance queries only a synthetic directory. Root ACL snapshots do not
 cover descendants, parent-entry deletion or all process roles; capabilities stay
 uncertified even when effective root mutation rights are absent.
+Additional source/access tests cover context-scoped relative entries and the retained
+initial-parent pin, precise file/directory mutation masks, default-mode refusal,
+drive-root refusal, junction/hardlink rejection and query-failure cleanup. This is
+single-entry snapshot coverage, not recursive ACL enforcement or process-role proof.
 
 ## Native read-only Windows source boundary
 
