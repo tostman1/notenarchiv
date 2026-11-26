@@ -177,6 +177,21 @@ parity; Ruff and whitespace checks passed. Qwen's independent delta review found
 no findings; the coordinator reviewed the implementation and compatibility tests.
 No model, migration, source-version binding or production IPC activation is added.
 
+The opt-in source-geometry checkpoint
+`d5460588c999251e5f98a4184538528029ddbaeb` passed exact-head PR #62
+Foundation, Container and Windows shared-runtime CI. Sol then evaluated the
+specific same-volume write-through move candidate without mutations. Microsoft's
+MoveFileExW contract supports persistence of the move itself; its copy/delete
+example is not an exclusive restriction. Two preverified independent files and
+operation-bound distinct identities could preserve atomic final visibility and
+short publication transactions. However, the reviewed contracts do not establish
+durability of separately created ancestor chains or later identity-checked recovery
+copy deletion. WP-06p is blocked on that narrow platform-contract limitation, not
+on missing general design authorization. Windows writes remain disabled; PR #62
+remains draft. Next action: obtain authoritative platform evidence for those
+namespace barriers or an owner decision on a separately reviewed alternative.
+No external support contact, infrastructure change or hardware test was performed.
+
 ## Autonomous continuation — 2026-11-25
 
 ### Current requirements checkpoint
