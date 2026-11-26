@@ -109,16 +109,60 @@ def test_native_directory_mutation_invalidates_inventory(tmp_path):
 
 
 @windows
-def test_native_initialization_failure_releases_all_pinned_directories(tmp_path, monkeypatch):
-    from core.files_windows import kernel
+@pytest.mark.parametrize("inspect_security", [False, True])
+def test_native_initialization_failure_releases_all_pinned_directories(tmp_path, monkeypatch, inspect_security):
+    from core.files_windows import WindowsSourceRoot, kernel
 
     raw = tmp_path / "raw"
     raw.mkdir()
     monkeypatch.setattr(kernel(), "GetVolumeInformationByHandleW", lambda *_: 0)
-    with pytest.raises(files.FileError, match="FILE_IO"), files.source_root(raw):
+    root = WindowsSourceRoot(raw, inspect_security=inspect_security)
+    with pytest.raises(files.FileError, match="FILE_IO"), root:
         pass
+    assert root._stack is None and root._handle is None
     raw.rename(tmp_path / "moved")
     assert (tmp_path / "moved").is_dir()
+
+
+@pytest.mark.parametrize("flag", [None, 1, "true"])
+def test_security_inspection_mode_requires_explicit_boolean(tmp_path, flag):
+    from core.files_windows import WindowsSourceRoot
+
+    with pytest.raises(files.FileError, match="UNSAFE_ROOT"):
+        WindowsSourceRoot(tmp_path, inspect_security=flag)
+
+
+@windows
+@pytest.mark.parametrize("inspect_security", [False, True])
+def test_native_security_inspection_rights_only_on_initial_directory_pins(tmp_path, monkeypatch, inspect_security):
+    from core.files_windows import WindowsSourceRoot, kernel
+
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    (raw / "score.pdf").write_bytes(b"synthetic")
+    api = kernel()
+    original = api.CreateFileW
+    calls = []
+
+    def create(*args):
+        calls.append(args)
+        return original(*args)
+
+    monkeypatch.setattr(api, "CreateFileW", create)
+    with WindowsSourceRoot(raw, inspect_security=inspect_security) as root:
+        initial = list(calls)
+        assert len(initial) == len(raw.parts)
+        for args in initial:
+            assert args[1:] == (0x20081 if inspect_security else 0x81, 3, None, 3, 0x02200000, None)
+        assert root.writable is False
+        with pytest.raises(PermissionError):
+            raw.rename(tmp_path / "moved")
+        with root.reader("score.pdf") as (descriptor, _):
+            assert not os.get_inheritable(descriptor)
+            with pytest.raises(OSError):
+                os.write(descriptor, b"modified")
+        assert calls[len(initial)][1:] == (0x80000000, 1, None, 3, 0x02200000, None)
+    raw.rename(tmp_path / "moved")
 
 
 @windows

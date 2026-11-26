@@ -90,6 +90,21 @@ and AclSizeInformation is 2. Both query adapters now preserve existing FileError
 codes before sanitizing native decoding errors. The final combined targeted run
 passed 80 tests, including both actual native smoke paths. Descriptor input is
 OS-produced and validated, not an arbitrary-buffer parser. No provisioning occurred.
+The combined evidence checkpoint was pushed as
+`9aa26de069d6ded438ea5f2b93cb51321526f6a8`. Its exact-head PR #62 CI passed
+Foundation, Container and Windows shared-runtime checks. Qwen explicitly retracted
+the incorrect API findings; no blocking findings remain in this increment. WP-06p
+is incomplete and the PR remains draft; no merge or deployment is claimed.
+
+Sol integrated explicit optional `inspect_security=True` initial root/ancestor
+pinning with READ_CONTROL. Default access, source-stream rights and no-delete
+sharing are unchanged; there is no later pathname reopen or startup/factory
+enabling. Native descriptor acceptance now uses the public mode. Focused source
+and root-security tests passed 47 cases, with only the two previously recorded
+privileged symlink-setup cases explicitly deselected; assertions remain unchanged.
+Ruff and whitespace checks passed. Qwen's independent delta review found no
+blocking findings; initial pins still use OPEN_EXISTING (3), not creation.
+This increment provides inspectable descriptors, not RAW isolation certification.
 
 ## Autonomous continuation — 2026-11-25
 

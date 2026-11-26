@@ -40,8 +40,11 @@ still require separate checks. Production startup is not changed by this adapter
 
 `core.windows_root_security` queries owner/DACL descriptor evidence from an
 already pinned source-root handle. It never reopens a pathname or changes handle
-access. Current source pins lack READ_CONTROL, so the query fails closed; native
-synthetic acceptance separately exercises a test-only read-control handle.
+access. Default source pins lack READ_CONTROL, so the query fails closed.
+Explicit `WindowsSourceRoot(..., inspect_security=True)` requests it only during
+initial root/ancestor pinning; native synthetic acceptance uses this public mode.
+Source streams remain read-only with unchanged sharing and access. The shared
+source factory and production startup do not opt into this evidence mode.
 Absent, null, empty and protected DACLs are distinguished, with bounded descriptor
 and ACE sizes and private owner-SID representation. These snapshots do not prove
 effective access or persistent RAW enforcement and never certify publication.

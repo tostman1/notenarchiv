@@ -109,11 +109,17 @@ def information(handle):
 
 
 @contextmanager
-def opened(path, *, stream=False):
+def opened(path, *, stream=False, inspect_security=False):
     # READ_DATA/LIST_DIRECTORY participates in sharing checks; attributes alone
     # do not reliably pin a directory against rename. Never request write access.
     handle = kernel().CreateFileW(
-        str(path), 0x80000000 if stream else 0x81, 1 if stream else 3, None, 3, 0x02200000, None
+        str(path),
+        0x80000000 if stream else 0x81 | (0x20000 if inspect_security else 0),
+        1 if stream else 3,
+        None,
+        3,
+        0x02200000,
+        None,
     )
     if handle == w.HANDLE(-1).value:
         error = ctypes.get_last_error()
@@ -147,8 +153,12 @@ class WindowsSourceRoot:
 
     writable = False
 
-    def __init__(self, path):
+    def __init__(self, path, *, inspect_security=False):
+        if type(inspect_security) is not bool:
+            raise FileError("UNSAFE_ROOT")
         self.path = Path(path)
+        # Explicit initial pin access only; no later pathname reopen or escalation.
+        self.inspect_security = inspect_security
         self._stack, self._handle = None, None
 
     def __enter__(self):
@@ -172,7 +182,7 @@ class WindowsSourceRoot:
             for name in (None, *self.path.parts[1:]):
                 if name is not None:
                     current /= name
-                handle, _ = stack.enter_context(opened(current))
+                handle, _ = stack.enter_context(opened(current, inspect_security=self.inspect_security))
                 if not stat.S_ISDIR(information(handle).st_mode):
                     raise FileError("UNSAFE_ROOT")
             filesystem = ctypes.create_unicode_buffer(32)

@@ -9,7 +9,7 @@ import pytest
 
 from core import windows_root_security as security
 from core.files import FileError
-from core.files_windows import WindowsSourceRoot, information, kernel
+from core.files_windows import WindowsSourceRoot
 
 
 def pinned_root(tmp_path):
@@ -210,28 +210,10 @@ def test_platform_and_unpinned_root_fail_before_api(monkeypatch, tmp_path):
 
 @pytest.mark.skipif(os.name != "nt", reason="Native Windows descriptor query")
 def test_native_readonly_synthetic_root_descriptor(tmp_path):
-    with WindowsSourceRoot(tmp_path) as root:
-        # Existing reader pins intentionally lack READ_CONTROL; no fallback reopen.
-        with pytest.raises(FileError, match="SECURITY_QUERY_FAILED"):
-            security.root_security_evidence(root)
-        # Synthetic test-only handle: ancestors stay pinned, no delete sharing,
-        # OPEN_REPARSE_POINT|BACKUP_SEMANTICS and READ_CONTROL|LIST|ATTRIBUTES.
-        handle = kernel().CreateFileW(str(tmp_path), 0x20081, 3, None, 3, 0x02200000, None)
-        assert handle != c.c_void_p(-1).value
-        try:
-            checked = information(handle)
-            original = root.root_metadata()
-            assert stat_identity(checked) == stat_identity(original)
-            root._handle, previous = handle, root._handle
-            try:
-                result = security.root_security_evidence(root)
-            finally:
-                root._handle = previous
-            assert result.owner_sid and result.ace_count <= security.MAX_ACES
-            assert not result.raw_isolation_certified and not result.writable_publication
-        finally:
-            assert kernel().CloseHandle(handle)
-
-
-def stat_identity(info):
-    return info.st_dev, info.st_ino, info.st_mode
+    # Existing reader pins intentionally lack READ_CONTROL; no fallback reopen.
+    with WindowsSourceRoot(tmp_path) as root, pytest.raises(FileError, match="SECURITY_QUERY_FAILED"):
+        security.root_security_evidence(root)
+    with WindowsSourceRoot(tmp_path, inspect_security=True) as root:
+        result = security.root_security_evidence(root)
+        assert result.owner_sid and result.ace_count <= security.MAX_ACES
+        assert not result.raw_isolation_certified and not result.writable_publication

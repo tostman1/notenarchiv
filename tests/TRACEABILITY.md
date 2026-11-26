@@ -29,6 +29,9 @@ queries, allocation release, bounded SID/ACL evidence, absent/null/empty DACLs,
 private owner representation and fail-closed missing READ_CONTROL. Native synthetic
 acceptance does not modify ACLs. Snapshot evidence always leaves RAW isolation and
 publication uncertified; effective access and durable enforcement remain untested.
+The source-reader suite also checks optional security-pin rights, strict boolean
+selection, unchanged read-only stream access and initial pin cleanup. Native root
+descriptor acceptance uses the public optional mode, not private handle replacement.
 
 ## Native read-only Windows source boundary
 

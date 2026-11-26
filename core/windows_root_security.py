@@ -1,7 +1,8 @@
 """Read-only descriptor evidence for an already pinned Windows source root.
 
-GetSecurityInfo requires READ_CONTROL on the existing handle. Source-reader pins
-currently lack that right: fail closed, never reopen a pathname or adjust access.
+GetSecurityInfo requires READ_CONTROL on the existing handle. Default source-reader
+pins lack it; explicit inspect_security mode requests it at initial pinning only.
+Fail closed, never reopen a pathname or adjust access on an existing pin.
 Owner/ACL snapshots are not effective-access checks or stable ACL enforcement.
 Descendants, parent delete-child rights and process identities remain unchecked.
 No evidence here certifies RAW isolation or enables writable publication.
