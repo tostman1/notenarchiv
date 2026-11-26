@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_project_content_contract.py`: AR-20, EX-13 legacy shared project resolver
+  parity through exact ordered input adaptation, unavailable outcomes and retained
+  pins. Does not claim activation of new content project snapshots or generation.
+
 - `test_compound_region_acceptance.py`: AR-20/21/25, CAT-05 instrument-specific
   four-card coordinates and ordered vector rendering, explicit confirmation,
   affected-only invalidation and retained historical inputs. Synthetic only;
