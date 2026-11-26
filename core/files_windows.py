@@ -7,6 +7,7 @@ All fingerprints use native handle metadata, never CRT timestamp precision.
 
 import ctypes
 import errno
+import hashlib
 import os
 import re
 import stat
@@ -23,6 +24,18 @@ from core.paths import relative_path
 
 REPARSE = 0x400
 FILETIME_EPOCH = 116444736000000000
+
+
+def _directory_names(directory):
+    """Bounded-memory, order-independent inventory independent of NTFS timestamps."""
+    count = total = 0
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            count += 1
+            if count > 100_000:
+                raise FileError("LIMIT_EXCEEDED")
+            total = (total + int.from_bytes(hashlib.sha256(os.fsencode(entry.name)).digest())) % (1 << 256)
+    return count, total
 
 
 class BasicInfo(ctypes.Structure):
@@ -300,6 +313,7 @@ class WindowsSourceRoot:
         try:
             with self._directory(path) as (directory, handle):
                 before = information(handle)
+                names_before = _directory_names(directory)
                 with os.scandir(directory) as entries:
                     yield (
                         before,
@@ -308,7 +322,10 @@ class WindowsSourceRoot:
                             for entry in entries
                         ),
                     )
-                if fingerprint(information(handle)) != fingerprint(before):
+                if (
+                    fingerprint(information(handle)) != fingerprint(before)
+                    or _directory_names(directory) != names_before
+                ):
                     raise FileError("SOURCE_CHANGED")
         except OSError:
             raise FileError("FILE_IO") from None
