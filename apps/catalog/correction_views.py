@@ -20,7 +20,9 @@ TARGETS = {
 
 class CorrectionForm(forms.Form):
     revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
-    action = forms.ChoiceField(choices=(("withdraw", _("Zurücknehmen")), ("replace", _("Zuordnung ersetzen"))))
+    action = forms.ChoiceField(
+        label=_("Aktion"), choices=(("withdraw", _("Zurücknehmen")), ("replace", _("Zuordnung ersetzen")))
+    )
     reason = forms.CharField(max_length=500, label=_("Begründung"))
     work = forms.UUIDField(required=False, label=_("UUID des korrigierten Werkes"))
     position = forms.IntegerField(min_value=0, required=False, label=_("Position (ab 0)"))

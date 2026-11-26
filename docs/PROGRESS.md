@@ -11,6 +11,12 @@ passed. Browser acceptance and exact CI remain pending. This increment does not
 claim complete WP-54/55 or change approval, historical exports, deployment or
 the disabled native Windows writable path.
 
+Real-browser correction coverage now exercises explicit replacement, stale
+duplicate rejection and withdrawal of the replacement, with original receipt
+and both history events retained and no generation snapshot. Nine targeted
+correction/view/traceability checks passed; Node is unavailable locally, so
+browser execution remains an exact-CI gate, not a claimed local result.
+
 ## Retained catalog corrections — 2026-11-26
 
 Explicit actor/reason-bound withdrawal events now retain memberships,

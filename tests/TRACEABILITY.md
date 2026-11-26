@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `browser/test_catalog_correction.py`: CAT-05/06 — real-browser explicit
+  replacement, stale rejection, withdrawal and retained receipts without export
+  creation. Browser execution is pending exact CI.
+
 - `tests/test_catalog_correction_views.py`: CAT-05/06 — authenticated, CSRF-safe
   explicit correction, read-only GET, duplicate/stale rejection and discoverable
   retained history. Real-browser correction acceptance remains pending.
