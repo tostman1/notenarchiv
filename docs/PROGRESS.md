@@ -1,5 +1,17 @@
 # Progress record
 
+## Instrument-specific card-region acceptance — 2026-11-26
+
+A synthetic acceptance case now renders four explicitly reviewed card regions
+from each of two instrument sources, with different coordinate ordering for the
+same arrangement. Unknown proposals are unusable. Changing one region invalidates
+only that instrumental edition for new use, while historical captured inputs and
+the other edition remain usable. No whole-file musical confirmation is inferred.
+The case passed locally with the isolated PDF processor; this is not physical
+booklet or NAS acceptance, nor completion of shared project content activation.
+Exact #73 and #74 CI passed, including their browser and POSIX worker acceptance;
+their dependency integration remains pending. Native Windows writes stay disabled.
+
 ## Compound publication command — 2026-11-26
 
 `publish_compound_source VERSION_UUID --title TITLE` exposes the neutral durable
