@@ -1,124 +1,36 @@
-# Development handoff — OpenCode to Codex
+# Development handoff — Codex to OpenCode
 
 ## Transfer snapshot — 2026-11-26
 
-- Repository: `tostman1/notenarchiv`
-- Transfer branch: `codex/windows-source-reader` (upstream same branch at origin).
-- Comparison base: `ab172f6f942d5de743aec21aa6f0222caaa9798e` (integrated PR #61;
-  exact Main CI `45694893160`). Review all commits/diffs since this base.
-- Last implementation checkpoint: `d5460588c999251e5f98a4184538528029ddbaeb`.
-- Pre-amendment documentation checkpoint: `65c94e1155b88fe86a197e42f9ed601be513c747`.
-- Active PR: #62, open **draft**; unfinished, not merge-ready.
-- WP-06p: partial; native writes disabled. WP-54: geometry preparation only,
-  models/migrations/workflows not activated. WP-55 remains planned.
+- Repository `tostman1/notenarchiv`. Primary branch `codex/wp06p-clean-reconstruction`, upstream of the same name. Active PR #64 targets `main`.
+- Comparison base and verified remote Main `5f99344e803b14f9a2ab77bbb298e4edf9810204`. Review the full primary and WP-54 diffs from that base. The final transfer commit supplies the mandatory marker and contains this snapshot. Verify its remote SHA from Git.
+- Primary implementation checkpoint `b4a571d0b92e4a0a7b09f0fad52e4f417af68303`. The subsequent transfer commit changes documentation only. Its own CI is unverified at transfer. Bind review and merge decisions to the actual new head.
 
-This snapshot is included in the final transfer commit. Its SHA cannot be embedded
-in its own contents: obtain the exact final remote HEAD and verify the mandatory
-AGENTS.md subject/trailer gate. A valid marker permits takeover, not a merge,
-release, real-data migration, permission change or production deployment.
+| Ref / PR | Exact checkpoint | Verification and integration |
+| --- | --- | --- |
+| `main` | `5f99344e803b14f9a2ab77bbb298e4edf9810204` | Merged #62, exact [Main CI 45834711455](https://github.com/tostman1/notenarchiv/actions/runs/45834711455) passed |
+| `codex/windows-source-reader` / #62 | `97a9d9e8e67cc16d965bd133b91aedf874e6a6ab` | Exact [PR CI 45831584098](https://github.com/tostman1/notenarchiv/actions/runs/45831584098) passed, already integrated |
+| `codex/wp54-source-pages` / #63 | `1cde38a59b51bbd2cbf55f0345a344d10e6a0d6d` | Exact [PR CI 45831729109](https://github.com/tostman1/notenarchiv/actions/runs/45831729109) passed, open draft against `main`, mergeable when inspected |
+| `codex/wp06p-clean-reconstruction` / #64, pre-transfer | `b4a571d0b92e4a0a7b09f0fad52e4f417af68303` | Exact [PR CI 45833447636](https://github.com/tostman1/notenarchiv/actions/runs/45833447636) passed, open draft against `main`, mergeable before transfer |
+| `recovery/codex-ocr-prototype` | `49477203ef9dfb7f93e9533b2334bcd563a4162b` | Preserved incomplete prototype. Reference only when OCR dependencies are satisfied |
 
-## Implemented and preserved
+All green results above cover Foundation, Container, and Windows on the listed SHA. #63 and #64 had no inline review threads at inspection. Both still require the applicable reviewed-head and integration gates. The two drafts have overlapping progress and traceability additions. Recheck the second against actual Main after the first merge, preserve both records, and verify the resulting head. No known unresolved CI failure applies to the verified checkpoints. The stale export cleanup fixture on an earlier #62 SHA was fixed in `97a9d9e`.
 
-- Native read-only fixed-local-NTFS source reader: volume/file IDs, 100-ns native
-  metadata, pinned validated traversal, namespace/reparse/hardlink rejection,
-  read-only non-inheritable streams and conflicting write/rename protection.
-- Backend-owned source selection, publication effects/proof, ownership and cleanup
-  boundaries; POSIX behavior retained. Shared failure contracts and actual worker
-  PENDING/REVIEW_REQUIRED regression preserve proof after injected effect failure.
-- Opt-in read-only Windows token, descriptor, effective access and bounded recursive
-  RAW-preflight evidence, scoped descendant/parent pins. **Always uncertified**:
-  no production ACL/account provisioning or complete process/thread RAW enforcement.
-- Immutable bounded source geometry/regions and invertible display transforms;
-  original/effective CropBox and UserUnit/rotation fingerprint; opt-in lossless
-  parser wrapper. Legacy PageInfo/inspection IPC unchanged. No region approval,
-  resolver extension, source/content models or migration is claimed implemented.
-- DEC-15 documentation amendment: revised storage authority/recovery, isolated
-  processing scratch, proportionate acceptance and decoupled shared roadmap.
+## Delivered and open
 
-## Verification evidence and limits
+- **WP-06p in progress.** Main includes the read-only local NTFS adapter, bounded RAW preflight, shared publication/ownership boundaries, SHA-256 verification of physically separate parser inputs, and recovery protection for uncertain scratch. Reindexing detects and revalidates acknowledged CLEAN health without changing approval, path, receipts, or export-pinned revisions.
+- **WP-06p POSIX restoration implemented and verified on #64's implementation SHA.** `restore_clean_copy` queues a missing acknowledged CLEAN path through the existing worker. It stages exact historical CLEAN or pinned RAW bytes, publishes without clobbering, and reconciles interruption using the retained intent and proof. Seven synthetic Ubuntu tests cover exact inputs, changed RAW, collision, process death before and after acknowledgement, and lost proof. Windows shared lifecycle/publication/ownership passed 57 tests. Ruff, migration drift, and whitespace checks passed. No physical power-loss or NAS acceptance was exercised.
+- **WP-54 in progress.** #63 adds stable version-bound source-page UUIDs, an idempotent legacy backfill, and original CropBox capture for new indexing. Legacy original CropBoxes remain explicitly unknown. Synthetic migration, rollback/rebuild, geometry and indexing checks passed. Stable logical pages, immutable region revisions, ordered content references, the confirmed whole-file compatibility adapter, and full migration/restore and resolver parity remain open.
+- **WP-55 planned.** Depends on WP-54 and its existing catalog/resolver prerequisites. WP-24 and subsequent approved packages follow their rebaselined dependencies in `IMPLEMENTATION_PLAN.md`.
+- **Windows-specific acceptance open.** Keep native writes disabled. Verify independent OS RAW write denial with reader handles closed across the actual application roles using a dedicated non-admin, non-RAW-owner identity. Native writable staging/publication, recovery parity and supervised runtime acceptance still need evidence. Production provisioning, packaging, deployment and physical NAS acceptance retain their separate gates.
 
-Reuse results when code is unchanged; never apply older CI to a newer SHA.
+## OpenCode continuation
 
-- Exact PR #62 Foundation, Container and Windows checks passed at
-  `d5460588c999251e5f98a4184538528029ddbaeb` via deterministic SHA-bound waiter.
-  Earlier verified checkpoints are recorded in PROGRESS.
-- Pre-amendment HEAD `65c94e1155b88fe86a197e42f9ed601be513c747`: all three checks
-  observed completed SUCCESS, workflow run `45815589039`. No outstanding checks
-  were observed before the documentation update.
-- Final documentation/transfer SHA: CI is **not verified in this snapshot**.
-  Publishing triggers CI; pending/new results must not be called green. No merge
-  is planned and no expensive full regression rerun solely for this handoff.
-- Latest geometry/source suites: 114 passed; bounded RAW preflight: 35 passed with
-  native synthetic traversal; source/access: 72 passed with exactly two known
-  privileged symlink-setup cases excluded in that focused run (assertions unchanged).
-- Full local Windows regression earlier: 942 passed, 2 failed, 143 skipped;
-  both failures were symlink setup WinError 1314, not passed assertions. Initial
-  120-second run timed out, not successful evidence. Required CI subsequently
-  passed on its Windows/Linux runners. POSIX-only skips are not local verification.
-- Existing Ruff, Django/migration-drift, requirements/traceability and exact CI
-  results remain valid within their recorded scopes. Documentation-task checks
-  are recorded in PROGRESS. No native write/recovery or physical power-loss/NAS
-  acceptance has been demonstrated. Process termination is application-crash only.
+1. Pass the remote handoff marker gate on the primary branch before switching or editing. Review the full comparison ranges from the verified Main base and check exact current PR and CI evidence. The marker authorizes takeover only.
+2. Complete the reviewed exact-head gates for #64 and #63. Start with the primary #64 if still applicable, verify exact Main CI after integration, then reconcile #63 with current Main and verify its head before merging. Continue after successful CI and integration. Routine approved implementation and reviewed green merges have standing authorization.
+3. Complete WP-54 with region/logical-page and ordered content-reference identities, revision-bound confirmation, the legacy whole-file adapter, and interruption/backfill/restore and resolver parity. Then implement WP-55 collections, work hierarchy and content editions. Continue the roadmap by actual dependencies. Use Sol and Qwen for substantial delegated implementation and independent review where appropriate.
+4. Apply DEC-15 as approved. Preserve independent OS RAW denial, physically separate verified processing copies, authoritative SQLite/history, no-clobber publication and evidence-preserving reconciliation. Keep outstanding Windows-specific acceptance separate from unaffected product development. Use deterministic tools and the documented SHA-bound CI waiter. No production deployment, real-data migration or production ACL changes are authorized.
 
-## Current owner decision and remaining work
+## Local-only material
 
-Read DEC-15 and amendments to REQUIREMENTS, ARCHITECTURE, IMPLEMENTATION_PLAN,
-PORTABILITY and TRACEABILITY. It partially supersedes DEC-14: immediate durability
-of every parent creation/rename/disposable recovery deletion is no longer an
-unconditional release blocker. Missing platform documentation is not an observed
-failure; prior speculative namespace analysis must not be restarted as a gate.
-
-Retain independent OS RAW denial (dedicated non-admin, non-RAW-owner Windows
-identity/read-only NTFS; Linux least privilege/read-only mount), protected SQLite
-and confirmed history, real hash-identical CLEAN, no-clobber and safe paths. CLEAN
-may be the last historical copy. Acknowledged external files may require detection,
-reconciliation or exact-input reconstruction after abrupt power loss; unavailable
-or corrupt references cannot silently remain valid. Uncertain/unknown ownership
-requires evidence-preserving review, not blind mutation retry.
-
-Next cohesive implementation tasks:
-1. Reassess remaining WP-06p under DEC-15. Reuse native code/backend interfaces;
-   prefer simple established no-clobber staged publication and existing persistent
-   operation records. Implement/verify file/DB failure-window reconciliation,
-   missing-result detection/reconstruction and historical-copy protection. Do not
-   add another DB/journal/service or enable Windows writes prematurely.
-2. Formalize/reuse bounded job-owned scratch and physical hash-verified isolated
-   processing inputs, source-change checks, immutable snapshot reuse and safe
-   abandoned cleanup. Protect active workspaces/uncertain proof; disposable cleanup
-   normally warns. No writable RAW paths/hardlinks; pure hashes/enumeration need
-   no extra copy. These obligations are not retrospectively marked satisfied.
-3. Verify independent RAW denial across application roles with reader handles
-   closed. Production identity/ACL provisioning and administrative synthetic
-   facilities need their applicable explicit authorization; never modify real data.
-4. Continue platform-independent WP-54 additive model/backfill/legacy compatibility
-   and WP-55 hierarchy/editions when shared dependencies are met. Remaining native
-   Windows write acceptance, production security and packaging do not block them.
-   Preserve migration/restore/history, resolver and revision-bound review gates.
-
-Acceptance targets include RAW unchanged/OS-denied writes, physical copy/hash
-equality, mutation/interrupted staging/publication, DB/file reconciliation,
-reproducible reconstruction, last historical CLEAN retention, scratch/active/proof
-cleanup safety, collision races and bounded Windows/Linux parity. Details remain
-in canonical package/traceability documents, not a new test certification here.
-
-## Preserved OCR recovery material
-
-- Remote branch: `recovery/codex-ocr-prototype`
-- Verified remote SHA: `49477203ef9dfb7f93e9533b2334bcd563a4162b`
-
-Contains incomplete `core/ocr.py` (including unresolved `_region()`), dependency
-and lockfile changes. Recovery reference only: assess reusable pieces at OCR work,
-never blindly merge/cherry-pick old dependency/lock changes. No access to an old
-machine stash is required; no recovery branch/artifacts were deleted or changed.
-
-## Codex takeover instruction
-
-Inspect local status and safely fetch `origin/codex/windows-source-reader` before
-switching or editing. Latest remote HEAD must have exact subject
-`chore(handoff): prepare agent transfer` and trailer `Handoff-Ready: yes`; otherwise
-stop as required by AGENTS.md. If valid, read AGENTS/HANDOFF/PROGRESS and DEC-15,
-review all commits/diffs from the recorded base and verify actual CI state.
-Continue the revised roadmap autonomously with cohesive delivery packages, bounded
-delegation, existing deterministic tools and exact-SHA PR/post-merge Main gates.
-Preserve deferred features and all security/integrity/review/release gates. Do not
-merge unfinished PR #62. OpenCode stops after this verified transfer.
+The three active continuation worktrees were clean before the transfer edits. No implementation is stranded locally. A pre-existing OCR stash `d36f3b5` remains in the Codex clone. The remotely available OCR recovery branch above preserves the incomplete prototype and dependency changes, so takeover does not depend on that stash. Do not blindly apply its old dependency/lock changes. Ignored local CI reports and synthetic test scratch are optional evidence and are excluded from transfer.
