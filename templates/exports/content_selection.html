@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load i18n %}
+{% block content %}
+<h1>{% translate "PDF aus bestätigten Inhalten" %}</h1>
+<p>{% translate "Nur ausdrücklich bestätigte Inhaltsrevisionen sind verwendbar. Die Ausgabe folgt der angezeigten Auswahl und der bestätigten Seitenreihenfolge. Sie ist eine Ableitung, kein unverändertes CLEAN-Original. Diese Auswahl bestätigt keine Musik." %}</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<form method="post">{% csrf_token %}{{ form.as_p }}<button name="action" value="inspect">{% translate "Inhaltsauswahl prüfen" %}</button></form>
+{% if selected %}
+<ol>{% for entry in selected %}<li>{{ entry.title }} · {{ entry.content.part_id }} · {{ entry.content.inputs|length }} {% translate "logische Seiten" %}<ul>{% for page in entry.content.inputs %}<li><a href="{% url 'archive_preview:viewer' page.file_id %}">{% translate "Originalkontext" %}</a> · {% translate "Quellseite (Index ab 0)" %} {{ page.page_index }} · {{ page.bounds_points }} · {{ page.orientation }}°</li>{% endfor %}</ul></li>{% endfor %}</ol>
+<form method="post">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><input type="hidden" name="variant" value="{{ variant }}">{% for entry in selected %}<input type="hidden" name="editions" value="{{ entry.content.edition_id }}">{% endfor %}<button name="action" value="authorize">{% translate "Gewählte Inhalts-PDF verbindlich erstellen" %}</button></form>
+{% endif %}
+{% endblock %}

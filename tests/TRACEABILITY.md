@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_content_export_views.py`: AR-20/21, EX-13 — authenticated/CSRF-protected
+  content selection, explicit generation authorization, idempotency and stale
+  rejection. Django client evidence only; real browser acceptance remains open.
+
 - `tests/test_content_export.py`: AR-20/21, EX-13 — signed service authorization
   binds content selection, actor and variant; idempotent immutable content pins;
   historical ordered rendering after new-use invalidation.
