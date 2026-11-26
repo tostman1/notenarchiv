@@ -132,6 +132,10 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
     if fingerprint(snapshot.payload) != snapshot.sha256 or snapshot.preflight_sha256 != snapshot.sha256:
         raise ValidationError("Snapshot fingerprint mismatch")
     if snapshot.kind == "ARCHIVE_NOTES":
+        if snapshot.payload.get("schema") == 2:
+            from apps.exports.content_generation import load_pins
+
+            return snapshot, load_pins(snapshot, checkpoint)
         pins = list(snapshot.inputs.select_related("archive_file__publication_operation__intent", "assignment"))
         entries = snapshot.payload["archive_files"]
         if len(pins) != len(entries):
