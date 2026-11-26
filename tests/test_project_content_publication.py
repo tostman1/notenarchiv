@@ -61,7 +61,9 @@ def test_authorized_project_worker_retains_content_and_source_history(tmp_path):
         "assert is_complete(run) and run.artifacts.count()==1\n"
         "assert run.snapshot.payload['schema']==3\n"
         "assert run.snapshot.payload['cells'][0]['content']['inputs'][0]['orientation']==0\n"
-        "assert run.artifacts.get().manifest['page_count']==2\n"
+        "artifact=run.artifacts.get()\n"
+        "assert artifact.manifest['page_count']==3\n"
+        "assert sum(len(origin['pages']) for origin in artifact.manifest['origins'] if origin['kind']=='MUSIC')==2\n"
         "f=ArchiveFile.objects.get(pk=data['file'])\n"
         "assert f.review_state!='CONFIRMED' and not f.assignments.exists()\n",
         result,
