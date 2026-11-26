@@ -1,5 +1,33 @@
 # Progress record
 
+## Explicit content preference editor — 2026-11-26
+
+An authenticated, CSRF-protected editor now exposes setting and clearing the
+exact arrangement/part preference with the submitted arrangement revision.
+The service retains explicit confirmation eligibility, CAS and actor/history
+validation. GET does not mutate; stale and changed-content submissions fail
+closed. The German UI explicitly states that this action does not confirm music
+and that full project content activation remains incomplete. Six targeted
+preference/editor/export-view tests passed. A real-browser scenario now covers
+setting, stale clearing, explicit current-revision clearing and retained history
+without creating an export. Nine targeted preference/editor/traceability tests
+passed; Ruff and formatting passed. Browser execution remains CI-only because
+Node is unavailable locally; exact CI for this updated delivery remains pending.
+WP-54/55 remain in progress. Native Windows writes
+remain disabled; no real-data migration or deployment was performed.
+
+PR #66 is exact-head green at `64eee0bd`; #68 at `c9096f5b` is also green.
+PR #67's `1af2aa2b` Container check failed during synthetic index submission
+with HTTP 500, before any job was queued; Foundation and Windows passed.
+The log did not expose the application exception. One failed-job rerun passed
+all required checks on unchanged exact head `1af2aa2b`; the root cause remains
+unproven. PR #65 was integrated and its exact Main CI passed at `27dc7e16`
+(run `45873274859`). PR #66 was subsequently integrated at Main `d67186d1`;
+its exact Main CI (run `45876729842`) remains pending. PR #69 is exact-head
+green at `1a1dbcdffb4538c3afbba39abaaf3056a917601a` after independent review
+and history/rollback coverage corrections. Remaining integrations retain their
+review and exact post-merge CI gates.
+
 ## Unified archive preference persistence — 2026-11-26
 
 Independent Qwen review found no blockers. Follow-up now enforces history input

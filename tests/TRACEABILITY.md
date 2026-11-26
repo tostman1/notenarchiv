@@ -1,5 +1,14 @@
 # Implemented acceptance traceability
 
+- `browser/test_content_preference.py`: explicit scoped preference set/clear,
+  stale-revision rejection and retained history without export creation; real
+  browser execution is pending exact CI, not claimed as a local pass.
+
+- `tests/test_content_preference_views.py`: exact arrangement/part content
+  preference editing requires login, CSRF and explicit revision-fenced POST;
+  stale submissions and changed content are rejected, clearing retains history.
+  WP-54/55 product project activation remains open.
+
 - `test_content_preferences.py`: exact-part legacy/content preference persistence,
   protected change history, explicit priority and unavailable-choice fail-closed
   behavior (AR-21, CAT-05). Full project content-input activation remains pending.
