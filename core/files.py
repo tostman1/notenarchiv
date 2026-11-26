@@ -309,6 +309,11 @@ class Root:
                     raise FileError("LIMIT_EXCEEDED")
             return bytes(data), info
 
+    def validate_stage_owner(self, info):
+        """Reject cleanup of stage metadata not owned by this POSIX process."""
+        if info.st_uid != os.geteuid():
+            raise FileError("UNSAFE_STAGING")
+
     def discard_stage(self, path, expected_identity):
         _staging(path)
         if not self.writable:
@@ -344,6 +349,12 @@ class Root:
         with self.parent(path) as (parent, name):
             if self._matching_names(parent, name) != [name]:
                 raise FileError("PUBLICATION_CONFLICT")
+
+    def verify_publication_proof(self, target_path, final, *, staged_path):
+        """Verify the retained POSIX stage inode for a pending publication."""
+        staged = self.metadata(staged_path)
+        if not stat.S_ISREG(staged.st_mode) or identity(staged) != identity(final) or final.st_nlink != 2:
+            raise FileError("PUBLICATION_CONFLICT")
 
     def durable_entry(self, path, expected, *, staged_path=None):
         if not self.writable:
@@ -476,15 +487,13 @@ def publish(root, stage, target_path):
 def verify_published(
     root, target_path, *, sha256, size, staged_path=None, processor=None, checkpoint=lambda: None, durable=False
 ):
-    """Pending effects require both the expected bytes and the retained stage inode."""
+    """Pending effects require expected bytes and backend-verified publication proof."""
     data, final = root.read(target_path, maximum=size, checkpoint=checkpoint, links=2 if staged_path else 1)
     if len(data) != size or hashlib.sha256(data).hexdigest() != sha256:
         raise FileError("COPY_MISMATCH")
     if staged_path is not None:
         _staging(staged_path)
-        staged = root.metadata(staged_path)
-        if not stat.S_ISREG(staged.st_mode) or identity(staged) != identity(final) or final.st_nlink != 2:
-            raise FileError("PUBLICATION_CONFLICT")
+        root.verify_publication_proof(target_path, final, staged_path=staged_path)
     if processor is not None:
         processor.inspect(data)
     root.verify_entry(target_path)

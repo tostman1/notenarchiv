@@ -1,6 +1,5 @@
 """Real archive worker effects, bounded staging and exact receipt reconciliation."""
 
-import os
 from contextlib import ExitStack, suppress
 from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
@@ -294,8 +293,7 @@ def _prune_old_stages(context, operation, root):
         path = f".staging/{operation.pk.hex}/attempt-{number}.pdf"
         if root.exists(path):
             info = root.metadata(path)
-            if info.st_uid != os.geteuid():
-                raise files.FileError("UNSAFE_STAGING")
+            root.validate_stage_owner(info)
             context.checkpoint()
             files.discard_stage(root, path, files.identity(info))
 

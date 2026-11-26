@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from apps.jobs.models import Job, OperationIntent, WorkerLease
 from apps.jobs.services import lifecycle, queue, worker
+from core.files import FileError
 from core.locking import ProcessLock
 from tests.test_queue import queue_db as _queue_fixture
 from tests.test_queue import validate_synthetic
@@ -107,6 +108,52 @@ def test_only_apply_can_assert_no_effect_ack_failure_remains_uncertain(queue_db,
     assert job.status == ("REVIEW_REQUIRED" if inside_ack else "FAILED")
     assert job.operations.get().state == ("PENDING" if inside_ack else "ABANDONED")
     assert effect.exists() is inside_ack
+
+
+def test_durability_failure_retains_pending_proof_and_blocks_blind_retry(queue_db, monkeypatch, tmp_path):
+    """Exercise worker finish after an uncertain effect, not native durability."""
+    proof = tmp_path / "synthetic-retained-proof"
+    calls, releases, acknowledgements = [], [], []
+
+    def apply():
+        calls.append("apply")
+        proof.write_bytes(b"synthetic publication proof")
+        raise FileError("FILE_IO")  # Inject failure after mutation at the durability barrier.
+
+    def run(ctx):
+        ctx.publish("durability-proof", {"version": 1}, apply)
+        releases.append("release")
+        proof.unlink()
+
+    def acknowledge(ctx, intent):
+        acknowledgements.append(intent.state)
+
+    monkeypatch.setitem(
+        queue.HANDLERS,
+        Job.Kind.INTEGRITY_CHECK,
+        queue.Handler(validate_synthetic, run, True, 3, acknowledge=acknowledge),
+    )
+    job = queue.enqueue(Job.Kind.INTEGRITY_CHECK, {"value": 1})
+    lock = tmp_path / "worker.lock"
+    worker.run_worker(lock, once=True)
+    job.refresh_from_db()
+    intent = job.operations.get()
+    assert intent.state == OperationIntent.State.PENDING and intent.result == {}
+    assert job.status == Job.Status.REVIEW_REQUIRED and job.error_code == "OPERATION_UNCERTAIN"
+    assert job.attempt == 1 and job.history.count() == 1
+    assert job.history.get().status == "REVIEW_REQUIRED"
+    assert proof.read_bytes() == b"synthetic publication proof"
+    assert calls == ["apply"] and not releases and not acknowledgements
+
+    ready(job)
+    worker.run_worker(lock, once=True)
+    job.refresh_from_db()
+    intent.refresh_from_db()
+    assert job.status == Job.Status.REVIEW_REQUIRED and job.error_code == "OPERATION_UNCERTAIN"
+    assert job.attempt == 1 and job.history.count() == 1
+    assert intent.state == OperationIntent.State.PENDING and intent.result == {}
+    assert proof.read_bytes() == b"synthetic publication proof"
+    assert calls == ["apply"] and not releases and not acknowledgements
 
 
 def test_queued_cancel_and_running_cancel_wait_for_actual_stop(queue_db):

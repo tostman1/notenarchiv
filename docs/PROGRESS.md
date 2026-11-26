@@ -27,12 +27,44 @@ regression exceeded its 120-second command limit and was terminated, not verifie
 The replacement full Windows regression completed in 1228.43 seconds: 942 passed,
 143 skipped and two failed at the same symlink setup privilege boundary. This is
 not a green full regression. The run started before the additional junction cases;
-those have separate targeted evidence. Required exact-head CI is pending.
+those have separate targeted evidence. PR #62 exact-head CI passed for
+`d299efe18328f25e1b1ece896253099eaca542e8`: Foundation, Container and Windows
+shared-runtime checks succeeded. This evidence covers that commit only, not
+subsequent changes. The previous wait for `7bf5425` correctly rejected a changed
+PR head; it is not successful verification.
 Two additional actual Windows junction tests passed without symlink privilege:
 reparse leaves/ancestors and replacement of a child directory cannot redirect a
 source read. They supplement the unchanged symlink cases, not replace them.
 Native writable storage, independent RAW protection and the rest of WP-06p remain
 in progress; no merge, deployment or real-data operation is claimed.
+
+Execution: the coordinator implemented the backend-boundary refactor and junction
+tests directly before delegation was requested. Sol completed a read-only native
+storage security investigation without mutations or repeated verification. The
+reviewed API contracts do not yet establish a complete non-admin namespace barrier
+for the current retained-hardlink protocol. Qwen implemented shared failure tests;
+Sol's independent review found erased mock history and test-owned ordering claims.
+Qwen partly corrected them before reaching its execution step limit. Sol completed
+the fixes and added an actual worker regression: post-mutation failure retains
+PENDING proof and REVIEW_REQUIRED/OPERATION_UNCERTAIN, without acknowledgement or
+blind retry. The coordinator reviewed the corrected diff. The two targeted files
+passed 35 tests; touched-file Ruff lint/format and whitespace checks passed. These
+are policy/lifecycle contracts, not native power-loss durability evidence.
+Sol then moved retained-stage proof validation behind the backend interface,
+preserving the exact POSIX regular-file, identity and two-link checks. Shared
+verification still checks bytes first and proof before inspection/durability.
+Publication contracts, lifecycle, archive-file and marker-file tests passed
+45 cases with 25 platform skips on Windows; touched-file Ruff and whitespace
+checks passed. The coordinator reviewed the dispatch and proof-test diff.
+Sol also encapsulated the unchanged effective-UID stage ownership check in the
+backend. Archive cleanup and both export cleanup paths validate ownership before
+identity-checked discard. Twelve focused tests passed with 39 POSIX/platform
+skips on Windows; Ruff and whitespace checks passed. Consumer tests use metadata
+without POSIX ownership fields and reject ownership/metadata failures before
+discard. Linux integration coverage remains required; native Windows ownership
+enforcement is not implemented by this extraction.
+DEC-14 records the approved dedicated-identity target and bounded
+alternative persistence/recovery design authority; Windows writes remain disabled.
 
 ## Autonomous continuation — 2026-11-25
 

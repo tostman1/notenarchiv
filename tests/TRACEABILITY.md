@@ -4,8 +4,19 @@ GR-01/02, AR-01/02/09, OP-02/03/07:
 `tests/test_publication_contract.py` checks platform-independent publication
 policy rejects collisions, unsafe staging and read-only mutation before backend
 effects, and requires retained identity before durable recovery acknowledgement.
+Backend proof dispatch follows byte verification and precedes PDF inspection,
+entry verification and durability; actual POSIX proof logic is exercised with
+injected metadata for mismatched identities, unsafe types and link counts.
+`tests/test_job_lifecycle.py` injects post-mutation publication failure into the
+actual worker: persisted intent stays PENDING, acknowledgement/release remain
+unreachable, proof is retained and uncertain work is not blindly retried.
 These contracts supplement, not replace, physical publication/race tests and do
 not establish a native Windows writable backend.
+
+GR-01/02, AR-02/09, OP-03/07: `tests/test_stage_ownership.py` pins the exact POSIX
+effective-UID comparison and archive/export cleanup dispatch before discard,
+including owner and metadata failures. Mock consumer metadata has no POSIX UID;
+this proves encapsulation, not native Windows ownership enforcement.
 
 ## Native read-only Windows source boundary
 

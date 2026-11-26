@@ -9,10 +9,25 @@ backup and publication still use the separate supported backend; selecting the
 Windows reader does not enable those operations.
 
 Shared publication policy now dispatches no-clobber publication, exact entry
-verification, durability and retained-stage cleanup through backend-owned methods.
+verification, retained-stage proof, durability and cleanup through backend-owned methods.
 POSIX retains its descriptor-relative implementation and directory flushes.
+Stage cleanup ownership checks also belong to the backend; the POSIX effective-
+UID check is unchanged. Archive/export consumers no longer interpret POSIX UID
+fields themselves. This is not a native Windows ownership implementation.
 `tests/test_publication_contract.py` checks the shared policy/effect boundary on
 both platforms; these mock-backed contracts do not prove native writable storage.
+The actual worker lifecycle regression retains PENDING proof and requires review
+after an injected post-mutation durability failure; it proves uncertainty handling,
+not power-loss durability.
+
+DEC-14 selects a dedicated non-admin Windows application identity that does not
+own RAW; account and ACL provisioning require separate authorization. All data-
+capable process roles must share independently enforced RAW denial, including
+when reader handles are closed. Native writes remain disabled: reviewed API
+contracts have not yet established a complete namespace-durability barrier for
+the retained-hardlink protocol. An alternative backend may be approved only with
+equivalent observable integrity, durability and recovery guarantees; successful
+flush calls or process-kill tests alone cannot establish power-loss durability.
 
 The initial Windows adapter supports fixed local NTFS volumes only. It pins every
 ancestor directory, rejects reparse components, device/alternate-stream/trailing-
@@ -23,8 +38,10 @@ test exposed that attribute-only handles did not pin directories reliably; the
 adapter now also requests READ_DATA/LIST_DIRECTORY without requesting write access.
 Thirteen native Windows tests passed, including exact timestamp/identity oracles,
 reparse and hardlink rejection, root/stream pinning, failed-initialization cleanup,
-directory mutation and child-directory replacement. Required integration CI is
-pending. The generic source/hash regression also runs on Linux.
+directory mutation and child-directory replacement. PR #62 passed Foundation,
+Container and Windows checks at `d299efe18328f25e1b1ece896253099eaca542e8`;
+subsequent changes still require exact-head verification. The generic source/hash
+regression also runs on Linux.
 
 This establishes read-only handles and active sharing locks. Independent RAW ACL
 denial for every application process, native writable publication/recovery, UNC/

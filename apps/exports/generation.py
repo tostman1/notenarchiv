@@ -1,7 +1,6 @@
 """Snapshot-only composition with durable, fenced, no-clobber publication."""
 
 import json
-import os
 import time
 from contextlib import ExitStack, suppress
 from dataclasses import asdict, replace
@@ -125,8 +124,7 @@ def _cleanup(context, publication, root):
         path = f".staging/{publication.pk.hex}/attempt-{number}.pdf"
         if root.exists(path):
             info = root.metadata(path)
-            if info.st_uid != os.geteuid():
-                raise files.FileError("UNSAFE_STAGING")
+            root.validate_stage_owner(info)
             files.discard_stage(root, path, files.identity(info))
 
 
@@ -421,8 +419,7 @@ def recover_cleanup(context):
                 path = f".staging/{publication.pk.hex}/attempt-{number}.pdf"
                 if root.exists(path):
                     info = root.metadata(path)
-                    if info.st_uid != os.geteuid():
-                        raise files.FileError("UNSAFE_STAGING")
+                    root.validate_stage_owner(info)
                     files.discard_stage(root, path, files.identity(info))
 
 

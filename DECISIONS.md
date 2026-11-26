@@ -74,6 +74,25 @@ block the core release. No separate approval is needed for ordinary implementati
 choices inside the accepted envelope after DEC-13. This decision does not
 authorize production deployment, real-data migration, physical acceptance or
 external interoperability services. Unaffected portability work continues.
+## Windows storage continuation decision — 2026-11-26
+
+**DEC-14 — Approved by the owner.** Use a dedicated non-administrative Windows
+application identity that does not own RAW and receives read-only access as the
+target for independent RAW isolation. Actual account/ACL provisioning, production
+deployment and physical acceptance retain separate authorization gates.
+
+The coordinator may approve and implement a bounded Windows-compatible persistence
+and recovery alternative after reviewing technical evidence. Linux and Windows
+need not use identical mechanisms, but externally observable RAW protection,
+archive integrity, durability and recovery guarantees must remain equivalent.
+Encapsulate platform mechanisms behind the shared backend interface and preserve
+existing Linux functionality. Windows writes remain disabled until the required
+guarantees are demonstrated and verified. Sol investigates architecture; Qwen
+provides suitable independent verification and tests. Escalate any material
+reduction of guarantees, major architectural redesign or unresolved technical
+limitation. Do not unnecessarily block independent development. This decision
+does not certify a namespace barrier or authorize changes to real RAW permissions.
+
 ## Recommended defaults for owner acceptance
 
 Owner authorization, 2026-11-24 (DEC-10): deliver a separate current-feature
