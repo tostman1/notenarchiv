@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `tests/test_content_inputs.py`: AR-20/21, EX-13 and OP-08 versioned exact
+  content pins, historical reads after logical revision changes, tamper rejection
+  and additive SQLite snapshot/file protection. Product generation remains open.
+
 - `tests/test_content_rendering.py` exercises verified content-to-derivative inputs,
   repeated occurrences, legacy whole-document compatibility and fail-closed
   concurrent revision changes (AR-20/21/26). Product authorization and immutable

@@ -116,6 +116,33 @@ class GenerationRun(ImmutableRecord):
             raise ValidationError("Generation run must bind its exact authorized job.")
 
 
+class SnapshotContentInput(ImmutableRecord):
+    snapshot = models.ForeignKey(GenerationSnapshot, on_delete=models.PROTECT, related_name="content_inputs")
+    ordinal = models.PositiveIntegerField()
+    confirmation = models.ForeignKey("archive.ContentConfirmation", on_delete=models.PROTECT)
+    payload = models.JSONField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["snapshot", "ordinal"], name="exports_unique_content_ordinal")]
+
+    def clean(self):
+        from apps.exports.content_inputs import SCHEMA, load_content
+
+        entries = self.snapshot.payload.get("content_editions", [])
+        if (
+            self.snapshot.kind != "ARCHIVE_NOTES"
+            or self.snapshot.payload.get("schema") != 2
+            or self.ordinal >= len(entries)
+            or entries[self.ordinal] != self.payload
+            or self.payload.get("schema") != SCHEMA
+            or self.payload.get("confirmation_id") != str(self.confirmation_id)
+            or self.payload.get("revision_id") != str(self.confirmation.inspection.revision_id)
+            or self.payload.get("fingerprint") != self.confirmation.inspection.fingerprint
+        ):
+            raise ValidationError("Content pin must match its exact versioned authorization payload.")
+        load_content(self.payload, using=self._state.db or "default", verify=False)
+
+
 class SnapshotParticipant(ImmutableRecord):
     snapshot = models.ForeignKey(GenerationSnapshot, on_delete=models.PROTECT, related_name="participants")
     participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)

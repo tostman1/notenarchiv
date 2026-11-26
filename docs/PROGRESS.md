@@ -1,5 +1,20 @@
 # Progress record
 
+## Versioned content snapshot inputs — 2026-11-26
+
+- WP-54/55 remain in progress. The additive continuation pins exact content
+  confirmations, immutable occurrence order, source hashes, geometry and file
+  revisions under `confirmed-content-inputs-v1`. Current authorization capture
+  verifies bytes outside the short SQLite writer transaction and rechecks eligibility.
+- Historical readers validate the retained confirmation and exact relational
+  inputs without selecting a newer logical-page or edition revision. An additive
+  snapshot input table preserves legacy assignment pins and payload readers.
+  SQLite guards reject changes to referenced publication identity and content pins.
+- Three targeted synthetic tests passed: historical parity after new-use
+  invalidation, payload tampering and protected snapshot/file identities. Product
+  authorization endpoints, durable generation and compound publication remain
+  open; this is not completed WP-54/55 or a deployment/migration authorization.
+
 ## Explicit logical-page rendering — 2026-11-26
 
 - WP-54/55 remain in progress. The separate rendering continuation adds a bounded
