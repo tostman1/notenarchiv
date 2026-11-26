@@ -23,8 +23,14 @@ traceability tests passed. The requirements checker reports 119 definitions,
 The source/inventory targeted rerun passed 17 tests; two native tests failed at
 synthetic symlink setup with Windows error 1314 (missing privilege), before their
 security assertions. Assertions were not weakened or skipped. The first full
-regression exceeded its 120-second command limit and was terminated, not verified;
-a replacement run has a 30-minute limit. Required exact-head CI is pending.
+regression exceeded its 120-second command limit and was terminated, not verified.
+The replacement full Windows regression completed in 1228.43 seconds: 942 passed,
+143 skipped and two failed at the same symlink setup privilege boundary. This is
+not a green full regression. The run started before the additional junction cases;
+those have separate targeted evidence. Required exact-head CI is pending.
+Two additional actual Windows junction tests passed without symlink privilege:
+reparse leaves/ancestors and replacement of a child directory cannot redirect a
+source read. They supplement the unchanged symlink cases, not replace them.
 Native writable storage, independent RAW protection and the rest of WP-06p remain
 in progress; no merge, deployment or real-data operation is claimed.
 

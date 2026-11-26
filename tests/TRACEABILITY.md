@@ -17,6 +17,8 @@ pinned; a replaced child cannot redirect later reads; directory mutation aborts
 inventory; root reentry and failed initialization cannot leak/lossily replace
 owned handles. A known 100-ns timestamp and real hardlink identity provide
 independent metadata oracles. Missing roots/writable backends cause no writes.
+Additional real junction cases verify reparse leaves/ancestors and replaced-child
+redirection without requiring symlink creation privilege; symlink cases remain.
 The adapter is explicitly local NTFS/read-only. These tests do not prove global
 RAW ACL denial, native publication/recovery, network shares or desktop packaging.
 Existing actual POSIX indexing/publication/generation/backup suites remain gates.

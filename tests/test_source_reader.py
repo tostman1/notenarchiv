@@ -3,12 +3,23 @@
 import hashlib
 import os
 import stat
+import subprocess
 
 import pytest
 
 from core import files, inventory
 
 windows = pytest.mark.skipif(os.name != "nt", reason="Native Windows source handles")
+
+
+def junction(path, target):
+    result = subprocess.run(
+        ["cmd.exe", "/d", "/c", "mklink", "/J", str(path), str(target)],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    assert result.returncode == 0, "Synthetic junction creation failed"
 
 
 def test_source_inventory_and_hash_use_consistent_backend_metadata(tmp_path):
@@ -161,3 +172,45 @@ def test_native_metadata_preserves_ntfs_timestamp_precision_and_hardlink_identit
         assert files.identity(before) == files.identity(root.metadata("alias.pdf"))
         os.utime(path, ns=(timestamp + 100, timestamp + 100))
         assert root.metadata("score.pdf").st_mtime_ns == timestamp + 100
+
+
+@windows
+def test_native_junction_leaf_and_ancestor_are_rejected(tmp_path):
+    raw, outside = tmp_path / "raw", tmp_path / "outside"
+    raw.mkdir()
+    outside.mkdir()
+    (outside / "score.pdf").write_bytes(b"foreign synthetic")
+    linked = raw / "linked"
+    junction(linked, outside)
+    try:
+        with files.source_root(raw) as root:
+            rows = inventory.scan(root, "")
+            assert next(row for row in rows if row["path"] == "linked")["kind"] == "UNSAFE"
+            with pytest.raises(files.FileError):
+                root.read("linked/score.pdf", maximum=1024)
+        with pytest.raises(files.FileError), files.source_root(linked):
+            pass
+        assert (outside / "score.pdf").read_bytes() == b"foreign synthetic"
+    finally:
+        linked.rmdir()
+
+
+@windows
+def test_native_child_junction_replacement_cannot_redirect_read(tmp_path):
+    raw, outside = tmp_path / "raw", tmp_path / "outside"
+    raw.mkdir()
+    outside.mkdir()
+    nested = raw / "nested"
+    nested.mkdir()
+    (nested / "score.pdf").write_bytes(b"expected synthetic")
+    (outside / "score.pdf").write_bytes(b"foreign synthetic")
+    with files.source_root(raw) as root:
+        nested.rename(raw / "original")
+        junction(nested, outside)
+        try:
+            with pytest.raises(files.FileError):
+                root.read("nested/score.pdf", maximum=1024)
+            assert root.read("original/score.pdf", maximum=1024)[0] == b"expected synthetic"
+        finally:
+            nested.rmdir()
+    assert (outside / "score.pdf").read_bytes() == b"foreign synthetic"
