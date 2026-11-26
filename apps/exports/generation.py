@@ -149,7 +149,11 @@ def _existing(publication, root, checkpoint):
 
 
 def _compose(context, snapshot, pins, person, processor, publication, root):
-    if snapshot.kind == "ARCHIVE_NOTES":
+    if snapshot.kind == "ARCHIVE_NOTES" and snapshot.payload.get("schema") == 2:
+        from apps.exports.content_generation import pieces as content_pieces
+
+        pieces = content_pieces(snapshot, pins, processor)
+    elif snapshot.kind == "ARCHIVE_NOTES":
         pieces = []
         total_input = 0
         for cell in snapshot.payload["archive_files"]:
@@ -222,7 +226,9 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             "participant_name": person["name"]
             or ("Einzelnoten" if snapshot.kind == "ARCHIVE_NOTES" else "Inhaltsverzeichnis"),
             "positions": logical,
-            "inputs": [c for c in snapshot.payload["cells"] if c["participant_id"] == person["id"]],
+            "inputs": snapshot.payload["content_editions"]
+            if snapshot.payload.get("schema") == 2 and snapshot.kind == "ARCHIVE_NOTES"
+            else [c for c in snapshot.payload["cells"] if c["participant_id"] == person["id"]],
             "pages": [asdict(p) for p in info.pages],
             "page_count": len(info.pages),
             "origins": composition["origins"],

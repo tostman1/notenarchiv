@@ -1,5 +1,24 @@
 # Progress record
 
+## Content export activation — 2026-11-26
+
+WP-54/55 remain **in progress**. A service-level content export path now binds
+the explicitly selected confirmed editions, order, actor and output variant to
+a signed preflight receipt. Authorization rechecks current eligibility under a
+short SQLite writer lock and queues the existing durable generation worker.
+Schema-2 archive-note generation reads only protected historical content pins;
+later logical revisions do not rewrite an authorized run. Its artifact manifest
+records the exact ordered content lineage. Legacy schema-1 generation is unchanged.
+
+The export/snapshot regression set passed 26 tests with one POSIX-only worker
+publication test skipped on Windows. After bounded selection, title revalidation
+and aggregate output-limit hardening, 12 targeted authorization/pin/traceability
+tests passed. Ruff, Django checks and migration drift checks passed. The synthetic
+POSIX worker acceptance remains pending CI; no local Windows writable acceptance
+or NAS/production operation has been performed.
+Product UI, shared project selection/preferences and neutral compound publication
+remain open. This service implementation is not completion of either package.
+
 ## Versioned content snapshot inputs — 2026-11-26
 
 - WP-54/55 remain in progress. The additive continuation pins exact content

@@ -1,5 +1,13 @@
 # Implemented acceptance traceability
 
+- `tests/test_content_export.py`: AR-20/21, EX-13 — signed service authorization
+  binds content selection, actor and variant; idempotent immutable content pins;
+  historical ordered rendering after new-use invalidation.
+- `tests/test_content_export_publication.py`: AR-21/26, EX-13, OP-08 — synthetic
+  POSIX worker publication of partial confirmed content without whole-file
+  approval, exact source preservation and artifact lineage (not local Windows
+  writable or physical NAS acceptance).
+
 - `tests/test_content_inputs.py`: AR-20/21, EX-13 and OP-08 versioned exact
   content pins, historical reads after logical revision changes, tamper rejection
   and additive SQLite snapshot/file protection. Product generation remains open.
