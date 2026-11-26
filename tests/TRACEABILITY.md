@@ -1,5 +1,11 @@
 # Implemented acceptance traceability
 
+- `tests/test_compound_content_acceptance.py`: AR-21/25, CAT-05/06 — 125
+  independent repeated-title work identities, partial explicit confirmation,
+  shared page occurrences and differing instrumental sequence/orientation with
+  historical capture/load parity. Full region segmentation and physical booklet
+  acceptance remain open.
+
 - `browser/test_content_preference.py`: explicit scoped preference set/clear,
   stale-revision rejection and retained history without export creation; real
   browser execution is pending exact CI, not claimed as a local pass.
