@@ -25,6 +25,13 @@ whole file. Independent logical revisions retain unrelated confirmed content.
 An isolated synthetic SQLite backup preserved identities, metadata provenance,
 integrity, foreign keys and history guards; this is not installation recovery.
 
+Current-schema ingestion also materializes the stable document bridge. Serialized
+logical-page append operations reject stale and non-integer revision tokens.
+Seventeen targeted confirmation, geometry and indexing tests passed locally;
+fourteen POSIX indexing cases were skipped on Windows. Local browser acceptance
+could not start its Node subprocess: 22 failures and four skips. Node is absent
+from the current environment; browser verification remains open, not waived.
+
 Shared project resolver/preference and generation integration, neutral compound
 publication, complete backup/restore acceptance and full delivery verification
 remain open. Schema rollback/rebuild tests are not physical power-loss or NAS

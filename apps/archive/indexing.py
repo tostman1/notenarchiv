@@ -165,6 +165,11 @@ def _entry(context, entry, roots, processor):
                 using=using,
             )
         )
+        # New sources receive the same stable document bridge as migrated ones.
+        # Keep this in current-schema ingestion, not historical migration helpers.
+        from apps.archive.content_geometry_services import source_document
+
+        context.commit_metadata(lambda: source_document(version.source_file_id, using=using))
         context.commit_metadata(
             lambda: m.IndexEntry.objects.using(using).filter(pk=entry.pk).update(source_version=version, sha256=digest)
         )

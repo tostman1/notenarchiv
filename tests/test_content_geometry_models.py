@@ -97,3 +97,20 @@ def test_document_bridge_and_stale_geometry_append():
         m.PageRegionRevision.objects.filter(pk=first.pk).update(number=9)
     with pytest.raises(IntegrityError, match="immutable content history"), transaction.atomic():
         m.PageRegionRevision.objects.filter(pk=first.pk).delete()
+
+
+@pytest.mark.django_db
+def test_logical_append_rejects_stale_and_non_integer_revision():
+    from apps.archive.content_geometry_services import append_logical_page
+
+    source = page()
+    logical = m.LogicalPage.objects.create()
+    with pytest.raises(s.ArchiveConflict):
+        append_logical_page(logical.pk, expected_number=False, source_page_id=source.pk)
+    first = append_logical_page(logical.pk, expected_number=0, source_page_id=source.pk)
+    with pytest.raises(s.ArchiveConflict):
+        append_logical_page(logical.pk, expected_number=0, source_page_id=source.pk, orientation=90)
+    second = append_logical_page(logical.pk, expected_number=1, source_page_id=source.pk, orientation=90)
+    assert second.number == 2 and second.orientation == 90
+    first.refresh_from_db()
+    assert first.number == 1 and first.orientation == 0

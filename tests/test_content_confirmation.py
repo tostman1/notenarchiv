@@ -144,3 +144,24 @@ def test_independent_logical_change_does_not_withdraw_other_content(edition_inpu
         confirmed_content_edition(first_identity.pk)
     assert confirmed_content_edition(second_identity.pk).inputs[0].logical_page_revision_id == second.pk
     assert m.ContentConfirmation.objects.filter(pk__in=[item.pk for item in confirmations]).count() == 2
+
+
+@pytest.mark.django_db
+def test_confirmation_requires_inspecting_active_actor(edition_inputs):
+    from django.contrib.auth import get_user_model
+
+    actor = edition_inputs[0]
+    other = get_user_model().objects.create_user("synthetic-other-reviewer")
+    identity, _, logical, file = edition(edition_inputs)
+    proposal = propose_content(identity.pk, expected_number=0, inputs=[(logical.pk, file.pk)])
+    inspected = inspect_content(
+        proposal.pk, actor=actor, expected_fingerprint=proposal.fingerprint, visually_reviewed=True
+    )
+    with pytest.raises(ValidationError, match="inspecting reviewer"):
+        confirm_content(inspected.pk, actor=other)
+    assert not m.ContentConfirmation.objects.exists()
+    actor.is_active = False
+    actor.save(update_fields=["is_active"])
+    with pytest.raises(ValidationError):
+        confirm_content(inspected.pk, actor=actor)
+    assert not m.ContentConfirmation.objects.exists()
