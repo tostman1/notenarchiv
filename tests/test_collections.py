@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from apps.catalog.collection_services import add_membership, add_relationship
-from apps.catalog.models import Collection, Work, WorkAlternativeTitle, WorkRelationship
+from apps.catalog.models import Arrangement, Collection, Work, WorkAlternativeTitle, WorkRelationship
 
 pytestmark = pytest.mark.django_db
 
@@ -28,6 +28,9 @@ def test_125_independent_pieces_retain_song_numbers_and_provenance():
     assert first.metadata_snapshot["values"]["composer"]["origin"] == "WORK"
     assert last.metadata_snapshot["values"]["composer"]["origin"] == "COLLECTION"
     assert first.metadata_snapshot["values"]["section"]["origin"] == "LOCAL"
+    assert first.metadata_snapshot["schema"] == "collection-metadata-v2"
+    assert first.metadata_snapshot["values"]["section"]["identity"] == str(first.pk)
+    assert first.metadata_snapshot["values"]["section"]["revision"] == first.revision
     collection.metadata = {"publisher": "Changed"}
     collection.save()
     last.refresh_from_db()
@@ -48,3 +51,40 @@ def test_messe_hierarchy_cycles_and_alternative_titles():
     with pytest.raises(ValidationError, match="explicit arrangements"):
         add_relationship(first.pk, second.pk, kind=WorkRelationship.Kind.RELATED, position=0)
     assert WorkRelationship.objects.count() == 2
+
+
+def test_related_editions_are_not_containment_and_require_active_arrangements():
+    first = Work.objects.create(title="First")
+    second = Work.objects.create(title="Second")
+    a = Arrangement.objects.create(work=first)
+    b = Arrangement.objects.create(work=second)
+    add_relationship(
+        first.pk,
+        second.pk,
+        kind=WorkRelationship.Kind.RELATED,
+        position=0,
+        parent_arrangement_id=a.pk,
+        component_arrangement_id=b.pk,
+    )
+    add_relationship(
+        second.pk,
+        first.pk,
+        kind=WorkRelationship.Kind.RELATED,
+        position=0,
+        parent_arrangement_id=b.pk,
+        component_arrangement_id=a.pk,
+    )
+    add_relationship(first.pk, second.pk, kind=WorkRelationship.Kind.MOVEMENT, position=0)
+    with pytest.raises(ValidationError, match="cycles"):
+        add_relationship(second.pk, first.pk, kind=WorkRelationship.Kind.MEDLEY, position=0)
+    b.active = False
+    b.save()
+    with pytest.raises(ValidationError, match="active arrangements"):
+        add_relationship(
+            first.pk,
+            second.pk,
+            kind=WorkRelationship.Kind.RELATED,
+            position=1,
+            parent_arrangement_id=a.pk,
+            component_arrangement_id=b.pk,
+        )

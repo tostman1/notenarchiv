@@ -108,6 +108,28 @@ def test_native_directory_mutation_invalidates_inventory(tmp_path):
         (tmp_path / "added.pdf").write_bytes(b"synthetic")
 
 
+def test_directory_name_inventory_detects_same_count_replacement(tmp_path):
+    from core.files_windows import _directory_names
+
+    (tmp_path / "first.pdf").write_bytes(b"synthetic")
+    before = _directory_names(tmp_path)
+    (tmp_path / "first.pdf").rename(tmp_path / "second.pdf")
+    assert _directory_names(tmp_path) != before
+    assert _directory_names(tmp_path)[0] == before[0] == 1
+
+
+@windows
+def test_native_inventory_detects_mutation_with_unchanged_handle_metadata(tmp_path, monkeypatch):
+    import core.files_windows as native
+
+    with files.source_root(tmp_path) as root:
+        info = native.information(root._handle)
+        monkeypatch.setattr(native, "information", lambda _: info)
+        with pytest.raises(files.FileError, match="SOURCE_CHANGED"), root.directory_entries("") as (_, entries):
+            assert list(entries) == []
+            (tmp_path / "added.pdf").write_bytes(b"synthetic")
+
+
 @windows
 @pytest.mark.parametrize("inspect_security", [False, True])
 def test_native_initialization_failure_releases_all_pinned_directories(tmp_path, monkeypatch, inspect_security):
