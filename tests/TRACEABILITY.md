@@ -1,5 +1,23 @@
 # Implemented acceptance traceability
 
+WP-54/55 incremental evidence (packages still in progress):
+`tests/test_content_geometry_models.py` exercises immutable region/logical
+revisions, canonical bounds, retained pins and stale append rejection.
+`tests/test_content_confirmation.py` exercises explicit visual attestation,
+ordered repeated occurrences, changed-revision exclusion and corrupt input denial.
+`tests/test_content_contract.py` exercises the legacy whole-file adapter without
+rewriting IDs or approval, including processed-artifact and preference behavior.
+`tests/test_content_history_backfill.py` checks resumable document identity
+backfill and schema rollback/rebuild. `tests/test_content_isolated_restore.py`
+checks an isolated synthetic SQLite backup's integrity, source identity,
+metadata provenance and history guards. This is not complete installation restore
+or physical crash/power-loss acceptance.
+`tests/test_collections.py` checks 125 independent repeated-title memberships,
+original song numbers, inheritance/local provenance, immutable effective snapshots,
+Deutsche Messe movement identities, alternative titles and cycle rejection.
+Product resolver/export and multi-instrument compound publication acceptance
+remain open; these persistence tests do not establish those outcomes.
+
 GR-16, AR-20, OP-08: `tests/test_source_pages.py` checks immutable exact-version
 page references and geometry fingerprints. `tests/test_source_page_backfill.py`
 exercises additive migration with partially populated rows, schema rollback and

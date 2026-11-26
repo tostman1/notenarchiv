@@ -4,6 +4,32 @@ Concise status per work package (IMPLEMENTATION_PLAN.md section 6). All work
 packages were **Planned** at specification revision 2.0; statuses below
 reflect actual completed work only.
 
+## OpenCode content foundation — 2026-11-26
+
+WP-54/55 are **in progress**, not complete or enabled for product export.
+The additive implementation introduces stable document identities, immutable
+region and logical-page revisions, ordered occurrence manifests, explicit visual
+inspection and confirmation, and a read-only whole-file compatibility adapter.
+Changes to relevant geometry or ordering exclude affected content from new use;
+previous confirmations and legacy assignments remain retained. SQLite history
+guards cover the new records. Native Windows storage writes remain disabled.
+
+Collections, ordered membership, alternative titles and typed composition/edition
+relationships are distinct from filename/title identity. Membership snapshots
+retain effective metadata and its collection/work/local provenance. Synthetic
+tests exercise 125 independent repeated-title works and cycle rejection for a
+Deutsche Messe hierarchy. Twenty-four targeted confirmation, compatibility,
+uniform selection and existing edition tests passed. Partial content confirmation
+can span separately published unconfirmed BASE copies without approving either
+whole file. Independent logical revisions retain unrelated confirmed content.
+An isolated synthetic SQLite backup preserved identities, metadata provenance,
+integrity, foreign keys and history guards; this is not installation recovery.
+
+Shared project resolver/preference and generation integration, neutral compound
+publication, complete backup/restore acceptance and full delivery verification
+remain open. Schema rollback/rebuild tests are not physical power-loss or NAS
+acceptance. No actual association data or production migration was used.
+
 ## Codex continuation — 2026-11-26
 
 ### WP-54 source-page checkpoint

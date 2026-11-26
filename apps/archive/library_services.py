@@ -177,6 +177,17 @@ def verify_file(file):
     """Read-only actual-byte verification of one eligible displayed edition."""
     if not m.ArchiveFile.objects.usable().filter(pk=file.pk).exists():
         return False
+    return verify_publication(file)
+
+
+def verify_publication(file):
+    """Verify published bytes/receipt without implying musical whole-file approval."""
+    if (
+        not m.ArchiveFile.objects.filter(pk=file.pk, revision=file.revision, publication_state="AVAILABLE")
+        .exclude(review_state__in=["REJECTED", "WITHDRAWN"])
+        .exists()
+    ):
+        return False
     try:
         file.full_clean()
         operation = file.publication_operation

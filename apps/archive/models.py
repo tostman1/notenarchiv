@@ -961,3 +961,18 @@ class AuditEvent(Record):
     class Meta:
         ordering = ["created_at", "id"]
         constraints = [models.CheckConstraint(condition=exactly_one_target(), name="archive_audit_one_target")]
+
+
+# Register additive content models after the shared Record base is defined.
+from apps.archive.content_models import (  # noqa: E402, F401
+    ContentConfirmation,
+    ContentEdition,
+    ContentEditionRevision,
+    ContentInspection,
+    ContentReference,
+    LogicalPage,
+    LogicalPageRevision,
+    PageRegion,
+    PageRegionRevision,
+    SourceDocument,
+)
