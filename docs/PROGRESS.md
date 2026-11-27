@@ -1,5 +1,15 @@
 # Progress record
 
+## Compound publication command — 2026-11-26
+
+`publish_compound_source VERSION_UUID --title TITLE` exposes the neutral durable
+COPY service through a bounded administrative command. It returns the queued job
+UUID, grants no musical approval, and sanitizes storage/validation errors. Four
+command/naming checks passed locally. Product WP-54/55 remain in progress; native
+Windows publication is still disabled. Main through #68 passed exact CI on
+`416e9f2fcacabb7b886c40b39ec8df1ab2669742` (run 45882493576). #69 has now
+merged; its exact post-merge Main CI is pending, not verified by the earlier PR CI.
+
 ## Neutral compound source publication — 2026-11-26
 
 Independent retained-catalog review found no blockers. Its two coverage gaps
