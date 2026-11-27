@@ -1,5 +1,14 @@
 # Progress record
 
+## Shared project content browser acceptance — 2026-11-26
+
+A synthetic same-origin browser scenario verifies that the matrix displays the
+inspected edition, excerpt preflight exposes its original context, tampered
+authorization is rejected, and replay creates only one schema-3 content-pinned
+run. The browser scenario requires the existing CI Node/Chrome environment and
+has not run locally. It does not approve music or execute production deployment.
+Full integration and WP-54/55 acceptance remain open; Windows writes stay disabled.
+
 ## Production report fixture schema correction — 2026-11-26
 
 Exact PR #84 and #85 CI failed the same existing endpoint test: its fixture
