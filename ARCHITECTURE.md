@@ -246,8 +246,8 @@ The proposed extension adds a document-publication/content-approval path alongsi
 the legacy adapter. It reuses verified byte-identical CLEAN storage and durable
 publication primitives. Confirmed content must pin inspected source/context and
 region revisions. Approval of one region cannot advertise the entire file as
-musically confirmed. This new confirmation scope needs the consolidated owner
-decision before implementation.
+musically confirmed. DEC-13 approved this confirmation scope; DEC-15 separates
+platform-independent implementation from native Windows writable acceptance.
 
 Keep one neutral, readable compound-source copy under its source/collection
 identity. Existing simple piece/arrangement naming still operates unchanged.
