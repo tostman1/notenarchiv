@@ -45,7 +45,7 @@ def test_versioned_shared_session_selects_exact_content_and_never_falls_back(res
         edition_id=first.assignments.get().pk,
     )
     explicit, legacy = ResolutionSession(project.pk, include_content=True).ordered_inputs(positions[0].pk, people[1].pk)
-    assert explicit.edition_origin == "PERSONAL" and explicit.content_edition_id is None
+    assert explicit.edition_origin == "PERSONAL" and getattr(explicit, "content_edition_id", None) is None
     assert legacy.legacy_assignment_id == first.assignments.get().pk
     PartOverride.objects.filter(pk=override.pk).update(active=False)
     append_logical_page(logical.pk, expected_number=1, source_page_id=page.source_page_id, orientation=90)

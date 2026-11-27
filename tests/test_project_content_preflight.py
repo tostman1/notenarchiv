@@ -17,7 +17,7 @@ resolver_inputs = project_inputs
 
 
 @pytest.mark.django_db
-def test_signed_content_preflight_pins_current_selection_and_preserves_history(resolver_inputs):
+def test_signed_content_preflight_pins_current_selection_and_preserves_history(resolver_inputs, client, monkeypatch):
     actor, project, arrangement, parts, people, positions, first, *_ = resolver_inputs
     logical = LogicalPage.objects.create()
     page = LogicalPageRevision.objects.create(
@@ -32,6 +32,31 @@ def test_signed_content_preflight_pins_current_selection_and_preserves_history(r
     arrangement.refresh_from_db()
     set_content_preference(arrangement.pk, parts[1].pk, edition.pk, actor=actor, expected_revision=arrangement.revision)
     selection = {"participant_ids": [people[1].pk], "position_ids": [positions[0].pk], "include_content": True}
+    from django.urls import reverse
+
+    from apps.archive import library_services
+    from apps.projects.resolution_services import ResolutionSession
+
+    calls = []
+    original = library_services.verify_publication
+
+    def counted(file, **kwargs):
+        calls.append(file.pk)
+        return original(file, **kwargs)
+
+    monkeypatch.setattr(library_services, "verify_publication", counted)
+    session = ResolutionSession(project.pk, **selection)
+    assert session.verified_resolution(positions[0].pk, people[1].pk).usable
+    assert session.verified_resolution(positions[0].pk, people[1].pk).usable
+    assert calls == [first.pk]
+    client.force_login(actor)
+    response = client.get(reverse("project_matrix", args=[project.pk]))
+    assert response.status_code == 200 and str(edition.pk).encode() in response.content
+    response = client.post(
+        reverse("project_excerpt", args=[project.pk]),
+        {"participants": [str(people[1].pk)], "positions": [str(positions[0].pk)], "action": "inspect"},
+    )
+    assert response.status_code == 200 and b"Originalkontext" in response.content
     report = build_report(project.pk, **selection)
     assert report.blocking == 0 and report.payload["schema"] == 3
     assert report.payload["cells"][0]["content"]["edition_id"] == str(edition.pk)

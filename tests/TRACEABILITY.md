@@ -1,5 +1,11 @@
 # Implemented acceptance traceability
 
+- Shared project content presentation: `tests/test_project_content_preflight.py`
+  verifies matrix/preflight agreement, safe original-context links and per-session
+  physical verification caching; `tests/test_project_content_publication.py`
+  exercises the real POSIX FULL worker with historical content pins (AR-20/21,
+  EX-13, OP-08). Local POSIX acceptance is unavailable on Windows; exact CI is required.
+
 - `tests/test_project_content_preflight.py`: AR-20/21, EX-13, OP-08 — opt-in
   signed shared-resolver capture, idempotent protected project content pins,
   changed-revision rejection and historical snapshot readability. Production

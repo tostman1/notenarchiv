@@ -18,7 +18,7 @@ from tests.test_resolution import resolver_inputs as _resolution_fixture
 resolver_inputs = _resolution_fixture
 
 
-def permission(inputs, *, missing=False):
+def permission(inputs, *, missing=False, include_content=False):
     actor, project, arr, parts, people, positions, first, *_ = inputs
     if not missing:
         for position in positions[:2]:
@@ -30,7 +30,7 @@ def permission(inputs, *, missing=False):
                 edition=first.assignments.get(),
             )
     person = people[0] if missing else people[2]
-    report = build_report(project.pk, participant_ids=[person.pk])
+    report = build_report(project.pk, participant_ids=[person.pk], include_content=include_content)
     return dict(
         project_id=project.pk,
         participant_ids=[person.pk],
@@ -168,7 +168,8 @@ def test_authorize_endpoint_requires_csrf_and_verified_report(resolver_inputs, c
     from django.test import Client
     from django.urls import reverse
 
-    values = permission(resolver_inputs)
+    # The production endpoint signs schema 3; legacy service tests retain schema 1.
+    values = permission(resolver_inputs, include_content=True)
     client.force_login(values["actor"])
     url = reverse("project_preflight", args=[values["project_id"]])
     payload = {
