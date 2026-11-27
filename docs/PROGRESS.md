@@ -1,5 +1,16 @@
 # Progress record
 
+## Project content snapshot validation — 2026-11-26
+
+The historical project reader now validates the snapshot record and rebinds both
+payload and preflight fingerprints before consuming relational pins. A direct
+SQL pin-update test exercises the immutable-history guard, and a tampered
+preflight digest is rejected. Thirteen targeted project-pin, content-export and
+traceability checks passed; Ruff and whitespace checks passed. This closes the
+bounded independent-review follow-up without enabling project authorization or
+changing historical payloads. WP-54/55 remain in progress; Windows writes remain
+disabled.
+
 ## Historical project content assembly — 2026-11-26
 
 The schema-3 personal assembly service now renders exact historical content-cell
