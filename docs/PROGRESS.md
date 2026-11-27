@@ -1,5 +1,16 @@
 # Progress record
 
+## Synthetic mass and movement sequences — 2026-11-26
+
+A parent composition and three independent equal-title movements have separate
+inspected editions spanning two published sources. Explicit shared-page and
+continuation occurrences render as 1/2/1 pages for the movements and four pages
+for the complete composition, without merging identities or approving either
+whole source. Historical capture reproduces the complete ordered sequence.
+The targeted acceptance test passed in 12.50 seconds; this is synthetic evidence,
+not physical/NAS acceptance. Integration and remaining WP-54/55 gates stay open;
+native Windows writes remain disabled.
+
 ## Complete synthetic instrumental booklet — 2026-11-26
 
 All 125 independent equal-title works now have explicitly inspected editions for

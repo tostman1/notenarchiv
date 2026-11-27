@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `test_mass_content_sequences.py`: CAT-05 / AR-20 / AR-21 — independently
+  inspected parent/movement editions, explicit shared continuations across
+  sources, repeated-title identities, ordered vector rendering and historical
+  sequence parity. Synthetic acceptance only; integration gates remain open.
+
 - `tests/test_full_instrumental_booklet.py`: AR-20/21/25, CAT-05/06 — all 125
   independent works in two explicitly reviewed instrumental region sequences,
   differing locations, continuations and protected historical pins. Synthetic only.
