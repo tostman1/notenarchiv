@@ -13,7 +13,7 @@
   worker publication, historical replay after revision and unchanged unconfirmed
   byte-identical BASE. Explicit repeated shared pages are intentional here;
   instrument-specific region/layout identity is covered separately by
-  `test_full_instrumental_booklet.py`. POSIX CI result pending, not NAS acceptance.
+  `test_full_instrumental_booklet.py`. Exact PR #91 CI passed, not NAS acceptance.
 
 - `test_interrupted_content_backfill.py`: AR-20 / OP-08 — committed additive
   document mapping batches survive interruption, resume idempotently, and retain
@@ -26,12 +26,12 @@
 - `test_mixed_project_content_inputs.py`: AR-20 / AR-21 / EX-13 — shared signed
   authorization with disjoint whole-file/content cell pins, personal explicit
   edition precedence, ordered historical rendering after logical-page edits,
-  and no music-position omission. Synthetic evidence; integration gates remain.
+  and no music-position omission. Synthetic evidence integrated through #88.
 
 - `test_mass_content_sequences.py`: CAT-05 / AR-20 / AR-21 — independently
   inspected parent/movement editions, explicit shared continuations across
   sources, repeated-title identities, ordered vector rendering and historical
-  sequence parity. Synthetic acceptance only; integration gates remain open.
+  sequence parity. Synthetic acceptance integrated through #87.
 
 - `tests/test_full_instrumental_booklet.py`: AR-20/21/25, CAT-05/06 — all 125
   independent works in two explicitly reviewed instrumental region sequences,
@@ -50,17 +50,17 @@
 - `tests/test_project_content_preflight.py`: AR-20/21, EX-13, OP-08 — opt-in
   signed shared-resolver capture, idempotent protected project content pins,
   changed-revision rejection and historical snapshot readability. Production
-  matrix/UI activation and full end-to-end acceptance remain open.
+  matrix/UI activation and end-to-end worker/browser acceptance landed in #84/85.
 
 - `test_project_content_pins.py`: EX-13, AR-20/21 — historical schema-3 personal
   content rendering preserves pinned orientation, title and order, explicit
   acknowledged missing placeholders and reserve slots. Product authorization and
-  worker activation remain open.
+  worker activation are covered by the integrated #82–85 follow-ups.
 
 - `test_project_content_pins.py`: AR-20/21, EX-13, OP-08 — additive schema-3
   project cell identity, historical content-revision retention, exact part and
   arrangement validation, payload tampering rejection and SQLite file-pin guards.
-  Shared project authorization and generation activation remain open.
+  Shared project authorization and generation are covered by #82–85.
 
 - `test_project_content_contract.py`: AR-20, EX-13 legacy shared project resolver
   parity through exact ordered input adaptation, unavailable outcomes and retained
@@ -69,7 +69,7 @@
 - `test_compound_region_acceptance.py`: AR-20/21/25, CAT-05 instrument-specific
   four-card coordinates and ordered vector rendering, explicit confirmation,
   affected-only invalidation and retained historical inputs. Synthetic only;
-  full 125-piece physical acceptance and project activation remain open.
+  physical acceptance remains separate; project activation is covered by #84/85.
 
 - `test_compound_publication_command.py`: AR-26 administrative neutral COPY
   entry point, exact version/title forwarding and sanitized failures. No musical
@@ -82,7 +82,7 @@
 
 - `browser/test_catalog_correction.py`: CAT-05/06 — real-browser explicit
   replacement, stale rejection, withdrawal and retained receipts without export
-  creation. Browser execution is pending exact CI.
+  creation. Browser execution passed the exact integrated #73 CI gate.
 
 - `tests/test_catalog_correction_views.py`: CAT-05/06 — authenticated, CSRF-safe
   explicit correction, read-only GET, duplicate/stale rejection and discoverable
