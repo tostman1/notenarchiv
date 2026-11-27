@@ -1,5 +1,24 @@
 # Progress record
 
+## Full-booklet export completion — 2026-11-27
+
+- Existing stacked PRs #75–90 are integrated without rewriting their verified
+  heads. Exact post-merge Main CI passed through #89; #90's Main CI is pending.
+- WP-54/55 remain **in progress** pending final acceptance and traceability.
+  Production shared matrix, signed schema-3 authorization, protected historical
+  project inputs and the actual worker/browser path already exist. Older entries
+  below describe their checkpoint state, not current missing features.
+- Confirmed-content selection and its historical reader now share a bounded
+  125-edition limit. Existing 16-file, byte, parser, output and snapshot limits
+  remain unchanged.
+- Added synthetic POSIX acceptance for 125 independently inspected editions
+  through signed authorization and the durable worker, explicit repeated shared-page
+  occurrences, historical replay after a logical revision and one unchanged BASE.
+  Its actual POSIX result is pending CI; this Windows host skips that test.
+- Local targeted checks: four passed, two POSIX tests skipped; Ruff, Django checks,
+  migration drift and whitespace passed. No real-data migration, deployment or
+  physical/NAS acceptance. Native Windows writes remain disabled under DEC-15.
+
 ## Interrupted additive document mapping acceptance — 2026-11-26
 
 A deterministic interruption after the first committed 100-source mapping batch

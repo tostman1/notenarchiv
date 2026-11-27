@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
+from apps.exports.content_export_services import MAX_CONTENT_EDITIONS
 from apps.exports.content_inputs import load_content
 from core import preview
 
@@ -12,7 +13,7 @@ def load_pins(snapshot, checkpoint):
     entries = snapshot.payload.get("content_editions", [])
     titles = snapshot.payload.get("content_titles", [])
     if (
-        not 1 <= len(entries) <= 100
+        not 1 <= len(entries) <= MAX_CONTENT_EDITIONS
         or len(pins) != len(entries)
         or len(titles) != len(entries)
         or snapshot.inputs.exists()
