@@ -122,11 +122,8 @@ def authorize(identifiers, authorization, actor, variant="READING", policy="REGI
             if policy != "REGIONS":
                 from apps.archive.models import ArchiveFile
 
-                if (
-                    ArchiveFile.objects.filter(pk__in=[item["file_id"] for item in entry["content"]["inputs"]])
-                    .exclude(review_state="CONFIRMED")
-                    .exists()
-                ):
+                files = {item["file_id"] for item in entry["content"]["inputs"]}
+                if ArchiveFile.objects.usable().filter(pk__in=files).count() != len(files):
                     raise ValidationError(_("Vollständige Dateifreigabe geändert."))
         existing = GenerationSnapshot.objects.filter(request_id=request_id).first()
         if existing:

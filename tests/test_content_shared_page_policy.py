@@ -36,6 +36,10 @@ def test_explicit_policy_binds_preview_and_historical_output(edition_inputs, tmp
     scratch.mkdir(mode=0o700)
     output = pieces(snapshot, pins, Processor(scratch))
     assert len(PdfReader(BytesIO(output[0]["data"])).pages) == count
+    if policy != "REGIONS":
+        snapshot.payload.pop("shared_page_plan")
+        with pytest.raises(ValidationError, match="consequence"):
+            pieces(snapshot, pins, Processor(scratch))
 
 
 @pytest.mark.django_db

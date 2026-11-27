@@ -36,7 +36,8 @@ def pieces(snapshot, pins, processor):
     policy = snapshot.payload.get("shared_page_policy", "REGIONS")
     entries = [{"content": pin.payload} for pin in pins]
     consequences = plan(entries, policy)
-    if snapshot.payload.get("shared_page_plan", consequences) != consequences:
+    recorded = snapshot.payload.get("shared_page_plan")
+    if recorded != consequences and not (policy == "REGIONS" and recorded is None):
         raise ValidationError("Shared-page consequence mismatch")
     if policy == "REGIONS":
         return render_editions(editions, snapshot.payload["content_titles"], processor)

@@ -17,6 +17,10 @@
   migration drift and whitespace checks passed. Intermittent fixture integrity failures
   did not recur on the unchanged final targeted run;
   this is not a full CI gate. New exact-head CI and final package acceptance remain open.
+  A bounded exception-tracing diagnostic completed with 13 passing tests and no
+  verification exception, so the intermittent local fixture cause is not established.
+  Follow-up checks passed 11 policy/view/traceability tests. Historical whole-page
+  snapshots require a recorded consequence plan, and manifests carry policy/plan.
   WP-54/55 are still in progress. Native Windows writes remain disabled; no subsequent
   OCR/segmentation package, real-data migration or production deployment was started.
 
