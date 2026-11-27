@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `tests/test_content_integrity.py` — OP-08: read-only, bounded SQLite/history
+  integrity report; missing source-page mappings fail without repair, stale confirmed
+  history remains valid, and machine-readable output excludes private values.
+
 - `tests/test_content_shared_page_policy.py`: EX-11/12/13 explicit extracted-region,
   page-once and page-repeat consequences, signed policy mismatch rejection, retained
   occurrence receipts and denial of whole-page expansion from partial confirmation.

@@ -1,5 +1,19 @@
 # Progress record
 
+## Read-only additive integrity evidence — 2026-11-27
+
+- OP-08 now has `check_content_integrity`: bounded, read-only SQLite and relational
+  history checks with compact JSON counts and failure codes. It checks source-page
+  mapping inventories and content manifests/references without exposing paths,
+  titles, actors or hashes. It never repairs data or derives musical confirmation.
+- Stale confirmed revisions remain valid historical evidence. Byte verification,
+  current-use eligibility and physical NAS acceptance are separate checks.
+- Two synthetic tests passed, including interrupted mapping detection without repair
+  and retained historical confirmation after a logical revision. Ruff passed.
+- #91 has merged; its exact post-merge Main gate is running. #92 has green exact-head
+  CI and reviewed policy changes, awaiting that gate. WP-54/55 completion documentation
+  remains open; native Windows writes stay disabled and no deployment is authorized.
+
 ## Explicit shared-page selection — 2026-11-27
 
 - The entire #75–90 stack and exact Main `afafd3983fe72fa365832a228a69351576d3bb1d`
