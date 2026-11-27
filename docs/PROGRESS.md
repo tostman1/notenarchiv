@@ -1,5 +1,17 @@
 # Progress record
 
+## Versioned shared project content resolution — 2026-11-26
+
+ResolutionSession now supports explicit opt-in content candidates while retaining
+the identical part, replacement and edition-priority engine. Default legacy
+callers and their payload shape remain unchanged. Content results pin exact
+ordered inspected inputs, verify publication bytes and reject changed revisions;
+an unavailable archive preference never falls back. An explicit personal legacy
+choice still wins. Twenty-eight targeted resolver/adapter/preference tests passed,
+followed by three focused tests after adding explicit-choice parity coverage.
+Authorization, dependency capture, matrix/preflight and worker integration remain
+open; WP-54/55 are not complete. Native Windows writes stay disabled.
+
 ## Project content snapshot validation — 2026-11-26
 
 The historical project reader now validates the snapshot record and rebinds both
