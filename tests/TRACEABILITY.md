@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `tests/test_full_instrumental_booklet.py`: AR-20/21/25, CAT-05/06 — all 125
+  independent works in two explicitly reviewed instrumental region sequences,
+  differing locations, continuations and protected historical pins. Synthetic only.
+
 - `browser/test_project_content.py` verifies shared matrix/excerpt content selection,
   original-context visibility, signed authorization and idempotent schema-3 pins
   (AR-20/21, EX-13, OP-08). Browser execution is an exact CI gate, not a local claim.

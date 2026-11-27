@@ -1,5 +1,16 @@
 # Progress record
 
+## Complete synthetic instrumental booklet — 2026-11-26
+
+All 125 independent equal-title works now have explicitly inspected editions for
+two instrumental sources: 250 confirmed sequences across 32 pages per source,
+four rectangular cards per page, reversed instrumental locations and selected
+continuations. Unconfirmed sequences are rejected before review; exact logical
+pins, occurrence identities and historical capture remain reproducible without
+whole-file approval. The targeted acceptance test passed in 38.66 seconds.
+This synthetic evidence is not physical booklet/NAS acceptance. WP-54/55 delivery
+and integration gates remain open; native Windows writes stay disabled.
+
 ## Shared project content browser acceptance — 2026-11-26
 
 A synthetic same-origin browser scenario verifies that the matrix displays the
