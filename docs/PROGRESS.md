@@ -1,5 +1,14 @@
 # Progress record
 
+## Interrupted additive document mapping acceptance — 2026-11-26
+
+A deterministic interruption after the first committed 100-source mapping batch
+retains its receipts. Restarting the existing bounded backfill completes the
+remaining five sources; another run preserves all deterministic UUIDs and source
+counts. The transactional test passed in 6.63 seconds. This is synthetic database
+recovery evidence, not NAS power-loss or real-data migration acceptance. Exact CI
+and integration gates remain required; WP-54/55 remain in progress.
+
 ## Unreadable content preflight acceptance — 2026-11-26
 
 A deterministic isolated-parser rejection now exercises the content branch of
