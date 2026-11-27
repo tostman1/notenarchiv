@@ -20,12 +20,23 @@ from apps.projects.services import reviewer
 
 
 def authorize(
-    project_id, *, participant_ids, position_ids, token, acknowledgements, actor, kind="FULL", variant="READING"
+    project_id,
+    *,
+    participant_ids,
+    position_ids,
+    token,
+    acknowledgements,
+    actor,
+    kind="FULL",
+    variant="READING",
+    include_content=False,
 ):
     if kind not in {"FULL", "EXCERPT"}:
         raise ValidationError(_("Nicht unterstützter Generierungstyp."))
     # Long hash/parser work runs before acquiring the SQLite writer lock.
-    report = build_report(project_id, participant_ids=participant_ids, position_ids=position_ids)
+    report = build_report(
+        project_id, participant_ids=participant_ids, position_ids=position_ids, include_content=include_content
+    )
     if variant not in {"READING", "PRINT"}:
         raise ValidationError(_("Ungültige Ausgabeart."))
     if variant == "PRINT":
@@ -52,7 +63,9 @@ def authorize(
             ):
                 raise ValidationError(_("Freigabe bereits anders verwendet; erneut prüfen."))
             return existing.run
-        current = ResolutionSession(project_id, participant_ids=participant_ids, position_ids=position_ids)
+        current = ResolutionSession(
+            project_id, participant_ids=participant_ids, position_ids=position_ids, include_content=include_content
+        )
         if dependency_payload(current) != report.payload["dependencies"]:
             raise ValidationError(_("Eingaben während der Freigabe geändert; erneut prüfen."))
         for row in report.rows:
@@ -99,6 +112,18 @@ def authorize(
             for cell in row["cells"]:
                 result = cell["resolution"]
                 if result.usable:
+                    if cell.get("content"):
+                        from apps.exports.models import SnapshotProjectContentInput
+
+                        SnapshotProjectContentInput.objects.create(
+                            snapshot=snapshot,
+                            position_id=result.position_id,
+                            participant_id=result.participant_id,
+                            part_id=result.effective_part_id,
+                            confirmation_id=cell["content"]["confirmation_id"],
+                            payload=cell["content"],
+                        )
+                        continue
                     SnapshotInput.objects.create(
                         snapshot=snapshot,
                         position_id=result.position_id,

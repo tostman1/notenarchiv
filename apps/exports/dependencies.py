@@ -82,4 +82,62 @@ def dependency_payload(session):
             )
         ),
     }
+    if session.include_content:
+        editions = bounded(archive.ContentEdition.objects.filter(arrangement_id__in=arrangements), 10_000)
+        revisions = bounded(archive.ContentEditionRevision.objects.filter(edition_id__in=[e.pk for e in editions]))
+        references = bounded(archive.ContentReference.objects.filter(revision_id__in=[r.pk for r in revisions]))
+        logical = bounded(
+            archive.LogicalPageRevision.objects.filter(pk__in=[r.logical_page_revision_id for r in references])
+        )
+        logical_history = bounded(
+            archive.LogicalPageRevision.objects.filter(logical_page_id__in=[r.logical_page_id for r in logical])
+        )
+        regions = bounded(
+            archive.PageRegionRevision.objects.filter(
+                pk__in=[r.region_revision_id for r in logical if r.region_revision_id]
+            )
+        )
+        region_history = bounded(
+            archive.PageRegionRevision.objects.filter(region_id__in=[r.region_id for r in regions])
+        )
+        content_files = bounded(archive.ArchiveFile.objects.filter(pk__in=[r.archive_file_id for r in references]))
+        operations = bounded(
+            archive.FileOperation.objects.filter(pk__in=[f.publication_operation_id for f in content_files])
+        )
+        payload["content"] = {
+            "editions": rows(editions),
+            "revisions": rows(revisions),
+            "references": rows(references),
+            "logical_revisions": rows(logical_history),
+            "region_revisions": rows(region_history),
+            "inspections": rows(
+                bounded(archive.ContentInspection.objects.filter(revision_id__in=[r.pk for r in revisions]))
+            ),
+            "confirmations": rows(
+                bounded(
+                    archive.ContentConfirmation.objects.filter(inspection__revision_id__in=[r.pk for r in revisions])
+                )
+            ),
+            "files": rows(content_files),
+            "versions": rows(
+                bounded(archive.SourceVersion.objects.filter(pk__in=[f.source_version_id for f in content_files]))
+            ),
+            "source_files": rows(
+                bounded(
+                    archive.SourceFile.objects.filter(
+                        versions__pk__in=[f.source_version_id for f in content_files]
+                    ).distinct()
+                )
+            ),
+            "operations": rows(operations),
+            "intents": rows([operation.intent for operation in operations]),
+            "source_pages": rows(
+                bounded(
+                    archive.SourcePage.objects.filter(
+                        Q(pk__in=[r.source_page_id for r in logical if r.source_page_id])
+                        | Q(regions__revisions__pk__in=[r.pk for r in regions])
+                    ).distinct()
+                )
+            ),
+        }
     return json.loads(json.dumps(payload, cls=DjangoJSONEncoder))

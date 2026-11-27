@@ -88,7 +88,7 @@ def inspect_file(file, scratch, deadline):
     return {"pages": [asdict(page) for page in info.pages], "flags": sorted(flags)}
 
 
-def build_report(project_id, *, participant_ids=None, position_ids=None):
+def build_report(project_id, *, participant_ids=None, position_ids=None, include_content=False):
     try:
         participant_ids = None if participant_ids is None else [UUID(str(value)) for value in participant_ids]
         position_ids = None if position_ids is None else [UUID(str(value)) for value in position_ids]
@@ -98,7 +98,9 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
         if selected is not None and len(selected) != len(set(selected)):
             raise ValidationError(_("Personen und Positionen nicht mehrfach auswählen."))
     with transaction.atomic():
-        session = ResolutionSession(project_id, participant_ids=participant_ids, position_ids=position_ids)
+        session = ResolutionSession(
+            project_id, participant_ids=participant_ids, position_ids=position_ids, include_content=include_content
+        )
         dependencies = dependency_payload(session)
         if not session.participants or not session.positions:
             raise ValidationError(_("Mindestens eine aktive Person und Position auswählen."))
@@ -138,7 +140,31 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
                     raise ValidationError(_("Prüfzeit überschritten; weniger Positionen auswählen."))
                 result = session.verified_resolution(position.pk, person.pk)
                 inspection = None
-                if result.usable:
+                content = None
+                if result.usable and getattr(result, "content_edition_id", None):
+                    from apps.exports.content_inputs import capture_content
+
+                    content = capture_content(result.content_edition_id)
+                    inspections = []
+                    for entry in content["inputs"]:
+                        file_id = UUID(entry["file_id"])
+                        if file_id not in documents:
+                            file = archive.ArchiveFile.objects.get(pk=file_id)
+                            total_bytes += file.byte_size
+                            if len(documents) >= MAX_FILES or total_bytes > MAX_BYTES:
+                                raise ValidationError(_("Prüfumfang überschritten; weniger Positionen auswählen."))
+                            try:
+                                documents[file_id] = inspect_file(file, scratch, deadline)
+                            except (PdfError, OSError, ValueError):
+                                documents[file_id] = {"error": "UNREADABLE_PDF"}
+                        inspections.append(documents[file_id])
+                    inspection = {
+                        "pages": [page for info in inspections for page in info.get("pages", [])],
+                        "flags": sorted({flag for info in inspections for flag in info.get("flags", [])}),
+                    }
+                    if any(info.get("error") for info in inspections):
+                        inspection["error"] = "UNREADABLE_PDF"
+                elif result.usable:
                     file = session.assignments[result.assignment_id].archive_file
                     if file.pk not in documents:
                         total_bytes += file.byte_size
@@ -168,13 +194,14 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
                     missing=result.status == "MISSING" and not failure,
                     unavailable_input=unavailable_input,
                     person=person,
+                    content=content,
                     layout_flags=[LAYOUT_LABELS[flag] for flag in (inspection or {}).get("flags", [])],
                 )
                 cells.append(cell)
             rows.append({"position": position, "cells": cells})
     project = session.project
     payload = {
-        "schema": 1,
+        "schema": 3 if include_content else 1,
         "dependencies": dependencies,
         "project_name": project.name,
         "project": str(project.pk),
@@ -204,7 +231,11 @@ def build_report(project_id, *, participant_ids=None, position_ids=None):
             }
             for p in session.positions.values()
         ],
-        "cells": [asdict(cell["resolution"]) for row in rows for cell in row["cells"]],
+        "cells": [
+            {**asdict(cell["resolution"]), **({"content": cell["content"]} if cell["content"] else {})}
+            for row in rows
+            for cell in row["cells"]
+        ],
         "documents": {str(key): value for key, value in documents.items()},
         "pending": pending,
         "unavailable": sorted((str(arr), str(part)) for arr, part in unavailable),

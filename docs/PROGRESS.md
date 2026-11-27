@@ -1,5 +1,17 @@
 # Progress record
 
+## Opt-in project content preflight and authorization — 2026-11-26
+
+The shared preflight can explicitly capture schema-3 inspected content through
+the existing resolver. Signed authorization rechecks content revision, geometry,
+confirmation, publication and source dependencies under the SQLite writer lock
+and creates protected per-cell historical pins. Existing default schema-1 callers
+remain unchanged. Twenty-nine targeted preflight and snapshot tests passed;
+Django checks, Ruff and whitespace checks passed. A changed logical revision
+rejects reuse of an old authorization while the saved snapshot remains readable.
+Matrix/UI activation, end-to-end worker acceptance and complete WP-54/55 gates
+remain open. Native Windows writes stay disabled; no production data was used.
+
 ## Versioned project worker input path — 2026-11-26
 
 The existing generation loader and composer now recognize schema-3 project
