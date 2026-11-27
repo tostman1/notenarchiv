@@ -1,5 +1,10 @@
 # Implemented acceptance traceability
 
+- `test_compound_region_acceptance.py`: AR-20/21/25, CAT-05 instrument-specific
+  four-card coordinates and ordered vector rendering, explicit confirmation,
+  affected-only invalidation and retained historical inputs. Synthetic only;
+  full 125-piece physical acceptance and project activation remain open.
+
 - `test_compound_publication_command.py`: AR-26 administrative neutral COPY
   entry point, exact version/title forwarding and sanitized failures. No musical
   confirmation or native Windows writable acceptance is implied.
