@@ -11,7 +11,9 @@
 <section aria-label="{% translate 'PDF-Inhalt' %}">{% include "archive/_pdf_viewer.html" %}</section>
 <section aria-label="{% translate 'Zuordnung und Erkennung' %}">
 <h2>{% translate "Erkennungsevidenz – keine Freigabe" %}</h2>
-{% for candidate in candidates %}<article><p>{% if candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="ocr"><button>{% translate "Alle Seiten lokal mit OCR analysieren" %}</button></form>
+<p>{% translate "OCR verändert keine Zuordnung oder Freigabe. Fortschritt und Abbruch sind im Auftrag verfügbar." %}</p>
+{% for candidate in candidates %}<article><p>{% if candidate.method == 'OCR' %}{% translate "Lokale OCR und PDF-Inhalt – keine Freigabe" %} · {% translate "Quellseite (ab 0)" %}: {{ candidate.region.page }} · {% translate "Profil-/Regelkontext" %}: {{ candidate.rule_version }}{% elif candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
 <pre class="evidence">{{ candidate.excerpt }}</pre><p>{{ candidate.proposed_work|default:"—" }} · {{ candidate.proposed_arrangement|default:"—" }}</p>
 <ul>{% for entry in candidate.parts.all %}<li>{{ entry.part }}</li>{% endfor %}</ul>
 <p>{% translate "Erkennungsqualität (keine musikalische Gewissheit)" %}: {{ candidate.confidence|default_if_none:"—" }}</p>

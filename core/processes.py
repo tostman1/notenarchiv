@@ -52,7 +52,15 @@ def _stop_posix(process):
 
 
 def run_process(
-    arguments, *, timeout, checkpoint=lambda: None, memory_bytes=None, cpu_seconds=None, file_bytes=None, cwd=None
+    arguments,
+    *,
+    timeout,
+    checkpoint=lambda: None,
+    memory_bytes=None,
+    cpu_seconds=None,
+    file_bytes=None,
+    cwd=None,
+    env=None,
 ):
     """No shell, no inherited stdin, no logged/captured free-text output.
 
@@ -74,6 +82,13 @@ def run_process(
     arguments[0] = shutil.which(arguments[0]) or str(Path(arguments[0]).resolve(strict=True))
     if len(json.dumps(arguments).encode("utf-8")) > 32768:
         raise ValueError("Process arguments exceed their limit")
+    if env is not None and (
+        not isinstance(env, dict)
+        or len(env) > 64
+        or any(not isinstance(k, str) or not isinstance(v, str) or "\x00" in k + v for k, v in env.items())
+        or len(json.dumps(env).encode("utf-8")) > 32768
+    ):
+        raise ValueError("Process environment overrides must be bounded strings")
     checkpoint()
     job = None
     if os.name == "nt":
@@ -88,6 +103,7 @@ def run_process(
         process = subprocess.Popen(
             command,
             cwd=cwd,
+            env=None if env is None else {**os.environ, **env},
             stdin=subprocess.PIPE if launcher else subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

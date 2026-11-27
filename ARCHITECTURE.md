@@ -49,7 +49,7 @@ for storage and lifecycle boundaries.
 | PDF rendering | pypdfium2 | Bounded page rendering, OCR and previews. |
 | PDF authoring | ReportLab | Covers, contents, placeholders and basic layout pages; bundle appropriately licensed fonts. |
 | Images | OpenCV headless, NumPy, Pillow | Staff-line deskew and conservative image enhancement. |
-| OCR | Tesseract 5 and pytesseract | Local OS packages and `deu+eng`; more language packs if necessary. |
+| OCR | Tesseract 5 through the owned process runner | Local OS packages and `deu+eng`; no separate pytesseract subprocess lifecycle, so existing process-tree limits/cancellation remain authoritative. |
 | Recognition | Python `re`, `unicodedata`, RapidFuzz | Explicit rules, aliases, candidate scores, provenance. |
 | Files and identity | pathlib, hashlib, uuid, shutil and safe OS primitives | UUIDs for entities, SHA-256 for bytes. |
 | Printer | Adapter interface, CUPS client or IPP library | Choose after actual hardware spike. |
@@ -168,6 +168,16 @@ all workspace/reconciliation acceptance is already implemented.
 All roots are distinct, not ancestors of one another. Validate host canonical paths before composing mounts and container mount identity/options after launch; inside-container distinct paths alone cannot prove distinct host roots. Avoid auto-creation of missing bind sources (`create_host_path: false` when supported; otherwise explicit host validation). Service-specific access checks: web tests only its writable data directory, worker tests writable managed roots and confirms RAW read-only. Never perform a potentially destructive write to a real RAW archive to validate it; inspect mount flags and test negative permission behavior on a dedicated synthetic deployment. Reject unexpected links in managed paths. No direct web access to staging, arbitrary paths, or secrets.
 
 ### 4.2 Index and recognition state
+
+The 2026-11-27 amendment extends verified WP-54/55, not its architecture. Physical
+sources/pages, recognition, logical regions, musical identity, selection and print
+imposition remain independent. Segmentation is optional: intact booklets remain
+usable in original order despite work indexing. OCR uses verified working bytes,
+bounded page/region batches, mixed-layer fallback, persistent evidence/progress and
+the existing single-heavy-worker queue. Proposals never grant musical confirmation.
+Core classification/duration/faceted search extend catalog/library and inheritance/
+settings. Effective facets cannot combine unrelated editions; user control visibility
+never changes active values. No cloud OCR, external search or Windows write enablement.
 
 Index: walk chosen source folders, inventory files, detect new/changed/missing versions, extract content text and page metadata, create copy and candidate records, update status and queue suitable OCR. Manual-only first delivery uses actual PDF review for scans without text. OCR job can run independently and should use bounded heading regions first; expand to more pages/regions when needed. A filename match is never a reason to skip content inspection. Normalize aliases and part tokens (`II/III`, `2. Trombone`, `Bb`, `Es`, clefs) before comparing evidence; retain candidate provenance, confidence, rule version and region. OCR outputs are local business data, not log text.
 

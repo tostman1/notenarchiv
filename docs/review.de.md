@@ -23,8 +23,24 @@ erteilt keine Freigabe. Alte bereits bestätigte Ausgaben werden durch neue
 Kandidaten oder fehlende RAW-Dateien nicht gelöscht oder stillschweigend ersetzt.
 
 RAW bleibt unverändert; nur eigene CLEAN-Kopien erhalten kanonische Namen. Die
-Prüfgeschichte hält Konto, Zeit, Version und Zuordnungsereignisse fest. OCR,
-Export ist hier keine automatisch verfügbare Funktion.
+Prüfgeschichte hält Konto, Zeit, Version und Zuordnungsereignisse fest. Export
+ist hier keine automatisch verfügbare Funktion.
+
+## Lokale OCR ausdrücklich starten
+
+**Alle Seiten lokal mit OCR analysieren** startet einen Hintergrundauftrag für
+die unveränderte, verifizierte CLEAN-Quellkopie. Auf der Auftragsseite sind
+Fortschritt und Abbruch verfügbar. OCR berücksichtigt alle Quellseiten auch bei
+vorhandenem PDF-Text; Dateiname und erkannte Texte bleiben lediglich Vorschläge.
+Anschließend zeigt die Prüfseite lokale OCR-Evidenz mit Quellseite und Kontext.
+Eine erneute Analyse verwendet passende bereits gespeicherte Seitenevidenz.
+
+OCR verändert weder gespeicherte Zuordnungen noch eine vorhandene Freigabe und
+ersetzt niemals Ihre visuelle Prüfung. Falsche Vorschläge wie gewohnt manuell
+korrigieren. Die lokale OCR-Laufzeit ist zunächst im Server-Container enthalten;
+eine native Windows-Verteilung und der grafische Segmentierungseditor sind noch
+nicht geliefert. Ein ungeklärter Prozessabbruch erfordert Prüfung statt eines
+automatischen erneuten Versuchs.
 
 ## Navigation und Stapelfreigabe
 

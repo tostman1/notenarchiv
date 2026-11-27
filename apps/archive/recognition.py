@@ -382,7 +382,18 @@ def _excerpt(filename, text) -> str:
     return "\n".join(pieces)[:MAX_EXCERPT]
 
 
-def record_candidate(version_id, *, filename, text_lines=(), using="default"):
+def ocr_lines(words):
+    """Preserve printed line grouping rather than treating each word as a title."""
+    lines = []
+    for word in words:
+        if not lines or abs(lines[-1][0] - word["box"][1]) > max(3, (word["box"][3] - word["box"][1]) // 2):
+            lines.append([word["box"][1], word["text"]])
+        else:
+            lines[-1][1] += " " + word["text"]
+    return [line[1] for line in lines]
+
+
+def record_candidate(version_id, *, filename, text_lines=(), using="default", ocr_evidence=None):
     """Analyze one verified source version and record immutable evidence.
 
     ``text_lines`` are extracted PDF text lines (empty for a text-less scan).
@@ -391,14 +402,19 @@ def record_candidate(version_id, *, filename, text_lines=(), using="default"):
     """
     text_lines = tuple(str(line) for line in text_lines)[:MAX_TEXT_LINES]
     method = "TEXT_LAYER" if any(line.strip() for line in text_lines) else "FILENAME"
+    if ocr_evidence is not None:
+        method = "OCR"
     with transaction.atomic(using=using):
         if not m.SourceVersion.objects.using(using).filter(pk=version_id).exists():
             raise ValidationError("Source version does not exist.")
         version = m.SourceVersion.objects.using(using).get(pk=version_id)
         rules = build_rule_set(using)
+        if ocr_evidence is not None and ocr_evidence.evidence["rules"] != rules.version:
+            raise ValidationError("Recognition rules changed during OCR; reanalysis is required.")
+        rule_version = ocr_evidence.cache_key if ocr_evidence is not None else rules.version
         existing = (
             m.RecognitionCandidate.objects.using(using)
-            .filter(source_version=version, method=method, input_sha256=version.sha256, rule_version=rules.version)
+            .filter(source_version=version, method=method, input_sha256=version.sha256, rule_version=rule_version)
             .first()
         )
         if existing is not None:
@@ -408,18 +424,27 @@ def record_candidate(version_id, *, filename, text_lines=(), using="default"):
         text_evidence = _text_evidence(text_lines, rules, filename_evidence)
         state, reasons, confidence, work_id, instrument_id, parts = _verdict(filename_evidence, text_evidence, rules)
         arrangement_id = _arrangement_for(work_id, using) if work_id else None
+        region = {}
+        excerpt = _excerpt(filename_evidence, text_evidence)
+        if ocr_evidence is not None:
+            if ocr_evidence.source_version_id != version.pk:
+                raise ValidationError("OCR evidence source mismatch.")
+            evidence = ocr_evidence.evidence
+            region = {"page": evidence["page"], "box": [0, 0, 1, 1], "unit": "NORMALIZED"}
+            excerpt = (excerpt + "\nOCR: " + "\n".join(text_lines) + "\nPDF: " + evidence["text_layer"])[:MAX_EXCERPT]
+            reasons.append("sources:local_ocr")
         file = m.ArchiveFile.objects.using(using).filter(source_version=version, kind="BASE").first()
         candidate = m.RecognitionCandidate.objects.using(using).create(
             source_version=version,
             archive_file=file,
             input_sha256=version.sha256,
             method=method,
-            excerpt=_excerpt(filename_evidence, text_evidence),
-            region={},
+            excerpt=excerpt,
+            region=region,
             proposed_work_id=work_id,
             proposed_arrangement_id=arrangement_id,
             confidence=confidence,
-            rule_version=rules.version,
+            rule_version=rule_version,
             reasons=reasons,
         )
         candidate_parts = [

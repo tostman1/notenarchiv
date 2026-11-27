@@ -1,5 +1,21 @@
 # Decisions and validation register
 
+## Product priority and core-scope amendment — 2026-11-27
+
+**DEC-16 — Approved by the owner.** Continue from verified Main `b536d8d` and
+completed WP-54/55 software scope. Requirements/manual scenarios and bounded
+Actions runtime upgrades precede WP-24/25/26/27 with WP-56; preserve DEC-15.
+No preliminary NAS deployment blocks OCR. Segmentation is optional: intact booklets
+and individual content coexist. Parent/movement approvals remain independent.
+Promote CAT-08 classifications/optional duration and AR-15 faceted search with
+per-user visibility and predictable state to core WP-60a. Follow with universal
+printing, marchbooks/reprints, enhancement and usability acceptance. Custom fields,
+saved searches and external integration remain secondary/deferred; forScore, QR
+and licensing are not cancelled. Reviewed green increments continue autonomously.
+Production/real archive access, physical acceptance and Windows writes retain
+separate gates. German manual evidence is `docs/MANUAL_ACCEPTANCE_TESTS.md`;
+synthetic CI never establishes a manual pass.
+
 **Revision:** 3.0 — 2026-11-25
 
 This register distinguishes binding product decisions from recommended implementation defaults and facts that require actual verification. It is not a new round of general planning. WP-01 can begin after the owner accepts the baseline and authorizes implementation; later questions block only the relevant feature. Record new decisions with a date, rationale, scope and affected requirement IDs. Do not silently promote an assumption to a product rule.

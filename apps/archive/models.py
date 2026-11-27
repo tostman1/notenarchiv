@@ -891,6 +891,30 @@ class FileOperation(Record):
         ]
 
 
+class OcrPageEvidence(Record):
+    """Reusable immutable local evidence, separate from all musical approvals."""
+
+    source_version = models.ForeignKey(SourceVersion, on_delete=models.PROTECT, related_name="ocr_pages")
+    cache_key = models.CharField(max_length=64, validators=[HASH])
+    page = models.PositiveSmallIntegerField()
+    evidence = models.JSONField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["source_version", "cache_key"], name="archive_ocr_version_key")]
+
+    def clean(self):
+        bounded_json(self.evidence, maximum=2_097_152)
+        if not isinstance(self.evidence, dict) or self.evidence.get("cache_key") != self.cache_key:
+            raise ValidationError("Invalid OCR evidence identity.")
+        if (
+            self.evidence.get("sha256") != reference(self, "source_version").sha256
+            or self.evidence.get("page") != self.page
+        ):
+            raise ValidationError("OCR evidence must identify the exact source page.")
+        if not self._state.adding:
+            raise ValidationError("OCR evidence is immutable.")
+
+
 class RecognitionCandidate(Record):
     class Method(models.TextChoices):
         FILENAME = "FILENAME"
