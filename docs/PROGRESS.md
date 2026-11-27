@@ -1,5 +1,14 @@
 # Progress record
 
+## Unreadable content preflight acceptance — 2026-11-26
+
+A deterministic isolated-parser rejection now exercises the content branch of
+shared preflight: retained visual confirmation does not override an unreadable
+PDF, the cell is blocking, signed authorization creates no snapshot, and earlier
+confirmation history remains intact. The targeted test passed in 6.61 seconds.
+Exact CI and preceding integration gates remain required. WP-54/55 remain in
+progress; native Windows writes remain disabled.
+
 ## Mixed historical project input acceptance — 2026-11-26
 
 One shared schema-3 authorization now exercises an inspected two-occurrence

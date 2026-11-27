@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `test_content_preflight_blocking.py`: AR-21 / EX-13 — isolated-parser rejection
+  blocks content authorization without deleting visual confirmation history or
+  creating a generation snapshot. Synthetic deterministic fault injection.
+
 - `test_mixed_project_content_inputs.py`: AR-20 / AR-21 / EX-13 — shared signed
   authorization with disjoint whole-file/content cell pins, personal explicit
   edition precedence, ordered historical rendering after logical-page edits,
