@@ -179,7 +179,12 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             piece["state"] = "RESERVE" if position["arrangement"] == "None" else "CONTENTS"
     else:
         person_id = snapshot.participants.get(participant_id=person["id"]).participant_id
-        pieces = personal_pieces(snapshot, pins, person_id, processor.checkpoint)
+        if snapshot.payload.get("schema") == 3:
+            from apps.exports.project_content_generation import personal_content_pieces
+
+            pieces = personal_content_pieces(snapshot, person_id, processor, legacy_pins=pins)
+        else:
+            pieces = personal_pieces(snapshot, pins, person_id, processor.checkpoint)
     logical = [{k: p[k] for k in ("number", "title", "state")} for p in pieces]
     options = snapshot.payload["options"]
     size = (

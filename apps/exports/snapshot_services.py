@@ -180,6 +180,8 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
     ):
         raise ValidationError("Snapshot position inventory mismatch")
     cells = {(c["position_id"], c["participant_id"]): c for c in snapshot.payload["cells"]}
+    if snapshot.payload.get("schema") != 3 and any(cell.get("content") for cell in cells.values()):
+        raise ValidationError("Content cells require the versioned project snapshot schema")
     if len(cells) != len(snapshot.payload["cells"]) or set(cells) != {
         (p, person) for p in positions for person in people
     }:
@@ -194,7 +196,7 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
     expected = {
         (cell["position_id"], cell["participant_id"]): cell
         for cell in snapshot.payload["cells"]
-        if cell["status"] in {"AVAILABLE", "SUBSTITUTED"}
+        if cell["status"] in {"AVAILABLE", "SUBSTITUTED"} and not cell.get("content")
     }
     if len(expected) != len(pins):
         raise ValidationError("Snapshot pin inventory mismatch")
@@ -242,4 +244,13 @@ def load_pinned_inputs(snapshot_id, *, checkpoint=lambda: None):
                 raise ValidationError("Pinned source verification failed")
             verified.add(file.pk)
             checkpoint()
+    if snapshot.payload.get("schema") == 3:
+        from apps.exports.project_content_inputs import load_project_content_pins
+
+        content = load_project_content_pins(snapshot, checkpoint=checkpoint)
+        if set(expected) | set(content) != {
+            key for key, cell in cells.items() if cell["status"] in {"AVAILABLE", "SUBSTITUTED"}
+        } or set(expected) & set(content):
+            raise ValidationError("Mixed project pin inventory mismatch")
+        return snapshot, pins
     return snapshot, pins

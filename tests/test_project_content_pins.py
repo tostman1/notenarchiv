@@ -9,9 +9,10 @@ from apps.archive import models as archive
 from apps.archive.content_geometry_services import append_logical_page
 from apps.archive.content_services import confirm_content, inspect_content, propose_content
 from apps.exports.content_inputs import capture_content
-from apps.exports.models import GenerationSnapshot, SnapshotProjectContentInput
+from apps.exports.models import GenerationSnapshot, SnapshotParticipant, SnapshotPosition, SnapshotProjectContentInput
 from apps.exports.project_content_generation import personal_content_pieces
 from apps.exports.project_content_inputs import load_project_content_pins
+from apps.exports.snapshot_services import load_pinned_inputs
 from apps.projects.preflight_services import fingerprint
 from core.pdf import Processor
 from tests.test_editions import edition_inputs as legacy_inputs
@@ -49,7 +50,14 @@ def test_historical_project_content_cell_is_protected(resolver_inputs, tmp_path)
             {"id": str(positions[1].pk), "arrangement": str(arrangement.pk), "order": 2, "title": "Missing"},
             {"id": str(positions[2].pk), "arrangement": "None", "order": 3, "title": "Reserve"},
         ],
-        "participants": [{"id": str(people[1].pk)}],
+        "participants": [
+            {
+                "id": str(people[1].pk),
+                "name": people[1].display_name,
+                "part": str(people[1].default_part_id),
+                "role": None,
+            }
+        ],
         "cells": [
             {
                 "position_id": str(positions[0].pk),
@@ -81,6 +89,21 @@ def test_historical_project_content_cell_is_protected(resolver_inputs, tmp_path)
         confirmation_id=content["confirmation_id"],
         payload=content,
     )
+    SnapshotParticipant.objects.create(
+        snapshot=snapshot,
+        participant=people[1],
+        default_part=people[1].default_part,
+        display_name=people[1].display_name,
+    )
+    for position, entry in zip(positions, payload["positions"], strict=True):
+        SnapshotPosition.objects.create(
+            snapshot=snapshot,
+            position=position,
+            arrangement=position.arrangement,
+            number=entry["order"],
+            title=entry["title"],
+        )
+    assert load_pinned_inputs(snapshot.pk) == (snapshot, [])
     original = load_project_content_pins(snapshot)
     append_logical_page(logical.pk, expected_number=1, source_page_id=page.pk, orientation=90)
     assert load_project_content_pins(snapshot) == original
