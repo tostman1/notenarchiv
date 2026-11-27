@@ -1,5 +1,17 @@
 # Progress record
 
+## Protected project content-cell pins — 2026-11-26
+
+An additive schema-3 relational cell pin now records exact project position,
+participant, playable part and inspected content confirmation. Its bounded
+historical reader validates the immutable payload without selecting current
+preferences or newer logical revisions. SQLite guards protect referenced file
+identity and pin updates. The new historical-revision, tampering and file-guard
+test passed; 18 existing content-input/snapshot regression tests also passed.
+Django checks and migration drift passed. Authorization, the shared project
+resolver and generation do not yet activate this schema; WP-54/55 remain in
+progress. Native Windows writes stay disabled.
+
 ## Project ordered-input compatibility boundary — 2026-11-26
 
 The shared project ResolutionSession now exposes its exact selected legacy edition

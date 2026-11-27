@@ -143,6 +143,61 @@ class SnapshotContentInput(ImmutableRecord):
         load_content(self.payload, using=self._state.db or "default", verify=False)
 
 
+class SnapshotProjectContentInput(ImmutableRecord):
+    """Additive schema-3 cell pin; legacy SnapshotInput remains unchanged."""
+
+    snapshot = models.ForeignKey(GenerationSnapshot, on_delete=models.PROTECT, related_name="project_content_inputs")
+    position = models.ForeignKey("projects.ProjectPosition", on_delete=models.PROTECT)
+    participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
+    part = models.ForeignKey("catalog.Part", on_delete=models.PROTECT)
+    confirmation = models.ForeignKey("archive.ContentConfirmation", on_delete=models.PROTECT)
+    payload = models.JSONField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["snapshot", "position", "participant"], name="exports_unique_project_content_cell"
+            )
+        ]
+
+    def clean(self):
+        from apps.exports.content_inputs import load_content
+
+        payload = self.snapshot.payload
+        cells = [
+            cell
+            for cell in payload.get("cells", [])
+            if cell.get("position_id") == str(self.position_id)
+            and cell.get("participant_id") == str(self.participant_id)
+        ]
+        people = {person["id"] for person in payload.get("participants", [])}
+        positions = {position["id"]: position for position in payload.get("positions", [])}
+        if (
+            payload.get("schema") != 3
+            or self.snapshot.kind not in {"FULL", "EXCERPT"}
+            or self.position.project_id != self.snapshot.project_id
+            or self.participant.project_id != self.snapshot.project_id
+            or str(self.participant_id) not in people
+            or str(self.position_id) not in positions
+            or len(cells) != 1
+        ):
+            raise ValidationError("Content cell pin must match its versioned project snapshot.")
+        cell = cells[0]
+        if (
+            cell.get("status") not in {"AVAILABLE", "SUBSTITUTED"}
+            or cell.get("content") != self.payload
+            or cell.get("effective_part_id") != str(self.part_id)
+            or self.payload.get("confirmation_id") != str(self.confirmation_id)
+        ):
+            raise ValidationError("Content cell pin differs from its authorized input.")
+        edition = load_content(self.payload, using=self._state.db or "default", verify=False)
+        if (
+            edition.part_id != self.part_id
+            or str(edition.arrangement_id) != positions[str(self.position_id)]["arrangement"]
+        ):
+            raise ValidationError("Content cell pin has a foreign arrangement or part.")
+
+
 class SnapshotParticipant(ImmutableRecord):
     snapshot = models.ForeignKey(GenerationSnapshot, on_delete=models.PROTECT, related_name="participants")
     participant = models.ForeignKey("projects.ProjectParticipant", on_delete=models.PROTECT)
