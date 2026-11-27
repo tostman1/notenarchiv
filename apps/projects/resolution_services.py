@@ -378,6 +378,42 @@ class ResolutionSession:
             return "CHANGED"
         return "VERIFIED" if self._verified[file.pk] else "CORRUPT"
 
+    def ordered_inputs(self, position_id, participant_id):
+        """Expose the uniform legacy contract without changing selection or snapshots.
+
+        No proposal is approved here. New content project activation must add
+        versioned relational pins before expanding the currently legacy-only
+        resolution path. An unavailable explicit/preferred choice never falls back.
+        """
+        from apps.archive.content_contract import legacy_content_edition
+
+        result = self.verified_resolution(position_id, participant_id)
+        if not result.usable:
+            return result, None
+        edition = legacy_content_edition(result.assignment_id)
+        if (
+            edition.arrangement_id != self.positions[position_id].arrangement_id
+            or edition.part_id != result.effective_part_id
+            or any(
+                entry.file_id != result.file_id
+                or entry.file_revision != result.file_revision
+                or entry.source_version_id != result.source_version_id
+                or entry.sha256 != result.sha256
+                or entry.byte_size != result.byte_size
+                or entry.root_kind != result.root_kind
+                or entry.relative_path != result.relative_path
+                for entry in edition.inputs
+            )
+        ):
+            raise ValidationError("Resolved project inputs changed while adapting the ordered contract.")
+        # Reject a concurrent approval/eligibility change after the byte check.
+        current = ResolutionSession(
+            self.project.pk, position_ids=[position_id], participant_ids=[participant_id]
+        ).resolve(position_id, participant_id)
+        if current != result:
+            raise ValidationError("Project selection changed while adapting the ordered contract.")
+        return result, edition
+
 
 def resolve_cell(project_id, position_id, participant_id):
     session = ResolutionSession(project_id, position_ids=[position_id], participant_ids=[participant_id])

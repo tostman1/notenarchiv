@@ -1,5 +1,17 @@
 # Progress record
 
+## Project ordered-input compatibility boundary — 2026-11-26
+
+The shared project ResolutionSession now exposes its exact selected legacy edition
+through the uniform ordered-input contract. It preserves missing/ambiguous/reserve
+outcomes, selected identities, bytes/path/revision pins and read-only project state;
+it rejects concurrent resolver changes instead of substituting. Twenty-five
+project adapter/resolver checks passed. This additive bridge does not yet activate
+content editions in project snapshots or generation; that versioned integration
+remains open, so WP-54/55 are still in progress. Main through #69 passed exact
+CI run 45885633566; #70 merged with its post-merge CI pending. Native Windows
+writes remain disabled.
+
 ## Instrument-specific card-region acceptance — 2026-11-26
 
 A synthetic acceptance case now renders four explicitly reviewed card regions
