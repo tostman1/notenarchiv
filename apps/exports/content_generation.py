@@ -1,10 +1,13 @@
 """Historical confirmed-input composition; never consult current preferences."""
 
+from dataclasses import replace
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from apps.exports.content_export_services import MAX_CONTENT_EDITIONS
 from apps.exports.content_inputs import load_content
+from apps.exports.content_policy import plan
 from core import preview
 
 
@@ -30,7 +33,31 @@ def load_pins(snapshot, checkpoint):
 
 def pieces(snapshot, pins, processor):
     editions = [load_content(pin.payload) for pin in pins]
-    return render_editions(editions, snapshot.payload["content_titles"], processor)
+    policy = snapshot.payload.get("shared_page_policy", "REGIONS")
+    entries = [{"content": pin.payload} for pin in pins]
+    consequences = plan(entries, policy)
+    recorded = snapshot.payload.get("shared_page_plan")
+    if recorded != consequences and not (policy == "REGIONS" and recorded is None):
+        raise ValidationError("Shared-page consequence mismatch")
+    if policy == "REGIONS":
+        return render_editions(editions, snapshot.payload["content_titles"], processor)
+    from apps.archive.library_services import verify_file
+    from apps.archive.models import ArchiveFile, SourcePage
+
+    transformed, titles = [], []
+    for edition, title, decisions in zip(editions, snapshot.payload["content_titles"], consequences, strict=True):
+        inputs = []
+        for item, decision in zip(edition.inputs, decisions, strict=True):
+            if not verify_file(ArchiveFile.objects.get(pk=item.file_id)):
+                raise ValidationError("Whole-page source is not fully confirmed")
+            if decision["emit"]:
+                page = SourcePage.objects.get(pk=item.source_page_id)
+                bounds = tuple(float(value) * page.user_unit for value in page.effective_crop_box)
+                inputs.append(replace(item, bounds_points=bounds, orientation=0))
+        if inputs:
+            transformed.append(replace(edition, inputs=tuple(inputs)))
+            titles.append(title)
+    return render_editions(transformed, titles, processor)
 
 
 def render_editions(editions, titles, processor):

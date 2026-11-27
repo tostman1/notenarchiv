@@ -240,6 +240,9 @@ def _compose(context, snapshot, pins, person, processor, publication, root):
             "print_plan": print_plan,
         }
         manifest = json.loads(json.dumps(manifest))
+        if snapshot.kind == "ARCHIVE_NOTES" and "shared_page_policy" in snapshot.payload:
+            manifest["shared_page_policy"] = snapshot.payload["shared_page_policy"]
+            manifest["shared_page_plan"] = snapshot.payload["shared_page_plan"]
         recorded = context.commit_metadata(
             lambda: ExportStage.objects.create(
                 publication=publication,

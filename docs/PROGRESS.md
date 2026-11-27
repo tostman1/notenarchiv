@@ -1,5 +1,29 @@
 # Progress record
 
+## Explicit shared-page selection — 2026-11-27
+
+- The entire #75–90 stack and exact Main `afafd3983fe72fa365832a228a69351576d3bb1d`
+  passed Foundation, Container and Windows (Main run 46024076263).
+- #91's exact head `fc9d1061939f8296ac1b313f78d07447d43034b2` passed all required
+  checks, including the synthetic POSIX 125-edition worker acceptance. Review and
+  integration remain pending; no physical booklet or NAS acceptance is claimed.
+- Confirmed-content export now exposes explicit region extraction, complete-page
+  preservation once, or complete-page repetition. Signed authorization and immutable
+  payloads retain the chosen policy and deterministic per-occurrence consequences.
+  The preview reports emitted pages; all original musical occurrences remain pinned.
+  Whole-page modes additionally require independently confirmed whole-file approval:
+  a partial region inspection never approves unknown surrounding music.
+- Eighteen targeted policy/export/view/pin/traceability tests passed; Ruff, Django,
+  migration drift and whitespace checks passed. Intermittent fixture integrity failures
+  did not recur on the unchanged final targeted run;
+  this is not a full CI gate. New exact-head CI and final package acceptance remain open.
+  A bounded exception-tracing diagnostic completed with 13 passing tests and no
+  verification exception, so the intermittent local fixture cause is not established.
+  Follow-up checks passed 11 policy/view/traceability tests. Historical whole-page
+  snapshots require a recorded consequence plan, and manifests carry policy/plan.
+  WP-54/55 are still in progress. Native Windows writes remain disabled; no subsequent
+  OCR/segmentation package, real-data migration or production deployment was started.
+
 ## Full-booklet export completion — 2026-11-27
 
 - Existing stacked PRs #75–90 are integrated without rewriting their verified
