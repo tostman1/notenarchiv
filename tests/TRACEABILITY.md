@@ -1,5 +1,12 @@
 # Implemented acceptance traceability
 
+- `test_full_booklet_publication.py`: AR-25 / EX-11/12/13 — complete 125-edition
+  signed selection, protected confirmation/occurrence pins, actual POSIX durable
+  worker publication, historical replay after revision and unchanged unconfirmed
+  byte-identical BASE. Explicit repeated shared pages are intentional here;
+  instrument-specific region/layout identity is covered separately by
+  `test_full_instrumental_booklet.py`. POSIX CI result pending, not NAS acceptance.
+
 - `test_interrupted_content_backfill.py`: AR-20 / OP-08 — committed additive
   document mapping batches survive interruption, resume idempotently, and retain
   deterministic receipts and source identities. Synthetic SQLite evidence.

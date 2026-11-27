@@ -19,12 +19,13 @@ from apps.projects.preflight_services import fingerprint
 from apps.projects.services import reviewer
 
 SALT = "exports.content-generation.v1"
+MAX_CONTENT_EDITIONS = 125
 
 
 def report(identifiers):
-    identifiers = list(islice(identifiers, 101))
-    if not 1 <= len(identifiers) <= 100:
-        raise ValidationError(_("Eine bis 100 bestätigte Inhaltsausgaben auswählen."))
+    identifiers = list(islice(identifiers, MAX_CONTENT_EDITIONS + 1))
+    if not 1 <= len(identifiers) <= MAX_CONTENT_EDITIONS:
+        raise ValidationError(_("Eine bis 125 bestätigte Inhaltsausgaben auswählen."))
     try:
         identifiers = [UUID(str(value)) for value in identifiers]
     except (ValueError, TypeError):

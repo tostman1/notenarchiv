@@ -99,4 +99,4 @@ def test_content_selection_consumes_only_bounded_identifiers():
 
     with pytest.raises(ValidationError):
         services.report(identifiers())
-    assert len(consumed) == 101
+    assert len(consumed) == 126
