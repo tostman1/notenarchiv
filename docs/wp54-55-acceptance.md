@@ -14,9 +14,11 @@ Foundation, Container and Windows checks; the final checkpoint was
 #92 adds explicit shared-page policy; its Main checkpoint
 `4ec462c878761398b379347b10e2ccc37934c5fb` passed run 46050512807.
 #93 adds the read-only integrity report and has merged at
-`8af05815fbb18f830d7b9acad1ca5a2578a6d140`; its exact Main gate is running.
-The final gate and this documentation's integration must pass before package
-completion is recorded.
+`8af05815fbb18f830d7b9acad1ca5a2578a6d140`; exact Main run 46053275101 passed
+Foundation, Container and Windows. WP-54 and WP-55 implementation and applicable
+synthetic acceptance are verified. Final delivery requires this documentation's
+reviewed integration and exact post-merge CI; no further product implementation
+is outstanding within these two packages.
 
 ## WP-54 evidence
 

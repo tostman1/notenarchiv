@@ -5,12 +5,15 @@
 - The existing #75–90 backlog is integrated with exact post-merge Main verification.
   #91 completed bounded 125-edition worker publication; Main run 46034210052 passed.
   #92 completed explicit signed shared-page policy; Main run 46050512807 passed.
-- #93's independently reviewed read-only integrity report has merged at
-  `8af05815fbb18f830d7b9acad1ca5a2578a6d140`; exact post-merge CI is running.
+- #93's independently reviewed read-only integrity report merged at
+  `8af05815fbb18f830d7b9acad1ca5a2578a6d140`; exact Main run 46053275101 passed
+  Foundation, Container and Windows. WP-54 and WP-55 implementation and applicable
+  synthetic acceptance are verified at this checkpoint.
 - `docs/wp54-55-acceptance.md` consolidates implementation, synthetic migration,
   historical replay, browser and POSIX worker evidence. Earlier open statements below
   are historical checkpoints, not the current implementation inventory.
-- Final completion awaits #93's exact Main result and this documentation's integration.
+- The remaining delivery gate is this documentation's reviewed integration and exact
+  post-merge CI. No further product implementation is required for WP-54/55.
   Physical NAS acceptance, real-data migration and native Windows writes remain separate.
   No OCR, compound scan segmentation or subsequent major package is started.
 
