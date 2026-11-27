@@ -28,8 +28,15 @@ def load_pins(snapshot, checkpoint):
 
 
 def pieces(snapshot, pins, processor):
-    sources, indices, total = [], {}, 0
     editions = [load_content(pin.payload) for pin in pins]
+    return render_editions(editions, snapshot.payload["content_titles"], processor)
+
+
+def render_editions(editions, titles, processor):
+    """Render exact historical ordered editions; titles and occurrence order are pinned."""
+    if len(editions) != len(titles) or len(editions) > 1000:
+        raise ValidationError("Confirmed content composition inventory mismatch")
+    sources, indices, total = [], {}, 0
     for edition in editions:
         for item in edition.inputs:
             if item.file_id in indices:
@@ -47,7 +54,7 @@ def pieces(snapshot, pins, processor):
             indices[item.file_id] = len(sources)
             sources.append(data)
     result, output_bytes = [], 0
-    for ordinal, (edition, title) in enumerate(zip(editions, snapshot.payload["content_titles"], strict=True)):
+    for ordinal, (edition, title) in enumerate(zip(editions, titles, strict=True)):
         selections = [
             {
                 "input": indices[item.file_id],
