@@ -6,7 +6,8 @@
 {% if error %}<p role="alert">{{ error }}</p>{% endif %}
 <form method="post">{% csrf_token %}{{ form.as_p }}<button name="action" value="inspect">{% translate "Inhaltsauswahl prüfen" %}</button></form>
 {% if selected %}
+<p>{% translate "Gespeicherte Quellseitenstrategie" %}: {{ policy }} · {% translate "Auszugebende Seiten" %}: {{ emitted_pages }}. {% translate "Ganze Seiten erfordern eine bestätigte vollständige Datei; unbestätigte Bereiche werden nicht durch eine Regionsfreigabe freigegeben." %}</p>
 <ol>{% for entry in selected %}<li>{{ entry.title }} · {{ entry.content.part_id }} · {{ entry.content.inputs|length }} {% translate "logische Seiten" %}<ul>{% for page in entry.content.inputs %}<li><a href="{% url 'archive_preview:viewer' page.file_id %}">{% translate "Originalkontext" %}</a> · {% translate "Quellseite (Index ab 0)" %} {{ page.page_index }} · {{ page.bounds_points }} · {{ page.orientation }}°</li>{% endfor %}</ul></li>{% endfor %}</ol>
-<form method="post">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><input type="hidden" name="variant" value="{{ variant }}">{% for entry in selected %}<input type="hidden" name="editions" value="{{ entry.content.edition_id }}">{% endfor %}<button name="action" value="authorize">{% translate "Gewählte Inhalts-PDF verbindlich erstellen" %}</button></form>
+<form method="post">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><input type="hidden" name="variant" value="{{ variant }}"><input type="hidden" name="policy" value="{{ policy }}">{% for entry in selected %}<input type="hidden" name="editions" value="{{ entry.content.edition_id }}">{% endfor %}<button name="action" value="authorize">{% translate "Gewählte Inhalts-PDF verbindlich erstellen" %}</button></form>
 {% endif %}
 {% endblock %}

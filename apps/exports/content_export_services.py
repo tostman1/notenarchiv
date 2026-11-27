@@ -13,6 +13,7 @@ from apps.archive.content_contract import confirmed_content_edition
 from apps.archive.models import ContentEdition
 from apps.catalog.models import Arrangement
 from apps.exports.content_inputs import capture_content, load_content
+from apps.exports.content_policy import plan
 from apps.exports.models import GenerationRun, GenerationSnapshot, SnapshotContentInput
 from apps.jobs.services import queue
 from apps.projects.preflight_services import fingerprint
@@ -44,18 +45,26 @@ def report(identifiers):
     return entries
 
 
-def token(entries, actor, variant="READING"):
+def token(entries, actor, variant="READING", policy="REGIONS"):
     actor = reviewer(actor)
     if variant not in {"READING", "PRINT"}:
         raise ValidationError(_("Ungültige Ausgabeart."))
+    consequences = plan(entries, policy)
     return signing.dumps(
-        {"digest": fingerprint(entries), "actor": str(actor.pk), "request": str(uuid4()), "variant": variant},
+        {
+            "digest": fingerprint(entries),
+            "actor": str(actor.pk),
+            "request": str(uuid4()),
+            "variant": variant,
+            "policy": policy,
+            "plan": consequences,
+        },
         salt=SALT,
         compress=True,
     )
 
 
-def authorize(identifiers, authorization, actor, variant="READING"):
+def authorize(identifiers, authorization, actor, variant="READING", policy="REGIONS"):
     actor = reviewer(actor)
     try:
         value = signing.loads(authorization, salt=SALT, max_age=1800)
@@ -63,11 +72,21 @@ def authorize(identifiers, authorization, actor, variant="READING"):
     except (signing.BadSignature, KeyError, ValueError, TypeError):
         raise ValidationError(_("Inhaltsfreigabe abgelaufen oder ungültig.")) from None
     entries = report(identifiers)
+    consequences = plan(entries, policy)
+    if policy != "REGIONS":
+        from apps.archive.library_services import verify_file
+        from apps.archive.models import ArchiveFile
+
+        for file_id in {item["file_id"] for entry in entries for item in entry["content"]["inputs"]}:
+            if not verify_file(ArchiveFile.objects.get(pk=file_id)):
+                raise ValidationError(_("Ganze Quellseiten benötigen eine bestätigte vollständige Datei."))
     if (
         value.get("digest") != fingerprint(entries)
         or value.get("actor") != str(actor.pk)
         or variant not in {"READING", "PRINT"}
         or value.get("variant") != variant
+        or value.get("policy") != policy
+        or value.get("plan") != consequences
     ):
         raise ValidationError(_("Inhaltsauswahl geändert; erneut prüfen."))
     payload = {
@@ -82,6 +101,8 @@ def authorize(identifiers, authorization, actor, variant="READING"):
         "dependencies": {},
         "content_editions": [entry["content"] for entry in entries],
         "content_titles": [entry["title"] for entry in entries],
+        "shared_page_policy": policy,
+        "shared_page_plan": consequences,
         "output_variant": variant,
         "options": {"layout": "REGULAR", "cover_enabled": False, "cover_title": "", "width_mm": 210, "height_mm": 297},
     }
@@ -98,6 +119,15 @@ def authorize(identifiers, authorization, actor, variant="READING"):
             )
             if current != load_content(entry["content"], verify=False) or title != entry["title"]:
                 raise ValidationError(_("Inhalte während der Freigabe geändert."))
+            if policy != "REGIONS":
+                from apps.archive.models import ArchiveFile
+
+                if (
+                    ArchiveFile.objects.filter(pk__in=[item["file_id"] for item in entry["content"]["inputs"]])
+                    .exclude(review_state="CONFIRMED")
+                    .exists()
+                ):
+                    raise ValidationError(_("Vollständige Dateifreigabe geändert."))
         existing = GenerationSnapshot.objects.filter(request_id=request_id).first()
         if existing:
             if existing.actor_id != actor.pk or existing.sha256 != fingerprint(payload):

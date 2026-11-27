@@ -11,12 +11,23 @@ from django.views.decorators.http import require_http_methods
 from apps.archive.content_services import ArchiveConflict
 from apps.archive.models import ContentEdition
 from apps.exports import content_export_services
+from apps.exports.content_policy import plan
 
 
 class ContentSelection(forms.Form):
     editions = forms.MultipleChoiceField(label=_("Inhaltsausgaben"), widget=forms.CheckboxSelectMultiple)
     variant = forms.ChoiceField(
         label=_("PDF-Ausgabeart"), choices=[("READING", _("Lese-PDF")), ("PRINT", _("Druck-PDF"))]
+    )
+    policy = forms.ChoiceField(
+        label=_("Gemeinsame Quellseiten"),
+        required=False,
+        initial="REGIONS",
+        choices=[
+            ("REGIONS", _("Bestätigte Regionen extrahieren")),
+            ("PAGES_ONCE", _("Vollständige Quellseite einmal erhalten")),
+            ("PAGES_REPEAT", _("Vollständige Quellseite je Vorkommen wiederholen")),
+        ],
     )
 
     def __init__(self, *args, **kwargs):
@@ -39,14 +50,17 @@ def generate(request):
         try:
             selected = content_export_services.report(form.cleaned_data["editions"])
             variant = form.cleaned_data["variant"]
+            policy = form.cleaned_data["policy"] or "REGIONS"
             context.update(
                 selected=selected,
                 variant=variant,
-                token=content_export_services.token(selected, request.user, variant),
+                policy=policy,
+                emitted_pages=sum(item["emit"] for pages in plan(selected, policy) for item in pages),
+                token=content_export_services.token(selected, request.user, variant, policy),
             )
             if request.POST.get("action") == "authorize":
                 run = content_export_services.authorize(
-                    form.cleaned_data["editions"], request.POST.get("token", ""), request.user, variant
+                    form.cleaned_data["editions"], request.POST.get("token", ""), request.user, variant, policy
                 )
                 return redirect("generation_detail", run.pk)
         except (ValidationError, ArchiveConflict, ObjectDoesNotExist, ValueError, OSError):

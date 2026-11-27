@@ -1,5 +1,9 @@
 # Implemented acceptance traceability
 
+- `tests/test_content_shared_page_policy.py`: EX-11/12/13 explicit extracted-region,
+  page-once and page-repeat consequences, signed policy mismatch rejection, retained
+  occurrence receipts and denial of whole-page expansion from partial confirmation.
+
 - `test_full_booklet_publication.py`: AR-25 / EX-11/12/13 — complete 125-edition
   signed selection, protected confirmation/occurrence pins, actual POSIX durable
   worker publication, historical replay after revision and unchanged unconfirmed
