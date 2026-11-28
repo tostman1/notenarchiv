@@ -75,7 +75,7 @@ def test_cache_includes_geometry_revision_profile_runtime_and_rules(engine):
 def test_partial_text_never_skips_ocr_and_uncertain_cleanup_retains_stage(engine, monkeypatch):
     calls = []
     monkeypatch.setattr(engine.processor, "logical_pages", lambda *a: b"logical")
-    monkeypatch.setattr(engine.processor, "extract_text", lambda *a: ("Misleading title",))
+    monkeypatch.setattr(engine.processor, "extract_visible_text", lambda *a: ("Misleading title",))
     monkeypatch.setattr(engine.processor, "render", lambda *a, **k: b"synthetic PNG")
 
     def run(arguments, **kwargs):

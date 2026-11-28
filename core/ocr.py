@@ -177,7 +177,7 @@ class Engine:
             rules=rules,
         )
         logical = self.processor.logical_pages([data], [selection])
-        text = self.processor.extract_text(logical)[0][:16384]
+        text = self.processor.extract_visible_text(logical)[0][:16384]
         image = self.processor.render(logical, 0, dpi=self.profile.dpi)
         with self.processor._workspace() as stage:
             self.processor._write(stage / "input.png", image)

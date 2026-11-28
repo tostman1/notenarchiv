@@ -62,6 +62,10 @@ class Processor:
     def extract_text(self, data: bytes) -> tuple[str, ...]:
         return self.inspect(data, include_text=True).text
 
+    def extract_visible_text(self, data: bytes) -> tuple[str, ...]:
+        """Only text geometrically inside each page canvas, for clipped OCR inputs."""
+        return tuple(json.loads(self._invoke("visible_text", [data])))
+
     def compose(
         self,
         pieces,
