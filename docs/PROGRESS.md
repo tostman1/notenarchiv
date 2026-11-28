@@ -44,7 +44,7 @@
    Selection/review, real-PDF and traceability checks: 55 passed. Browser checks
    cover drag/keyboard/reset/zoom; they are prepared but not locally executed
    because Node/browser tooling is unavailable. Independent cumulative review
-   remains in progress; no new full CI or manual acceptance is claimed.
+   was completed below; no new full CI or manual acceptance is claimed.
   Checkpoints through `55780cf` are pushed on the feature branch without an open
   PR (CI-free remote recovery checkpoint under the verified current triggers).
    Uncommitted selected-page/evidence changes are not included in that checkpoint.
@@ -62,8 +62,14 @@
   checks: 121 passed, two platform-specific local skips; Ruff and formatting pass.
   Independent cumulative review and focused follow-ups have no unresolved finding.
   Browser fixture additionally decodes the protected source image and navigates
-  from its evidence before submission. Full local regression is running; no
-  final-head CI has been started and the batch is not yet integration-verified.
+   from its evidence before submission. Combined local regression completed with
+   1413 passed, 161 skipped and two failures in existing source-reader fixtures:
+   this Windows account cannot create symlinks (`WinError 1314`). This is an
+   environment-limited failing run, not a green suite. It began before the final
+   rotation fixes; the focused checks above cover those changes. Requirements,
+   Django checks and migration consistency pass. The combined candidate proceeds
+   to mandatory exact-head Foundation/Container/Windows CI; integration and
+   representative manual/physical acceptance remain unverified.
 
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
