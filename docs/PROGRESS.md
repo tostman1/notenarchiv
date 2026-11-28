@@ -2,10 +2,12 @@
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
-- PR #96 is frozen at `b99732d145857b5978b919e5508bad23f8b21df9` during
-  its exact-head Foundation/Container/Windows wait; no result is claimed yet.
-  Safe follow-up work continues on `feat/compound-recognition-batch` based on that
-  candidate; its integration remains dependent on the preceding verified merge.
+- PR #96 merged at `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4` after corrected
+  exact head `432e0f9142fc88d5c076d3d564d30fbb3cd5e23e` passed Foundation,
+  Container and Windows, including actual browser drag/evidence/selected-job checks.
+  Exact post-merge Main run 46131431978 is pending, not claimed successful.
+  Follow-up work continues on `feat/compound-recognition-batch`, incorporating
+  that merge without rewriting its checkpoint history.
 - Added conservative, bounded exact catalog-heading observations from native OCR
   line identities. Side-by-side and repeated headings retain separate image-pixel
   locations; equal titles remain ambiguous. No musical boundaries, continuation
@@ -14,6 +16,10 @@
   context still matches immutable evidence. Legacy evidence remains readable.
 - Focused compound/selection tests: 42 passed. No full CI, native OCR accuracy,
   browser execution or manual acceptance is claimed for this follow-up checkpoint.
+- Printed heading numbers are retained as evidence only when stripping the prefix
+  exposes a known exact title/alias. Exact complete numeric titles win; equal song
+  numbers never merge works or disambiguate duplicate titles. No index association
+  or segmentation is automatically created.
 
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 

@@ -1,6 +1,7 @@
 """Conservative compound-heading observations; never segmentation or approval."""
 
 import math
+import re
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from core.recognition import normalize
 
 MAX_WORDS = 2048
 MAX_HEADINGS = 128
+NUMBERED_HEADING = re.compile(r"^(?:(?:Nr\.|No\.)\s*)?([0-9]{1,4})[.)]?\s+(.+)$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -18,6 +20,7 @@ class Heading:
     ambiguous: bool
     page: int
     box: tuple
+    printed_number: str | None = None
 
 
 def headings(evidence, rules):
@@ -67,14 +70,24 @@ def headings(evidence, rules):
     for _, texts, boxes in lines:
         text = " ".join(texts)
         key = normalize(text)
+        printed_number = None
+        # Exact complete titles always win: e.g. "1812 Overture" must not lose
+        # its actual title number. Only strip a prefix when the remainder is an
+        # independently known exact catalog title or alias.
+        if key not in rules.works and key not in rules.work_aliases:
+            numbered = NUMBERED_HEADING.fullmatch(text)
+            if numbered:
+                remainder_key = normalize(numbered[2])
+                if remainder_key in rules.works or remainder_key in rules.work_aliases:
+                    printed_number, key = numbered[1], remainder_key
         if key not in rules.works and key not in rules.work_aliases:
             continue
-        work_id, exact = match_work(text, rules)
+        work_id, exact = match_work(key, rules)
         ambiguous = work_id == WORK_AMBIGUOUS
         if not exact and not ambiguous:
             continue
         box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
-        found.append(Heading(text, None if ambiguous else work_id, ambiguous, page, box))
+        found.append(Heading(text, None if ambiguous else work_id, ambiguous, page, box, printed_number))
         if len(found) == MAX_HEADINGS:
             break
     return found

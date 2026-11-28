@@ -55,6 +55,32 @@ def test_heading_observations_have_a_fixed_output_bound():
     assert len(result) == 128
 
 
+@pytest.mark.parametrize("text", ["125. March", "125) March", "125 March", "Nr. 125 March", "No. 125 March"])
+def test_printed_numbers_are_evidence_not_identity(text):
+    work = uuid4()
+    rules = RuleSet("test", works={"march": [work]})
+    result = headings({"page": 0, "words": [word(text, 1)]}, rules)
+    assert len(result) == 1
+    assert result[0].text == text and result[0].work_id == work
+    assert result[0].printed_number == "125"
+
+
+def test_number_in_actual_work_title_wins_over_numbered_heading_interpretation():
+    original, remainder = uuid4(), uuid4()
+    rules = RuleSet("test", works={"1812 overture": [original], "overture": [remainder]})
+    result = headings({"page": 0, "words": [word("1812 Overture", 1)]}, rules)
+    assert result[0].work_id == original and result[0].printed_number is None
+
+
+def test_same_printed_number_never_merges_different_works_or_resolves_equal_titles():
+    first, second = uuid4(), uuid4()
+    rules = RuleSet("test", works={"march": [first], "polka": [second], "suite": [uuid4(), uuid4()]})
+    result = headings({"page": 0, "words": [word("1. March", 1), word("1. Polka", 2), word("1. Suite", 3)]}, rules)
+    assert [entry.work_id for entry in result] == [first, second, None]
+    assert result[-1].ambiguous
+    assert [entry.printed_number for entry in result] == ["1", "1", "1"]
+
+
 @pytest.mark.parametrize("evidence", [{"page": True}, {"page": 500}, {"page": 0, "words": [{}] * 2049}])
 def test_compound_observations_fail_closed_at_bounds(evidence):
     with pytest.raises(ValueError):

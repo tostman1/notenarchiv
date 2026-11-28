@@ -30,7 +30,7 @@
 {% if candidate.compound_headings %}
 <h3>{% translate "Bekannte Überschriften im Quellausschnitt" %}</h3>
 <p>{% translate "Fundstellen in Bildpixeln des OCR-Ausschnitts, nicht PDF-Koordinaten. Keine Teilung, Fortsetzungszuordnung oder Freigabe; ganze Seiten bleiben verwendbar. Höchstens 16 Fundstellen werden angezeigt." %}</p>
-<ul class="compound-headings">{% for heading in candidate.compound_headings %}<li>{{ heading.text }} · {{ heading.box }}{% if heading.ambiguous %} · {% translate "Gleicher Titel, mehrere Werke: Identität manuell klären" %}{% endif %}</li>{% endfor %}</ul>
+<ul class="compound-headings">{% for heading in candidate.compound_headings %}<li>{{ heading.text }} · {{ heading.box }}{% if heading.printed_number %} · {% translate "Gedruckte Nummer (keine Werkidentität)" %}: {{ heading.printed_number }}{% endif %}{% if heading.ambiguous %} · {% translate "Gleicher Titel, mehrere Werke: Identität manuell klären" %}{% endif %}</li>{% endfor %}</ul>
 {% endif %}
 {% endif %}
 <ul>{% for entry in candidate.parts.all %}<li>{{ entry.part }}</li>{% endfor %}</ul>
