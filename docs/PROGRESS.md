@@ -1,5 +1,18 @@
 # Progress record
 
+## Explicit region-editor foundation — in progress
+
+- Independent follow-up branch `feat/compound-region-editor` continues while
+  PR #97 is frozen at `5c947d44aed1a33c7023c64638d58122fad16366` under exact CI.
+- Added explicit rectangle save/revision service using existing PageRegion history,
+  verified BASE bytes, retained original geometry and short SQLite writer fencing.
+  Stale file/version/region and cross-page edits fail closed; legacy geometry is
+  not silently backfilled. Existing pinned logical revisions remain unchanged.
+  No assignment, inspection, confirmation or export is created by geometry edits.
+- Focused region/history/selection checks: 44 passed; no migration changes.
+  Graphical persistence controls and service-independent integration review remain
+  unfinished. This checkpoint is not integrated or full-CI/manual verified.
+
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
 - PR #96 merged at `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4` after corrected
