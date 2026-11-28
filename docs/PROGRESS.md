@@ -2,7 +2,7 @@
 
 ## Explicit region-to-content proposal follow-up — in progress
 
-- Frozen PR #99 candidate `068b1a22cf165a3427cc0b27f55debc881868548`
+- Frozen corrected PR #99 candidate `a1b2afbe61e5a45669f560357d9d65a17a8804a3`
   receives exact full CI; independent branch `feat/region-logical-sequences`
   continues without altering that candidate.
 - Added a bounded explicit region-sequence proposal service using existing
@@ -30,6 +30,17 @@
   persistence before the unchanged legacy inspect/approve flow. Native execution
   is pending; sequence/confirmation focused checks: 23 passed. German guidance
   and traceability distinguish proposal saving from unfinished content approval UI.
+- Independent browser-delta review found an ambiguous legacy arrangement selector
+  after edition creation. It is now scoped to the correction form; native browser
+  execution remains required. Targeted sequence/confirmation/review checks: 37 passed.
+- Combined local verification at `b52b6024d5f9da8ee33d1267917ca65ed5276e87`
+  completed in 684.08 seconds: 1,482 passed, 161 skipped and two unchanged Windows
+  source-reader fixture failures (`tests/test_source_reader.py:77,221`, WinError
+  1314 creating symlinks before application assertions). This is not all-green;
+  no test or application safeguard was weakened. Ruff/formatting (420 files),
+  requirements (119 definitions/61 aliases), Django and migration checks passed.
+  Exact integration CI and native browser checks remain pending; do not repeat
+  the full local suite for subsequent documentation-only checkpoint changes.
 
 ## Execution-state check — 2026-11-28
 
