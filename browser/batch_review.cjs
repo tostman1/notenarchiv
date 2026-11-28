@@ -16,7 +16,8 @@ async function check(origin, arrangement, instrument, part, ids, mode) {
             await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
             if (!index) assert.equal(await page.getByRole("link", { name: "Nächste Version", exact: true }).count(), 1);
             else assert.equal(await page.getByRole("link", { name: "Vorherige Version", exact: true }).count(), 1);
-            await page.getByLabel("Arrangement / Ausgabe", { exact: false }).selectOption(arrangement);
+            const correction = page.locator('form:has(input[name="action"][value="save"])');
+            await correction.getByLabel("Arrangement / Ausgabe", { exact: false }).selectOption(arrangement);
             await page.getByLabel("Instrumentenvarianten", { exact: false }).selectOption(instrument);
             await page.getByLabel("Musikalische Stimmen", { exact: false }).selectOption(part);
             await page.getByRole("button", { name: "Zuordnung speichern" }).click();

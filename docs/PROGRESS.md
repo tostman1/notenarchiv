@@ -1,5 +1,12 @@
 # Progress record
 
+## Region proposal integration checkpoint
+
+- PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`
+  after corrected exact head `4020beb421f4241dbf348d9af70b8cba76c80e0a`
+  passed Foundation, Container and Windows, including corrected native browser
+  harnesses. Exact post-merge run `46154228410` is pending; no Main success claimed.
+
 ## Pinned content inspection workflow — in progress
 
 - Combined local verification at `5b368459c8f90f64856c2d5fbd2fedcf14988d38`:
@@ -43,6 +50,20 @@
   browser selectors. Both correction-form scopes were independently reviewed,
   targeted checks passed (33 plus one platform skip), and corrected frozen head
   `4020beb421f4241dbf348d9af70b8cba76c80e0a` now receives one exact CI wait.
+
+## PR #100 exact-head browser correction
+
+- Candidate `ccbafbaee15aae44e403a6404397bebdc23fb350` failed run
+  `46149360241`: Foundation batch-review browser and Container full-stack browser
+  both used an unscoped arrangement label matching new edition creation and legacy
+  correction controls. Foundation `browser/test_review.py` passed; the additional
+  two harnesses had not been scoped. No merge or successful verification is claimed.
+- Scope both remaining selectors to the existing correction form containing
+  `action=save`. Keep every inspection, confirmation and stack security assertion;
+  corrected exact-head full CI is required before integration.
+- Independent bounded correction review found no concrete blocker; targeted
+  review/proposal/distribution checks: 33 passed, one platform-specific skip.
+  Node/browser execution remains the corrected CI gate.
 
 ## Preview integration checkpoint
 
