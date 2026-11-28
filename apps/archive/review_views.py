@@ -38,11 +38,21 @@ def detail(request, file_id):
     failed_form, status = None, 200
     if request.method == "POST":
         action = request.POST.get("action")
-        if action == "ocr":
+        if action in ("ocr", "ocr_selection"):
             from apps.archive.ocr_services import request as request_ocr
 
             try:
-                job = request_ocr(file.pk)
+                selection = None
+                if action == "ocr_selection":
+                    selection_form = forms.OcrSelectionForm(request.POST)
+                    if not selection_form.is_valid():
+                        raise ValidationError("Invalid OCR selection.")
+                    values = selection_form.cleaned_data
+                    selection = {
+                        "page": values["page"] - 1,
+                        "box": [values[name] / 100 for name in ("left", "top", "right", "bottom")],
+                    }
+                job = request_ocr(file.pk, selection=selection)
             except (ValidationError, DatabaseError, ValueError, Http404):
                 messages.error(
                     request, _("OCR-Auftrag nicht möglich. Dateistatus prüfen und bewusst erneut versuchen.")
@@ -104,7 +114,18 @@ def detail(request, file_id):
         .prefetch_related("parts__part__instrument")
         .order_by("-created_at")[:10]
     )
+    evidence_by_key = {
+        evidence.cache_key: evidence
+        for evidence in m.OcrPageEvidence.objects.filter(
+            source_version_id=file.source_version_id,
+            cache_key__in=[candidate.rule_version for candidate in candidates if candidate.method == "OCR"],
+        )
+    }
     for candidate in candidates:
+        candidate.ocr_evidence = evidence_by_key.get(candidate.rule_version) if candidate.method == "OCR" else None
+        if candidate.ocr_evidence:
+            candidate.ocr_words = candidate.ocr_evidence.evidence.get("words", [])[:100]
+            candidate.source_page_number = candidate.ocr_evidence.page + 1
         candidate.reason_labels = [
             REASONS.get(reason, _("Erkennung unsicher; Inhalt und Zuordnung manuell prüfen."))
             for reason in candidate.reasons
@@ -134,6 +155,7 @@ def detail(request, file_id):
             "proposal": proposal,
             "parts": parts,
             "candidates": candidates,
+            "ocr_selection": forms.OcrSelectionForm(),
             "inspected": inspected,
             "jobs": jobs,
             "failed_form": failed_form,

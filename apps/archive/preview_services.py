@@ -93,3 +93,43 @@ def thumbnail(file, page):
             ),
         )
         return processor.thumbnail(preview_bytes(file), page=page - 1, max_edge=256)
+
+
+def ocr_excerpt(file, evidence_id):
+    """Render the exact OCR selection from authenticated, hash-verified source bytes."""
+    from django.shortcuts import get_object_or_404
+
+    from apps.archive.models import OcrPageEvidence
+
+    evidence = get_object_or_404(OcrPageEvidence, pk=evidence_id, source_version_id=file.source_version_id)
+    if file.kind != "BASE" or evidence.evidence.get("sha256") != file.sha256:
+        raise Http404
+    selection = evidence.evidence
+    if "bounds" not in selection or "orientation" not in selection:
+        raise Http404
+    root = Path(settings.DIAGNOSTIC_LOG_DIR).parent
+    with ProcessLock(root / "preview-render.lock"):
+        scratch = root / "preview-scratch"
+        scratch.mkdir(mode=0o700, exist_ok=True)
+        processor = Processor(
+            scratch,
+            limits=Limits(
+                max_bytes=min(settings.PDF_MAX_BYTES, 104_857_600),
+                max_pixels=min(settings.PDF_MAX_RENDER_PIXELS, 4_000_000),
+                max_output_bytes=4_194_304,
+                timeout_seconds=15,
+                cpu_seconds=10,
+            ),
+        )
+        logical = processor.logical_pages(
+            [preview_bytes(file)],
+            [
+                {
+                    "input": 0,
+                    "page": evidence.page,
+                    "bounds": selection["bounds"],
+                    "orientation": selection["orientation"],
+                }
+            ],
+        )
+        return processor.render(logical, 0, dpi=100)

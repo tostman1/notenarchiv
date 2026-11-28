@@ -13,8 +13,21 @@
 <h2>{% translate "Erkennungsevidenz – keine Freigabe" %}</h2>
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="ocr"><button>{% translate "Alle Seiten lokal mit OCR analysieren" %}</button></form>
 <p>{% translate "OCR verändert keine Zuordnung oder Freigabe. Fortschritt und Abbruch sind im Auftrag verfügbar." %}</p>
+<form method="post" id="ocr-selection" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="ocr_selection">
+<h3>{% translate "Quellseite oder Bereich analysieren" %}</h3>
+<p>{% translate "Grenzen in Prozent von links/oben. Optional den Bereich auf der PDF-Seite mit der Maus aufziehen; dies erstellt keine musikalische Region." %}</p>
+{{ ocr_selection.as_p }}
+<button type="button" id="ocr-draw">{% translate "Bereich aufziehen" %}</button>
+<button type="button" id="ocr-reset">{% translate "Ganze ausgewählte Seite" %}</button>
+<button>{% translate "Ausgewählten Bereich lokal analysieren" %}</button>
+</form>
 {% for candidate in candidates %}<article><p>{% if candidate.method == 'OCR' %}{% translate "Lokale OCR und PDF-Inhalt – keine Freigabe" %} · {% translate "Quellseite (ab 0)" %}: {{ candidate.region.page }} · {% translate "Profil-/Regelkontext" %}: {{ candidate.rule_version }}{% elif candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
 <pre class="evidence">{{ candidate.excerpt }}</pre><p>{{ candidate.proposed_work|default:"—" }} · {{ candidate.proposed_arrangement|default:"—" }}</p>
+{% if candidate.ocr_evidence %}
+<button type="button" data-preview-page="{{ candidate.source_page_number }}">{% translate "Quellseite anzeigen" %} {{ candidate.source_page_number }}</button>
+<img class="ocr-evidence-image" loading="lazy" src="{% url 'archive_preview:ocr_excerpt' file.pk candidate.ocr_evidence.pk %}" alt="{% translate 'Hashgeprüfter OCR-Quellausschnitt; keine musikalische Freigabe' %}">
+<details><summary>{% translate "Erkannte Wörter und Konfidenz (höchstens 100)" %}</summary><ul class="ocr-words">{% for word in candidate.ocr_words %}<li>{{ word.text }} · {{ word.confidence|default_if_none:"—" }} · {{ word.box }}</li>{% endfor %}</ul></details>
+{% endif %}
 <ul>{% for entry in candidate.parts.all %}<li>{{ entry.part }}</li>{% endfor %}</ul>
 <p>{% translate "Erkennungsqualität (keine musikalische Gewissheit)" %}: {{ candidate.confidence|default_if_none:"—" }}</p>
 <ul>{% for reason in candidate.reason_labels %}<li>{{ reason }}</li>{% endfor %}</ul>

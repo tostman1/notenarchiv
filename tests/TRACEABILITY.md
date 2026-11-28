@@ -1,5 +1,19 @@
 # Implemented acceptance traceability
 
+- OCR review batch (partial AR-08/09/11/12, SC-06):
+  `tests/test_ocr_selection.py` covers exact displayed-region conversion through
+  source rotation/CropBox/UserUnit, validated distinct queue selections, cache reuse,
+  private hash-verified image evidence and unchanged review state. Local source
+  excerpt rendering uses the actual isolated PDF processor.
+  `tests/test_ocr_comparison.py` covers independent PDF-text/OCR title and part
+   conflicts, readable text fallback and absence of musical auto-approval.
+   `tests/test_visible_text.py` exercises actual isolated geometric extraction for
+   all four rotations and conservative native character limits, including text
+   outside the selected rectangle. Recognition regressions bind rule-cache identity
+   to normalized alias targets, duplicate work identities and part relationships.
+  `scripts/ocr_smoke.py` additionally checks actual selected-region OCR/cache
+  separation in the final pinned container gate; prepared is not executed evidence.
+
 - Owner amendment (2026-11-27): AR-15/CAT-08 core classification, duration,
   facets/preferences and PR-07 duration are required but not yet implemented.
   WP-24–28/56/57 workflow acceptance follows the completed WP-54/55 foundation;

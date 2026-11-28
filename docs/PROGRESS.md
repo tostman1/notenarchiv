@@ -4,8 +4,10 @@
 
 - PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head
   `cb896134a2bbbed123131ce3935c5b9030f26112` passed Foundation, Container and
-  Windows. Exact post-merge run 46118104077 is being verified by the existing
-  deterministic waiter; pending is not green. The running gate was not cancelled.
+  Windows. Exact post-merge run 46118104077 passed Foundation, Container and
+  Windows on the same Main SHA. The initial 30-minute wait timed out while the
+  browser step ran; one bounded extended wait confirmed success without cancelling
+  the run. Main is the verified comparison baseline for this independent batch.
 - DEC-17 permanently separates checkpoint commits from integration boundaries.
   Reconciled AGENTS, PROCESS, standard checks and the implementation plan. Actual
   workflow triggers already support CI-free pushes to feature branches without an
@@ -16,6 +18,36 @@
   evidence and review improvements form one cohesive batch with targeted checks
   and focused checkpoint commits. Full combined verification/review and exact
   PR/Main CI will occur at the integration boundary, not each checkpoint.
+- Backend increments now support selected physical pages/displayed rectangles,
+  exact rotated CropBox/UserUnit conversion, independently idempotent queue
+  payloads and authenticated hash-verified source-image evidence. Focused backend
+   geometry/queue/preview tests pass; graphical drag selection, keyboard fields,
+   source-page navigation and bounded escaped image/word evidence are implemented.
+  Added independent PDF-text/OCR conflict comparisons and conservative fallback
+  to readable text-layer evidence: 24 focused recognition/service tests passed,
+  one platform-specific recovery test skipped locally. No musical approval changes.
+  Native selected-region OCR smoke is prepared for the final container gate, not
+  claimed locally executed. Segmentation/continuation acceptance remains open.
+- Focused recognition fixes bind cache rule versions to alias targets, duplicate
+  work identities and part/instrument relationships (26 passed, one local skip).
+  Native OCR line identities retain separate side-by-side headings instead of
+  merging them by vertical position. Profile version advances to `page-v2`.
+- Reproduced clipped-out text leaking through ordinary PDF extraction, then added
+  bounded geometric text extraction inside the existing isolated PDF worker for OCR
+  selections. Four rotation regressions and related PDF/OCR checks: 64 passed,
+   one local platform skip. No original bytes, musical regions or approvals changed.
+  Additional selected-evidence checks cover a different source version containing
+   identical bytes, incomplete historical evidence and GET-only private rendering:
+   23 backend tests passed (the pending UI launch test was not included).
+   Conservative clipped-out native character limits, logical page ordering and
+   cumulative text limits: 6 real-PDF regressions passed.
+   Selection/review, real-PDF and traceability checks: 55 passed. Browser checks
+   cover drag/keyboard/reset/zoom; they are prepared but not locally executed
+   because Node/browser tooling is unavailable. Independent cumulative review
+   remains in progress; no new full CI or manual acceptance is claimed.
+  Checkpoints through `55780cf` are pushed on the feature branch without an open
+  PR (CI-free remote recovery checkpoint under the verified current triggers).
+  Uncommitted selected-page/evidence changes are not included in that checkpoint.
 
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
