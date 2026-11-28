@@ -6,8 +6,12 @@
   `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4`, run `46131431978`,
   Foundation/Container/Windows success. No repeated wait is needed for this SHA.
 
-- Independent follow-up branch `feat/compound-region-editor` continues while
-  PR #97 is frozen at `5c947d44aed1a33c7023c64638d58122fad16366` under exact CI.
+- PR #97 passed exact-head Foundation/Container/Windows at
+  `5c947d44aed1a33c7023c64638d58122fad16366` and was merged after independent
+  cumulative review. Main is `257c7078c166cefdd9945a239b2862035bca194a`;
+  exact post-merge run `46135139853` is pending, not yet claimed green.
+  Follow-up branch `feat/compound-region-editor` incorporated that merge without
+  changing its editor implementation or rewriting checkpoint history.
 - Added explicit rectangle save/revision service using existing PageRegion history,
   verified BASE bytes, retained original geometry and short SQLite writer fencing.
   Stale file/version/region and cross-page edits fail closed; legacy geometry is
@@ -44,6 +48,9 @@
   that setup creates both exact source pages without legacy geometry replacement.
   Latest targeted editor/selection/review/traceability checks: 63 passed.
   Native browser execution is still pending; no full-CI/manual success is implied.
+- Worktree fixes are checkpointed at `dfabbf9`; independent follow-up confirms
+  no remaining concrete cumulative implementation blocker. Combined local
+  verification started once at that checkpoint and is still pending completion.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
