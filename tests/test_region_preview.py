@@ -111,3 +111,37 @@ def test_saved_revision_preview_rejects_foreign_version_even_with_identical_hash
     response = client.get(reverse("archive_preview:region_excerpt", args=[file.pk, foreign.pk]))
     assert response.status_code == 404
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_temporary_sequence_preserves_order_repeats_and_historical_pins(region_preview, tmp_path):
+    from apps.archive.preview_services import region_sequence
+    from core.pdf.api import Processor
+
+    file, revisions, target = region_preview
+    small = m.PageRegionRevision.objects.create(
+        region=revisions[0].region,
+        number=3,
+        bounds_points=[0, 0, 50, 80],
+        page_fingerprint=revisions[0].page_fingerprint,
+    )
+    original = target.read_bytes()
+    output = region_sequence(file, [small.pk, revisions[0].pk, small.pk])
+    scratch = tmp_path / "inspection"
+    scratch.mkdir()
+    infos = Processor(scratch).inspect(output).pages
+    assert [(item.width_points, item.height_points) for item in infos] == [(50, 80), (100, 200), (50, 80)]
+    assert target.read_bytes() == original
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("identifiers", [[], ["not-a-uuid"], ["0" * 32] * 17])
+def test_temporary_sequence_rejects_invalid_or_unbounded_input(region_preview, identifiers):
+    from django.http import Http404
+
+    from apps.archive.preview_services import region_sequence
+
+    file, _revisions, _target = region_preview
+    with pytest.raises(Http404):
+        region_sequence(file, identifiers)
