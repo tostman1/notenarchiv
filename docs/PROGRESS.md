@@ -25,6 +25,11 @@
   HTML form IDs keep legacy inspection/approval controls unambiguous. Targeted
   sequence/editor/review checks: 42 passed. Browser and cumulative integration
   verification remain pending; PR #99's corrected candidate stays frozen.
+- Independent edition-creation review found no concrete finding. Added bounded
+  browser coverage for explicit edition creation and repeated-region proposal
+  persistence before the unchanged legacy inspect/approve flow. Native execution
+  is pending; sequence/confirmation focused checks: 23 passed. German guidance
+  and traceability distinguish proposal saving from unfinished content approval UI.
 
 ## Execution-state check — 2026-11-28
 

@@ -32,6 +32,22 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             }
             await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
             await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "content") {
+            await page.getByText("Neue musikalische Inhaltsausgabe anlegen", { exact: true }).click();
+            const creation = page.locator('form:has(input[value="content_edition_create"])');
+            await creation.locator('[name="arrangement"]').selectOption(arrangement);
+            await creation.locator('[name="part"]').selectOption(parts[0]);
+            await creation.locator('[name="explicit"]').check();
+            await creation.locator('button').click();
+            await page.getByText("Regionsfolge als musikalischen Inhaltsvorschlag speichern", { exact: true }).click();
+            const content = page.locator('form:has(input[value="region_content"])');
+            await content.locator('[name="edition"]').selectOption({ index: 1 });
+            await content.locator('[name="expected_edition_number"]').fill("0");
+            const revision = await content.locator('select[name="region"]').first().locator('option').nth(1).getAttribute('value');
+            await content.locator('select[name="region"]').nth(0).selectOption(revision);
+            await content.locator('select[name="region"]').nth(1).selectOption(revision);
+            await content.locator('button').click();
+            await page.getByText("Inhaltsvorschlag gespeichert – noch nicht inspiziert oder freigegeben.", { exact: true }).waitFor();
         } else if (mode === "region") {
             const selection = page.locator("#ocr-selection");
             for (const [name, value] of Object.entries({ page: "2", left: "10", top: "20", right: "80", bottom: "90" })) {
