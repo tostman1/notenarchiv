@@ -1,5 +1,19 @@
 # Progress record
 
+## PR #100 exact-head browser correction
+
+- Candidate `ccbafbaee15aae44e403a6404397bebdc23fb350` failed run
+  `46149360241`: Foundation batch-review browser and Container full-stack browser
+  both used an unscoped arrangement label matching new edition creation and legacy
+  correction controls. Foundation `browser/test_review.py` passed; the additional
+  two harnesses had not been scoped. No merge or successful verification is claimed.
+- Scope both remaining selectors to the existing correction form containing
+  `action=save`. Keep every inspection, confirmation and stack security assertion;
+  corrected exact-head full CI is required before integration.
+- Independent bounded correction review found no concrete blocker; targeted
+  review/proposal/distribution checks: 33 passed, one platform-specific skip.
+  Node/browser execution remains the corrected CI gate.
+
 ## Preview integration checkpoint
 
 - PR #99 merged at Main `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`
