@@ -33,8 +33,10 @@ def test_non_square_rotated_selection_uses_unrotated_native_bounds(tmp_path, ori
     stream = io.BytesIO()
     canvas = Canvas(stream, pagesize=(200, 300))
     canvas.setFont("Helvetica", 8)
-    canvas.drawString(10, 170, "Selected March")
-    canvas.drawString(10, 30, "Outside Polka")
+    # Each non-square orientation must catch the old displayed-size bounds:
+    # tall crops lost their upper selected heading; wide crops leaked upper text.
+    canvas.drawString(10, 270 if bounds[3] == 300 else 170, "Selected March")
+    canvas.drawString(10, 30 if bounds[3] == 300 else 270, "Outside Polka")
     canvas.save()
     processor = Processor(tmp_path)
     logical = processor.logical_pages(

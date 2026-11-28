@@ -54,7 +54,10 @@
   outside-text exclusion. Profile `page-v3` invalidates affected older evidence
   contexts. Focused PDF/OCR/selection checks: 51 passed. Browser fixture now covers
   two-page selection synchronization and actual selected-job submission without
-  inspection; browser execution and review follow-up remain pending.
+  inspection. Independent follow-up reproduced the original failure cases across
+  all four orientations and confirmed the fix with no remaining implementation
+  blocker. Strengthened the stored regression positions to reproduce both original
+  defects (14 real-PDF tests passed). Final browser/CI execution remains pending.
 
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
