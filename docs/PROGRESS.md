@@ -1,5 +1,16 @@
 # Progress record
 
+## Explicit rectangle split foundation — in progress
+
+- PR #101 freezes the independently reviewed inspection/confirmation batch at
+  `32a2762916b0fd52de14415c6c917a2c4745a382` for exact full CI. Its candidate
+  is unchanged while independent work proceeds on `feat/region-split-editor`.
+- Added explicit horizontal/vertical display-space splitting into two new region
+  identities, after one verified source read and within one rollback boundary.
+  Existing regions, logical pins, musical assignments and approvals are unchanged.
+  Targeted split/editor checks: 22 passed. The UI, independent review and final
+  integration/native verification of this follow-up remain open.
+
 ## Region proposal integration checkpoint
 
 - PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`

@@ -35,6 +35,12 @@ def save_rectangle(
     # Verify authorized receipt/snapshot bytes before opening a short DB writer
     # transaction. No PDF parser or filesystem operation runs under its lock.
     preview_bytes(file)
+    return _save_verified(
+        file, payload, expected_file_revision, source_version_id, region_id, expected_region_number, using
+    )
+
+
+def _save_verified(file, payload, expected_file_revision, source_version_id, region_id, expected_region_number, using):
     with transaction.atomic(using=using):
         if not m.ArchiveFile.objects.using(using).filter(pk=file.pk).update(revision=F("revision")):
             raise ArchiveConflict()
@@ -65,3 +71,43 @@ def save_rectangle(
             if region is None:
                 raise ValidationError("Region does not belong to the selected exact source page.")
         return append_region(region.pk, expected_number=expected_region_number, bounds_points=bounds, using=using)
+
+
+def split_rectangle(
+    file_id,
+    *,
+    expected_file_revision,
+    source_version_id,
+    selection,
+    axis,
+    fraction,
+    using="default",
+):
+    """Create two explicit adjacent regions; retain every existing interpretation.
+
+    Axis and fraction use the displayed normalized rectangle, not PDF coordinates.
+    No previous region is deleted/replaced and no musical sequence is inferred.
+    Both new identities commit together, after one verified snapshot read outside
+    the short SQLite writer transaction.
+    """
+    payload = validate({"file_id": str(file_id), "selection": selection})
+    if axis not in ("horizontal", "vertical") or type(fraction) not in (int, float) or not 0 < fraction < 1:
+        raise ValidationError("An interior split position and explicit axis are required.")
+    first = list(payload["selection"]["box"])
+    second = list(first)
+    start, end = (1, 3) if axis == "horizontal" else (0, 2)
+    cut = first[start] + (first[end] - first[start]) * fraction
+    if not first[start] < cut < first[end]:
+        raise ValidationError("Split position cannot produce an empty region.")
+    first[end] = cut
+    second[start] = cut
+    file = preview_file(payload["file_id"], using=using)
+    if file.kind != "BASE":
+        raise ValidationError("Regions require the exact unchanged source publication.")
+    preview_bytes(file)
+    with transaction.atomic(using=using):
+        revisions = []
+        for box in (first, second):
+            child = validate({"file_id": str(file.pk), "selection": {"page": selection["page"], "box": box}})
+            revisions.append(_save_verified(file, child, expected_file_revision, source_version_id, None, 0, using))
+        return tuple(revisions)
