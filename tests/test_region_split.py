@@ -92,6 +92,11 @@ def test_split_action_requires_csrf_and_explicit_acknowledgement(preview, monkey
     monkeypatch.setattr(editor, "split_rectangle", lambda *args, **kwargs: calls.append(kwargs))
     assert client.post(url, payload).status_code == 403
     assert client.get(url).status_code == 200
+    from apps.archive.review_forms import RegionSplitForm
+
+    rendered = RegionSplitForm().as_p()
+    assert "required" not in rendered
+    assert not RegionSplitForm({"split_axis": "vertical", "split_percent": 50}).is_valid()
     from django.conf import settings
 
     payload["csrfmiddlewaretoken"] = client.cookies[settings.CSRF_COOKIE_NAME].value

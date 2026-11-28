@@ -15,13 +15,24 @@
   acknowledgement, axis and percentage. The focused action regression passed;
   the other 36 split/editor/review checks passed during the fixture correction.
   Native browser coverage and cumulative integration remain pending.
+- Exact post-merge Main verification for PR #100 succeeded at
+  `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`, run `46154228410`:
+  Foundation, Container and Windows passed. Added a bounded native-browser split
+  scenario after content confirmation, retaining the original region pins and
+  confirming that new geometry does not alter existing content approval.
+- Independent split UI review found that a browser-required acknowledgement in
+  the shared form would block unrelated OCR/save actions. Suppress native required
+  attributes only on the split-only fields; server-side acknowledgement remains
+  required. The regression checks both rendered attributes and rejected absent
+  acknowledgement. PR #101 independently failed its original candidate on a
+  content-document preview 404; its correction is handled on that frozen branch.
 
 ## Region proposal integration checkpoint
 
 - PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`
   after corrected exact head `4020beb421f4241dbf348d9af70b8cba76c80e0a`
   passed Foundation, Container and Windows, including corrected native browser
-  harnesses. Exact post-merge run `46154228410` is pending; no Main success claimed.
+   harnesses. Exact post-merge run `46154228410` passed Foundation, Container and Windows.
 
 ## Pinned content inspection workflow — in progress
 

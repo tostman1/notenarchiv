@@ -7,6 +7,10 @@ from apps.catalog.models import Arrangement, InstrumentVariant, Part
 
 
 class RegionSplitForm(forms.Form):
+    # These controls share the OCR/region form. Only the split action validates
+    # them server-side; browser-required attributes would block unrelated actions.
+    use_required_attribute = False
+
     split_axis = forms.ChoiceField(
         label=_("Teilungsrichtung"),
         choices=(("horizontal", _("Horizontal: oben / unten")), ("vertical", _("Vertikal: links / rechts"))),

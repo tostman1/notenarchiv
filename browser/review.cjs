@@ -32,6 +32,20 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             }
             await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
             await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "split") {
+            const selection = page.locator("#ocr-selection");
+            for (const [name, value] of Object.entries({ page: "2", left: "10", top: "20", right: "80", bottom: "90" })) {
+                await selection.locator(`[name="${name}"]`).fill(value);
+            }
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            await page.getByText("Ausgewählten Bereich ausdrücklich in zwei neue Bereiche teilen", { exact: true }).click();
+            await selection.locator('[name="split_axis"]').selectOption("vertical");
+            await selection.locator('[name="split_percent"]').fill("50");
+            await selection.locator('[name="split_acknowledged"]').check();
+            await page.getByRole("button", { name: "Zwei neue unbestätigte Bereiche speichern", exact: true }).click();
+            await page.getByText("Zwei neue Bereiche gespeichert – bestehende Bereiche und Freigaben unverändert.", { exact: true }).waitFor();
+            assert.equal(await page.locator('[data-region-number="1"]').count(), 2);
+            assert.equal(await page.locator('[data-region-number="2"]').count(), 1);
         } else if (mode === "content-review") {
             await page.getByRole("link", { name: "Inhaltsvorschlag ansehen – Revision 1", exact: true }).click();
             await page.locator('#pdf-preview[data-rendered="true"]').waitFor();

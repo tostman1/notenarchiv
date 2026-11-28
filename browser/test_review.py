@@ -112,6 +112,15 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     assert inspection.revision_id == content.pk and inspection.visually_reviewed
     assert confirmation.inspection_id == inspection.pk and confirmation.actor_id == inspection.reviewer_id
     assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
+    subprocess.run(["node", script, "split", *arguments], check=True, timeout=90)
+    children = list(m.PageRegionRevision.objects.exclude(pk__in=[revision.pk for revision in revisions]))
+    assert len(children) == 2 and children[0].region_id != children[1].region_id
+    assert all(child.number == 1 and child.region.source_page.page_index == 1 for child in children)
+    assert m.PageRegionRevision.objects.filter(pk=revisions[1].pk).exists()
+    assert references[0].logical_page_revision.region_revision_id == revisions[1].pk
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 1
+    assert m.ContentEditionRevision.objects.count() == 1
+    assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk
