@@ -31,6 +31,15 @@
   `f32ccbe7` confirmed the overflow fix and found no unresolved confirmed blockers.
   Native smoke was inspected, not executed locally. Combined local verification
   and final exact-head CI remain outstanding; checkpoint results are not delivery.
+- Combined local verification at `c31b9b4256f6a8ccf13e827facd57981bd116bc3`:
+  Ruff clean, 415 files formatted, 119 requirement definitions/61 aliases valid,
+  Django checks clean and no migration drift. Full pytest: 1,443 passed,
+  161 skipped, two failures in existing source-reader fixture setup at lines
+  77/221 (`WinError 1314`: local Windows lacks synthetic symlink privilege).
+  This is not an all-green local result; tests/security were not weakened.
+  Independent cumulative review has no unresolved confirmed blockers. The final
+  combined candidate still requires exact Foundation/Container/Windows CI,
+  including native multi-heading OCR smoke, and exact post-merge Main CI.
 
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 
