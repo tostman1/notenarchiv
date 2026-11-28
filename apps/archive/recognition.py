@@ -389,8 +389,15 @@ def ocr_lines(words):
     """Preserve printed line grouping rather than treating each word as a title."""
     lines = []
     for word in words:
-        if not lines or abs(lines[-1][0] - word["box"][1]) > max(3, (word["box"][3] - word["box"][1]) // 2):
-            lines.append([word["box"][1], word["text"]])
+        line_identity = word.get("line")
+        new_line = not lines
+        if lines:
+            if line_identity is not None or lines[-1][2] is not None:
+                new_line = line_identity != lines[-1][2]
+            else:
+                new_line = abs(lines[-1][0] - word["box"][1]) > max(3, (word["box"][3] - word["box"][1]) // 2)
+        if new_line:
+            lines.append([word["box"][1], word["text"], line_identity])
         else:
             lines[-1][1] += " " + word["text"]
     return [line[1] for line in lines]
