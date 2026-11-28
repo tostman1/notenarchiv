@@ -1,5 +1,74 @@
 # Progress record
 
+## PR #100 exact-head browser correction
+
+- Candidate `ccbafbaee15aae44e403a6404397bebdc23fb350` failed run
+  `46149360241`: Foundation batch-review browser and Container full-stack browser
+  both used an unscoped arrangement label matching new edition creation and legacy
+  correction controls. Foundation `browser/test_review.py` passed; the additional
+  two harnesses had not been scoped. No merge or successful verification is claimed.
+- Scope both remaining selectors to the existing correction form containing
+  `action=save`. Keep every inspection, confirmation and stack security assertion;
+  corrected exact-head full CI is required before integration.
+- Independent bounded correction review found no concrete blocker; targeted
+  review/proposal/distribution checks: 33 passed, one platform-specific skip.
+  Node/browser execution remains the corrected CI gate.
+
+## Preview integration checkpoint
+
+- PR #99 merged at Main `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`
+  after exact candidate `bcee5b6d7366e7f02e37435aa5df797d70a4ed5a`
+  passed Foundation, Container and Windows, including native browser checks.
+  Exact post-merge Main verification is pending; manual acceptance remains open.
+
+## Explicit region-to-content proposal follow-up — in progress
+
+- Frozen corrected PR #99 candidate `a1b2afbe61e5a45669f560357d9d65a17a8804a3`
+  receives exact full CI; independent branch `feat/region-logical-sequences`
+  continues without altering that candidate.
+- Added a bounded explicit region-sequence proposal service using existing
+  LogicalPageRevision, ContentEditionRevision and ContentReference contracts.
+  Exact source/version/file revision and current region pins are required;
+  repeated occurrences retain order, historical proposals remain unchanged,
+  and verified reads precede short writer-fenced availability checks.
+- Targeted sequence/confirmation checks: 17 passed. No inspection, confirmation,
+  legacy assignment or approved-export eligibility is inferred. UI, independent
+  review and combined integration verification for this follow-up remain open.
+- Independent service review found no concrete blocker. Added a separate CSRF-
+  protected review action with explicit existing edition selection, expected
+  edition/file revisions and ordered region slots. Stale re-submission is rejected;
+  whole-document assignments and musical approval remain untouched. Targeted
+  sequence/editor/review UI checks: 37 passed. Native browser verification and
+  cumulative UI review remain pending.
+- Independent proposal-action review found no concrete blocker. Added explicitly
+  acknowledged edition-identity creation from active arrangement/part selections;
+  equal titles remain distinct and creation saves no content or approval. Prefixed
+  HTML form IDs keep legacy inspection/approval controls unambiguous. Targeted
+  sequence/editor/review checks: 42 passed. Browser and cumulative integration
+  verification remain pending; PR #99's corrected candidate stays frozen.
+- Independent edition-creation review found no concrete finding. Added bounded
+  browser coverage for explicit edition creation and repeated-region proposal
+  persistence before the unchanged legacy inspect/approve flow. Native execution
+  is pending; sequence/confirmation focused checks: 23 passed. German guidance
+  and traceability distinguish proposal saving from unfinished content approval UI.
+- Independent browser-delta review found an ambiguous legacy arrangement selector
+  after edition creation. It is now scoped to the correction form; native browser
+  execution remains required. Targeted sequence/confirmation/review checks: 37 passed.
+- Combined local verification at `b52b6024d5f9da8ee33d1267917ca65ed5276e87`
+  completed in 684.08 seconds: 1,482 passed, 161 skipped and two unchanged Windows
+  source-reader fixture failures (`tests/test_source_reader.py:77,221`, WinError
+  1314 creating symlinks before application assertions). This is not all-green;
+  no test or application safeguard was weakened. Ruff/formatting (420 files),
+  requirements (119 definitions/61 aliases), Django and migration checks passed.
+  Exact integration CI and native browser checks remain pending; do not repeat
+  the full local suite for subsequent documentation-only checkpoint changes.
+- Incorporated reviewed PR #99 Main changes without rewriting history; the only
+  merge conflict was progress chronology, retained on both sides. Focused combined
+  proposal/preview/confirmation/review/traceability checks after integration:
+  54 passed; whole-repository Ruff and formatting (420 files) passed. Independent
+  reviews cover the cumulative implementation and corrected browser selector.
+  Final proposal-batch native browser and exact-head CI remain required.
+
 ## PR #99 native preview failure follow-up
 
 - Corrected head `a1b2afbe61e5a45669f560357d9d65a17a8804a3` failed

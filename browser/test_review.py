@@ -98,6 +98,14 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     assert revisions[0].bounds_points != revisions[1].bounds_points
     assert not m.ContentInspection.objects.exists() and not m.ContentConfirmation.objects.exists()
     assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
+    subprocess.run(["node", script, "content", *arguments], check=True, timeout=90)
+    content = m.ContentEditionRevision.objects.get()
+    references = list(content.references.order_by("sequence"))
+    assert len(references) == 2 and references[0].pk != references[1].pk
+    assert references[0].logical_page_revision_id == references[1].logical_page_revision_id
+    assert references[0].logical_page_revision.region_revision_id == revisions[1].pk
+    assert not m.ContentInspection.objects.exists() and not m.ContentConfirmation.objects.exists()
+    assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk

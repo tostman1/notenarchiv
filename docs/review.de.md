@@ -1,5 +1,22 @@
 # Einzelprüfung und Freigabe
 
+## Ausgewählte Regionen als Inhaltsvorschlag speichern
+
+Die Regionsfolge lässt sich getrennt von der Ganzdokument-Zuordnung speichern.
+Vorhandene Inhaltsausgaben zuerst prüfen; falls nötig unter **Neue musikalische
+Inhaltsausgabe anlegen** Arrangement und Stimme bewusst wählen und das Anlegen
+ausdrücklich bestätigen. Gleiche Titel sind keine gemeinsame Identität.
+
+Unter **Regionsfolge als musikalischen Inhaltsvorschlag speichern** die Ausgabe
+und ihre angezeigte aktuelle Vorschlagsrevision wählen (0 vor dem ersten
+Vorschlag). Regionen in Reihenfolge auswählen; leere Plätze werden ausgelassen,
+Wiederholungen bleiben eigene Vorkommen. Ein veralteter Stand wird abgewiesen.
+Nur aktuelle Regionsrevisionen sind für neue Vorschläge zulässig; historische
+Revisionen bleiben separat vorschaufähig. Das Speichern erzeugt weder visuelle
+Inspektion noch musikalische Freigabe oder Nutzbarkeit in neuen Ausgaben.
+Die bisherige Ganzdokument-Zuordnung bleibt unverändert. Die separate musikalische
+Inhaltsprüfung/-freigabe ist noch kein abgeschlossener UI-Workflow.
+
 1. **Prüfwarteschlange** öffnen und **Version prüfen und zuordnen** wählen.
 2. Die tatsächliche PDF Seite für Seite betrachten. Dateiname und erkannter
    Text stehen daneben als Hinweise, nicht als Freigabe. Erkennungskonflikte

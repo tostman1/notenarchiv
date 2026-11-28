@@ -61,6 +61,57 @@ class RegionRevisionForm(forms.Form):
     expected_region_number = forms.IntegerField(min_value=0, widget=forms.HiddenInput, initial=0)
 
 
+class ContentEditionCreationForm(forms.Form):
+    arrangement = forms.ModelChoiceField(label=_("Arrangement / Ausgabe"), queryset=Arrangement.objects.none())
+    part = forms.ModelChoiceField(label=_("Musikalische Stimme"), queryset=Part.objects.none())
+    explicit = forms.BooleanField(
+        label=_("Neue eigenständige Inhaltsausgabe für dieses Arrangement und diese Stimme anlegen")
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["arrangement"].queryset = (
+            Arrangement.objects.filter(active=True, work__active=True)
+            .select_related("work")
+            .order_by("work__title_key", "arranger_key", "edition_key", "pk")
+        )
+        self.fields["part"].queryset = (
+            Part.objects.filter(active=True, instrument__active=True)
+            .select_related("instrument")
+            .order_by("instrument__name_key", "instrument__transposition_key", "instrument__clef", "code_key")
+        )
+
+
+class RegionContentForm(forms.Form):
+    edition = forms.ModelChoiceField(label=_("Musikalische Inhaltsausgabe"), queryset=Arrangement.objects.none())
+    expected_edition_number = forms.IntegerField(
+        label=_("Aktuelle Vorschlagsrevision (0 bei neuer Ausgabe)"), min_value=0, initial=0
+    )
+    expected_file_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    source_version_id = forms.UUIDField(widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.db.models import Max
+
+        from apps.archive import models as m
+
+        self.fields["edition"].queryset = (
+            m.ContentEdition.objects.filter(
+                arrangement__active=True,
+                arrangement__work__active=True,
+                part__active=True,
+                part__instrument__active=True,
+            )
+            .select_related("arrangement__work", "part__instrument")
+            .annotate(current_number=Max("revisions__number"))
+            .order_by("arrangement__work__title_key", "pk")
+        )
+        self.fields["edition"].label_from_instance = lambda edition: (
+            f"{edition.arrangement} / {edition.part} (Revision {edition.current_number or 0})"
+        )
+
+
 class InspectionForm(VersionForm):
     explicit = forms.BooleanField(
         label=_("Ich habe alle Seiten dieser Version visuell geprüft und die gespeicherte Zuordnung kontrolliert")

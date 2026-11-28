@@ -1,5 +1,16 @@
 # Implemented acceptance traceability
 
+## Explicit region content proposals — partial follow-up
+
+- AR-20/21, CAT-05/06, SC-05: `tests/test_region_sequence_services.py`
+  exercises exact/current source and region pins, SQLite writer-fenced health
+  checks, bounded ordered/repeated occurrences, rollback and retained history.
+  Explicit edition creation preserves equal-title identities and rejects inactive
+  catalog records; authenticated CSRF-protected actions save proposals only.
+- `browser/test_review.py` / `browser/review.cjs` add edition creation and repeated
+  region proposal assertions without inspection/approval. Native execution remains
+  pending the final batch CI; no manual acceptance or complete WP-56 claim.
+
 ## Temporary saved-region inspection preview (pending integration)
 
 - AR-20/21, SC-05: `tests/test_region_preview.py` verifies exact historical region
