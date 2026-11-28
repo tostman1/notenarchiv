@@ -1,5 +1,21 @@
 # Implemented acceptance traceability
 
+## Pinned content sight review and confirmation — pending integration
+
+- AR-12/13/20/21, CAT-05/06, SC-05: `tests/test_content_proposal_preview.py`
+  exercises bounded saved-proposal discovery, exact immutable occurrence order and
+  historical region previews, private authenticated endpoints and no GET attestation.
+  Separate CSRF-protected POST actions require explicit sight review/fingerprint
+  and same-reviewer confirmation. Stale geometry, changed fingerprints, absent
+  acknowledgement and current-source corruption cannot approve content. Confirmation
+  is idempotent; legacy inspection/assignment/approval remain separate.
+- `browser/test_review.py` / `browser/review.cjs` add actual saved two-occurrence
+  PDF navigation, explicit inspection and subsequent separate confirmation before
+  the unchanged legacy workflow. Native execution remains pending final batch CI.
+- Combined local verification: 1493 passed, 161 platform-specific skips, two existing
+  Windows symlink-fixture setup failures (`WinError 1314`); not all-green evidence.
+  No physical/manual acceptance or complete compound editor claim.
+
 ## Explicit region content proposals — partial follow-up
 
 - AR-20/21, CAT-05/06, SC-05: `tests/test_region_sequence_services.py`

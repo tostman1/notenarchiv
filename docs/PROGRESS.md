@@ -2,6 +2,16 @@
 
 ## Pinned content inspection workflow — in progress
 
+- Combined local verification at `5b368459c8f90f64856c2d5fbd2fedcf14988d38`:
+  1493 passed, 161 skipped, two unchanged source-reader fixture failures at
+  lines 77/221 (`WinError 1314`, local Windows symlink privilege before application
+  assertions), 727.46 seconds. This is not an all-green local result. Ruff check
+  and format (423 files), requirements consistency, Django checks and migration
+  drift passed. No tests were weakened; native integration gates remain required.
+- Final bounded browser correction review confirmed the actual viewer controls
+  and fixture ordering; no remaining concrete findings in the cumulatively reviewed
+  batch. Native browser and exact integration CI are still pending.
+
 - Verified Main baseline: `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`,
   exact post-merge run `46149207191` passed Foundation, Container and Windows.
   PR #100 remains frozen at `ccbafbaee15aae44e403a6404397bebdc23fb350`
