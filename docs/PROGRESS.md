@@ -4,11 +4,14 @@
 
 - Exact PR #96 head `b99732d145857b5978b919e5508bad23f8b21df9`, run
   46127825275, failed Foundation's browser gate (31 browser tests passed, one
-  failed). Container and Windows passed. The drag overlay's inactive CSS selector
-  outranked the active selector, blocking pointer events. Corrected selector
-  specificity; the browser regression now checks computed pointer acceptance and
-  all four drawn bounds. This is an application UI defect, not a CI interruption.
-  No merge or green claim; a corrected exact-head gate is required.
+  failed). Container and Windows passed. The drag did not reach its expected right
+  bound. Initial CSS-cascade diagnosis was rejected by independent review: the
+  original equal-specificity active selector already appeared later. The test now
+  scrolls the overlay into view before measuring viewport coordinates, checks
+  computed pointer acceptance and all four drawn bounds. Increased active selector
+  specificity preserves inactive behavior but is not a proven root-cause fix.
+  Fixture viewport visibility is a hypothesis pending actual browser execution.
+  No merge or green claim; a corrected exact-head full gate is required.
 
 - PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head
   `cb896134a2bbbed123131ce3935c5b9030f26112` passed Foundation, Container and
