@@ -1,5 +1,23 @@
 # Progress record
 
+## PR #101 native preview correction
+
+- Exact candidate `32a2762916b0fd52de14415c6c917a2c4745a382` failed run
+  `46154511380`: Foundation Python checks passed, but the content-review browser
+  timed out after its document endpoint returned a sanitized 404. Container and
+  Windows passed. This is not green integration evidence and no merge occurred.
+- Shared nonblocking preview-slot contention with lazy OCR images is plausible,
+  not proven by the sanitized response. Settle the source-specific OCR image
+  before navigating to the pinned document, retaining every inspection and
+  confirmation assertion and all application resource/security guards.
+- Independent bounded correction review found no concrete blocker. Added a
+  deterministic busy-slot regression for the saved-proposal document: private
+  failure while locked, successful exact PDF after release, no approval or byte
+  changes. Targeted proposal/confirmation checks: 18 passed. Corrected exact-head
+  native CI remains required before merge.
+- Main PR #100 is verified at `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`,
+  exact run `46154228410` passed Foundation, Container and Windows.
+
 ## Region proposal integration checkpoint
 
 - PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`
