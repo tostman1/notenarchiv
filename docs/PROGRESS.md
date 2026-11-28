@@ -1,5 +1,87 @@
 # Progress record
 
+## OCR region/review integration batch — 2026-11-28 (in progress)
+
+- Exact PR #96 head `b99732d145857b5978b919e5508bad23f8b21df9`, run
+  46127825275, failed Foundation's browser gate (31 browser tests passed, one
+  failed). Container and Windows passed. The drag did not reach its expected right
+  bound. Initial CSS-cascade diagnosis was rejected by independent review: the
+  original equal-specificity active selector already appeared later. The test now
+  scrolls the overlay into view before measuring viewport coordinates, checks
+  computed pointer acceptance and all four drawn bounds. Increased active selector
+  specificity preserves inactive behavior but is not a proven root-cause fix.
+  Fixture viewport visibility is a hypothesis pending actual browser execution.
+  No merge or green claim; a corrected exact-head full gate is required.
+
+- PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head
+  `cb896134a2bbbed123131ce3935c5b9030f26112` passed Foundation, Container and
+  Windows. Exact post-merge run 46118104077 passed Foundation, Container and
+  Windows on the same Main SHA. The initial 30-minute wait timed out while the
+  browser step ran; one bounded extended wait confirmed success without cancelling
+  the run. Main is the verified comparison baseline for this independent batch.
+- DEC-17 permanently separates checkpoint commits from integration boundaries.
+  Reconciled AGENTS, PROCESS, standard checks and the implementation plan. Actual
+  workflow triggers already support CI-free pushes to feature branches without an
+  open PR; Main is unprotected and the manual reviewed-green gate still applies.
+  No workflow/protection weakening is needed. Requirements/CI contract checks:
+  8 passed; structural requirements checker: no errors.
+- Continue on `feat/ocr-region-review-batch`: selected-page/region OCR, visual
+  evidence and review improvements form one cohesive batch with targeted checks
+  and focused checkpoint commits. Full combined verification/review and exact
+  PR/Main CI will occur at the integration boundary, not each checkpoint.
+- Backend increments now support selected physical pages/displayed rectangles,
+  exact rotated CropBox/UserUnit conversion, independently idempotent queue
+  payloads and authenticated hash-verified source-image evidence. Focused backend
+   geometry/queue/preview tests pass; graphical drag selection, keyboard fields,
+   source-page navigation and bounded escaped image/word evidence are implemented.
+  Added independent PDF-text/OCR conflict comparisons and conservative fallback
+  to readable text-layer evidence: 24 focused recognition/service tests passed,
+  one platform-specific recovery test skipped locally. No musical approval changes.
+  Native selected-region OCR smoke is prepared for the final container gate, not
+  claimed locally executed. Segmentation/continuation acceptance remains open.
+- Focused recognition fixes bind cache rule versions to alias targets, duplicate
+  work identities and part/instrument relationships (26 passed, one local skip).
+   Native OCR line identities retain separate side-by-side headings instead of
+   merging them by vertical position. Profile version now advances to `page-v3`.
+- Reproduced clipped-out text leaking through ordinary PDF extraction, then added
+  bounded geometric text extraction inside the existing isolated PDF worker for OCR
+  selections. Four rotation regressions and related PDF/OCR checks: 64 passed,
+   one local platform skip. No original bytes, musical regions or approvals changed.
+  Additional selected-evidence checks cover a different source version containing
+   identical bytes, incomplete historical evidence and GET-only private rendering:
+   23 backend tests passed (the pending UI launch test was not included).
+   Conservative clipped-out native character limits, logical page ordering and
+   cumulative text limits: 6 real-PDF regressions passed.
+   Selection/review, real-PDF and traceability checks: 55 passed. Browser checks
+   cover drag/keyboard/reset/zoom; they are prepared but not locally executed
+   because Node/browser tooling is unavailable. Independent cumulative review
+   was completed below; no new full CI or manual acceptance is claimed.
+  Checkpoints through `55780cf` are pushed on the feature branch without an open
+  PR (CI-free remote recovery checkpoint under the verified current triggers).
+   Uncommitted selected-page/evidence changes are not included in that checkpoint.
+- Independent cumulative review identified incorrect displayed dimensions in native
+  text clipping for non-square 90/270-degree selections. Corrected extraction to
+  unrotated page bounds; eight additional native regressions cover omissions and
+  outside-text exclusion. Profile `page-v3` invalidates affected older evidence
+  contexts. Focused PDF/OCR/selection checks: 51 passed. Browser fixture now covers
+  two-page selection synchronization and actual selected-job submission without
+  inspection. Independent follow-up reproduced the original failure cases across
+  all four orientations and confirmed the fix with no remaining implementation
+  blocker. Strengthened the stored regression positions to reproduce both original
+  defects (14 real-PDF tests passed). Final browser/CI execution remains pending.
+- Final focused combined OCR/recognition/review/preview/PDF/traceability/workflow
+  checks: 121 passed, two platform-specific local skips; Ruff and formatting pass.
+  Independent cumulative review and focused follow-ups have no unresolved finding.
+  Browser fixture additionally decodes the protected source image and navigates
+   from its evidence before submission. Combined local regression completed with
+   1413 passed, 161 skipped and two failures in existing source-reader fixtures:
+   this Windows account cannot create symlinks (`WinError 1314`). This is an
+   environment-limited failing run, not a green suite. It began before the final
+   rotation fixes; the focused checks above cover those changes. Requirements,
+   Django checks and migration consistency pass. The combined candidate proceeds
+   to mandatory exact-head Foundation/Container/Windows CI; integration and
+   representative manual/physical acceptance remain unverified.
+
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
 - Verified clean Main baseline `b536d8d286e13b1f10a2a872baf999aec01d0b76`

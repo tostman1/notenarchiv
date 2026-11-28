@@ -68,3 +68,61 @@ class RejectionForm(VersionForm):
     explicit = forms.BooleanField(
         label=_("Gespeicherten Zuordnungsvorschlag verwerfen (PDF und Historie bleiben erhalten)")
     )
+
+
+class OcrSelectionForm(forms.Form):
+    """Optional localized OCR region as percentages of the displayed page.
+
+    This is evidence collection only; it never approves or reassigns a version.
+    """
+
+    page = forms.IntegerField(
+        label=_("Seite (1 = erste Seite)"),
+        min_value=1,
+        max_value=500,
+        initial=1,
+        help_text=_("Seitennummer der PDF, auf der der markierte Bereich liegt."),
+        widget=forms.NumberInput(attrs={"min": "1", "max": "500", "step": "1"}),
+    )
+    left = forms.FloatField(
+        label=_("Linke Kante"),
+        min_value=0,
+        max_value=100,
+        initial=0,
+        help_text=_("Linke Kante in % der Seitenbreite (0–100), kleiner als rechte Kante."),
+        widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "any"}),
+    )
+    top = forms.FloatField(
+        label=_("Obere Kante"),
+        min_value=0,
+        max_value=100,
+        initial=0,
+        help_text=_("Obere Kante in % der Seitenhöhe (0–100), kleiner als untere Kante."),
+        widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "any"}),
+    )
+    right = forms.FloatField(
+        label=_("Rechte Kante"),
+        min_value=0,
+        max_value=100,
+        initial=100,
+        help_text=_("Rechte Kante in % der Seitenbreite (0–100), größer als linke Kante."),
+        widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "any"}),
+    )
+    bottom = forms.FloatField(
+        label=_("Untere Kante"),
+        min_value=0,
+        max_value=100,
+        initial=100,
+        help_text=_("Untere Kante in % der Seitenhöhe (0–100), größer als obere Kante."),
+        widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "any"}),
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        left, right = cleaned.get("left"), cleaned.get("right")
+        top, bottom = cleaned.get("top"), cleaned.get("bottom")
+        if left is not None and right is not None and left >= right:
+            raise forms.ValidationError(_("Die linke Kante muss kleiner als die rechte Kante sein."))
+        if top is not None and bottom is not None and top >= bottom:
+            raise forms.ValidationError(_("Die obere Kante muss kleiner als die untere Kante sein."))
+        return cleaned

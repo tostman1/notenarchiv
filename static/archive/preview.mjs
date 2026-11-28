@@ -9,6 +9,85 @@ const previous = document.getElementById("pdf-previous");
 const next = document.getElementById("pdf-next");
 let pdf, current = 1, rendering = false, requested = false;
 let loadingTask;
+const selection = document.getElementById("ocr-selection");
+let overlay, drawing = false, start;
+const selectionFields = selection && Object.fromEntries(
+    ["page", "left", "top", "right", "bottom"].map(name => [name, selection.elements.namedItem(name)])
+);
+
+function paintSelection() {
+    if (!overlay) return;
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    const context = overlay.getContext("2d");
+    if (Number(selectionFields.page.value) !== Number(root.dataset.page)) return;
+    const values = ["left", "top", "right", "bottom"].map(name => Number(selectionFields[name].value));
+    if (!values.every(value => Number.isFinite(value) && value >= 0 && value <= 100)) return;
+    const [left, top, right, bottom] = values;
+    if (left >= right || top >= bottom) return;
+    context.strokeStyle = "#0057b8";
+    context.lineWidth = 3;
+    context.fillStyle = "rgba(0, 87, 184, 0.12)";
+    const rectangle = [left * overlay.width / 100, top * overlay.height / 100,
+        (right - left) * overlay.width / 100, (bottom - top) * overlay.height / 100];
+    context.fillRect(...rectangle);
+    context.strokeRect(...rectangle);
+}
+
+if (selection) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "ocr-canvas-stack";
+    canvas.before(wrapper);
+    wrapper.append(canvas);
+    overlay = document.createElement("canvas");
+    overlay.className = "ocr-selection-overlay";
+    overlay.setAttribute("aria-hidden", "true");
+    wrapper.append(overlay);
+    selection.addEventListener("input", paintSelection);
+    selectionFields.page.addEventListener("change", () => {
+        const value = Number(selectionFields.page.value);
+        if (pdf && Number.isInteger(value) && value >= 1 && value <= pdf.numPages) {
+            current = value;
+            renderPage();
+        }
+    });
+    document.getElementById("ocr-draw").addEventListener("click", () => {
+        if (root.dataset.rendered !== "true") return;
+        drawing = !drawing;
+        overlay.classList.toggle("drawing", drawing);
+        document.getElementById("ocr-draw").setAttribute("aria-pressed", String(drawing));
+    });
+    document.getElementById("ocr-reset").addEventListener("click", () => {
+        for (const name of ["left", "top"]) selectionFields[name].value = 0;
+        for (const name of ["right", "bottom"]) selectionFields[name].value = 100;
+        paintSelection();
+    });
+    const point = event => {
+        const box = overlay.getBoundingClientRect();
+        return [Math.min(100, Math.max(0, (event.clientX - box.left) / box.width * 100)),
+            Math.min(100, Math.max(0, (event.clientY - box.top) / box.height * 100))];
+    };
+    overlay.addEventListener("pointerdown", event => {
+        if (!drawing || rendering || event.button !== 0) return;
+        selectionFields.page.value = root.dataset.page;
+        start = point(event);
+        overlay.setPointerCapture(event.pointerId);
+        event.preventDefault();
+    });
+    overlay.addEventListener("pointermove", event => {
+        if (!start) return;
+        const end = point(event);
+        ["left", "top", "right", "bottom"].forEach((name, index) => {
+            selectionFields[name].value = [Math.min(start[0], end[0]), Math.min(start[1], end[1]),
+                Math.max(start[0], end[0]), Math.max(start[1], end[1])][index].toFixed(3);
+        });
+        paintSelection();
+    });
+    const stop = () => { start = undefined; };
+    overlay.addEventListener("pointerup", stop);
+    overlay.addEventListener("pointercancel", stop);
+    overlay.addEventListener("lostpointercapture", stop);
+}
 GlobalWorkerOptions.workerSrc = root.dataset.workerUrl;
 
 function fail() {
@@ -16,6 +95,7 @@ function fail() {
     status.setAttribute("role", "alert");
     for (const control of [pageInput, zoom, previous, next]) control.disabled = true;
     canvas.width = canvas.height = 0;
+    if (overlay) overlay.width = overlay.height = 0;
     pdf?.destroy();
 }
 
@@ -46,6 +126,10 @@ async function renderPage() {
             root.dataset.rendered = "true";
             root.dataset.page = String(number);
             root.dataset.zoom = zoom.value;
+            if (selection) {
+                selectionFields.page.value = number;
+                paintSelection();
+            }
         }
     } catch { fail(); } finally { rendering = false; }
 }
@@ -59,6 +143,15 @@ pageInput.addEventListener("change", () => {
     renderPage();
 });
 zoom.addEventListener("change", renderPage);
+document.querySelectorAll("[data-preview-page]").forEach(button => {
+    button.addEventListener("click", () => {
+        const value = Number(button.dataset.previewPage);
+        if (pdf && Number.isInteger(value) && value >= 1 && value <= pdf.numPages) {
+            current = value;
+            renderPage();
+        }
+    });
+});
 
 try {
     const response = await fetch(root.dataset.documentUrl, { credentials: "same-origin", redirect: "error", cache: "no-store" });
@@ -84,6 +177,7 @@ try {
     if (pdf.numPages > 500) throw new Error("limit");
     document.getElementById("pdf-count").textContent = pdf.numPages;
     pageInput.max = pdf.numPages;
+    if (selection) selectionFields.page.max = pdf.numPages;
     pageInput.disabled = zoom.disabled = false;
     await renderPage();
 } catch { loadingTask?.destroy(); fail(); }

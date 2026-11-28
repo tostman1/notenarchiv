@@ -59,6 +59,30 @@ def test_rule_set_version_is_stable_and_bounded(catalog):
     assert all(variant["name_key"] != "posaune" for variant in rules_c.variants)
 
 
+def test_rule_version_tracks_alias_target_and_equal_title_identity(catalog):
+    original = rec.build_rule_set().version
+    alias = catalog["clarinette_alias"]
+    alias.instrument = catalog["clar_b"]
+    alias.save()
+    retargeted = rec.build_rule_set().version
+    assert retargeted != original
+    duplicate = Work.objects.create(title=catalog["work"].title)
+    assert rec.build_rule_set().version != retargeted
+    work_alias = WorkAlias.objects.get(alias="Einzug")
+    before = rec.build_rule_set().version
+    work_alias.work = duplicate
+    work_alias.save()
+    assert rec.build_rule_set().version != before
+
+
+def test_rule_version_tracks_part_instrument_identity(catalog):
+    part = Part.objects.create(instrument=catalog["clar_a"], code="1")
+    before = rec.build_rule_set().version
+    part.instrument = catalog["clar_b"]
+    part.save()
+    assert rec.build_rule_set().version != before
+
+
 def test_match_instrument_pitch_disambiguates(catalog):
     rules = rec.build_rule_set()
     variants, part_ids, exact = rec.match_instrument("Klarinette A 1", rules)

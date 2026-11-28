@@ -42,6 +42,24 @@ eine native Windows-Verteilung und der grafische Segmentierungseditor sind noch
 nicht geliefert. Ein ungeklärter Prozessabbruch erfordert Prüfung statt eines
 automatischen erneuten Versuchs.
 
+### Quellseite und rechteckigen Bereich analysieren
+
+Die ausgewählte OCR-Seite und die Bereichsgrenzen beziehen sich auf die
+angezeigte Originalseite, nicht auf eine musikalisch bestätigte Region.
+Grenzen werden als Prozentwerte von links/oben eingegeben: links und oben
+`0`, rechts und unten `100` bedeuten die ganze ausgewählte Seite. Links muss
+kleiner als rechts und oben kleiner als unten sein. Die Seitennummer beginnt
+bei `1`. Gedrehte Seiten und abweichende Seitenformate werden anhand ihrer
+Originalgeometrie berücksichtigt.
+
+Die Analyse eines Bereichs verarbeitet nur diese Seite und dieses Rechteck.
+Sie erstellt keine musikalischen Teilseiten, teilt kein Heft auf und verändert
+keine bestehende Freigabe. Gespeicherte OCR-Bilder sind geschützte Auszüge der
+erneut hashgeprüften Quelle. Bild, Text und Wort-Konfidenz dienen zur Erklärung
+des Vorschlags; sie ersetzen weder die vollständige Sichtprüfung noch die
+gesonderte Freigabe. Ein unbekannter oder widersprüchlicher Titel beziehungsweise
+eine unklare Stimme muss weiterhin manuell geklärt werden.
+
 ## Navigation und Stapelfreigabe
 
 **Vorherige Version** und **Nächste Version** wechseln durch die Prüfwarteschlange.

@@ -50,7 +50,14 @@ def parse_tsv(data, *, maximum=2048):
                 raise ValueError
             if not math.isfinite(confidence) or not 0 <= confidence <= 100 or len(row["text"]) > 512:
                 raise ValueError
-            words.append({"text": row["text"], "box": [x, y, x + w, y + h], "confidence": confidence / 100})
+            word = {"text": row["text"], "box": [x, y, x + w, y + h], "confidence": confidence / 100}
+            line_fields = ("page_num", "block_num", "par_num", "line_num")
+            if set(line_fields) <= set(reader.fieldnames):
+                line = [int(row[field]) for field in line_fields]
+                if any(not 0 <= identifier <= 100000 for identifier in line):
+                    raise ValueError
+                word["line"] = line
+            words.append(word)
         return words
     except OcrError:
         raise
@@ -64,7 +71,7 @@ class Profile:
     dpi: int = 200
     timeout: int = 60
     max_words: int = 2048
-    version: str = "page-v1"
+    version: str = "page-v3"
 
     def __post_init__(self):
         if not re.fullmatch(r"[a-z]{3}(?:\+[a-z]{3}){0,3}", self.languages):
@@ -72,7 +79,7 @@ class Profile:
         for name, low, high in (("dpi", 100, 300), ("timeout", 1, 60), ("max_words", 1, 2048)):
             if type(getattr(self, name)) is not int or not low <= getattr(self, name) <= high:
                 raise ValueError("Invalid OCR profile limit")
-        if self.version != "page-v1":
+        if self.version != "page-v3":
             raise ValueError("Unsupported OCR profile")
 
 
@@ -170,7 +177,7 @@ class Engine:
             rules=rules,
         )
         logical = self.processor.logical_pages([data], [selection])
-        text = self.processor.extract_text(logical)[0][:16384]
+        text = self.processor.extract_visible_text(logical)[0][:16384]
         image = self.processor.render(logical, 0, dpi=self.profile.dpi)
         with self.processor._workspace() as stage:
             self.processor._write(stage / "input.png", image)

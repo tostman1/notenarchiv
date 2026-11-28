@@ -34,8 +34,10 @@ was WP-53 with lettered packages. New allocations below use previously unused ID
 | Stabilization and acceptance | WP-28/40f/47–53 extended | All selected core criteria plus reference scenarios. Private quality, physical printer/NAS and licensing evidence remain distinct. |
 | Deferred backlog | WP-61a–h | Separate prioritization/approval, including important forScore study. No current core-release gate. |
 
-Keep increments moderately sized, typically two to four related WPs, with focused
-commits and targeted checks inside them. Split the above boundaries further if
+Apply DEC-17: batch typically three to six related implementation increments,
+with focused checkpoint commits and targeted local checks inside them, not a PR
+or full CI cycle per WP. Choose size flexibly by risk and reviewability. Split
+the above boundaries further if
 migration, security or review risk warrants it. Full regression and required
 exact-head PR/post-merge Main CI apply at integration boundaries.
 

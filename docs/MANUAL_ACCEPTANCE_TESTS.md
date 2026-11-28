@@ -1,7 +1,7 @@
 # Manuelle Produktabnahme — Notenarchiv & Marschbuch-Generator
 
 **Dokument:** `docs/MANUAL_ACCEPTANCE_TESTS.md` · **Version:** 1.0 — 2026-11-28
-**Grundlage:** WP-54/55-Softwarebasis `b536d8d` (siehe `docs/wp54-55-acceptance.md`) plus erster OCR-Inkrement `a2e178fd90f0a276e54e5ed932f048303c7c1910` auf `feat/ocr-product-phase`, PR #95, CI-Lauf 46073430077. Integration und manuelle Abnahme sind getrennte Schritte.
+**Grundlage:** WP-54/55-Softwarebasis `b536d8d` (siehe `docs/wp54-55-acceptance.md`) plus OCR-Integration PR #95 auf Main `3766fe389be7cc66489e8446858a8e7a462b449a`, exakt verifiziert in Lauf 46118104077. Bereichsauswahl und Bildnachweise im folgenden Batch `feat/ocr-region-review-batch` sind lokal implementiert, aber noch nicht integriert/CI-verifiziert. Integration und manuelle Abnahme sind getrennte Schritte.
 **Status:** Abnahmeplan. **Keine** der folgenden manuellen Tests wurde ausgeführt. Jeder Fall beginnt mit Status **nicht ausgeführt**; „bestanden" wird nur nach tatsächlicher Durchführung vermerkt.
 
 ## Zweck, Rolle und Regeln
@@ -226,7 +226,7 @@ Empfohlene Reihung: A → K. Hardware-Fälle (Abschnitt K) nur mit genehmigtem Z
 - **Voraussetzungen / Daten:** Ungeprüfte Scans: (a) sauberer Titel, (b) verrauschte/geschrägte Kopfzeile, (c) Titel nur auf Zusatzseite, (d) zweideutige Abkürzungen (`Pos. 2`, `Trb. 2`, `B. Bass`); eine Regel/Alias-Änderung nach der ersten Analyse.
 - **Handlung:** 1) Auf der Prüfseite **Alle Seiten lokal mit OCR analysieren** für einzelne Dateien starten, ohne erneut zu indizieren. 2) Ordnerstart und Indizierung mit OCR-Option erst nach deren Implementierung prüfen. 3) Regeln/Aliase ändern, erneute Analyse auslösen. 4) Für (d) die Behandlung der zweideutigen Abkürzungen prüfen. 5) Auftragsseite: Seitenfortschritt und Abbruch prüfen; Wiederanlauf mit bereits gespeicherter Evidenz testen. Verbliebener aktiver Prozessmarker muss eine Eigentumsprüfung verlangen, nicht automatisch gelöscht werden. Regionsfortschritt separat nach Implementierung prüfen.
 - **Erwartet / Kriterien:** OCR wird nie allein wegen eines eindeutigen Dateinamens übersprungen. Lokale Ausführung ohne Netz. Text und Konfidenz bleiben Hinweise, keine musikalische Bestätigung. Abbruch/Neustart: abgeschlossene Seiten verwenden passende Cache-Einträge erneut. Änderungen an Runtime, Profil, Geometrie oder Regeln erzeugen neue Evidenzidentitäten; historische Evidenz bleibt erhalten. Regionsanalyse bleibt späterer Umfang.
-- **Verfügbarkeit:** Teilweise implementiert: Einzeldatei-Start, alle Seiten, lokales Tesseract, Cache, Fortschritt/Abbruch und geschützter Wiederanlauf sind implementiert und synthetisch CI-verifiziert. Ordner-/Indexintegration, Regionsstart und vollständige Erkennungsziele bleiben offen (WP-24/25).
+- **Verfügbarkeit:** Teilweise implementiert: Einzeldatei-Start, alle Seiten, lokales Tesseract, Cache, Fortschritt/Abbruch und geschützter Wiederanlauf sind synthetisch CI-verifiziert. Seiten-/Rechteckstart mit Prozentfeldern und grafischem Aufziehen ist im Folgebatch lokal implementiert; dessen Browser-/Container-CI und Integration stehen aus. Ordner-/Indexintegration und vollständige Erkennungsziele bleiben offen (WP-24/25).
 - **Manueller Status:** nicht ausgeführt · **Tatsächliches Ergebnis:** — · **Defekt:** —
 
 #### MA-022 — OCR-Beweis-Prüfung: Regionen, Konflikte, Fortsetzungen
@@ -235,7 +235,7 @@ Empfohlene Reihung: A → K. Hardware-Fälle (Abschnitt K) nur mit genehmigtem Z
 - **Voraussetzungen / Daten:** Aus MA-021: Dateiname ≠ Inhalt; Titel erst auf Seite 2; Fortsetzungsregion ohne eigenen Titel; konflizierende Beweise (Name sagt Werk A, Text sagt Werk B).
 - **Handlung:** 1) Prüfwarteschlange öffnen, je Fall: PDF, OCR-Excerpt/Region, Methode, Konfidenz, Konfliktgrund anzeigen lassen. 2) Konflikte manuell korrigieren (Meisterdaten-Dropdowns). 3) Sichtprüfung speichern, freigeben. 4) Technische/OCR-Volltexte in den Logs prüfen.
 - **Erwartet / Kriterien:** Beweise in Deploy und Debug verfügbar; Fortsetzungen mit Bezug zum Anfang; Konflikt prominent markiert (kein stilles Mischen). Korrekturen über kontrollierte Auswahl. Freigabe nur nach visueller Prüfung der konkreten Region/Seite; Konfidenz oder Thumbnail genügen nie. Kein vollständiger OCR-Text in technischen Logs (sanitisiert).
-- **Verfügbarkeit:** Teilweise implementiert: OCR-Text, Quellseite, Methode, Kontext und bestehende Korrektur/Prüfung sind verfügbar. Bildregionen-Overlay und vollständige Fortsetzungs-/Mehrwerktitel-Evidenz bleiben offen (WP-26/56).
+- **Verfügbarkeit:** Teilweise implementiert: OCR-Text, Quellseite, Methode, Kontext und bestehende Korrektur/Prüfung sind verfügbar. Geschützter Quellausschnitt, begrenzte Wort-Konfidenzliste und Seitennavigation sind im Folgebatch lokal implementiert, noch nicht integriert/CI-verifiziert. Vollständige Fortsetzungs-/Mehrwerktitel-Evidenz und musikalischer Segmentierungseditor bleiben offen (WP-26/56).
 - **Manueller Status:** nicht ausgeführt · **Tatsächliches Ergebnis:** — · **Defekt:** —
 
 #### MA-023 — Textschicht: fehlend, gemischt, irreführend

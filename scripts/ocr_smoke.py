@@ -40,7 +40,18 @@ def main():
     words = " ".join(word["text"] for word in result["words"])
     if result["text_layer"] or "Synthetic" not in words or "Posaune" not in words:
         raise RuntimeError("Synthetic image-only OCR smoke failed")
-    print("Synthetic text-layer and image-only OCR smoke passed")  # noqa: T201 - fixed synthetic result only
+    selected = engine.recognize_page(scanned.getvalue(), page=0, bounds=[0, 225, 420, 300], rules="synthetic-smoke-v1")
+    selected_words = " ".join(word["text"] for word in selected["words"])
+    if "Synthetic" not in selected_words or "Posaune" in selected_words:
+        raise RuntimeError("Synthetic selected-region OCR smoke failed")
+    if selected["cache_key"] == result["cache_key"]:
+        raise RuntimeError("Synthetic selected-region cache isolation failed")
+    digital_selection = engine.recognize_page(
+        stream.getvalue(), page=0, bounds=[0, 225, 420, 300], rules="synthetic-smoke-v1"
+    )
+    if "Synthetic" not in digital_selection["text_layer"] or "Posaune" in digital_selection["text_layer"]:
+        raise RuntimeError("Synthetic selected-region text-layer isolation failed")
+    print("Synthetic text-layer, image-only and selected-region OCR smoke passed")  # noqa: T201
 
 
 if __name__ == "__main__":

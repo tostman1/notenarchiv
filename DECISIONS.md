@@ -1,5 +1,20 @@
 # Decisions and validation register
 
+## Batched integration refinement — 2026-11-28
+
+**DEC-17 — Approved by the owner.** Focused development commits and WPs are not
+automatically delivery boundaries. Accumulate typically three to six related
+increments on a shared feature/integration branch; size follows risk and
+reviewability, not a quota. Use targeted checks, incremental review and durable
+checkpoints between boundaries. At a meaningful boundary perform combined local
+verification and independent cumulative review, one full exact-head integration
+PR CI, then exact post-merge Main CI. All security, migration, review, protection,
+integrity and deployment gates remain. Continue safe independent work while the
+deterministic waiter runs; freeze the candidate. Existing Main verification is
+not cancelled. Current feature-branch pushes without an open PR are CI-free remote
+checkpoints, not green integration evidence. Canonical details are in
+`docs/PROCESS.md` and `docs/standard-checks.md`; no new reduced integration gate.
+
 ## Product priority and core-scope amendment — 2026-11-27
 
 **DEC-16 — Approved by the owner.** Continue from verified Main `b536d8d` and

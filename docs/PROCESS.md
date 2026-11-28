@@ -24,12 +24,29 @@ weaken any CI, review, security, integration, or verification requirement.
 
 ## Canonical sequence
 
-Owner authorization (2026-11-25) permits cohesive, independently verifiable
-increments spanning typically two to four related work packages. Choose size
-by dependencies, complexity, risk and reviewability. Keep focused commits and
-durable checkpoints within the increment. Run targeted checks during development
-and full regression plus required PR and post-merge CI at integration boundaries.
-Security-critical or migration-sensitive work may justify smaller increments.
+Owner refinement (2026-11-28, DEC-17) separates development commits from delivery
+boundaries. Accumulate related implementation, tests, fixes and documentation on
+one feature/integration branch, typically three to six related increments, not a
+rigid quota or a mandatory PR per WP. Choose size by complexity, dependencies,
+risk and cumulative reviewability. Security-critical and migration-sensitive work
+may justify smaller batches or earlier full verification.
+
+Within a batch, run targeted local tests and relevant lint, formatting, migration
+and consistency checks; review and commit focused Conventional Commits as durable
+checkpoints, then continue development. Do not automatically run full regression
+or Actions after every commit, test, documentation edit or review correction.
+At the integration boundary, run combined local verification once, independently
+review the cumulative diff against the verified Main baseline, and obtain full
+exact-head PR CI followed by exact post-merge Main CI. Intermediate commits and
+superseded candidates need not each have independent full CI evidence.
+
+Remote checkpoints: current CI triggers are Main pushes, pull-request events and
+reusable workflow calls. A push to a feature branch with **no open PR** does not
+start CI; use that existing mechanism when a remote checkpoint is needed. Once a
+PR exists, pushing another head starts verification, including draft PRs. Do not
+use skip-CI markers, disable checks or change permissions to avoid gates. Recheck
+triggers/protection if this mechanism changes. No force-push or history discard
+is authorized. A checkpoint without CI is not successful integration evidence.
 
 Prefer existing deterministic tools for recurring mechanical work. Add bounded,
 cross-platform, testable scripts with compact machine-readable evidence when
@@ -40,15 +57,19 @@ Process improvements accompany functional delivery. Working product behavior
 and practical usability take priority. These rules preserve all acceptance,
 privacy, security, review and integration gates.
 
-1. Complete the implementation within the approved scope.
-2. Run the relevant local verification (see [standard-checks.md](standard-checks.md)).
+1. Assemble a cohesive batch within the approved scope, using targeted checks,
+   incremental review and focused local commits between integration boundaries.
+2. Run the combined required local verification once at the integration boundary
+   (see [standard-checks.md](standard-checks.md)); review the cumulative diff.
 3. Commit with a small English Conventional Commit; write the message to
    `.agent-commit-message.txt` and use `git commit -F` per [AGENTS.md](../AGENTS.md).
 4. Push the verified commit to a feature branch and open the pull request.
 5. Identify the GitHub Actions run or the PR checks for that exact head commit.
 6. Invoke the deterministic waiter once, bound to the exact commit SHA and the
    required checks (commands in [standard-checks.md](standard-checks.md)).
-7. Let the single blocking operation wait without further LLM interaction.
+7. Let the deterministic operation wait without model-driven polling. Continue
+   independent work on a separate branch/worktree where safe; never modify the
+   frozen candidate merely to add unrelated work. A changed head needs new CI.
 8. Read the compact terminal result.
 9. On success, continue to the next authorized integration action.
 10. On failure, retrieve only the relevant failed job/step information.

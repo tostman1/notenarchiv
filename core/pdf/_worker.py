@@ -85,6 +85,10 @@ def main(stage):
                     ):
                         raise PdfError("UNSUPPORTED_ANNOTATION")
                     render(stage / "0.pdf", infos[0][page], request, limits, stream)
+                elif request["operation"] == "visible_text":
+                    from core.pdf.visible_text import extract
+
+                    extract(stage / "0.pdf", infos[0], limits, stream)
                 elif request["operation"] == "merge":
                     from core.pdf.merging import merge
 

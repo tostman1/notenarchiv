@@ -18,7 +18,42 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
         await page.getByLabel("Passwort").fill("Synthetic-review-135");
         await page.getByRole("button", { name: "Anmelden" }).click();
         await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
-        if (mode === "inspect") {
+        if (mode === "selection") {
+            const selection = page.locator("#ocr-selection");
+            const image = page.locator(".ocr-evidence-image");
+            await image.scrollIntoViewIfNeeded();
+            await image.evaluate(element => element.decode());
+            assert.ok(await image.evaluate(element => element.naturalWidth > 0));
+            await page.getByRole("button", { name: "Quellseite anzeigen 2", exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            assert.equal(await selection.locator('[name="page"]').inputValue(), "2");
+            for (const [name, value] of Object.entries({ left: "10", top: "20", right: "80", bottom: "90" })) {
+                await selection.locator(`[name="${name}"]`).fill(value);
+            }
+            await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
+            await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "inspect") {
+            const selection = page.locator("#ocr-selection");
+            await selection.locator('[name="left"]').fill("10");
+            await selection.locator('[name="right"]').fill("70");
+            await page.getByRole("button", { name: "Bereich aufziehen", exact: true }).click();
+            const overlay = page.locator(".ocr-selection-overlay");
+            assert.equal(await overlay.evaluate(element => getComputedStyle(element).pointerEvents), "auto");
+            await overlay.scrollIntoViewIfNeeded();
+            const box = await overlay.boundingBox();
+            await page.mouse.move(box.x + box.width * 0.1, box.y + box.height * 0.1);
+            await page.mouse.down();
+            await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.3, { steps: 3 });
+            await page.mouse.up();
+            assert.ok(Math.abs(Number(await selection.locator('[name="left"]').inputValue()) - 10) < 1);
+            assert.ok(Math.abs(Number(await selection.locator('[name="top"]').inputValue()) - 10) < 1);
+            assert.ok(Math.abs(Number(await selection.locator('[name="right"]').inputValue()) - 60) < 1);
+            assert.ok(Math.abs(Number(await selection.locator('[name="bottom"]').inputValue()) - 30) < 1);
+            await page.locator("#pdf-zoom").selectOption("0.75");
+            await page.locator('#pdf-preview[data-rendered="true"][data-zoom="0.75"]').waitFor();
+            assert.ok(Math.abs(Number(await selection.locator('[name="right"]').inputValue()) - 60) < 1);
+            await page.getByRole("button", { name: "Ganze ausgewählte Seite", exact: true }).click();
+            assert.equal(await selection.locator('[name="right"]').inputValue(), "100");
             assert.equal(await page.getByRole("button", { name: "Freigabe beauftragen" }).count(), 0);
             await page.getByLabel("Arrangement / Ausgabe", { exact: false }).selectOption(arrangement);
             await page.getByLabel("Instrumentenvarianten", { exact: false }).selectOption(instrument);

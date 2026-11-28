@@ -11,13 +11,13 @@ from django.core.management import call_command
 from django.db import connections
 
 from apps.archive import models as m
-from apps.archive.recognition import record_candidate
+from apps.archive.recognition import build_rule_set, record_candidate
 from apps.archive.services import observe_version, register_base
 from apps.catalog import models as c
 from apps.jobs.models import Job, WorkerLease
 from apps.jobs.services.worker import run_worker
 from tests.archive_fixtures import PAGE
-from tests.pdf_fixtures import pdf
+from tests.pdf_fixtures import A4, pdf
 from tests.test_archive_workflow import receipt
 
 
@@ -42,19 +42,35 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     variant = c.InstrumentVariant.objects.create(name="Posaune", transposition="C", clef="BASS")
     parts = [c.Part.objects.create(instrument=variant, code=str(n)) for n in (2, 3)]
     folder = m.SourceFolder.objects.create(relative_path="Synthetic")
-    data = pdf()
+    data = pdf(sizes=(A4, A4))
     version, _ = observe_version(
         folder.pk,
         "Synthetic/Synthetic review Posaune 1.pdf",
         sha256=hashlib.sha256(data).hexdigest(),
         byte_size=len(data),
         pdf_state="VALID",
-        page_info=[PAGE],
+        page_info=[PAGE, PAGE],
     )
     file, _ = receipt(register_base(version.pk, "_Ungeprueft/review.pdf"))
     record_candidate(
         version.pk, filename="Synthetic review Posaune 1.pdf", text_lines=["Synthetic review", "Posaune 2"]
     )
+    evidence = m.OcrPageEvidence.objects.create(
+        source_version=version,
+        cache_key="6" * 64,
+        page=1,
+        evidence={
+            "sha256": version.sha256,
+            "cache_key": "6" * 64,
+            "page": 1,
+            "bounds": [0, 0, 200, 300],
+            "orientation": 0,
+            "rules": build_rule_set().version,
+            "text_layer": "",
+            "words": [],
+        },
+    )
+    record_candidate(version.pk, filename="Synthetic review Posaune 1.pdf", ocr_evidence=evidence)
     path = settings.CURATED_DIR / file.relative_path
     path.parent.mkdir()
     path.write_bytes(data)
@@ -63,6 +79,12 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     server = request.getfixturevalue("live_server")
     arguments = [server.url, str(file.pk), str(arrangement.pk), str(variant.pk), *[str(p.pk) for p in parts]]
     script = str(Path(__file__).with_name("review.cjs"))
+    subprocess.run(["node", script, "selection", *arguments], check=True, timeout=90)
+    job = Job.objects.get(kind="OCR")
+    assert job.payload["selection"] == {"page": 1, "box": [0.1, 0.2, 0.8, 0.9]}
+    assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
+    # This browser case verifies enqueue, not native OCR execution (container smoke).
+    Job.objects.filter(pk=job.pk).delete()
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk

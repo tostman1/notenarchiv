@@ -8,6 +8,24 @@ import pytest
 from core.ocr import Engine, OcrError, Profile, parse_tsv
 from core.processes import ProcessCleanupError
 
+
+def test_native_line_identity_keeps_side_by_side_headings_separate():
+    from apps.archive.recognition import ocr_lines
+
+    output = (
+        b"level\tpage_num\tblock_num\tpar_num\tline_num\tleft\ttop\twidth\theight\tconf\ttext\n"
+        b"5\t1\t1\t1\t1\t10\t20\t40\t15\t90\tFirst\n"
+        b"5\t1\t1\t1\t1\t55\t21\t40\t15\t90\tMarch\n"
+        b"5\t1\t2\t1\t1\t200\t20\t40\t15\t90\tSecond\n"
+        b"5\t1\t2\t1\t1\t245\t20\t40\t15\t90\tPolka\n"
+    )
+    words = parse_tsv(output)
+    assert words[0]["line"] == [1, 1, 1, 1]
+    assert ocr_lines(words) == ["First March", "Second Polka"]
+    with pytest.raises(OcrError, match="INVALID_OUTPUT"):
+        parse_tsv(output.replace(b"5\t1\t2", b"5\t1\t-2"))
+
+
 TSV = b"level\tleft\ttop\twidth\theight\tconf\ttext\n5\t10\t20\t30\t15\t87\tPosaune II\n"
 
 
@@ -57,7 +75,7 @@ def test_cache_includes_geometry_revision_profile_runtime_and_rules(engine):
 def test_partial_text_never_skips_ocr_and_uncertain_cleanup_retains_stage(engine, monkeypatch):
     calls = []
     monkeypatch.setattr(engine.processor, "logical_pages", lambda *a: b"logical")
-    monkeypatch.setattr(engine.processor, "extract_text", lambda *a: ("Misleading title",))
+    monkeypatch.setattr(engine.processor, "extract_visible_text", lambda *a: ("Misleading title",))
     monkeypatch.setattr(engine.processor, "render", lambda *a, **k: b"synthetic PNG")
 
     def run(arguments, **kwargs):
