@@ -1,7 +1,10 @@
 """Explicit saved sequences remain proposals, with exact input/history pins."""
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.test import Client
+from django.urls import reverse
 
 from apps.archive import models as m
 from apps.archive import region_sequence_services
@@ -111,3 +114,33 @@ def test_sequence_order_and_later_proposals_retain_earlier_pins(region_preview):
         other_revision.pk,
     ]
     assert m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_region_content_post_requires_csrf_and_saves_only_unconfirmed_proposal(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    arrangement = c.Arrangement.objects.create(work=c.Work.objects.create(title="Synthetic explicit UI"))
+    part = c.Part.objects.create(instrument=c.InstrumentVariant.objects.create(name="Synthetic UI part"), code="1")
+    edition = m.ContentEdition.objects.create(arrangement=arrangement, part=part)
+    url = reverse("archive_review_detail", args=[file.pk])
+    data = {
+        "action": "region_content",
+        "edition": str(edition.pk),
+        "expected_edition_number": 0,
+        "expected_file_revision": file.revision,
+        "source_version_id": str(file.source_version_id),
+        "region": [str(regions[1].pk), "", str(regions[1].pk)],
+    }
+    strict = Client(enforce_csrf_checks=True)
+    strict.force_login(get_user_model().objects.get(pk=client.session.get("_auth_user_id")))
+    assert strict.post(url, data).status_code == 403
+    response = client.get(url)
+    assert response.status_code == 200
+    assert b"region_content" in response.content
+    assert client.post(url, data).status_code == 302
+    proposal = edition.revisions.get()
+    assert proposal.references.count() == 2
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+    assert m.ReviewInspection.objects.count() == 0
+    assert client.post(url, data).status_code == 302
+    assert edition.revisions.count() == 1

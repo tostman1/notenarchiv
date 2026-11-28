@@ -13,6 +13,12 @@
 - Targeted sequence/confirmation checks: 17 passed. No inspection, confirmation,
   legacy assignment or approved-export eligibility is inferred. UI, independent
   review and combined integration verification for this follow-up remain open.
+- Independent service review found no concrete blocker. Added a separate CSRF-
+  protected review action with explicit existing edition selection, expected
+  edition/file revisions and ordered region slots. Stale re-submission is rejected;
+  whole-document assignments and musical approval remain untouched. Targeted
+  sequence/editor/review UI checks: 37 passed. Native browser verification and
+  cumulative UI review remain pending.
 
 ## Execution-state check — 2026-11-28
 

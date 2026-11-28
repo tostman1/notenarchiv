@@ -40,6 +40,29 @@ def detail(request, file_id):
     failed_form, status = None, 200
     if request.method == "POST":
         action = request.POST.get("action")
+        if action == "region_content":
+            from apps.archive.region_sequence_services import propose_region_sequence
+
+            form = forms.RegionContentForm(request.POST)
+            try:
+                if not form.is_valid():
+                    raise ValidationError("Invalid content proposal.")
+                values = form.cleaned_data
+                propose_region_sequence(
+                    file.pk,
+                    edition_id=values["edition"].pk,
+                    expected_edition_number=values["expected_edition_number"],
+                    expected_file_revision=values["expected_file_revision"],
+                    source_version_id=values["source_version_id"],
+                    region_revision_ids=[value for value in request.POST.getlist("region") if value],
+                )
+            except (ValidationError, DatabaseError, ValueError, OSError, Http404):
+                messages.error(
+                    request, _("Inhaltsvorschlag nicht gespeichert. Ausgabe, Revision und Quellstand prüfen.")
+                )
+            else:
+                messages.success(request, _("Inhaltsvorschlag gespeichert – noch nicht inspiziert oder freigegeben."))
+            return redirect("archive_review_detail", file_id=file.pk)
         if action == "region_save":
             from apps.archive.region_editor_services import save_rectangle
 
@@ -222,6 +245,9 @@ def detail(request, file_id):
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),
             "regions": regions,
+            "region_content": forms.RegionContentForm(
+                initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
+            ),
             "inspected": inspected,
             "jobs": jobs,
             "failed_form": failed_form,
