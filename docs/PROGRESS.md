@@ -48,6 +48,12 @@
   requirements (119 definitions/61 aliases), Django and migration checks passed.
   Exact integration CI and native browser checks remain pending; do not repeat
   the full local suite for subsequent documentation-only checkpoint changes.
+- Incorporated reviewed PR #99 Main changes without rewriting history; the only
+  merge conflict was progress chronology, retained on both sides. Focused combined
+  proposal/preview/confirmation/review/traceability checks after integration:
+  54 passed; whole-repository Ruff and formatting (420 files) passed. Independent
+  reviews cover the cumulative implementation and corrected browser selector.
+  Final proposal-batch native browser and exact-head CI remain required.
 
 ## PR #99 native preview failure follow-up
 
