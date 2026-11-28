@@ -93,4 +93,17 @@ These paths are informational only: always verify the actual repository root; us
 
 ## CI verification and waiting
 
-Waiting is not reasoning: never use LLM-driven polling, repeated status checks, or repeated context reconstruction to wait for GitHub Actions, PR checks, mergeability, or any external operation. Follow [docs/PROCESS.md](docs/PROCESS.md) for the canonical workflow (implement → test → commit → push → one deterministic SHA-bound CI wait → compact result → continue) and [docs/standard-checks.md](docs/standard-checks.md) for the exact commands, `scripts/wait_for_ci.py` usage, defaults, exit codes, and failure diagnostics. Bind every wait to the exact expected commit SHA and the required checks; one CI phase is one waiting operation and one final result. Missing, skipped, stale, mismatched, failed, timed-out, or rate-limited results are never a successful verification and are never grounds to merge. If the environment cannot wait reliably, checkpoint and stop instead of polling manually. All existing review, approval, merge, release, and deployment gates remain unchanged.
+Owner refinement (2026-11-28, DEC-17): commits, subtasks and WPs are not automatic
+delivery boundaries. Accumulate typically 3–6 related increments on a shared
+feature/integration branch (flexible, risk-based); use targeted local checks,
+incremental review and focused checkpoint commits, then continue. Full combined
+local verification, independent cumulative review, exact-head PR CI and exact
+post-merge Main CI apply at meaningful integration boundaries, not every small
+commit or correction. Current feature-branch pushes without an open PR are remote
+checkpoints without CI; open/draft PR updates trigger CI. Never treat checkpoints
+as green verification. Keep frozen candidates unchanged while waiting and continue
+safe independent work elsewhere. Security/migration risk may require smaller
+batches. Preserve all gates and do not cancel valid Main CI to apply batching.
+See docs/PROCESS.md for the canonical policy.
+
+Waiting is not reasoning: never use LLM-driven polling, repeated status checks, or repeated context reconstruction to wait for GitHub Actions, PR checks, mergeability, or any external operation. Follow [docs/PROCESS.md](docs/PROCESS.md) for the canonical batched workflow (develop/checkpoint → combined verification/review → push candidate → one deterministic SHA-bound CI wait → compact result → integrate/continue) and [docs/standard-checks.md](docs/standard-checks.md) for the exact commands, `scripts/wait_for_ci.py` usage, defaults, exit codes, and failure diagnostics. Bind every wait to the exact expected commit SHA and the required checks; one CI phase is one waiting operation and one final result. Missing, skipped, stale, mismatched, failed, timed-out, or rate-limited results are never a successful verification and are never grounds to merge. If the environment cannot wait reliably, checkpoint and stop instead of polling manually. All existing review, approval, merge, release, and deployment gates remain unchanged.

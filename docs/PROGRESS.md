@@ -1,5 +1,22 @@
 # Progress record
 
+## OCR region/review integration batch — 2026-11-28 (in progress)
+
+- PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head
+  `cb896134a2bbbed123131ce3935c5b9030f26112` passed Foundation, Container and
+  Windows. Exact post-merge run 46118104077 is being verified by the existing
+  deterministic waiter; pending is not green. The running gate was not cancelled.
+- DEC-17 permanently separates checkpoint commits from integration boundaries.
+  Reconciled AGENTS, PROCESS, standard checks and the implementation plan. Actual
+  workflow triggers already support CI-free pushes to feature branches without an
+  open PR; Main is unprotected and the manual reviewed-green gate still applies.
+  No workflow/protection weakening is needed. Requirements/CI contract checks:
+  8 passed; structural requirements checker: no errors.
+- Continue on `feat/ocr-region-review-batch`: selected-page/region OCR, visual
+  evidence and review improvements form one cohesive batch with targeted checks
+  and focused checkpoint commits. Full combined verification/review and exact
+  PR/Main CI will occur at the integration boundary, not each checkpoint.
+
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
 - Verified clean Main baseline `b536d8d286e13b1f10a2a872baf999aec01d0b76`

@@ -113,7 +113,11 @@ semantic coverage or certify that a planned acceptance test passed. Reuse
 unchanged software verification for documentation consolidation; required
 exact-SHA CI classification and integration gates still apply.
 
-Run the relevant subset before pushing; a full package uses all of them:
+During a development batch, run targeted tests and relevant lint, formatting,
+migration and consistency checks, commit checkpoints and continue. Do not repeat
+full regression/Actions for each small commit. At the combined integration
+boundary, run required combined local verification once using these commands
+(record unavailable local tooling or environment failures honestly):
 
 ```sh
 uv run ruff check .
@@ -128,6 +132,14 @@ CI then repeats the Foundation checks plus the full container, security, and
 synthetic-acceptance scope unless the change is classified docs-only by
 `scripts/ci_changes.py` (only `docs/PROGRESS.md` and `tests/TRACEABILITY.md`
 qualify). Do not weaken or skip a required check to save time.
+
+Current `.github/workflows/ci.yml` triggers Main pushes, pull-request events and
+reusable calls. Feature-branch pushes without an open PR provide remote development
+checkpoints without Actions; draft PR updates still trigger CI. Such checkpoints
+are explicitly unverified by full CI. Push/open or update one PR when the cohesive
+batch is ready; the final candidate requires the full exact-SHA gate and exact
+post-merge Main verification. No skip-CI marker is needed or allowed as integration
+evidence. See DEC-17 and [PROCESS.md](PROCESS.md).
 
 ## Compact success evidence
 
