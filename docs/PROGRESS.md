@@ -13,6 +13,12 @@
 - Focused preview/editor/source checks: 37 passed, one platform-specific skip;
   real isolated rendering, authentication, corruption and source-version isolation
   are exercised. No native browser or full integration result for this follow-up.
+- Added native browser assertion that the saved-region image actually decodes;
+  local Node tooling remains unavailable, so execution awaits the follow-up batch.
+- PR #97 exact post-merge Main gate is now verified: Main
+  `257c7078c166cefdd9945a239b2862035bca194a`, run `46135139853`,
+  Foundation/Container/Windows success. PR #98 exact candidate
+  `1fa9a781c13a757691e13a9e2769e09bcdb9a8c9` also passed all required CI gates.
 
 ## Explicit region-editor foundation — in progress
 
