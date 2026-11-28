@@ -19,10 +19,11 @@
   and fixture ordering; no remaining concrete findings in the cumulatively reviewed
   batch. Native browser and exact integration CI are still pending.
 
-- Verified Main baseline: `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`,
+- Previous verified Main baseline: `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`,
   exact post-merge run `46149207191` passed Foundation, Container and Windows.
-  PR #100 remains frozen at `ccbafbaee15aae44e403a6404397bebdc23fb350`
-  during its existing exact-head CI wait.
+  The batch now incorporates merged PR #100 at `7ad8e30e`; its exact Main
+  verification remains pending as recorded above. No completed checks were rerun
+  solely for the already PR-verified browser selector corrections and merge docs.
 - Independent follow-up exposes bounded saved proposal discovery and an authenticated
   preview of exact immutable occurrences/region revisions, including repeats and
   historical pins. Opening it creates no inspection or approval. Preview review
@@ -49,7 +50,13 @@
 - PR #100 failed its original exact head on two remaining ambiguous legacy
   browser selectors. Both correction-form scopes were independently reviewed,
   targeted checks passed (33 plus one platform skip), and corrected frozen head
-  `4020beb421f4241dbf348d9af70b8cba76c80e0a` now receives one exact CI wait.
+  `4020beb421f4241dbf348d9af70b8cba76c80e0a` passed its exact required checks
+  before the recorded merge.
+- After incorporating the PR-verified Main corrections, 52 targeted proposal,
+  inspection, confirmation, review and traceability tests passed. Whole-repository
+  Ruff check/format and diff checks passed. Final candidate CI, including native
+  browser execution, remains mandatory; the earlier combined local limitations
+  above are unchanged.
 
 ## PR #100 exact-head browser correction
 
