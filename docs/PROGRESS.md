@@ -10,6 +10,9 @@
   browser review requested fresh persisted-history checks rather than cached ORM
   objects; the fixture now reloads occurrence/logical pins, inspection/confirmation
   identities and original/child region geometry after merging.
+- Fixes-only independent follow-up at `9d016a26ece616463573713513f3ba9909bd8208`
+  verified fresh persisted lookups and actual model fields with no remaining
+  concrete finding. This does not establish native browser or CI success.
 - 58 targeted merge, split/editor, review and traceability checks passed; Ruff
   check/format passed (425 files). Native browser execution remains pending.
   German guidance and MA-061 distinguish current integration from local merge work;
