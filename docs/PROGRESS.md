@@ -58,6 +58,12 @@
   all four orientations and confirmed the fix with no remaining implementation
   blocker. Strengthened the stored regression positions to reproduce both original
   defects (14 real-PDF tests passed). Final browser/CI execution remains pending.
+- Final focused combined OCR/recognition/review/preview/PDF/traceability/workflow
+  checks: 121 passed, two platform-specific local skips; Ruff and formatting pass.
+  Independent cumulative review and focused follow-ups have no unresolved finding.
+  Browser fixture additionally decodes the protected source image and navigates
+  from its evidence before submission. Full local regression is running; no
+  final-head CI has been started and the batch is not yet integration-verified.
 
 ## Approved OCR product phase — 2026-11-27 (in progress)
 
