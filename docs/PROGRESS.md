@@ -30,8 +30,8 @@
   claimed locally executed. Segmentation/continuation acceptance remains open.
 - Focused recognition fixes bind cache rule versions to alias targets, duplicate
   work identities and part/instrument relationships (26 passed, one local skip).
-  Native OCR line identities retain separate side-by-side headings instead of
-  merging them by vertical position. Profile version advances to `page-v2`.
+   Native OCR line identities retain separate side-by-side headings instead of
+   merging them by vertical position. Profile version now advances to `page-v3`.
 - Reproduced clipped-out text leaking through ordinary PDF extraction, then added
   bounded geometric text extraction inside the existing isolated PDF worker for OCR
   selections. Four rotation regressions and related PDF/OCR checks: 64 passed,
@@ -47,7 +47,14 @@
    remains in progress; no new full CI or manual acceptance is claimed.
   Checkpoints through `55780cf` are pushed on the feature branch without an open
   PR (CI-free remote recovery checkpoint under the verified current triggers).
-  Uncommitted selected-page/evidence changes are not included in that checkpoint.
+   Uncommitted selected-page/evidence changes are not included in that checkpoint.
+- Independent cumulative review identified incorrect displayed dimensions in native
+  text clipping for non-square 90/270-degree selections. Corrected extraction to
+  unrotated page bounds; eight additional native regressions cover omissions and
+  outside-text exclusion. Profile `page-v3` invalidates affected older evidence
+  contexts. Focused PDF/OCR/selection checks: 51 passed. Browser fixture now covers
+  two-page selection synchronization and actual selected-job submission without
+  inspection; browser execution and review follow-up remain pending.
 
 ## Approved OCR product phase — 2026-11-27 (in progress)
 

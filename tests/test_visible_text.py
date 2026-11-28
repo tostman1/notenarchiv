@@ -26,6 +26,25 @@ def test_only_selected_text_enters_region_evidence(tmp_path, orientation):
     assert "Outside" not in text and "Polka" not in text
 
 
+@pytest.mark.parametrize("orientation", [0, 90, 180, 270])
+@pytest.mark.parametrize("bounds", [[0, 100, 100, 300], [0, 100, 200, 200]])
+def test_non_square_rotated_selection_uses_unrotated_native_bounds(tmp_path, orientation, bounds):
+    tmp_path.chmod(0o700)
+    stream = io.BytesIO()
+    canvas = Canvas(stream, pagesize=(200, 300))
+    canvas.setFont("Helvetica", 8)
+    canvas.drawString(10, 170, "Selected March")
+    canvas.drawString(10, 30, "Outside Polka")
+    canvas.save()
+    processor = Processor(tmp_path)
+    logical = processor.logical_pages(
+        [stream.getvalue()], [{"input": 0, "page": 0, "bounds": bounds, "orientation": orientation}]
+    )
+    text = processor.extract_visible_text(logical)[0]
+    assert "Selected March" in text
+    assert "Outside" not in text and "Polka" not in text
+
+
 def test_clipped_out_characters_still_count_toward_native_text_limit(tmp_path):
     tmp_path.chmod(0o700)
     stream = io.BytesIO()

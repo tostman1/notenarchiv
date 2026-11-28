@@ -17,8 +17,10 @@ def extract(path, infos, limits, output):
                 # still counts toward this conservative resource bound.
                 if textpage.count_chars() > limits.max_text_chars:
                     raise PdfError("LIMIT_EXCEEDED")
-                width, height = page.get_size()
-                text = textpage.get_text_bounded(left=0, bottom=0, right=width, top=height)
+                # PDFium text bounds use unrotated PDF coordinates. get_size()
+                # instead describes the displayed (rotated) dimensions.
+                left, bottom, right, top = page.get_bbox()
+                text = textpage.get_text_bounded(left=left, bottom=bottom, right=right, top=top)
                 total += len(text)
                 if total > limits.max_text_chars:
                     raise PdfError("LIMIT_EXCEEDED")

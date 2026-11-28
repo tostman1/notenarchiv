@@ -18,7 +18,17 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
         await page.getByLabel("Passwort").fill("Synthetic-review-135");
         await page.getByRole("button", { name: "Anmelden" }).click();
         await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
-        if (mode === "inspect") {
+        if (mode === "selection") {
+            const selection = page.locator("#ocr-selection");
+            await page.locator("#pdf-next").click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            assert.equal(await selection.locator('[name="page"]').inputValue(), "2");
+            for (const [name, value] of Object.entries({ left: "10", top: "20", right: "80", bottom: "90" })) {
+                await selection.locator(`[name="${name}"]`).fill(value);
+            }
+            await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
+            await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "inspect") {
             const selection = page.locator("#ocr-selection");
             await selection.locator('[name="left"]').fill("10");
             await selection.locator('[name="right"]').fill("70");

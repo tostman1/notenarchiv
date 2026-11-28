@@ -71,7 +71,7 @@ class Profile:
     dpi: int = 200
     timeout: int = 60
     max_words: int = 2048
-    version: str = "page-v2"
+    version: str = "page-v3"
 
     def __post_init__(self):
         if not re.fullmatch(r"[a-z]{3}(?:\+[a-z]{3}){0,3}", self.languages):
@@ -79,7 +79,7 @@ class Profile:
         for name, low, high in (("dpi", 100, 300), ("timeout", 1, 60), ("max_words", 1, 2048)):
             if type(getattr(self, name)) is not int or not low <= getattr(self, name) <= high:
                 raise ValueError("Invalid OCR profile limit")
-        if self.version != "page-v2":
+        if self.version != "page-v3":
             raise ValueError("Unsupported OCR profile")
 
 
