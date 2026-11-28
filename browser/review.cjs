@@ -32,6 +32,24 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             }
             await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
             await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "content-review") {
+            // Settle the unrelated lazy image before requesting the pinned PDF;
+            // both deliberately use the same nonblocking native preview slot.
+            const sourceImage = page.locator('img[src*="/ocr/"]');
+            await sourceImage.scrollIntoViewIfNeeded();
+            await sourceImage.evaluate(element => element.decode());
+            assert.ok(await sourceImage.evaluate(element => element.naturalWidth > 0));
+            await page.getByRole("link", { name: "Inhaltsvorschlag ansehen – Revision 1", exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+            assert.equal(await page.locator('#pdf-count').textContent(), "2");
+            await page.locator('#pdf-next').click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            await page.getByLabel("Ich habe jedes Vorkommen dieser gespeicherten Folge einschließlich Fortsetzungen visuell geprüft.", { exact: true }).check();
+            await page.getByRole("button", { name: "Diese Inhaltsrevision als visuell geprüft bestätigen", exact: true }).click();
+            await page.getByText("Sichtprüfung dieser Inhaltsrevision gespeichert; noch keine musikalische Freigabe.", { exact: true }).waitFor();
+            await page.getByLabel("Ich gebe genau diese geprüfte Inhaltsrevision für neue musikalische Verwendung frei.", { exact: true }).check();
+            await page.getByRole("button", { name: "Diese geprüfte Inhaltsrevision musikalisch freigeben", exact: true }).click();
+            await page.getByText("Genau diese geprüfte Inhaltsrevision ist musikalisch freigegeben.", { exact: true }).waitFor();
         } else if (mode === "content") {
             await page.getByText("Neue musikalische Inhaltsausgabe anlegen", { exact: true }).click();
             const creation = page.locator('form:has(input[value="content_edition_create"])');

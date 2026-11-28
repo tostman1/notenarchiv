@@ -14,8 +14,27 @@ Wiederholungen bleiben eigene Vorkommen. Ein veralteter Stand wird abgewiesen.
 Nur aktuelle Regionsrevisionen sind für neue Vorschläge zulässig; historische
 Revisionen bleiben separat vorschaufähig. Das Speichern erzeugt weder visuelle
 Inspektion noch musikalische Freigabe oder Nutzbarkeit in neuen Ausgaben.
-Die bisherige Ganzdokument-Zuordnung bleibt unverändert. Die separate musikalische
-Inhaltsprüfung/-freigabe ist noch kein abgeschlossener UI-Workflow.
+Die bisherige Ganzdokument-Zuordnung bleibt unverändert.
+
+### Gespeicherten Inhaltsvorschlag prüfen und separat freigeben
+
+Unter **Gespeicherte Inhaltsvorschläge ansehen** die gewünschte Revision öffnen.
+Die Vorschau verwendet deren gespeicherte Reihenfolge und exakte Regionsrevisionen,
+nicht die aktuell ausgewählten Felder. Alle Seiten, wiederholten Vorkommen und
+Fortsetzungen prüfen; das Öffnen allein speichert keine Prüfung.
+
+Erst anschließend die Erklärung zur vollständigen Sichtprüfung aktivieren und
+**Diese Inhaltsrevision als visuell geprüft bestätigen** wählen. Dies erteilt
+noch keine musikalische Freigabe. Danach kann ausschließlich derselbe Prüfer mit
+eigener Erklärung **Diese geprüfte Inhaltsrevision musikalisch freigeben** wählen.
+Geänderte Regionen, Quellen oder Vorschläge werden abgewiesen: aktuellen Vorschlag
+erstellen und erneut prüfen. Eine Teilfreigabe bestätigt weder andere Sätze noch
+die ganze Komposition oder Originaldatei. Historische Vorschauen bleiben sichtbar,
+sind aber keine Abkürzung zur Freigabe veralteter Inhalte.
+
+Dieser zusätzliche Workflow ist lokal implementiert; native Browser- und kombinierte
+Integrationsprüfung des Folgepakets sind noch offen. Er ersetzt nicht die folgende
+Ganzdokument-Prüfung und deren Publikationsauftrag.
 
 1. **Prüfwarteschlange** öffnen und **Version prüfen und zuordnen** wählen.
 2. Die tatsächliche PDF Seite für Seite betrachten. Dateiname und erkannter

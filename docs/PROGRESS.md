@@ -1,5 +1,81 @@
 # Progress record
 
+## PR #101 native preview correction
+
+- Exact candidate `32a2762916b0fd52de14415c6c917a2c4745a382` failed run
+  `46154511380`: Foundation Python checks passed, but the content-review browser
+  timed out after its document endpoint returned a sanitized 404. Container and
+  Windows passed. This is not green integration evidence and no merge occurred.
+- Shared nonblocking preview-slot contention with lazy OCR images is plausible,
+  not proven by the sanitized response. Settle the source-specific OCR image
+  before navigating to the pinned document, retaining every inspection and
+  confirmation assertion and all application resource/security guards.
+- Independent bounded correction review found no concrete blocker. Added a
+  deterministic busy-slot regression for the saved-proposal document: private
+  failure while locked, successful exact PDF after release, no approval or byte
+  changes. Targeted proposal/confirmation checks: 18 passed. Corrected exact-head
+  native CI remains required before merge.
+- Main PR #100 is verified at `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`,
+  exact run `46154228410` passed Foundation, Container and Windows.
+
+## Region proposal integration checkpoint
+
+- PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`
+  after corrected exact head `4020beb421f4241dbf348d9af70b8cba76c80e0a`
+  passed Foundation, Container and Windows, including corrected native browser
+  harnesses. Exact post-merge run `46154228410` is pending; no Main success claimed.
+
+## Pinned content inspection workflow — in progress
+
+- Combined local verification at `5b368459c8f90f64856c2d5fbd2fedcf14988d38`:
+  1493 passed, 161 skipped, two unchanged source-reader fixture failures at
+  lines 77/221 (`WinError 1314`, local Windows symlink privilege before application
+  assertions), 727.46 seconds. This is not an all-green local result. Ruff check
+  and format (423 files), requirements consistency, Django checks and migration
+  drift passed. No tests were weakened; native integration gates remain required.
+- Final bounded browser correction review confirmed the actual viewer controls
+  and fixture ordering; no remaining concrete findings in the cumulatively reviewed
+  batch. Native browser and exact integration CI are still pending.
+
+- Previous verified Main baseline: `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`,
+  exact post-merge run `46149207191` passed Foundation, Container and Windows.
+  The batch now incorporates merged PR #100 at `7ad8e30e`; its exact Main
+  verification remains pending as recorded above. No completed checks were rerun
+  solely for the already PR-verified browser selector corrections and merge docs.
+- Independent follow-up exposes bounded saved proposal discovery and an authenticated
+  preview of exact immutable occurrences/region revisions, including repeats and
+  historical pins. Opening it creates no inspection or approval. Preview review
+  found no concrete blocker; targeted preview/review checks: 19 passed.
+- Added a separate CSRF-protected explicit all-occurrence sight-review attestation
+  pinned to the displayed fingerprint through existing `inspect_content()`.
+  Stale regions, changed fingerprints, absent acknowledgement and corrupt inputs
+  cannot attest; musical confirmation and legacy file approval remain separate.
+  Targeted preview/content-confirmation checks: 14 passed. Independent delta review
+  found no concrete blocker. Added a separate current-region corruption regression
+  so byte verification is tested independently of stale-region rejection;
+  native browser and final batched integration verification are open.
+- Separate confirmation requires another explicit checkbox and an inspection
+  belonging to the same revision and reviewer. Existing latest-input/integrity
+  gates remain active; repeated confirmation is idempotent and creates no legacy
+  approval. Independent focused review found no concrete blocker; targeted
+  preview/content-confirmation checks: 17 passed. Added a bounded native-browser
+  scenario for exact two-occurrence preview, inspection, then confirmation; its
+  execution and final cumulative verification remain pending.
+- Browser delta review identified two nonexistent preview selectors; corrected
+  them to the existing `#pdf-count` and `#pdf-next` controls. Combined targeted
+  preview/confirmation/proposal/review/traceability checks: 52 passed; native
+  execution remains pending.
+- PR #100 failed its original exact head on two remaining ambiguous legacy
+  browser selectors. Both correction-form scopes were independently reviewed,
+  targeted checks passed (33 plus one platform skip), and corrected frozen head
+  `4020beb421f4241dbf348d9af70b8cba76c80e0a` passed its exact required checks
+  before the recorded merge.
+- After incorporating the PR-verified Main corrections, 52 targeted proposal,
+  inspection, confirmation, review and traceability tests passed. Whole-repository
+  Ruff check/format and diff checks passed. Final candidate CI, including native
+  browser execution, remains mandatory; the earlier combined local limitations
+  above are unchanged.
+
 ## PR #100 exact-head browser correction
 
 - Candidate `ccbafbaee15aae44e403a6404397bebdc23fb350` failed run
@@ -19,7 +95,7 @@
 - PR #99 merged at Main `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`
   after exact candidate `bcee5b6d7366e7f02e37435aa5df797d70a4ed5a`
   passed Foundation, Container and Windows, including native browser checks.
-  Exact post-merge Main verification is pending; manual acceptance remains open.
+  Exact post-merge run `46149207191` passed all required checks; manual acceptance remains open.
 
 ## Explicit region-to-content proposal follow-up — in progress
 

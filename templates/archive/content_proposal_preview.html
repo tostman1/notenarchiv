@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% translate "Gespeicherter Inhaltsvorschlag – Sichtprüfung" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Gespeicherter Inhaltsvorschlag – Sichtprüfung" %}</h1>
+<p>{% translate "Diese Vorschau zeigt die gespeicherte Reihenfolge und exakten Regionsrevisionen. Öffnen erzeugt weder Sichtprüfungsnachweis noch musikalische Freigabe." %}</p>
+<p>{% translate "Revision" %}: {{ proposal.number }} · {% translate "Vorkommen" %}: {{ sequence_count }}</p>
+<p>{% translate "Kontextfingerabdruck" %}: <code>{{ proposal.fingerprint }}</code></p>
+{% include "archive/_pdf_viewer.html" %}
+<p><a href="{% url 'archive_review_detail' file.pk %}">{% translate "Zurück zur Quellprüfung" %}</a></p>
+<section><h2>{% translate "Ausdrückliche Sichtprüfung" %}</h2>
+<p>{% translate "Prüfen Sie alle Seiten und wiederholten Vorkommen dieser gespeicherten Folge. Eine Sichtprüfung bestätigt weder die gesamte Originaldatei noch andere Inhaltsrevisionen." %}</p>
+<form method="post" action="{% url 'archive_preview:content_proposal_inspect' file.pk proposal.pk %}">{% csrf_token %}{{ inspection_form.as_p }}<button>{% translate "Diese Inhaltsrevision als visuell geprüft bestätigen" %}</button></form>
+</section>
+{% if content_inspection %}<section><h2>{% translate "Separate musikalische Inhaltsfreigabe" %}</h2>
+<p>{% translate "Ihre Sichtprüfung gilt ausschließlich für diese Inhaltsrevision. Die Freigabe bestätigt keine anderen Bewegungen, Ausgaben oder die gesamte Originaldatei. Geänderte Quellen oder Regionen erfordern erneut einen aktuellen Vorschlag und Sichtprüfung." %}</p>
+<form method="post" action="{% url 'archive_preview:content_proposal_confirm' file.pk proposal.pk %}">{% csrf_token %}{{ confirmation_form.as_p }}<button>{% translate "Diese geprüfte Inhaltsrevision musikalisch freigeben" %}</button></form>
+</section>{% endif %}
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}
