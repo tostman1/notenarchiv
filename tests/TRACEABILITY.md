@@ -1,5 +1,13 @@
 # Implemented acceptance traceability
 
+Selected OCR review batch additionally exercises authenticated evidence-image
+decoding, source-page navigation and actual selected-job enqueue in
+`browser/test_review.py` / `browser/review.cjs`. Native text regressions include
+non-square 90/270-degree omission/leakage reproductions in
+`tests/test_visible_text.py`; profile `page-v3` separates earlier cache contexts.
+Local focused checks pass; final browser/container CI and manual acceptance remain
+distinct pending evidence, not implied by fixture preparation.
+
 - OCR review batch (partial AR-08/09/11/12, SC-06):
   `tests/test_ocr_selection.py` covers exact displayed-region conversion through
   source rotation/CropBox/UserUnit, validated distinct queue selections, cache reuse,

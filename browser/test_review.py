@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.db import connections
 
 from apps.archive import models as m
-from apps.archive.recognition import record_candidate
+from apps.archive.recognition import build_rule_set, record_candidate
 from apps.archive.services import observe_version, register_base
 from apps.catalog import models as c
 from apps.jobs.models import Job, WorkerLease
@@ -55,6 +55,22 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     record_candidate(
         version.pk, filename="Synthetic review Posaune 1.pdf", text_lines=["Synthetic review", "Posaune 2"]
     )
+    evidence = m.OcrPageEvidence.objects.create(
+        source_version=version,
+        cache_key="6" * 64,
+        page=1,
+        evidence={
+            "sha256": version.sha256,
+            "cache_key": "6" * 64,
+            "page": 1,
+            "bounds": [0, 0, 200, 300],
+            "orientation": 0,
+            "rules": build_rule_set().version,
+            "text_layer": "",
+            "words": [],
+        },
+    )
+    record_candidate(version.pk, filename="Synthetic review Posaune 1.pdf", ocr_evidence=evidence)
     path = settings.CURATED_DIR / file.relative_path
     path.parent.mkdir()
     path.write_bytes(data)

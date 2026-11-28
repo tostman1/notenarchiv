@@ -20,7 +20,11 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
         await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
         if (mode === "selection") {
             const selection = page.locator("#ocr-selection");
-            await page.locator("#pdf-next").click();
+            const image = page.locator(".ocr-evidence-image");
+            await image.scrollIntoViewIfNeeded();
+            await image.evaluate(element => element.decode());
+            assert.ok(await image.evaluate(element => element.naturalWidth > 0));
+            await page.getByRole("button", { name: "Quellseite anzeigen 2", exact: true }).click();
             await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
             assert.equal(await selection.locator('[name="page"]').inputValue(), "2");
             for (const [name, value] of Object.entries({ left: "10", top: "20", right: "80", bottom: "90" })) {
