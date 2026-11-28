@@ -8,7 +8,14 @@
 - Combined local regression at `d6f4402` was still executing after approximately
   12 minutes, with a newly started isolated PDF worker for a print test. RTK buffers
   output; silence alone was not treated as a stall. Its native shell deadline is
-  35 minutes. No process or healthy CI was interrupted; completion remains pending.
+  35 minutes. No process or healthy CI was interrupted. The run subsequently
+  completed normally in 843.49 seconds: 1,466 passed, 161 skipped and two existing
+  source-reader fixture failures (`tests/test_source_reader.py:77,221`, WinError
+  1314 when creating local Windows symlinks, before application assertions).
+  This is not an all-green local result; no tests or safeguards were weakened.
+  Ruff/formatting (418 files), requirements (119 definitions/61 aliases), Django
+  checks and migration consistency passed. No full-suite restart is needed for
+  the subsequent documentation-only changes.
 
 ## Saved-region preview follow-up — in progress
 
@@ -44,7 +51,10 @@
   sandboxed attachment-only and generates no database/approval changes.
   Focused preview/editor checks: 23 passed; Ruff (418 files), formatting and
   requirement checks passed. Added browser navigation/duplicate-slot page-count
-  assertions; native execution and independent sequence review are pending.
+   assertions; native execution is pending. Independent backend/endpoint review
+   found no concrete blocker. Focused final review of the browser interaction
+   delta and manual availability correction also found no concrete blocker;
+   exact-candidate native browser/CI verification remains required.
 
 ## Explicit region-editor foundation — in progress
 
