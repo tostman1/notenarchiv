@@ -122,7 +122,8 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             await page.getByRole("button", { name: "Ganze ausgewählte Seite", exact: true }).click();
             assert.equal(await selection.locator('[name="right"]').inputValue(), "100");
             assert.equal(await page.getByRole("button", { name: "Freigabe beauftragen" }).count(), 0);
-            await page.getByLabel("Arrangement / Ausgabe", { exact: false }).selectOption(arrangement);
+            const correction = page.locator('form').filter({ has: page.locator('input[name="action"][value="save"]') });
+            await correction.getByLabel("Arrangement / Ausgabe", { exact: false }).selectOption(arrangement);
             await page.getByLabel("Instrumentenvarianten", { exact: false }).selectOption(instrument);
             await page.getByLabel("Musikalische Stimmen", { exact: false }).selectOption(parts);
             await page.getByRole("button", { name: "Zuordnung speichern" }).click();
