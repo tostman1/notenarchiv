@@ -33,7 +33,7 @@ def validate(payload):
             raise ValueError("Invalid OCR page")
         if not isinstance(box, list) or len(box) != 4:
             raise ValueError("Invalid OCR rectangle")
-        if any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 1 for v in box):
+        if any(type(v) not in (int, float) or not 0 <= v <= 1 or not math.isfinite(v) for v in box):
             raise ValueError("Invalid OCR rectangle")
         if box[0] >= box[2] or box[1] >= box[3]:
             raise ValueError("Invalid OCR rectangle")

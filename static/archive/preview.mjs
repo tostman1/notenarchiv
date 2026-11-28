@@ -10,6 +10,7 @@ const next = document.getElementById("pdf-next");
 let pdf, current = 1, rendering = false, requested = false;
 let loadingTask;
 const selection = document.getElementById("ocr-selection");
+const regionButtons = [...document.querySelectorAll("[data-region-id]")];
 let overlay, drawing = false, start;
 const selectionFields = selection && Object.fromEntries(
     ["page", "left", "top", "right", "bottom"].map(name => [name, selection.elements.namedItem(name)])
@@ -44,6 +45,22 @@ if (selection) {
     overlay.setAttribute("aria-hidden", "true");
     wrapper.append(overlay);
     selection.addEventListener("input", paintSelection);
+    document.getElementById("region-new")?.addEventListener("click", () => {
+        selection.elements.namedItem("region_id").value = "";
+        selection.elements.namedItem("expected_region_number").value = "0";
+    });
+    regionButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            if (!pdf || rendering || root.dataset.rendered !== "true") return;
+            selection.elements.namedItem("region_id").value = button.dataset.regionId;
+            selection.elements.namedItem("expected_region_number").value = button.dataset.regionNumber;
+            for (const name of ["page", "left", "top", "right", "bottom"]) {
+                selectionFields[name].value = button.dataset["region" + name[0].toUpperCase() + name.slice(1)];
+            }
+            selectionFields.page.dispatchEvent(new Event("change"));
+            paintSelection();
+        });
+    });
     selectionFields.page.addEventListener("change", () => {
         const value = Number(selectionFields.page.value);
         if (pdf && Number.isInteger(value) && value >= 1 && value <= pdf.numPages) {
@@ -91,6 +108,8 @@ if (selection) {
 GlobalWorkerOptions.workerSrc = root.dataset.workerUrl;
 
 function fail() {
+    root.dataset.rendered = "false";
+    regionButtons.forEach(button => { button.disabled = true; });
     status.textContent = root.dataset.error;
     status.setAttribute("role", "alert");
     for (const control of [pageInput, zoom, previous, next]) control.disabled = true;
@@ -103,6 +122,7 @@ async function renderPage() {
     requested = true;
     if (rendering) return;
     rendering = true;
+    regionButtons.forEach(button => { button.disabled = true; });
     try {
         while (requested) {
             requested = false;
@@ -131,7 +151,10 @@ async function renderPage() {
                 paintSelection();
             }
         }
-    } catch { fail(); } finally { rendering = false; }
+    } catch { fail(); } finally {
+        rendering = false;
+        if (root.dataset.rendered === "true") regionButtons.forEach(button => { button.disabled = false; });
+    }
 }
 
 previous.addEventListener("click", () => { if (current > 1) { current--; renderPage(); } });

@@ -17,10 +17,17 @@
 <h3>{% translate "Quellseite oder Bereich analysieren" %}</h3>
 <p>{% translate "Grenzen in Prozent von links/oben. Optional den Bereich auf der PDF-Seite mit der Maus aufziehen; dies erstellt keine musikalische Region." %}</p>
 {{ ocr_selection.as_p }}
+{{ region_revision.as_p }}
 <button type="button" id="ocr-draw">{% translate "Bereich aufziehen" %}</button>
 <button type="button" id="ocr-reset">{% translate "Ganze ausgewählte Seite" %}</button>
 <button>{% translate "Ausgewählten Bereich lokal analysieren" %}</button>
+<button name="action" value="region_save">{% translate "Bereich als neue unbestätigte Region speichern" %}</button>
+<button type="button" id="region-new">{% translate "Neue Region statt ausgewählter Region" %}</button>
+<p>{% translate "Speichern erhält eine geometrische Region separat von OCR. Es teilt nicht die Quelle, ordnet kein Werk zu und bestätigt keine Musik. Ganze Originalseiten bleiben erhalten." %}</p>
 </form>
+<h3>{% translate "Gespeicherte geometrische Regionen (höchstens 20)" %}</h3>
+<p>{% translate "Auswählen, Grenzen ändern und speichern erzeugt eine neue Version. Frühere musikalische Verweise bleiben unverändert; keine automatische Freigabe." %}</p>
+{% for region in regions %}<button type="button" disabled data-region-id="{{ region.region_id }}" data-region-number="{{ region.number }}" data-region-page="{{ region.page_number }}" data-region-left="{{ region.display_box.0|floatformat:'6u' }}" data-region-top="{{ region.display_box.1|floatformat:'6u' }}" data-region-right="{{ region.display_box.2|floatformat:'6u' }}" data-region-bottom="{{ region.display_box.3|floatformat:'6u' }}">{% translate "Region bearbeiten – Seite" %} {{ region.page_number }} · {% translate "Version" %} {{ region.number }}</button>{% empty %}<p>{% translate "Noch keine geometrischen Regionen gespeichert." %}</p>{% endfor %}
 {% for candidate in candidates %}<article><p>{% if candidate.method == 'OCR' %}{% translate "Lokale OCR und PDF-Inhalt – keine Freigabe" %} · {% translate "Quellseite (ab 0)" %}: {{ candidate.region.page }} · {% translate "Profil-/Regelkontext" %}: {{ candidate.rule_version }}{% elif candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
 <pre class="evidence">{{ candidate.excerpt }}</pre><p>{{ candidate.proposed_work|default:"—" }} · {{ candidate.proposed_arrangement|default:"—" }}</p>
 {% if candidate.ocr_evidence %}

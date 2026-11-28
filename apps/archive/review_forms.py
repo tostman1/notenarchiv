@@ -54,6 +54,13 @@ class CorrectionForm(VersionForm):
         return cleaned
 
 
+class RegionRevisionForm(forms.Form):
+    expected_file_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    source_version_id = forms.UUIDField(widget=forms.HiddenInput)
+    region_id = forms.UUIDField(required=False, widget=forms.HiddenInput)
+    expected_region_number = forms.IntegerField(min_value=0, widget=forms.HiddenInput, initial=0)
+
+
 class InspectionForm(VersionForm):
     explicit = forms.BooleanField(
         label=_("Ich habe alle Seiten dieser Version visuell geprüft und die gespeicherte Zuordnung kontrolliert")

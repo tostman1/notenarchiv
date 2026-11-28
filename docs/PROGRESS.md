@@ -1,5 +1,63 @@
 # Progress record
 
+## Explicit region-editor foundation — in progress
+
+- Exact post-merge Main CI for PR #96 is verified: Main
+  `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4`, run `46131431978`,
+  Foundation/Container/Windows success. No repeated wait is needed for this SHA.
+
+- PR #97 passed exact-head Foundation/Container/Windows at
+  `5c947d44aed1a33c7023c64638d58122fad16366` and was merged after independent
+  cumulative review. Main is `257c7078c166cefdd9945a239b2862035bca194a`;
+  exact post-merge run `46135139853` is pending, not yet claimed green.
+  Follow-up branch `feat/compound-region-editor` incorporated that merge without
+  changing its editor implementation or rewriting checkpoint history.
+- Added explicit rectangle save/revision service using existing PageRegion history,
+  verified BASE bytes, retained original geometry and short SQLite writer fencing.
+  Stale file/version/region and cross-page edits fail closed; legacy geometry is
+  not silently backfilled. Existing pinned logical revisions remain unchanged.
+  No assignment, inspection, confirmation or export is created by geometry edits.
+- Focused region/history/selection checks: 44 passed; no migration changes.
+  Independent review found a concurrent publication-health race: health changes
+  need not increment file revision. The service now rechecks AVAILABLE after the
+  writer-fenced refresh; MISSING/CORRUPT seam regressions use real receipt setup.
+  Updated focused checks: 46 passed. No availability constraint was bypassed.
+  Authenticated review now exposes an explicit save-unconfirmed-region control
+  using the existing drawn/numeric rectangle, pinned file/version fields and CSRF.
+   UI dispatch/selection/review focused checks: 54 passed. Subsequent checkpoints
+   add saved-region editing; sequence preview/assignment remain unfinished.
+  This checkpoint is not integrated or full-CI/manual verified.
+  Follow-up review identified uncaught raw filesystem errors during region save.
+  The authenticated action now handles OSError without exposing paths or writing
+  geometry; FileNotFoundError/PermissionError regressions cover message/redirect
+  and unchanged inspection/confirmation. Updated focused checks: 56 passed.
+- Saved-region controls load only the latest revision (bounded to 20 regions),
+  convert retained canonical geometry back into displayed percentages and preserve
+  revision pins when saving edits. An explicit new-region control clears the pin.
+  Focused UI/history/selection checks: 57 passed. Browser execution and independent
+  cumulative review of these editing controls remain pending; no manual pass.
+- Review identified an initialization/render race in saved-region selection.
+  Region controls now start disabled and remain disabled during PDF rendering,
+  with handlers rejecting early selection. Added pending-document and multi-page
+  browser assertions plus real region create/revise/history checks. Node remains
+   unavailable locally; these browser additions require final batch CI execution.
+- Follow-up review confirms the race fix, including clearing rendered state on
+  failure. It also found malformed browser fixture validation arguments/state.
+  The fixture now observes UNCHECKED, records VALID with exact page/CropBox data
+  before publication, and retains the returned version. A local regression proves
+  that setup creates both exact source pages without legacy geometry replacement.
+  Latest targeted editor/selection/review/traceability checks: 63 passed.
+  Native browser execution is still pending; no full-CI/manual success is implied.
+- Worktree fixes are checkpointed at `dfabbf9`; independent follow-up confirms
+  no remaining concrete cumulative implementation blocker. Combined local
+  verification ran once at that checkpoint: 1455 passed, 161 skipped and two
+  failures in unchanged source-reader fixtures attempting Windows symlink creation
+  (WinError 1314, before application assertions). This is not an all-green local
+  suite; no test or security gate was weakened. Ruff (417 files), requirements
+  consistency, Django checks and migration-drift checks passed. Subsequent commits
+  only incorporate the existing Main merge and update this evidence record.
+  Native browser and final exact-head integration gates remain required.
+
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
 - PR #96 merged at `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4` after corrected

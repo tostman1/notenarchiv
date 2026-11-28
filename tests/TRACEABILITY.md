@@ -1,5 +1,18 @@
 # Implemented acceptance traceability
 
+## Explicit unconfirmed region editor (pending integration)
+
+- AR-20/21 and SC-05: `tests/test_region_editor_services.py` exercises verified
+  BASE-only rectangle persistence, exact retained source geometry, stale file and
+  region pins, cross-page rejection, writer-fenced publication health, unavailable
+  reads, immutable revision history and absence of approval/inspection effects.
+- `browser/test_review.py` / `browser/review.cjs` add multi-page create/edit,
+  saved-region loading, pin reset and delayed PDF initialization coverage. The
+  source fixture records exact CropBoxes before publication; its setup is covered
+  locally. Actual new browser execution remains pending final batch CI.
+- These are rectangle-editing foundations, not completed sequencing, merge/split,
+  musical assignment/confirmation or manual WP-56 acceptance.
+
 Compound heading follow-up (partial AR-19/25, SC-06):
 `tests/test_compound_recognition.py` covers side-by-side/repeated exact titles,
 aliases, distinct equal-title identities, legacy evidence and bounded malformed
