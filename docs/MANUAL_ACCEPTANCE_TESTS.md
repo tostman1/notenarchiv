@@ -231,11 +231,11 @@ Empfohlene Reihung: A → K. Hardware-Fälle (Abschnitt K) nur mit genehmigtem Z
 
 #### MA-022 — OCR-Beweis-Prüfung: Regionen, Konflikte, Fortsetzungen
 - **Zweck:** Die Prüfwarteschlange zeigt OCR-Auszug/Region, Quelle, Konfidenz, Fortsetzungs- und Konfliktgründe; Freigabe erfordert weiterhin Sichtprüfung.
-- **Anforderungen / WP:** AR-12, AR-13, AR-21; WP-26 (noch nicht implementiert).
+- **Anforderungen / WP:** AR-12, AR-13, AR-21; WP-26 (teilweise implementiert).
 - **Voraussetzungen / Daten:** Aus MA-021: Dateiname ≠ Inhalt; Titel erst auf Seite 2; Fortsetzungsregion ohne eigenen Titel; konflizierende Beweise (Name sagt Werk A, Text sagt Werk B).
 - **Handlung:** 1) Prüfwarteschlange öffnen, je Fall: PDF, OCR-Excerpt/Region, Methode, Konfidenz, Konfliktgrund anzeigen lassen. 2) Konflikte manuell korrigieren (Meisterdaten-Dropdowns). 3) Sichtprüfung speichern, freigeben. 4) Technische/OCR-Volltexte in den Logs prüfen.
 - **Erwartet / Kriterien:** Beweise in Deploy und Debug verfügbar; Fortsetzungen mit Bezug zum Anfang; Konflikt prominent markiert (kein stilles Mischen). Korrekturen über kontrollierte Auswahl. Freigabe nur nach visueller Prüfung der konkreten Region/Seite; Konfidenz oder Thumbnail genügen nie. Kein vollständiger OCR-Text in technischen Logs (sanitisiert).
-- **Verfügbarkeit:** Teilweise implementiert: OCR-Text, Quellseite, Methode, Kontext und bestehende Korrektur/Prüfung sind verfügbar. Geschützter Quellausschnitt, begrenzte Wort-Konfidenzliste und Seitennavigation sind im Folgebatch lokal implementiert, noch nicht integriert/CI-verifiziert. Vollständige Fortsetzungs-/Mehrwerktitel-Evidenz und musikalischer Segmentierungseditor bleiben offen (WP-26/56).
+- **Verfügbarkeit:** Teilweise implementiert: OCR-Text, Quellseite, Methode, Kontext und bestehende Korrektur/Prüfung sind verfügbar. Geschützter Quellausschnitt, begrenzte Wort-Konfidenzliste, Zeichnen eines OCR-Bereichs und Seitennavigation sind mit PR #96 nach exakter PR-CI integriert; Post-Merge-CI noch offen. Mehrere exakte bekannte Überschriften samt gedruckter Nummer/Fundstelle werden im separaten Folgebatch lokal angeboten, noch nicht integriert. Gedruckte Nummern sind keine Werkidentität. Vollständige Fortsetzungs-Evidenz, Einzelwerk-Index und musikalischer Segmentierungseditor bleiben offen (WP-26/56). Keine manuelle Abnahme daraus ableiten.
 - **Manueller Status:** nicht ausgeführt · **Tatsächliches Ergebnis:** — · **Defekt:** —
 
 #### MA-023 — Textschicht: fehlend, gemischt, irreführend
