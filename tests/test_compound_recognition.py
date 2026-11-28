@@ -49,6 +49,12 @@ def test_legacy_words_without_line_identities_remain_ordinary_evidence():
     assert headings({"page": 0, "words": [{"text": "March", "box": [0, 0, 10, 10]}]}, rules) == []
 
 
+def test_heading_observations_have_a_fixed_output_bound():
+    rules = RuleSet("test", works={"march": [uuid4()]})
+    result = headings({"page": 0, "words": [word("March", block) for block in range(200)]}, rules)
+    assert len(result) == 128
+
+
 @pytest.mark.parametrize("evidence", [{"page": True}, {"page": 500}, {"page": 0, "words": [{}] * 2049}])
 def test_compound_observations_fail_closed_at_bounds(evidence):
     with pytest.raises(ValueError):
