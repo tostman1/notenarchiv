@@ -1,5 +1,20 @@
 # Progress record
 
+## Compound recognition follow-up batch — 2026-11-28 (in progress)
+
+- PR #96 is frozen at `b99732d145857b5978b919e5508bad23f8b21df9` during
+  its exact-head Foundation/Container/Windows wait; no result is claimed yet.
+  Safe follow-up work continues on `feat/compound-recognition-batch` based on that
+  candidate; its integration remains dependent on the preceding verified merge.
+- Added conservative, bounded exact catalog-heading observations from native OCR
+  line identities. Side-by-side and repeated headings retain separate image-pixel
+  locations; equal titles remain ambiguous. No musical boundaries, continuation
+  relationships, splitting or approval are inferred. Whole-page/booklet use remains
+  independent. Review displays at most 16 observations only when the current rule
+  context still matches immutable evidence. Legacy evidence remains readable.
+- Focused compound/selection tests: 42 passed. No full CI, native OCR accuracy,
+  browser execution or manual acceptance is claimed for this follow-up checkpoint.
+
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 
 - PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head

@@ -27,6 +27,11 @@
 <button type="button" data-preview-page="{{ candidate.source_page_number }}">{% translate "Quellseite anzeigen" %} {{ candidate.source_page_number }}</button>
 <img class="ocr-evidence-image" loading="lazy" src="{% url 'archive_preview:ocr_excerpt' file.pk candidate.ocr_evidence.pk %}" alt="{% translate 'Hashgeprüfter OCR-Quellausschnitt; keine musikalische Freigabe' %}">
 <details><summary>{% translate "Erkannte Wörter und Konfidenz (höchstens 100)" %}</summary><ul class="ocr-words">{% for word in candidate.ocr_words %}<li>{{ word.text }} · {{ word.confidence|default_if_none:"—" }} · {{ word.box }}</li>{% endfor %}</ul></details>
+{% if candidate.compound_headings %}
+<h3>{% translate "Bekannte Überschriften im Quellausschnitt" %}</h3>
+<p>{% translate "Fundstellen in Bildpixeln des OCR-Ausschnitts, nicht PDF-Koordinaten. Keine Teilung, Fortsetzungszuordnung oder Freigabe; ganze Seiten bleiben verwendbar. Höchstens 16 Fundstellen werden angezeigt." %}</p>
+<ul class="compound-headings">{% for heading in candidate.compound_headings %}<li>{{ heading.text }} · {{ heading.box }}{% if heading.ambiguous %} · {% translate "Gleicher Titel, mehrere Werke: Identität manuell klären" %}{% endif %}</li>{% endfor %}</ul>
+{% endif %}
 {% endif %}
 <ul>{% for entry in candidate.parts.all %}<li>{{ entry.part }}</li>{% endfor %}</ul>
 <p>{% translate "Erkennungsqualität (keine musikalische Gewissheit)" %}: {{ candidate.confidence|default_if_none:"—" }}</p>
