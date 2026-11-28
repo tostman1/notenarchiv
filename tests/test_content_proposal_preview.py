@@ -63,6 +63,23 @@ def test_saved_proposal_endpoints_are_private_and_do_not_attest_review(region_pr
 
 
 @pytest.mark.django_db
+def test_saved_proposal_document_fails_closed_when_native_slot_busy_then_recovers(region_preview, client, settings):  # noqa: F811
+    from core.locking import ProcessLock
+
+    file, regions, target = region_preview
+    original = target.read_bytes()
+    revision = propose(file, [regions[1], regions[1]])
+    document = reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk])
+    with ProcessLock(settings.DIAGNOSTIC_LOG_DIR.parent / "preview-render.lock"):
+        response = client.get(document)
+        assert response.status_code == 404 and response["Cache-Control"] == "private, no-store"
+    response = client.get(document)
+    assert response.status_code == 200 and response.content.startswith(b"%PDF-")
+    assert target.read_bytes() == original
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_saved_proposal_document_rejects_changed_bytes(region_preview, client):  # noqa: F811
     file, regions, target = region_preview
     revision = propose(file, [regions[1]])
