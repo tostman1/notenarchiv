@@ -40,6 +40,23 @@ def detail(request, file_id):
     failed_form, status = None, 200
     if request.method == "POST":
         action = request.POST.get("action")
+        if action == "content_edition_create":
+            from apps.archive.region_sequence_services import create_content_edition
+
+            form = forms.ContentEditionCreationForm(request.POST)
+            try:
+                if not form.is_valid():
+                    raise ValidationError("Invalid explicit edition identity.")
+                create_content_edition(
+                    arrangement_id=form.cleaned_data["arrangement"].pk, part_id=form.cleaned_data["part"].pk
+                )
+            except (ValidationError, DatabaseError, ValueError):
+                messages.error(request, _("Inhaltsausgabe nicht angelegt. Arrangement und Stimme prüfen."))
+            else:
+                messages.success(
+                    request, _("Neue Inhaltsausgabe angelegt. Noch keine Inhalte, Inspektion oder Freigabe.")
+                )
+            return redirect("archive_review_detail", file_id=file.pk)
         if action == "region_content":
             from apps.archive.region_sequence_services import propose_region_sequence
 
@@ -245,6 +262,7 @@ def detail(request, file_id):
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),
             "regions": regions,
+            "content_edition_creation": forms.ContentEditionCreationForm(auto_id="content_edition_%s"),
             "region_content": forms.RegionContentForm(
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),

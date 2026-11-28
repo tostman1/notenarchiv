@@ -11,6 +11,25 @@ from apps.archive.content_geometry_services import append_logical_page
 from apps.archive.content_services import propose_content
 from apps.archive.preview_services import preview_bytes, preview_file
 from apps.archive.services import ArchiveConflict
+from apps.catalog.models import Arrangement, Part
+
+
+def create_content_edition(*, arrangement_id, part_id, using="default"):
+    """Create an explicitly chosen edition identity, without inferred content."""
+    with transaction.atomic(using=using):
+        if not Arrangement.objects.using(using).filter(pk=arrangement_id).update(revision=F("revision")):
+            raise ValidationError("Arrangement does not exist.")
+        arrangement = Arrangement.objects.using(using).select_related("work").get(pk=arrangement_id)
+        part = Part.objects.using(using).select_related("instrument").filter(pk=part_id).first()
+        if (
+            not arrangement.active
+            or not arrangement.work.active
+            or part is None
+            or not part.active
+            or not part.instrument.active
+        ):
+            raise ValidationError("Select an active arrangement and playable part.")
+        return m.ContentEdition.objects.using(using).create(arrangement=arrangement, part=part)
 
 
 def propose_region_sequence(

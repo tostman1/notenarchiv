@@ -26,6 +26,9 @@
 <p>{% translate "Speichern erhält eine geometrische Region separat von OCR. Es teilt nicht die Quelle, ordnet kein Werk zu und bestätigt keine Musik. Ganze Originalseiten bleiben erhalten." %}</p>
 </form>
 <h3>{% translate "Gespeicherte geometrische Regionen (höchstens 20)" %}</h3>
+<details><summary>{% translate "Neue musikalische Inhaltsausgabe anlegen" %}</summary>
+<p>{% translate "Vorhandene Ausgaben zuerst prüfen. Eine neue Ausgabe ist eine eigenständige Identität; gleiche Titel werden nicht zusammengeführt. Das Anlegen bestätigt keine Quelle oder Musik und verändert die Ganzdokument-Zuordnung nicht." %}</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="content_edition_create">{{ content_edition_creation.as_p }}<button>{% translate "Neue Inhaltsausgabe ausdrücklich anlegen" %}</button></form></details>
 {% if regions %}<form method="get" action="{% url 'archive_preview:region_sequence_viewer' file.pk %}">
 <h4>{% translate "Temporäre Regionsfolge ansehen" %}</h4>
 <p>{% translate "Reihenfolge über die Plätze wählen; leere Plätze werden ausgelassen. Wiederholungen sind ausdrücklich möglich. Keine Speicherung, musikalische Freigabe oder Archivexport." %}</p>

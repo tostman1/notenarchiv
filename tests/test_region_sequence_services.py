@@ -144,3 +144,42 @@ def test_region_content_post_requires_csrf_and_saves_only_unconfirmed_proposal(r
     assert m.ReviewInspection.objects.count() == 0
     assert client.post(url, data).status_code == 302
     assert edition.revisions.count() == 1
+
+
+@pytest.mark.django_db
+def test_explicit_edition_creation_keeps_equal_titles_and_empty_content_distinct(region_preview, client):  # noqa: F811
+    file, _regions, _ = region_preview
+    arrangements = [
+        c.Arrangement.objects.create(work=c.Work.objects.create(title="Same synthetic title")) for _ in range(2)
+    ]
+    part = c.Part.objects.create(
+        instrument=c.InstrumentVariant.objects.create(name="Synthetic creation part"), code="1"
+    )
+    url = reverse("archive_review_detail", args=[file.pk])
+    for arrangement in arrangements:
+        data = {"action": "content_edition_create", "arrangement": arrangement.pk, "part": part.pk}
+        assert client.post(url, data).status_code == 302
+        assert not m.ContentEdition.objects.filter(arrangement=arrangement).exists()
+        data["explicit"] = "on"
+        assert client.post(url, data).status_code == 302
+    assert m.ContentEdition.objects.count() == 2
+    assert set(m.ContentEdition.objects.values_list("arrangement_id", flat=True)) == {a.pk for a in arrangements}
+    assert m.ContentEditionRevision.objects.count() == m.ContentConfirmation.objects.count() == 0
+    file.refresh_from_db()
+    assert file.current_proposal_id is None and file.review_state == "PENDING"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("inactive", ["arrangement", "work", "part", "instrument"])
+def test_edition_creation_revalidates_inactive_catalog_records(region_preview, inactive):  # noqa: F811
+    arrangement = c.Arrangement.objects.create(work=c.Work.objects.create(title="Synthetic inactive"))
+    part = c.Part.objects.create(
+        instrument=c.InstrumentVariant.objects.create(name="Synthetic inactive part"), code="1"
+    )
+    record = {"arrangement": arrangement, "work": arrangement.work, "part": part, "instrument": part.instrument}[
+        inactive
+    ]
+    type(record).objects.filter(pk=record.pk).update(active=False)
+    with pytest.raises(ValidationError):
+        region_sequence_services.create_content_edition(arrangement_id=arrangement.pk, part_id=part.pk)
+    assert m.ContentEdition.objects.count() == 0

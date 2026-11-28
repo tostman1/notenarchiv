@@ -61,6 +61,27 @@ class RegionRevisionForm(forms.Form):
     expected_region_number = forms.IntegerField(min_value=0, widget=forms.HiddenInput, initial=0)
 
 
+class ContentEditionCreationForm(forms.Form):
+    arrangement = forms.ModelChoiceField(label=_("Arrangement / Ausgabe"), queryset=Arrangement.objects.none())
+    part = forms.ModelChoiceField(label=_("Musikalische Stimme"), queryset=Part.objects.none())
+    explicit = forms.BooleanField(
+        label=_("Neue eigenständige Inhaltsausgabe für dieses Arrangement und diese Stimme anlegen")
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["arrangement"].queryset = (
+            Arrangement.objects.filter(active=True, work__active=True)
+            .select_related("work")
+            .order_by("work__title_key", "arranger_key", "edition_key", "pk")
+        )
+        self.fields["part"].queryset = (
+            Part.objects.filter(active=True, instrument__active=True)
+            .select_related("instrument")
+            .order_by("instrument__name_key", "instrument__transposition_key", "instrument__clef", "code_key")
+        )
+
+
 class RegionContentForm(forms.Form):
     edition = forms.ModelChoiceField(label=_("Musikalische Inhaltsausgabe"), queryset=Arrangement.objects.none())
     expected_edition_number = forms.IntegerField(
