@@ -50,7 +50,13 @@
   Native browser execution is still pending; no full-CI/manual success is implied.
 - Worktree fixes are checkpointed at `dfabbf9`; independent follow-up confirms
   no remaining concrete cumulative implementation blocker. Combined local
-  verification started once at that checkpoint and is still pending completion.
+  verification ran once at that checkpoint: 1455 passed, 161 skipped and two
+  failures in unchanged source-reader fixtures attempting Windows symlink creation
+  (WinError 1314, before application assertions). This is not an all-green local
+  suite; no test or security gate was weakened. Ruff (417 files), requirements
+  consistency, Django checks and migration-drift checks passed. Subsequent commits
+  only incorporate the existing Main merge and update this evidence record.
+  Native browser and final exact-head integration gates remain required.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
