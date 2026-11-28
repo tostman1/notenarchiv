@@ -1,5 +1,16 @@
 # Implemented acceptance traceability
 
+## Temporary saved-region inspection preview (pending integration)
+
+- AR-20/21, SC-05: `tests/test_region_preview.py` verifies exact historical region
+  images and temporary ordered/repeated sequences, original-byte preservation,
+  source-version isolation despite identical hashes, authenticated GET-only
+  no-store endpoints, bounded selection count and no inspection/confirmation.
+- `browser/review.cjs` adds image decoding and ordered duplicate-slot page-count
+  checks through the existing safe viewer. New native execution remains pending.
+- Temporary inspection previews are not musical edition assignment or approved
+  archive exports; durable sequence editing/confirmation remain open.
+
 ## Explicit unconfirmed region editor (pending integration)
 
 - AR-20/21 and SC-05: `tests/test_region_editor_services.py` exercises verified

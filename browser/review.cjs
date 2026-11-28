@@ -54,6 +54,15 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             await regionImage.scrollIntoViewIfNeeded();
             await regionImage.evaluate(element => element.decode());
             assert.ok(await regionImage.evaluate(element => element.naturalWidth > 0));
+            const sequence = page.locator('form[action$="/regions/"]');
+            const revision = await sequence.locator('select').first().locator('option').nth(1).getAttribute('value');
+            await sequence.locator('select').nth(0).selectOption(revision);
+            await sequence.locator('select').nth(1).selectOption(revision);
+            await page.getByRole('button', { name: 'Unbestätigte Folge vorschauen', exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+            assert.equal(await page.locator('#pdf-count').innerText(), '2');
+            await page.getByRole('link', { name: 'Zurück zur Quellprüfung', exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
             await page.locator('[data-region-number="2"]').click();
             await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
             await page.getByRole("button", { name: "Neue Region statt ausgewählter Region", exact: true }).click();

@@ -145,3 +145,34 @@ def test_temporary_sequence_rejects_invalid_or_unbounded_input(region_preview, i
     file, _revisions, _target = region_preview
     with pytest.raises(Http404):
         region_sequence(file, identifiers)
+
+
+@pytest.mark.django_db
+def test_sequence_viewer_preserves_pins_and_document_is_private(region_preview, client):
+    from urllib.parse import urlencode
+
+    file, revisions, _target = region_preview
+    query = urlencode([("region", str(revisions[1].pk)), ("region", ""), ("region", str(revisions[0].pk))])
+    viewer = client.get(reverse("archive_preview:region_sequence_viewer", args=[file.pk]) + "?" + query)
+    assert viewer.status_code == 200
+    assert viewer.context["sequence_count"] == 2
+    document_url = viewer.context["export_document_url"]
+    assert document_url.index(str(revisions[1].pk)) < document_url.index(str(revisions[0].pk))
+    document = client.get(document_url)
+    assert document.status_code == 200 and document.content.startswith(b"%PDF")
+    assert document["Cache-Control"] == "private, no-store"
+    assert document["Content-Security-Policy"] == "sandbox; default-src 'none'"
+    assert "attachment" in document["Content-Disposition"]
+    assert client.post(document_url).status_code == 405
+    client.logout()
+    assert client.get(document_url).status_code == 302
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("query", ["region=bad", "", "&".join(["region=" + "0" * 32] * 17)])
+def test_sequence_viewer_rejects_invalid_context(region_preview, client, query):
+    file, _revisions, _target = region_preview
+    assert (
+        client.get(reverse("archive_preview:region_sequence_viewer", args=[file.pk]) + "?" + query).status_code == 404
+    )

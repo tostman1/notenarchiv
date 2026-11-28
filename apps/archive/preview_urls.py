@@ -6,6 +6,8 @@ from apps.archive import preview_views as views
 
 app_name = "archive_preview"
 urlpatterns = [
+    path("<uuid:file_id>/regions/", views.region_sequence_viewer, name="region_sequence_viewer"),
+    path("<uuid:file_id>/regions/document/", views.region_sequence_document, name="region_sequence_document"),
     path("<uuid:file_id>/", views.viewer, name="viewer"),
     path("<uuid:file_id>/document/", views.document, name="document"),
     path("<uuid:file_id>/thumbnail/<int:page>/", views.thumbnail, name="thumbnail"),

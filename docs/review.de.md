@@ -79,6 +79,17 @@ erhalten. Zusammenlegen, Reihenfolge, Dokumentvorschau und die musikalische
 Regionsfreigabe sind weiterhin offene Funktionen. Die technische Browserabnahme
 dieses Editor-Inkrements steht vor seiner Integration noch aus.
 
+### Temporäre Regionsfolge vorschauen
+
+Im nachfolgenden Vorschau-Batch lassen sich gespeicherte Regionsrevisionen über
+acht Vorschauplätze ausdrücklich anordnen. Leere Plätze werden ausgelassen;
+dieselbe Region darf bewusst mehrfach vorkommen. **Unbestätigte Folge vorschauen**
+öffnet die sichere PDF-Ansicht dieser Reihenfolge. Dies speichert keine Edition
+und ist weder musikalische Freigabe noch regulärer Archivexport. Die ausgewählten
+Revisionen bleiben fest: Eine spätere Grenzkorrektur verändert diese Vorschau-URL
+nicht. **Zurück zur Quellprüfung** führt zur unveränderten Originalquelle zurück.
+Die native Browserprüfung dieses Folge-Batches steht noch aus.
+
 ## Navigation und Stapelfreigabe
 
 **Vorherige Version** und **Nächste Version** wechseln durch die Prüfwarteschlange.

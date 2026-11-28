@@ -20,14 +20,21 @@
   Foundation/Container/Windows success. PR #98 exact candidate
   `1fa9a781c13a757691e13a9e2769e09bcdb9a8c9` also passed all required CI gates.
 - PR #98 is merged at Main `1355cce45952fa933376aaa9cae91dd1c235040e`;
-  exact post-merge run `46138000603` is pending. Follow-up incorporated the merge
+  exact post-merge run `46138000603` passed Foundation/Container/Windows.
+  Follow-up incorporated the merge
   without altering its source-preview behavior. Independent preview review found
   no concrete blocker in historical pins, source isolation or bounded rendering.
 - Added bounded temporary sequence composition for 1–16 explicitly pinned region
   revisions; order and intentional repetitions are retained without DB writes or
   musical approval. Real PDF inspection verifies mixed region sizes and order.
-  Seven focused preview tests pass. UI sequence selection and protected viewer
-  integration are still unfinished; this helper is not an archive export.
+  Seven focused preview tests pass. This helper is not an archive export.
+- Review now offers eight explicit ordered selection slots, including intentional
+  repetitions and empty slots. The authenticated temporary viewer pins revision
+  UUIDs and uses the existing safe PDF.js canvas; its PDF endpoint is no-store,
+  sandboxed attachment-only and generates no database/approval changes.
+  Focused preview/editor checks: 23 passed; Ruff (418 files), formatting and
+  requirement checks passed. Added browser navigation/duplicate-slot page-count
+  assertions; native execution and independent sequence review are pending.
 
 ## Explicit region-editor foundation — in progress
 
