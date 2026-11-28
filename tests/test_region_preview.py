@@ -128,7 +128,7 @@ def test_temporary_sequence_preserves_order_repeats_and_historical_pins(region_p
     original = target.read_bytes()
     output = region_sequence(file, [small.pk, revisions[0].pk, small.pk])
     scratch = tmp_path / "inspection"
-    scratch.mkdir()
+    scratch.mkdir(mode=0o700)
     infos = Processor(scratch).inspect(output).pages
     assert [(item.width_points, item.height_points) for item in infos] == [(50, 80), (100, 200), (50, 80)]
     assert target.read_bytes() == original

@@ -1,5 +1,16 @@
 # Progress record
 
+## Preview candidate CI correction — 2026-11-28
+
+- PR #99 exact candidate `068b1a22cf165a3427cc0b27f55debc881868548`
+  failed Foundation in run `46141867930`: 1,595 tests passed, 33 skipped, one
+  failure. The new sequence-inspection test created its parser scratch directory
+  with default POSIX permissions; the existing private-root guard rejected it.
+  Container and Windows checks passed; Foundation browser checks did not run.
+- Corrected only the synthetic test directory to mode 0700. The application
+  private-root guard and all mandatory verification gates remain unchanged.
+  Corrected exact-head CI is required before merge.
+
 ## Execution-state check — 2026-11-28
 
 - Owner-requested one-time inspection confirmed the completed Sol review is idle:
