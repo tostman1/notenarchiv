@@ -10,6 +10,10 @@
   not silently backfilled. Existing pinned logical revisions remain unchanged.
   No assignment, inspection, confirmation or export is created by geometry edits.
 - Focused region/history/selection checks: 44 passed; no migration changes.
+  Independent review found a concurrent publication-health race: health changes
+  need not increment file revision. The service now rechecks AVAILABLE after the
+  writer-fenced refresh; MISSING/CORRUPT seam regressions use real receipt setup.
+  Updated focused checks: 46 passed. No availability constraint was bypassed.
   Graphical persistence controls and service-independent integration review remain
   unfinished. This checkpoint is not integrated or full-CI/manual verified.
 

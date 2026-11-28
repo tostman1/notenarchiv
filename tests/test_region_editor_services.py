@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from apps.archive import models as m
 from apps.archive import region_editor_services as editor
 from apps.archive.services import ArchiveConflict, register_base
+from tests.test_archive_workflow import receipt
 from tests.test_content_geometry_models import page
 
 
@@ -15,6 +16,7 @@ from tests.test_content_geometry_models import page
 def editable(monkeypatch):
     source = page()
     file = register_base(source.source_version_id, "synthetic.pdf")
+    file, _operation = receipt(file)
     monkeypatch.setattr(editor, "preview_file", lambda *a, **kw: file)
     monkeypatch.setattr(editor, "preview_bytes", lambda file: b"verified synthetic bytes")
     return SimpleNamespace(file=file, page=source)
@@ -95,6 +97,23 @@ def test_missing_verified_bytes_never_creates_geometry(editable, monkeypatch):
     monkeypatch.setattr(editor, "preview_bytes", unavailable)
     with pytest.raises(ValidationError, match="Unavailable"):
         save(editable)
+    assert m.PageRegion.objects.count() == m.PageRegionRevision.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("health", ["MISSING", "CORRUPT"])
+def test_health_change_after_verified_read_rejects_under_writer_lock(editable, monkeypatch, health):
+    revision = editable.file.revision
+
+    def verified_then_unavailable(file):
+        m.ArchiveFile.objects.filter(pk=file.pk).update(publication_state=health)
+        return b"verified synthetic bytes"
+
+    monkeypatch.setattr(editor, "preview_bytes", verified_then_unavailable)
+    with pytest.raises(ValidationError, match="became unavailable"):
+        save(editable)
+    editable.file.refresh_from_db()
+    assert editable.file.revision == revision and editable.file.publication_state == health
     assert m.PageRegion.objects.count() == m.PageRegionRevision.objects.count() == 0
 
 

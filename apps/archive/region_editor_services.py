@@ -39,6 +39,8 @@ def save_rectangle(
         if not m.ArchiveFile.objects.using(using).filter(pk=file.pk).update(revision=F("revision")):
             raise ArchiveConflict()
         file.refresh_from_db(using=using)
+        if file.publication_state != "AVAILABLE":
+            raise ValidationError("Source publication became unavailable before geometry was saved.")
         if (
             type(expected_file_revision) is not int
             or expected_file_revision != file.revision
