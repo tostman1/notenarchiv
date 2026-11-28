@@ -423,6 +423,43 @@ def record_candidate(version_id, *, filename, text_lines=(), using="default", oc
         filename_evidence = _filename_evidence(stem, rules)
         text_evidence = _text_evidence(text_lines, rules, filename_evidence)
         state, reasons, confidence, work_id, instrument_id, parts = _verdict(filename_evidence, text_evidence, rules)
+        if ocr_evidence is not None:
+            # Keep a misleading or partial PDF text layer as independent evidence,
+            # not a reason to skip OCR or silently override its observations.
+            layer_lines = ocr_evidence.evidence["text_layer"].splitlines()[:MAX_TEXT_LINES]
+            layer = _text_evidence(layer_lines, rules, filename_evidence)
+            layer_state, layer_reasons, _, layer_work, layer_instrument, layer_parts = _verdict(
+                filename_evidence, layer, rules
+            )
+            conflict_reasons = []
+            if text_evidence["work_id"] and layer["work_id"] and text_evidence["work_id"] != layer["work_id"]:
+                conflict_reasons.append("work_conflict_ocr_text_layer")
+            if (
+                text_evidence["instrument_id"]
+                and layer["instrument_id"]
+                and text_evidence["instrument_id"] != layer["instrument_id"]
+            ):
+                conflict_reasons.append("instrument_conflict_ocr_text_layer")
+            if (
+                text_evidence["part_codes"]
+                and layer["part_codes"]
+                and rec.parts_agree(text_evidence["part_codes"], layer["part_codes"]) == "conflict"
+            ):
+                conflict_reasons.append("part_conflict_ocr_text_layer")
+            if layer_state == m.ArchiveFile.CandidateState.CONFLICT:
+                conflict_reasons.extend(reason for reason in layer_reasons if not reason.startswith("sources:"))
+            if conflict_reasons:
+                state, confidence, parts = m.ArchiveFile.CandidateState.CONFLICT, None, []
+                reasons.extend(conflict_reasons)
+            elif state != m.ArchiveFile.CandidateState.CONFLICT:
+                work_id = work_id or layer_work
+                instrument_id = instrument_id or layer_instrument
+                parts = list(dict.fromkeys(parts + layer_parts))
+                if work_id or parts:
+                    state = m.ArchiveFile.CandidateState.PROPOSED
+            if layer_lines:
+                reasons.append("sources:pdf_text_layer")
+            reasons = list(dict.fromkeys(reasons))
         arrangement_id = _arrangement_for(work_id, using) if work_id else None
         region = {}
         excerpt = _excerpt(filename_evidence, text_evidence)
@@ -430,7 +467,7 @@ def record_candidate(version_id, *, filename, text_lines=(), using="default", oc
             if ocr_evidence.source_version_id != version.pk:
                 raise ValidationError("OCR evidence source mismatch.")
             evidence = ocr_evidence.evidence
-            region = {"page": evidence["page"], "box": [0, 0, 1, 1], "unit": "NORMALIZED"}
+            region = {"page": evidence["page"], "box": evidence.get("display_box", [0, 0, 1, 1]), "unit": "NORMALIZED"}
             excerpt = (excerpt + "\nOCR: " + "\n".join(text_lines) + "\nPDF: " + evidence["text_layer"])[:MAX_EXCERPT]
             reasons.append("sources:local_ocr")
         file = m.ArchiveFile.objects.using(using).filter(source_version=version, kind="BASE").first()

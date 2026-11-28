@@ -3,6 +3,11 @@
 from django.utils.translation import gettext_lazy as _
 
 REASONS = {
+    "work_conflict_ocr_text_layer": _("OCR und PDF-Textschicht schlagen unterschiedliche Werke vor."),
+    "instrument_conflict_ocr_text_layer": _("OCR und PDF-Textschicht nennen unterschiedliche Instrumente."),
+    "part_conflict_ocr_text_layer": _("OCR und PDF-Textschicht nennen unterschiedliche Stimmen."),
+    "sources:pdf_text_layer": _("Die vorhandene PDF-Textschicht wurde unabhängig verglichen."),
+    "sources:local_ocr": _("Lokale OCR des tatsächlichen Seiteninhalts."),
     "work_conflict_between_sources": _("Dateiname und Inhalt nennen unterschiedliche Werke."),
     "part_conflict_between_sources": _("Dateiname und Inhalt nennen unterschiedliche Stimmen."),
     "instrument_conflict_between_sources": _("Dateiname und Inhalt nennen unterschiedliche Instrumente."),
