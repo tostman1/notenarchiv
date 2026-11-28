@@ -40,6 +40,28 @@ def detail(request, file_id):
     failed_form, status = None, 200
     if request.method == "POST":
         action = request.POST.get("action")
+        if action == "region_save":
+            from apps.archive.region_editor_services import save_rectangle
+
+            selection_form = forms.OcrSelectionForm(request.POST)
+            revision_form = forms.RegionRevisionForm(request.POST)
+            try:
+                if not selection_form.is_valid() or not revision_form.is_valid():
+                    raise ValidationError("Invalid region edit.")
+                values = selection_form.cleaned_data
+                save_rectangle(
+                    file.pk,
+                    selection={
+                        "page": values["page"] - 1,
+                        "box": [values[name] / 100 for name in ("left", "top", "right", "bottom")],
+                    },
+                    **revision_form.cleaned_data,
+                )
+            except (ValidationError, DatabaseError, ValueError, Http404):
+                messages.error(request, _("Bereich nicht gespeichert. Quellstand und Grenzen prüfen; neu laden."))
+            else:
+                messages.success(request, _("Bereichsversion gespeichert – keine Zuordnung, Inspektion oder Freigabe."))
+            return redirect("archive_review_detail", file_id=file.pk)
         if action in ("ocr", "ocr_selection"):
             from apps.archive.ocr_services import request as request_ocr
 
@@ -171,6 +193,9 @@ def detail(request, file_id):
             "parts": parts,
             "candidates": candidates,
             "ocr_selection": forms.OcrSelectionForm(),
+            "region_revision": forms.RegionRevisionForm(
+                initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
+            ),
             "inspected": inspected,
             "jobs": jobs,
             "failed_form": failed_form,

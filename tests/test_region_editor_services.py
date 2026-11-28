@@ -10,6 +10,7 @@ from apps.archive import region_editor_services as editor
 from apps.archive.services import ArchiveConflict, register_base
 from tests.test_archive_workflow import receipt
 from tests.test_content_geometry_models import page
+from tests.test_preview import preview  # noqa: F401
 
 
 @pytest.fixture
@@ -124,3 +125,34 @@ def test_huge_ocr_selection_integer_rejects_before_float_conversion():
         validate(
             {"file_id": "00000000-0000-0000-0000-000000000001", "selection": {"page": 0, "box": [0, 0, 10**400, 1]}}
         )
+
+
+def test_authenticated_graphical_region_save_has_explicit_pins_and_no_approval(preview, client, monkeypatch):  # noqa: F811
+    from django.urls import reverse
+
+    file, _data, _target = preview
+    url = reverse("archive_review_detail", args=[file.pk])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert b'value="region_save"' in response.content
+    captured = []
+    monkeypatch.setattr(editor, "save_rectangle", lambda *a, **kw: captured.append((a, kw)))
+    response = client.post(
+        url,
+        {
+            "action": "region_save",
+            "expected_file_revision": file.revision,
+            "source_version_id": str(file.source_version_id),
+            "expected_region_number": 0,
+            "page": 1,
+            "left": 10,
+            "top": 20,
+            "right": 80,
+            "bottom": 90,
+        },
+    )
+    assert response.status_code == 302
+    assert captured[0][1]["selection"] == {"page": 0, "box": [0.1, 0.2, 0.8, 0.9]}
+    assert captured[0][1]["expected_file_revision"] == file.revision
+    assert m.ReviewInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+    assert m.ArchiveFile.objects.get(pk=file.pk).current_proposal_id is None

@@ -14,8 +14,11 @@
   need not increment file revision. The service now rechecks AVAILABLE after the
   writer-fenced refresh; MISSING/CORRUPT seam regressions use real receipt setup.
   Updated focused checks: 46 passed. No availability constraint was bypassed.
-  Graphical persistence controls and service-independent integration review remain
-  unfinished. This checkpoint is not integrated or full-CI/manual verified.
+  Authenticated review now exposes an explicit save-unconfirmed-region control
+  using the existing drawn/numeric rectangle, pinned file/version fields and CSRF.
+  UI dispatch/selection/review focused checks: 54 passed. Editing saved regions,
+  sequence preview/assignment and cumulative integration review remain unfinished.
+  This checkpoint is not integrated or full-CI/manual verified.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 

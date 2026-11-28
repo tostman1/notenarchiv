@@ -17,9 +17,12 @@
 <h3>{% translate "Quellseite oder Bereich analysieren" %}</h3>
 <p>{% translate "Grenzen in Prozent von links/oben. Optional den Bereich auf der PDF-Seite mit der Maus aufziehen; dies erstellt keine musikalische Region." %}</p>
 {{ ocr_selection.as_p }}
+{{ region_revision.as_p }}
 <button type="button" id="ocr-draw">{% translate "Bereich aufziehen" %}</button>
 <button type="button" id="ocr-reset">{% translate "Ganze ausgewählte Seite" %}</button>
 <button>{% translate "Ausgewählten Bereich lokal analysieren" %}</button>
+<button name="action" value="region_save">{% translate "Bereich als neue unbestätigte Region speichern" %}</button>
+<p>{% translate "Speichern erhält eine geometrische Region separat von OCR. Es teilt nicht die Quelle, ordnet kein Werk zu und bestätigt keine Musik. Ganze Originalseiten bleiben erhalten." %}</p>
 </form>
 {% for candidate in candidates %}<article><p>{% if candidate.method == 'OCR' %}{% translate "Lokale OCR und PDF-Inhalt – keine Freigabe" %} · {% translate "Quellseite (ab 0)" %}: {{ candidate.region.page }} · {% translate "Profil-/Regelkontext" %}: {{ candidate.rule_version }}{% elif candidate.method == 'TEXT_LAYER' %}{% translate "Dateiname und PDF-Text" %}{% else %}{% translate "Nur Dateiname; Inhalt visuell prüfen" %}{% endif %}</p>
 <pre class="evidence">{{ candidate.excerpt }}</pre><p>{{ candidate.proposed_work|default:"—" }} · {{ candidate.proposed_arrangement|default:"—" }}</p>
