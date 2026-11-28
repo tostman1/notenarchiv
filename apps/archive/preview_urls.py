@@ -6,6 +6,11 @@ from apps.archive import preview_views as views
 
 app_name = "archive_preview"
 urlpatterns = [
+    path(
+        "<uuid:file_id>/content/<uuid:revision_id>/inspect/",
+        views.content_proposal_inspect,
+        name="content_proposal_inspect",
+    ),
     path("<uuid:file_id>/content/<uuid:revision_id>/", views.content_proposal_viewer, name="content_proposal_viewer"),
     path(
         "<uuid:file_id>/content/<uuid:revision_id>/document/",

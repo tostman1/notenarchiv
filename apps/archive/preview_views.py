@@ -5,10 +5,10 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from apps.archive import preview_services as services
 from core.files import FileError
@@ -115,6 +115,7 @@ def region_sequence_viewer(request, file):
 @protected_preview
 def content_proposal_viewer(request, file, revision_id):
     from apps.archive.content_preview_services import proposal_context
+    from apps.archive.content_review_forms import ContentInspectionForm
 
     revision, identifiers = proposal_context(file, revision_id)
     return render(
@@ -124,9 +125,44 @@ def content_proposal_viewer(request, file, revision_id):
             "file": file,
             "proposal": revision,
             "sequence_count": len(identifiers),
+            "inspection_form": ContentInspectionForm(initial={"fingerprint": revision.fingerprint}),
             "export_document_url": reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk]),
         },
     )
+
+
+@login_required
+@require_POST
+def content_proposal_inspect(request, file_id, revision_id):
+    from django.contrib import messages
+
+    from apps.archive.content_preview_services import proposal_context
+    from apps.archive.content_review_forms import ContentInspectionForm
+    from apps.archive.content_services import inspect_content
+
+    form = ContentInspectionForm(request.POST)
+    try:
+        file = services.preview_file(file_id)
+        revision, identifiers = proposal_context(file, revision_id)
+        if not form.is_valid():
+            raise ValidationError("Explicit inspection attestation is required.")
+        inspect_content(
+            revision.pk,
+            actor=request.user,
+            expected_fingerprint=form.cleaned_data["fingerprint"],
+            visually_reviewed=form.cleaned_data["visually_reviewed"],
+        )
+    except (Http404, FileError, PdfError, OSError, ValueError, ValidationError):
+        messages.error(
+            request, _("Sichtprüfung nicht gespeichert. Quelle, Revision und ausdrückliche Bestätigung prüfen.")
+        )
+    else:
+        messages.success(
+            request, _("Sichtprüfung dieser Inhaltsrevision gespeichert; noch keine musikalische Freigabe.")
+        )
+    response = redirect("archive_preview:content_proposal_viewer", file_id=file_id, revision_id=revision_id)
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @protected_preview

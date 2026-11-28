@@ -1,7 +1,9 @@
 """Inspection previews use persisted proposal order, not mutable UI selection."""
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.http import Http404
+from django.test import Client
 from django.urls import reverse
 
 from apps.archive import models as m
@@ -83,4 +85,43 @@ def test_review_lists_only_pinned_compatible_saved_proposals(region_preview, cli
     file.save(update_fields=["revision"])
     response = client.get(reverse("archive_review_detail", args=[file.pk]))
     assert response.context["content_proposals"] == []
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_inspection_requires_csrf_explicit_attestation_and_exact_fingerprint(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    revision = propose(file, [regions[1], regions[1]])
+    viewer = reverse("archive_preview:content_proposal_viewer", args=[file.pk, revision.pk])
+    action = reverse("archive_preview:content_proposal_inspect", args=[file.pk, revision.pk])
+    strict = Client(enforce_csrf_checks=True)
+    strict.force_login(get_user_model().objects.get(pk=client.session["_auth_user_id"]))
+    payload = {"fingerprint": revision.fingerprint, "visually_reviewed": "on"}
+    assert strict.post(action, payload).status_code == 403
+    assert client.get(action).status_code == 405
+    client.get(viewer)
+    assert m.ContentInspection.objects.count() == 0
+    client.post(action, {"fingerprint": revision.fingerprint})
+    client.post(action, {"fingerprint": "0" * 64, "visually_reviewed": "on"})
+    assert m.ContentInspection.objects.count() == 0
+    response = client.post(action, payload)
+    assert response.status_code == 302
+    inspection = m.ContentInspection.objects.get()
+    assert inspection.revision_id == revision.pk and inspection.fingerprint == revision.fingerprint
+    assert inspection.visually_reviewed
+    assert m.ContentConfirmation.objects.count() == 0
+    assert m.ReviewInspection.objects.count() == m.ArchiveProposal.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_inspection_rejects_changed_region_and_corrupt_source(region_preview, client):  # noqa: F811
+    file, regions, target = region_preview
+    revision = propose(file, [regions[1]])
+    action = reverse("archive_preview:content_proposal_inspect", args=[file.pk, revision.pk])
+    payload = {"fingerprint": revision.fingerprint, "visually_reviewed": "on"}
+    append_region(regions[1].region_id, expected_number=2, bounds_points=[100, 0, 180, 180])
+    assert client.post(action, payload).status_code == 302
+    assert m.ContentInspection.objects.count() == 0
+    target.write_bytes(b"corrupt synthetic input")
+    assert client.post(action, payload).status_code == 302
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0

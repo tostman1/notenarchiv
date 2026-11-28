@@ -8,5 +8,9 @@
 <p>{% translate "Kontextfingerabdruck" %}: <code>{{ proposal.fingerprint }}</code></p>
 {% include "archive/_pdf_viewer.html" %}
 <p><a href="{% url 'archive_review_detail' file.pk %}">{% translate "Zurück zur Quellprüfung" %}</a></p>
+<section><h2>{% translate "Ausdrückliche Sichtprüfung" %}</h2>
+<p>{% translate "Prüfen Sie alle Seiten und wiederholten Vorkommen dieser gespeicherten Folge. Eine Sichtprüfung bestätigt weder die gesamte Originaldatei noch andere Inhaltsrevisionen." %}</p>
+<form method="post" action="{% url 'archive_preview:content_proposal_inspect' file.pk proposal.pk %}">{% csrf_token %}{{ inspection_form.as_p }}<button>{% translate "Diese Inhaltsrevision als visuell geprüft bestätigen" %}</button></form>
+</section>
 {% endblock %}
 {% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}

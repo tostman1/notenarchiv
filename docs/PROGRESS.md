@@ -1,11 +1,28 @@
 # Progress record
 
+## Pinned content inspection workflow — in progress
+
+- Verified Main baseline: `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`,
+  exact post-merge run `46149207191` passed Foundation, Container and Windows.
+  PR #100 remains frozen at `ccbafbaee15aae44e403a6404397bebdc23fb350`
+  during its existing exact-head CI wait.
+- Independent follow-up exposes bounded saved proposal discovery and an authenticated
+  preview of exact immutable occurrences/region revisions, including repeats and
+  historical pins. Opening it creates no inspection or approval. Preview review
+  found no concrete blocker; targeted preview/review checks: 19 passed.
+- Added a separate CSRF-protected explicit all-occurrence sight-review attestation
+  pinned to the displayed fingerprint through existing `inspect_content()`.
+  Stale regions, changed fingerprints, absent acknowledgement and corrupt inputs
+  cannot attest; musical confirmation and legacy file approval remain separate.
+  Targeted preview/content-confirmation checks: 14 passed. Independent delta review
+  is pending; native browser and final batched integration verification are open.
+
 ## Preview integration checkpoint
 
 - PR #99 merged at Main `8359dbdf7e52fe7dc3dd0fc862998523ee4d21ca`
   after exact candidate `bcee5b6d7366e7f02e37435aa5df797d70a4ed5a`
   passed Foundation, Container and Windows, including native browser checks.
-  Exact post-merge Main verification is pending; manual acceptance remains open.
+  Exact post-merge run `46149207191` passed all required checks; manual acceptance remains open.
 
 ## Explicit region-to-content proposal follow-up — in progress
 
