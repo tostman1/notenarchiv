@@ -20,8 +20,8 @@
   Updated focused checks: 46 passed. No availability constraint was bypassed.
   Authenticated review now exposes an explicit save-unconfirmed-region control
   using the existing drawn/numeric rectangle, pinned file/version fields and CSRF.
-  UI dispatch/selection/review focused checks: 54 passed. Editing saved regions,
-  sequence preview/assignment and cumulative integration review remain unfinished.
+   UI dispatch/selection/review focused checks: 54 passed. Subsequent checkpoints
+   add saved-region editing; sequence preview/assignment remain unfinished.
   This checkpoint is not integrated or full-CI/manual verified.
   Follow-up review identified uncaught raw filesystem errors during region save.
   The authenticated action now handles OSError without exposing paths or writing
@@ -36,7 +36,14 @@
   Region controls now start disabled and remain disabled during PDF rendering,
   with handlers rejecting early selection. Added pending-document and multi-page
   browser assertions plus real region create/revise/history checks. Node remains
-  unavailable locally; these browser additions require final batch CI execution.
+   unavailable locally; these browser additions require final batch CI execution.
+- Follow-up review confirms the race fix, including clearing rendered state on
+  failure. It also found malformed browser fixture validation arguments/state.
+  The fixture now observes UNCHECKED, records VALID with exact page/CropBox data
+  before publication, and retains the returned version. A local regression proves
+  that setup creates both exact source pages without legacy geometry replacement.
+  Latest targeted editor/selection/review/traceability checks: 63 passed.
+  Native browser execution is still pending; no full-CI/manual success is implied.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 

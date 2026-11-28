@@ -38,7 +38,7 @@ Eine erneute Analyse verwendet passende bereits gespeicherte Seitenevidenz.
 OCR verändert weder gespeicherte Zuordnungen noch eine vorhandene Freigabe und
 ersetzt niemals Ihre visuelle Prüfung. Falsche Vorschläge wie gewohnt manuell
 korrigieren. Die lokale OCR-Laufzeit ist zunächst im Server-Container enthalten;
-eine native Windows-Verteilung und der grafische Segmentierungseditor sind noch
+eine native Windows-Verteilung und der vollständige Segmentierungseditor sind noch
 nicht geliefert. Ein ungeklärter Prozessabbruch erfordert Prüfung statt eines
 automatischen erneuten Versuchs.
 
@@ -59,6 +59,25 @@ erneut hashgeprüften Quelle. Bild, Text und Wort-Konfidenz dienen zur Erklärun
 des Vorschlags; sie ersetzen weder die vollständige Sichtprüfung noch die
 gesonderte Freigabe. Ein unbekannter oder widersprüchlicher Titel beziehungsweise
 eine unklare Stimme muss weiterhin manuell geklärt werden.
+
+### Rechteck ausdrücklich als unbestätigte Region speichern
+
+Im nachfolgenden Editor-Inkrement kann derselbe Bereich mit **Region unbestätigt
+speichern** dauerhaft erfasst werden. Diese Funktion ist von der OCR-Analyse
+getrennt: OCR allein speichert keine musikalische Region. Die Originaldatei bleibt
+unverändert; das gespeicherte Rechteck ist noch keinem Werk oder einer Stimme
+zugeordnet und weder geprüft noch freigegeben.
+
+Eine gespeicherte Region über ihre Schaltfläche laden, Grenzen kontrollieren und
+erneut speichern: Es entsteht eine neue Revision derselben Region. **Neue Region**
+löst die Bearbeitung von der bisherigen Region. Während die PDF lädt oder eine
+andere Seite rendert, sind gespeicherte Regionsschaltflächen deaktiviert. Bei
+veraltetem Stand neu laden; fremde Änderungen werden nicht überschrieben.
+Fehlt die verifizierte CLEAN-Kopie oder die gespeicherte Originalgeometrie,
+wird nicht gespeichert. Frühere Revisionen und historische Ausgaben bleiben
+erhalten. Zusammenlegen, Reihenfolge, Dokumentvorschau und die musikalische
+Regionsfreigabe sind weiterhin offene Funktionen. Die technische Browserabnahme
+dieses Editor-Inkrements steht vor seiner Integration noch aus.
 
 ## Navigation und Stapelfreigabe
 

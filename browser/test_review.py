@@ -48,13 +48,13 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
         "Synthetic/Synthetic review Posaune 1.pdf",
         sha256=hashlib.sha256(data).hexdigest(),
         byte_size=len(data),
-        pdf_state="VALID",
-        page_info=[PAGE, PAGE],
+        pdf_state="UNCHECKED",
     )
-    record_validation(
+    version = record_validation(
         version.pk,
         expected_revision=version.revision,
-        pdf_state="UNCHECKED",
+        pdf_state="VALID",
+        page_info=[PAGE, PAGE],
         original_crop_boxes=[PAGE["crop_box"], PAGE["crop_box"]],
     )
     file, _ = receipt(register_base(version.pk, "_Ungeprueft/review.pdf"))

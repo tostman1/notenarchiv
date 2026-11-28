@@ -7,10 +7,35 @@ from django.core.exceptions import ValidationError
 
 from apps.archive import models as m
 from apps.archive import region_editor_services as editor
-from apps.archive.services import ArchiveConflict, register_base
+from apps.archive.services import ArchiveConflict, observe_version, record_validation, register_base
+from tests.archive_fixtures import PAGE
 from tests.test_archive_workflow import receipt
 from tests.test_content_geometry_models import page
 from tests.test_preview import preview  # noqa: F401
+
+
+@pytest.mark.django_db
+def test_browser_region_fixture_records_exact_geometry_before_publication():
+    folder = m.SourceFolder.objects.create(relative_path="Synthetic browser geometry")
+    version, _ = observe_version(
+        folder.pk,
+        "Synthetic browser geometry/music.pdf",
+        sha256="7" * 64,
+        byte_size=100,
+        pdf_state="UNCHECKED",
+    )
+    assert not m.SourcePage.objects.filter(source_version=version).exists()
+    version = record_validation(
+        version.pk,
+        expected_revision=version.revision,
+        pdf_state="VALID",
+        page_info=[PAGE, PAGE],
+        original_crop_boxes=[PAGE["crop_box"], PAGE["crop_box"]],
+    )
+    file = register_base(version.pk, "_Ungeprueft/browser-geometry.pdf")
+    pages = list(m.SourcePage.objects.filter(source_version_id=file.source_version_id).order_by("page_index"))
+    assert len(pages) == 2
+    assert all(source.original_crop_box == PAGE["crop_box"] for source in pages)
 
 
 @pytest.fixture

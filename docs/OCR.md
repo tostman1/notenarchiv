@@ -71,5 +71,19 @@ foreign-version evidence cannot be read through another source's URL. OCR word
 confidence describes recognition, not musical approval. Independent multiple-work
 proposals, complete booklet continuation analysis and graphical segmentation
 remain subsequent increments, not delivered WP-26/56 acceptance.
+The subsequent region-editor batch adds explicit **unconfirmed** rectangle saves
+from the same source viewer. These are separate from transient OCR selections:
+the archivist deliberately saves a new stable region, or loads a saved region
+and appends a revision. The service requires retained original page geometry,
+verified BASE bytes, current file/version pins and the expected region revision.
+It rechecks publication availability under the SQLite writer fence. Missing
+legacy original geometry is rejected rather than silently reconstructed.
+Saved regions are bounded to the latest 20 on the review page; selection stays
+disabled during PDF initialization/rendering. Saving never creates musical
+assignments, inspection, confirmation, logical editions or new export eligibility.
+Prior region revisions and historical logical-page pins remain unchanged.
+Reordering, merging, sequence preview and musical confirmation workflows remain
+open WP-56 scope. This editor batch still requires its own exact-head CI.
+
 WP-27 integrity and WP-28 representative DS224+ measurements remain separate.
 The German manual plan must not infer recognition accuracy from synthetic tests.

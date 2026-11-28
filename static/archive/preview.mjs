@@ -108,6 +108,7 @@ if (selection) {
 GlobalWorkerOptions.workerSrc = root.dataset.workerUrl;
 
 function fail() {
+    root.dataset.rendered = "false";
     regionButtons.forEach(button => { button.disabled = true; });
     status.textContent = root.dataset.error;
     status.setAttribute("role", "alert");

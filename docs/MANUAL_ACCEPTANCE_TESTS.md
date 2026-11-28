@@ -602,7 +602,7 @@ Empfohlene Reihung: A → K. Hardware-Fälle (Abschnitt K) nur mit genehmigtem Z
 - **Voraussetzungen / Daten:** Zwei getrennte Konten/Sitzungen, gleicher Prüfentwurf bzw. Regionsvorschlag; eine bewusst falsch gewählte Region.
 - **Handlung:** 1) In beiden Sitzungen gleichen Stand öffnen. 2) In Sitzung A korrigieren und speichern. 3) Alten Stand aus B speichern versuchen, Konflikt prüfen und neu laden. 4) Falsche unbestätigte Region verschieben/vergrößern, teilen/zusammenlegen, Reihenfolge ändern und Ergebnis vorschauen. 5) Inspektionsstatus nach relevanter Änderung prüfen; frühere bestätigte Revision separat öffnen.
 - **Erwartet / Kriterien:** Veraltete Speicherung wird abgewiesen, fremde Korrektur bleibt erhalten. Geänderte relevante Zuordnung/Geometrie braucht neue Sichtprüfung; keine automatische Freigabe. Frühere bestätigte Revision und historische Ausgabe bleiben erhalten.
-- **Verfügbarkeit:** Teilweise implementiert: Revisions-/Konfliktschutz verfügbar; grafische Regionsbearbeitung WP-56 offen.
+- **Verfügbarkeit:** Teilweise implementiert: Revisions-/Konfliktschutz verfügbar; nachfolgender Editor-Batch ermöglicht ausdrücklich unbestätigte Rechtecke sowie Laden und Ändern ihrer Grenzen (lokal geprüft, Browser-/Integrations-CI noch offen). Teilen/Zusammenlegen, Reihenfolge, Dokumentvorschau und musikalische Regionsfreigabe bleiben WP-56-Umfang.
 - **Manueller Status:** nicht ausgeführt · **Tatsächliches Ergebnis:** — · **Defekt:** — · **Notizen:** —
 
 ## M — Abdeckungsübersicht
