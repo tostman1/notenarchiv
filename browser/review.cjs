@@ -35,8 +35,8 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
         } else if (mode === "content-review") {
             await page.getByRole("link", { name: "Inhaltsvorschlag ansehen – Revision 1", exact: true }).click();
             await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
-            assert.equal(await page.locator('[data-preview-total]').textContent(), "2");
-            await page.getByRole("button", { name: "Weiter", exact: true }).click();
+            assert.equal(await page.locator('#pdf-count').textContent(), "2");
+            await page.locator('#pdf-next').click();
             await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
             await page.getByLabel("Ich habe jedes Vorkommen dieser gespeicherten Folge einschließlich Fortsetzungen visuell geprüft.", { exact: true }).check();
             await page.getByRole("button", { name: "Diese Inhaltsrevision als visuell geprüft bestätigen", exact: true }).click();

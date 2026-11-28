@@ -18,6 +18,21 @@
   found no concrete blocker. Added a separate current-region corruption regression
   so byte verification is tested independently of stale-region rejection;
   native browser and final batched integration verification are open.
+- Separate confirmation requires another explicit checkbox and an inspection
+  belonging to the same revision and reviewer. Existing latest-input/integrity
+  gates remain active; repeated confirmation is idempotent and creates no legacy
+  approval. Independent focused review found no concrete blocker; targeted
+  preview/content-confirmation checks: 17 passed. Added a bounded native-browser
+  scenario for exact two-occurrence preview, inspection, then confirmation; its
+  execution and final cumulative verification remain pending.
+- Browser delta review identified two nonexistent preview selectors; corrected
+  them to the existing `#pdf-count` and `#pdf-next` controls. Combined targeted
+  preview/confirmation/proposal/review/traceability checks: 52 passed; native
+  execution remains pending.
+- PR #100 failed its original exact head on two remaining ambiguous legacy
+  browser selectors. Both correction-form scopes were independently reviewed,
+  targeted checks passed (33 plus one platform skip), and corrected frozen head
+  `4020beb421f4241dbf348d9af70b8cba76c80e0a` now receives one exact CI wait.
 
 ## Preview integration checkpoint
 
