@@ -125,3 +125,14 @@ def test_inspection_rejects_changed_region_and_corrupt_source(region_preview, cl
     target.write_bytes(b"corrupt synthetic input")
     assert client.post(action, payload).status_code == 302
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_inspection_verifies_bytes_for_current_region_proposal(region_preview, client):  # noqa: F811
+    file, regions, target = region_preview
+    revision = propose(file, [regions[1]])
+    target.write_bytes(b"corrupt current synthetic input")
+    action = reverse("archive_preview:content_proposal_inspect", args=[file.pk, revision.pk])
+    response = client.post(action, {"fingerprint": revision.fingerprint, "visually_reviewed": "on"})
+    assert response.status_code == 302
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0

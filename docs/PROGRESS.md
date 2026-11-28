@@ -15,7 +15,9 @@
   Stale regions, changed fingerprints, absent acknowledgement and corrupt inputs
   cannot attest; musical confirmation and legacy file approval remain separate.
   Targeted preview/content-confirmation checks: 14 passed. Independent delta review
-  is pending; native browser and final batched integration verification are open.
+  found no concrete blocker. Added a separate current-region corruption regression
+  so byte verification is tested independently of stale-region rejection;
+  native browser and final batched integration verification are open.
 
 ## Preview integration checkpoint
 
