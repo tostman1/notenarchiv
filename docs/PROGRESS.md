@@ -1,5 +1,15 @@
 # Progress record
 
+## Execution-state check — 2026-11-28
+
+- Owner-requested one-time inspection confirmed the completed Sol review is idle:
+  the OpenCode active-session API lists only the coordinator, not the reviewer.
+  No completed review was restarted or cancelled.
+- Combined local regression at `d6f4402` was still executing after approximately
+  12 minutes, with a newly started isolated PDF worker for a print test. RTK buffers
+  output; silence alone was not treated as a stall. Its native shell deadline is
+  35 minutes. No process or healthy CI was interrupted; completion remains pending.
+
 ## Saved-region preview follow-up — in progress
 
 - Independent branch `feat/region-sequence-preview` keeps PR #98 frozen at
