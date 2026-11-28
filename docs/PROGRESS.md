@@ -1,5 +1,23 @@
 # Progress record
 
+## Split batch combined verification
+
+- Combined local verification at `265404475773b5ee8c8f36445673a8521f11ea6e`:
+  1502 passed, 161 skipped, five failed in 1767.76 seconds. Ruff check/format
+  (424 files), requirements consistency, Django checks and migration drift passed.
+  This is not an all-green local result.
+- Two failures remain the known Windows symlink-fixture privilege errors
+  (`WinError 1314`, source-reader lines 77/221). Three additional failures occurred
+  in batch-review preparation and content integrity verification. Captured output
+  includes review HTTP 409 responses; it does not establish the underlying cause.
+  A targeted diagnostic rerun passed all three, followed by 55 passing combined
+  batch-review, content-input, split/editor and review-UI tests. Do not infer that
+  the original failures were harmless or that their cause is resolved.
+- No security checks, integrity guards or tests were weakened. The complete suite
+  was not restarted. Independent split review has no remaining concrete finding;
+  exact-head full integration CI, including native split-browser execution, remains
+  required before merge. Any repeated failure must be investigated before integration.
+
 ## Content inspection integration checkpoint
 
 - PR #101 merged at Main `c83e4985a11097f1ba6e84d4c41556f7f3cdf06c`
