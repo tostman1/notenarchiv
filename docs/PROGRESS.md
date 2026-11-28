@@ -1,5 +1,20 @@
 # Progress record
 
+## Merge browser/history follow-up — integration pending
+
+- PR #102 remains unmerged; its corrected frozen candidate is
+  `eff689ea633edb14e596c05f0185a1745b1191e9`, undergoing exact full CI.
+  The split fixture now waits for response region buttons before exact counts;
+  the original failure cause remains unproven.
+- Merge browser assertions likewise use bounded attached waits. Independent
+  browser review requested fresh persisted-history checks rather than cached ORM
+  objects; the fixture now reloads occurrence/logical pins, inspection/confirmation
+  identities and original/child region geometry after merging.
+- 58 targeted merge, split/editor, review and traceability checks passed; Ruff
+  check/format passed (425 files). Native browser execution remains pending.
+  German guidance and MA-061 distinguish current integration from local merge work;
+  all manual acceptance cases remain unexecuted.
+
 ## Conservative region merge foundation — in progress
 
 - PR #102 freezes split candidate `ba0ebb61f72e7e5b04296149d341ef30cc294b3b`

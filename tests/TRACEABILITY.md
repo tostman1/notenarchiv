@@ -1,5 +1,15 @@
 # Implemented acceptance traceability
 
+## Exact adjacent rectangle merge (local implementation; integration pending)
+
+- AR-20/21, SC-05: `tests/test_region_merge.py` covers exact canonical unions,
+  retained identities/history, stale file/region and publication-health rejection,
+  malformed UUIDs, gap/overlap rejection and decimal bounds across four rotations
+  with offset CropBox/UserUnit. Authenticated CSRF-protected controls require explicit
+  acknowledgement in a separate form. `browser/test_review.py` checks new merge
+  identity and unchanged confirmed pins after splitting; native execution is pending.
+  No musical approval or manual pass is inferred.
+
 ## Explicit rectangle split follow-up (local implementation; integration pending)
 
 - AR-20/21, SC-05: `tests/test_region_split.py` covers explicit display-space

@@ -131,7 +131,28 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
         max(child.bounds_points[3] for child in children),
     ]
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 1
-    assert references[0].logical_page_revision.region_revision_id == revisions[1].pk
+    persisted_references = list(content.references.select_related("logical_page_revision").order_by("sequence"))
+    assert [reference.pk for reference in persisted_references] == [reference.pk for reference in references]
+    assert [reference.logical_page_revision_id for reference in persisted_references] == [
+        reference.logical_page_revision_id for reference in references
+    ]
+    assert all(
+        reference.logical_page_revision.region_revision_id == revisions[1].pk for reference in persisted_references
+    )
+    persisted_inspection = m.ContentInspection.objects.get(pk=inspection.pk)
+    persisted_confirmation = m.ContentConfirmation.objects.get(pk=confirmation.pk)
+    assert persisted_inspection.revision_id == content.pk and persisted_inspection.reviewer_id == inspection.reviewer_id
+    assert (
+        persisted_confirmation.inspection_id == inspection.pk
+        and persisted_confirmation.actor_id == confirmation.actor_id
+    )
+    for original in [*revisions, *children]:
+        persisted = m.PageRegionRevision.objects.get(pk=original.pk)
+        assert persisted.region_id == original.region_id and persisted.number == original.number
+        assert (
+            persisted.bounds_points == original.bounds_points
+            and persisted.page_fingerprint == original.page_fingerprint
+        )
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk

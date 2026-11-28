@@ -43,6 +43,8 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             await merge.locator('[name="merge_acknowledged"]').check();
             await merge.locator('button').click();
             await page.getByText("Neue vereinigte Region gespeichert – bisherige Regionen unverändert.", { exact: true }).waitFor();
+            await page.locator('[data-region-number="1"]').nth(2).waitFor({ state: "attached", timeout: 15000 });
+            await page.locator('[data-region-number="2"]').waitFor({ state: "attached", timeout: 15000 });
             assert.equal(await page.locator('[data-region-number="1"]').count(), 3);
             assert.equal(await page.locator('[data-region-number="2"]').count(), 1);
         } else if (mode === "split") {

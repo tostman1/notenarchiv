@@ -109,6 +109,18 @@ die gewünschten Bereiche anschließend ausdrücklich für Vorschau beziehungswe
 einen neuen Inhaltsvorschlag aus. Diese neue Bedienfunktion wartet noch auf ihre
 native Browser- und Integrationsverifikation.
 
+### Zwei angrenzende Regionen ausdrücklich vereinigen
+
+Im gesonderten Abschnitt **Zwei angrenzende Regionen ausdrücklich vereinigen**
+wählen Sie zwei aktuelle Regionen derselben Quellseite. Nur exakt angrenzende
+Rechtecke mit einer vollständig gemeinsamen Kante lassen sich vereinigen:
+Lücken, Überlappungen oder eine nicht rechteckige Gesamtfläche werden abgewiesen.
+Bestätigen Sie die Vereinigung ausdrücklich. Es entsteht eine neue Region;
+beide bisherigen Regionen und alle historischen Inhalts- und Freigabepins bleiben
+erhalten. Veraltete Revisionen erfordern erneutes Laden. Die neue Region muss für
+einen Inhaltsvorschlag anschließend ausdrücklich gewählt und gesondert geprüft
+werden. Native Browser- und Integrationsverifikation dieser Ergänzung sind offen.
+
 ### Rechteck speichern und bearbeiten
 
 Im nachfolgenden Editor-Inkrement kann derselbe Bereich mit **Region unbestätigt
