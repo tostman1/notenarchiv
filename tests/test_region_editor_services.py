@@ -156,3 +156,35 @@ def test_authenticated_graphical_region_save_has_explicit_pins_and_no_approval(p
     assert captured[0][1]["expected_file_revision"] == file.revision
     assert m.ReviewInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
     assert m.ArchiveFile.objects.get(pk=file.pk).current_proposal_id is None
+
+
+@pytest.mark.parametrize("error", [FileNotFoundError, PermissionError])
+def test_region_save_handles_raw_unavailable_read(preview, client, monkeypatch, error):  # noqa: F811
+    from django.urls import reverse
+
+    file, _data, _target = preview
+    url = reverse("archive_review_detail", args=[file.pk])
+
+    def unavailable(*args, **kwargs):
+        raise error("synthetic unavailable CLEAN")
+
+    monkeypatch.setattr(editor, "save_rectangle", unavailable)
+    response = client.post(
+        url,
+        {
+            "action": "region_save",
+            "expected_file_revision": file.revision,
+            "source_version_id": str(file.source_version_id),
+            "expected_region_number": 0,
+            "page": 1,
+            "left": 10,
+            "top": 20,
+            "right": 80,
+            "bottom": 90,
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assert "Bereich nicht gespeichert" in response.content.decode()
+    assert m.PageRegion.objects.count() == m.PageRegionRevision.objects.count() == 0
+    assert m.ReviewInspection.objects.count() == m.ContentConfirmation.objects.count() == 0

@@ -19,6 +19,10 @@
   UI dispatch/selection/review focused checks: 54 passed. Editing saved regions,
   sequence preview/assignment and cumulative integration review remain unfinished.
   This checkpoint is not integrated or full-CI/manual verified.
+  Follow-up review identified uncaught raw filesystem errors during region save.
+  The authenticated action now handles OSError without exposing paths or writing
+  geometry; FileNotFoundError/PermissionError regressions cover message/redirect
+  and unchanged inspection/confirmation. Updated focused checks: 56 passed.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 

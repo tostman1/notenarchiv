@@ -57,7 +57,7 @@ def detail(request, file_id):
                     },
                     **revision_form.cleaned_data,
                 )
-            except (ValidationError, DatabaseError, ValueError, Http404):
+            except (ValidationError, DatabaseError, ValueError, OSError, Http404):
                 messages.error(request, _("Bereich nicht gespeichert. Quellstand und Grenzen prüfen; neu laden."))
             else:
                 messages.success(request, _("Bereichsversion gespeichert – keine Zuordnung, Inspektion oder Freigabe."))
