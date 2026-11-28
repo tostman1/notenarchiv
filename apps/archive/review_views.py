@@ -1,5 +1,7 @@
 """Thin authenticated review UI; GET/preview never changes workflow state."""
 
+from contextlib import suppress
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -121,11 +123,24 @@ def detail(request, file_id):
             cache_key__in=[candidate.rule_version for candidate in candidates if candidate.method == "OCR"],
         )
     }
+    heading_rules = None
+    if evidence_by_key:
+        from apps.archive.recognition import build_rule_set
+
+        heading_rules = build_rule_set()
     for candidate in candidates:
+        candidate.compound_headings = []
         candidate.ocr_evidence = evidence_by_key.get(candidate.rule_version) if candidate.method == "OCR" else None
         if candidate.ocr_evidence:
             candidate.ocr_words = candidate.ocr_evidence.evidence.get("words", [])[:100]
             candidate.source_page_number = candidate.ocr_evidence.page + 1
+            if candidate.ocr_evidence.evidence.get("rules") == heading_rules.version:
+                from apps.archive.compound_recognition import headings
+
+                # Historical evidence remains readable even if its shape
+                # cannot support additional compound observations.
+                with suppress(ValueError):
+                    candidate.compound_headings = headings(candidate.ocr_evidence.evidence, heading_rules)[:16]
         candidate.reason_labels = [
             REASONS.get(reason, _("Erkennung unsicher; Inhalt und Zuordnung manuell prüfen."))
             for reason in candidate.reasons

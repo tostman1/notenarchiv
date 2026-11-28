@@ -51,6 +51,27 @@ def main():
     )
     if "Synthetic" not in digital_selection["text_layer"] or "Posaune" in digital_selection["text_layer"]:
         raise RuntimeError("Synthetic selected-region text-layer isolation failed")
+    compound = io.BytesIO()
+    compound_canvas = Canvas(compound, pagesize=(420, 300))
+    compound_canvas.setFont("Helvetica", 24)
+    compound_canvas.drawString(30, 250, "Synthetic March")
+    compound_canvas.drawString(30, 100, "Synthetic Polka")
+    compound_canvas.save()
+    compound_image = engine.processor.render(compound.getvalue(), 0, dpi=200)
+    compound_scan = io.BytesIO()
+    compound_scan_canvas = Canvas(compound_scan, pagesize=(420, 300))
+    compound_scan_canvas.drawImage(ImageReader(io.BytesIO(compound_image)), 0, 0, width=420, height=300)
+    compound_scan_canvas.save()
+    evidence = engine.recognize_page(compound_scan.getvalue(), page=0, rules="synthetic-smoke-v1")
+    lines = {}
+    for word in evidence["words"]:
+        lines.setdefault(tuple(word["line"]), []).append(word)
+    recognized = [(" ".join(word["text"] for word in words), words[0]["box"][1]) for words in lines.values()]
+    titles = [(text, top) for text, top in recognized if text in ("Synthetic March", "Synthetic Polka")]
+    if evidence["text_layer"] or [text for text, _ in titles] != ["Synthetic March", "Synthetic Polka"]:
+        raise RuntimeError("Synthetic image-only compound heading smoke failed")
+    if titles[0][1] >= titles[1][1]:
+        raise RuntimeError("Synthetic compound heading location order failed")
     print("Synthetic text-layer, image-only and selected-region OCR smoke passed")  # noqa: T201
 
 

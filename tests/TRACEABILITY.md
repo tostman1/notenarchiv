@@ -1,5 +1,14 @@
 # Implemented acceptance traceability
 
+Compound heading follow-up (partial AR-19/25, SC-06):
+`tests/test_compound_recognition.py` covers side-by-side/repeated exact titles,
+aliases, distinct equal-title identities, legacy evidence and bounded malformed
+inputs. `tests/test_ocr_selection.py` verifies bounded review display, stale-rule
+suppression and unchanged approval/inspection. These are heading observations,
+not completed segmentation, booklet indexing or manual OCR acceptance.
+Printed-number tests retain numbered exact titles/aliases without conflating
+song numbers with work identity; exact full numeric titles take precedence.
+
 Selected OCR review batch additionally exercises authenticated evidence-image
 decoding, source-page navigation and actual selected-job enqueue in
 `browser/test_review.py` / `browser/review.cjs`. Native text regressions include

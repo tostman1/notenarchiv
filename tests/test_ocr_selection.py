@@ -225,6 +225,47 @@ def test_review_renders_bounded_escaped_image_evidence(preview, client):  # noqa
     assert m.ReviewInspection.objects.count() == 0
 
 
+@pytest.mark.parametrize("oversized_coordinate", [False, True])
+def test_review_compound_headings_are_bounded_and_do_not_change_approval(preview, client, oversized_coordinate):  # noqa: F811
+    from apps.archive import recognition
+    from apps.catalog.models import Work
+
+    file, _, _ = preview
+    Work.objects.create(title="Synthetic March")
+    item = m.OcrPageEvidence.objects.create(
+        source_version=file.source_version,
+        cache_key="9" * 64,
+        page=0,
+        evidence={
+            "sha256": file.sha256,
+            "cache_key": "9" * 64,
+            "page": 0,
+            "rules": recognition.build_rule_set().version,
+            "text_layer": "",
+            "words": [
+                {
+                    "text": "Synthetic March",
+                    "line": [1, index, 1, 1],
+                    "box": [10**400 if oversized_coordinate else 0, index, 100, index + 1],
+                }
+                for index in range(20)
+            ],
+        },
+    )
+    recognition.record_candidate(file.source_version_id, filename="synthetic.pdf", ocr_evidence=item)
+    before = (file.revision, file.review_state, file.current_proposal_id)
+    response = client.get(reverse("archive_review_detail", args=[file.pk]))
+    assert response.status_code == 200
+    assert len(response.context["candidates"][0].compound_headings) == (0 if oversized_coordinate else 16)
+    assert ('class="compound-headings"' in response.content.decode()) is not oversized_coordinate
+    file.refresh_from_db()
+    assert (file.revision, file.review_state, file.current_proposal_id) == before
+    assert m.ReviewInspection.objects.count() == 0
+    Work.objects.create(title="Another Work")
+    response = client.get(reverse("archive_review_detail", args=[file.pk]))
+    assert response.context["candidates"][0].compound_headings == []
+
+
 @pytest.mark.parametrize("selected_page", [0, 1])
 def test_job_ocr_uses_selected_geometry_and_retains_candidate_region(
     archive, monkeypatch, settings, tmp_path, selected_page

@@ -1,5 +1,15 @@
 # Local OCR: initial WP-24/25 increment
 
+Compound follow-up: exact known catalog titles/aliases in separate native OCR
+lines are shown as bounded heading observations. Repeated headings keep separate
+locations; duplicate catalog titles remain ambiguous. Coordinates are selection
+image pixels, not source-PDF regions. Observations are recalculated only against
+matching rule context and never create regions, editions, approval or inferred
+continuations. Full booklet use and optional segmentation remain separate.
+Printed heading numbers may be retained alongside an exact known title/alias;
+they never establish musical identity. Exact numeric titles take precedence over
+prefix stripping. Repeated song numbers across booklets remain independent.
+
 From a published version's review page, **Alle Seiten lokal mit OCR analysieren**
 enqueues the existing OCR job. The normal single-heavy-worker runner processes
 each source page, publishes progress and supports the existing cancellation UI.
