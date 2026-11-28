@@ -4,6 +4,6 @@
 .preview-surface canvas { display: block; background: white; margin: auto; }
 .ocr-canvas-stack { position: relative; width: fit-content; margin: auto; }
 .preview-surface .ocr-selection-overlay { position: absolute; top: 0; left: 0; background: transparent; pointer-events: none; }
-.ocr-selection-overlay.drawing { pointer-events: auto; cursor: crosshair; touch-action: none; }
+.preview-surface .ocr-selection-overlay.drawing { pointer-events: auto; cursor: crosshair; touch-action: none; }
 .ocr-evidence-image { display: block; max-width: 100%; max-height: 30rem; object-fit: contain; }
 .ocr-words { max-height: 15rem; overflow: auto; }
