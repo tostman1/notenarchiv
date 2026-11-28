@@ -1,5 +1,19 @@
 # Progress record
 
+## Explicit region-to-content proposal follow-up — in progress
+
+- Frozen PR #99 candidate `068b1a22cf165a3427cc0b27f55debc881868548`
+  receives exact full CI; independent branch `feat/region-logical-sequences`
+  continues without altering that candidate.
+- Added a bounded explicit region-sequence proposal service using existing
+  LogicalPageRevision, ContentEditionRevision and ContentReference contracts.
+  Exact source/version/file revision and current region pins are required;
+  repeated occurrences retain order, historical proposals remain unchanged,
+  and verified reads precede short writer-fenced availability checks.
+- Targeted sequence/confirmation checks: 17 passed. No inspection, confirmation,
+  legacy assignment or approved-export eligibility is inferred. UI, independent
+  review and combined integration verification for this follow-up remain open.
+
 ## Execution-state check — 2026-11-28
 
 - Owner-requested one-time inspection confirmed the completed Sol review is idle:
