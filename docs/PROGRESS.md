@@ -1,5 +1,20 @@
 # Progress record
 
+## Split native-browser correction — verification pending
+
+- PR #102 head `ba0ebb61f72e7e5b04296149d341ef30cc294b3b` failed
+  run `46162955532`: Foundation Python passed, but the split browser scenario
+  read zero revision-1 region buttons immediately after the successful-save message.
+  The observed message does not prove the full response DOM was ready; the cause
+  of the original failure remains unproven. Captured image 404s are not established
+  as its cause.
+- The fixture now waits at most 15 seconds per wait for the expected region buttons to be
+  attached before retaining the exact two-new/one-historical count assertions.
+  Application code, approval boundaries and history assertions are unchanged.
+  Corrected exact-head full CI and native browser execution remain required.
+- Fixes-only independent review found no blocker; 25 targeted split/review checks
+  passed. These checks do not establish native browser success.
+
 ## Split batch combined verification
 
 - Combined local verification at `265404475773b5ee8c8f36445673a8521f11ea6e`:

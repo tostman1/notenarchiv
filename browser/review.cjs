@@ -44,6 +44,8 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             await selection.locator('[name="split_acknowledged"]').check();
             await page.getByRole("button", { name: "Zwei neue unbestätigte Bereiche speichern", exact: true }).click();
             await page.getByText("Zwei neue Bereiche gespeichert – bestehende Bereiche und Freigaben unverändert.", { exact: true }).waitFor();
+            await page.locator('[data-region-number="1"]').nth(1).waitFor({ state: "attached", timeout: 15000 });
+            await page.locator('[data-region-number="2"]').waitFor({ state: "attached", timeout: 15000 });
             assert.equal(await page.locator('[data-region-number="1"]').count(), 2);
             assert.equal(await page.locator('[data-region-number="2"]').count(), 1);
         } else if (mode === "content-review") {
