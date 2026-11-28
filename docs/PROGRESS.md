@@ -6,6 +6,10 @@
   after exact head `0a6b3433c07c5ae8d3067c4f6e42fb29a13ebfab` passed
   Foundation, Container and Windows, including native content review. Exact
   post-merge run `46159881771` is pending; no Main success claimed yet.
+- After incorporating the reviewed correction, 36 targeted split, proposal-preview
+  and review checks passed. Independent follow-up confirmed split validation
+  isolation is resolved, with no remaining concrete blocker in the reviewed batch.
+  Native split-browser execution and combined integration checks remain open.
 
 ## Explicit rectangle split foundation — in progress
 
