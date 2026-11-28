@@ -26,6 +26,22 @@ class RegionSplitForm(forms.Form):
     )
 
 
+class RegionMergeForm(forms.Form):
+    expected_file_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    source_version_id = forms.UUIDField(widget=forms.HiddenInput)
+    first_region = forms.UUIDField(label=_("Erste Regionsversion"))
+    second_region = forms.UUIDField(label=_("Zweite Regionsversion"))
+    merge_acknowledged = forms.BooleanField(
+        label=_("Eine neue Region anlegen; beide bisherigen Regionen und Freigaben bleiben erhalten.")
+    )
+
+    def clean(self):
+        values = super().clean()
+        if values.get("first_region") and values.get("first_region") == values.get("second_region"):
+            raise forms.ValidationError(_("Zwei unterschiedliche Regionsversionen auswählen."))
+        return values
+
+
 class VersionForm(forms.Form):
     expected_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
     source_version = forms.UUIDField(widget=forms.HiddenInput)

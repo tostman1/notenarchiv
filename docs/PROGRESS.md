@@ -13,7 +13,12 @@
   the writer fence, recheck publication health/file pins, and normalize UUIDs before
   lookup. Focused merge/split/editor tests: 37 passed, including all four rotations,
   offset CropBox/UserUnit, decimal-edge preservation and malformed input rejection.
-  Follow-up review is pending. UI/native integration and manual acceptance remain open.
+  Follow-up review confirmed both findings resolved. Added a separate authenticated,
+  CSRF-protected merge form with current revision choices and explicit acknowledgement;
+  it cannot impose required fields on OCR/save/split actions. Independent UI review
+  found no concrete blocker. Focused merge/split/review UI checks: 41 passed.
+  Native coverage now checks split-child merging into a new identity while retaining
+  prior confirmed references; execution and final integration remain pending.
 
 ## Split batch combined verification
 

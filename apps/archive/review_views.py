@@ -80,6 +80,25 @@ def detail(request, file_id):
             else:
                 messages.success(request, _("Inhaltsvorschlag gespeichert – noch nicht inspiziert oder freigegeben."))
             return redirect("archive_review_detail", file_id=file.pk)
+        if action == "region_merge":
+            from apps.archive.region_editor_services import merge_adjacent_regions
+
+            form = forms.RegionMergeForm(request.POST)
+            try:
+                if not form.is_valid():
+                    raise ValidationError("Invalid explicit region merge.")
+                values = form.cleaned_data
+                merge_adjacent_regions(
+                    file.pk,
+                    expected_file_revision=values["expected_file_revision"],
+                    source_version_id=values["source_version_id"],
+                    region_revision_ids=[values["first_region"], values["second_region"]],
+                )
+            except (ValidationError, DatabaseError, ValueError, OSError, Http404):
+                messages.error(request, _("Bereiche nicht vereinigt. Aktuelle Versionen und gemeinsame Kante prüfen."))
+            else:
+                messages.success(request, _("Neue vereinigte Region gespeichert – bisherige Regionen unverändert."))
+            return redirect("archive_review_detail", file_id=file.pk)
         if action == "region_split":
             from apps.archive.region_editor_services import split_rectangle
 
@@ -299,6 +318,10 @@ def detail(request, file_id):
             "candidates": candidates,
             "ocr_selection": forms.OcrSelectionForm(),
             "region_split": forms.RegionSplitForm(),
+            "region_merge": forms.RegionMergeForm(
+                initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id},
+                auto_id="merge_%s",
+            ),
             "region_revision": forms.RegionRevisionForm(
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),

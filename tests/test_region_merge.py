@@ -7,6 +7,7 @@ from apps.archive import models as m
 from apps.archive import region_editor_services as editor
 from apps.archive.content_geometry_services import append_region
 from apps.archive.services import ArchiveConflict
+from tests.test_preview import preview  # noqa: F401
 from tests.test_region_editor_services import editable, save  # noqa: F401
 from tests.test_region_split import split
 
@@ -119,3 +120,54 @@ def test_merge_rechecks_health_and_file_pin_before_creating_identity(editable, m
     with pytest.raises(ValidationError, match="unavailable"):
         merge(editable, children)
     assert m.PageRegion.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_merge_action_is_separate_csrf_protected_and_requires_acknowledgement(preview, monkeypatch):  # noqa: F811
+    from uuid import uuid4
+
+    from django.conf import settings
+    from django.contrib.auth import get_user_model
+    from django.test import Client
+    from django.urls import reverse
+
+    file, _data, _target = preview
+    actor = get_user_model().objects.create_user(username="merge-reviewer")
+    client = Client(enforce_csrf_checks=True)
+    url = reverse("archive_review_detail", args=[file.pk])
+    payload = {
+        "action": "region_merge",
+        "expected_file_revision": file.revision,
+        "source_version_id": str(file.source_version_id),
+        "first_region": str(uuid4()),
+        "second_region": str(uuid4()),
+    }
+    assert Client().post(url, payload).status_code == 302
+    client.force_login(actor)
+    assert client.post(url, payload).status_code == 403
+    assert client.get(url).status_code == 200
+    payload["csrfmiddlewaretoken"] = client.cookies[settings.CSRF_COOKIE_NAME].value
+    calls = []
+    monkeypatch.setattr(editor, "merge_adjacent_regions", lambda *args, **kwargs: calls.append(kwargs))
+    assert client.post(url, payload).status_code == 302
+    assert calls == []
+    payload["merge_acknowledged"] = "on"
+    assert client.post(url, payload).status_code == 302
+    assert len(calls) == 1 and len(calls[0]["region_revision_ids"]) == 2
+    assert not m.ContentInspection.objects.exists() and not m.ContentConfirmation.objects.exists()
+
+
+@pytest.mark.django_db
+def test_merge_controls_have_independent_form_and_revision_pins(editable):  # noqa: F811
+    from django.contrib.auth import get_user_model
+    from django.test import Client
+    from django.urls import reverse
+
+    split(editable)
+    client = Client()
+    client.force_login(get_user_model().objects.create_user(username="merge-form-reviewer"))
+    response = client.get(reverse("archive_review_detail", args=[editable.file.pk]))
+    html = response.content.decode()
+    assert '<form method="post" id="region-merge">' in html
+    assert 'name="first_region" required' in html and 'name="second_region" required' in html
+    assert 'id="merge_merge_acknowledged"' in html

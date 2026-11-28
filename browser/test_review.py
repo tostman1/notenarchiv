@@ -121,6 +121,17 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 1
     assert m.ContentEditionRevision.objects.count() == 1
     assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
+    subprocess.run(["node", script, "merge", *arguments], check=True, timeout=90)
+    merged = m.PageRegionRevision.objects.exclude(pk__in=[revision.pk for revision in [*revisions, *children]]).get()
+    assert merged.region_id not in {child.region_id for child in children}
+    assert merged.bounds_points == [
+        min(child.bounds_points[0] for child in children),
+        min(child.bounds_points[1] for child in children),
+        max(child.bounds_points[2] for child in children),
+        max(child.bounds_points[3] for child in children),
+    ]
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 1
+    assert references[0].logical_page_revision.region_revision_id == revisions[1].pk
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk

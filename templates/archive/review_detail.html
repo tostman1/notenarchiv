@@ -31,6 +31,13 @@
 <p>{% translate "Speichern erhält eine geometrische Region separat von OCR. Es teilt nicht die Quelle, ordnet kein Werk zu und bestätigt keine Musik. Ganze Originalseiten bleiben erhalten." %}</p>
 </form>
 <h3>{% translate "Gespeicherte geometrische Regionen (höchstens 20)" %}</h3>
+{% if regions %}<details><summary>{% translate "Zwei angrenzende Regionen ausdrücklich vereinigen" %}</summary>
+<p>{% translate "Nur aktuelle Rechtecke derselben Quellseite mit exakt gemeinsamer Kante und rechteckiger Vereinigung. Lücken und Überlappungen werden abgewiesen. Keine automatische musikalische Zuordnung oder Freigabe." %}</p>
+<form method="post" id="region-merge">{% csrf_token %}<input type="hidden" name="action" value="region_merge">
+{{ region_merge.expected_file_revision }}{{ region_merge.source_version_id }}
+<label for="merge_first_region">{% translate "Erste Regionsversion" %}</label><select id="merge_first_region" name="first_region" required><option value="">—</option>{% for region in regions %}<option value="{{ region.pk }}">{% translate "Seite" %} {{ region.page_number }} · {{ region.region_id }} · {% translate "Version" %} {{ region.number }}</option>{% endfor %}</select>
+<label for="merge_second_region">{% translate "Zweite Regionsversion" %}</label><select id="merge_second_region" name="second_region" required><option value="">—</option>{% for region in regions %}<option value="{{ region.pk }}">{% translate "Seite" %} {{ region.page_number }} · {{ region.region_id }} · {% translate "Version" %} {{ region.number }}</option>{% endfor %}</select>
+{{ region_merge.merge_acknowledged.as_field_group }}<button>{% translate "Neue vereinigte Region speichern" %}</button></form></details>{% endif %}
 <details><summary>{% translate "Neue musikalische Inhaltsausgabe anlegen" %}</summary>
 <p>{% translate "Vorhandene Ausgaben zuerst prüfen. Eine neue Ausgabe ist eine eigenständige Identität; gleiche Titel werden nicht zusammengeführt. Das Anlegen bestätigt keine Quelle oder Musik und verändert die Ganzdokument-Zuordnung nicht." %}</p>
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="content_edition_create">{{ content_edition_creation.as_p }}<button>{% translate "Neue Inhaltsausgabe ausdrücklich anlegen" %}</button></form></details>

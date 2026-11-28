@@ -32,6 +32,19 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             }
             await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
             await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "merge") {
+            await page.getByText("Zwei angrenzende Regionen ausdrücklich vereinigen", { exact: true }).click();
+            const merge = page.locator('#region-merge');
+            const children = await merge.locator('select[name="first_region"] option').evaluateAll(options =>
+                options.filter(option => /Version 1$/.test(option.textContent.trim())).map(option => option.value));
+            assert.equal(children.length, 2);
+            await merge.locator('[name="first_region"]').selectOption(children[0]);
+            await merge.locator('[name="second_region"]').selectOption(children[1]);
+            await merge.locator('[name="merge_acknowledged"]').check();
+            await merge.locator('button').click();
+            await page.getByText("Neue vereinigte Region gespeichert – bisherige Regionen unverändert.", { exact: true }).waitFor();
+            assert.equal(await page.locator('[data-region-number="1"]').count(), 3);
+            assert.equal(await page.locator('[data-region-number="2"]').count(), 1);
         } else if (mode === "split") {
             const selection = page.locator("#ocr-selection");
             for (const [name, value] of Object.entries({ page: "2", left: "10", top: "20", right: "80", bottom: "90" })) {
