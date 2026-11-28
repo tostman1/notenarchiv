@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% translate "Unbestätigte Regionsfolge – Vorschau" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Unbestätigte Regionsfolge – Vorschau" %}</h1>
+<p>{% translate "Diese temporäre Sichtprüfung ist keine musikalische Freigabe und kein Archivexport." %}</p>
+<p>{% translate "Ausgewählte Regionen" %}: {{ sequence_count }}</p>
+{% include "archive/_pdf_viewer.html" %}
+<p><a href="{% url 'archive_review_detail' file.pk %}">{% translate "Zurück zur Quellprüfung" %}</a></p>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}

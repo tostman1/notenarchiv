@@ -1,5 +1,87 @@
 # Progress record
 
+## PR #99 native preview failure follow-up
+
+- Corrected head `a1b2afbe61e5a45669f560357d9d65a17a8804a3` failed
+  Foundation browser checks in run `46144320284`: 31 browser cases passed;
+  the saved-region image returned sanitized HTTP 404 and could not decode.
+  Python checks completed, but this is not successful integration verification.
+- OCR and region previews share one nonblocking native-processing slot. Contention
+  is a plausible, not proven, explanation for the sanitized response. The browser
+  fixture now explicitly settles the source-specific OCR image before opening the
+  region excerpt, preserving both decode assertions and all application guards.
+  Independent review caught and corrected a locator matching both image types.
+- A deterministic lock-contention regression verifies refusal while occupied,
+  successful exact PNG rendering after release and no source/approval mutation.
+  Focused region-preview checks: 12 passed. Corrected exact-head CI remains required.
+
+## Preview candidate CI correction — 2026-11-28
+
+- PR #99 exact candidate `068b1a22cf165a3427cc0b27f55debc881868548`
+  failed Foundation in run `46141867930`: 1,595 tests passed, 33 skipped, one
+  failure. The new sequence-inspection test created its parser scratch directory
+  with default POSIX permissions; the existing private-root guard rejected it.
+  Container and Windows checks passed; Foundation browser checks did not run.
+- Corrected only the synthetic test directory to mode 0700. The application
+  private-root guard and all mandatory verification gates remain unchanged.
+  Corrected exact-head CI is required before merge.
+
+## Execution-state check — 2026-11-28
+
+- Owner-requested one-time inspection confirmed the completed Sol review is idle:
+  the OpenCode active-session API lists only the coordinator, not the reviewer.
+  No completed review was restarted or cancelled.
+- Combined local regression at `d6f4402` was still executing after approximately
+  12 minutes, with a newly started isolated PDF worker for a print test. RTK buffers
+  output; silence alone was not treated as a stall. Its native shell deadline is
+  35 minutes. No process or healthy CI was interrupted. The run subsequently
+  completed normally in 843.49 seconds: 1,466 passed, 161 skipped and two existing
+  source-reader fixture failures (`tests/test_source_reader.py:77,221`, WinError
+  1314 when creating local Windows symlinks, before application assertions).
+  This is not an all-green local result; no tests or safeguards were weakened.
+  Ruff/formatting (418 files), requirements (119 definitions/61 aliases), Django
+  checks and migration consistency passed. No full-suite restart is needed for
+  the subsequent documentation-only changes.
+
+## Saved-region preview follow-up — in progress
+
+- Independent branch `feat/region-sequence-preview` keeps PR #98 frozen at
+  `1fa9a781c13a757691e13a9e2769e09bcdb9a8c9` during exact CI.
+- Added authenticated, no-store, bounded PNG preview of an explicitly pinned
+  saved region revision. Historical revisions remain previewable; foreign source
+  versions are rejected even when their bytes/hash match. Source bytes are
+  reverified, and preview never creates musical approval or export eligibility.
+- Review exposes each latest saved region's excerpt separately from the original
+  viewer. This is not yet ordered logical-document preview or sequence editing.
+- Focused preview/editor/source checks: 37 passed, one platform-specific skip;
+  real isolated rendering, authentication, corruption and source-version isolation
+  are exercised. No native browser or full integration result for this follow-up.
+- Added native browser assertion that the saved-region image actually decodes;
+  local Node tooling remains unavailable, so execution awaits the follow-up batch.
+- PR #97 exact post-merge Main gate is now verified: Main
+  `257c7078c166cefdd9945a239b2862035bca194a`, run `46135139853`,
+  Foundation/Container/Windows success. PR #98 exact candidate
+  `1fa9a781c13a757691e13a9e2769e09bcdb9a8c9` also passed all required CI gates.
+- PR #98 is merged at Main `1355cce45952fa933376aaa9cae91dd1c235040e`;
+  exact post-merge run `46138000603` passed Foundation/Container/Windows.
+  Follow-up incorporated the merge
+  without altering its source-preview behavior. Independent preview review found
+  no concrete blocker in historical pins, source isolation or bounded rendering.
+- Added bounded temporary sequence composition for 1–16 explicitly pinned region
+  revisions; order and intentional repetitions are retained without DB writes or
+  musical approval. Real PDF inspection verifies mixed region sizes and order.
+  Seven focused preview tests pass. This helper is not an archive export.
+- Review now offers eight explicit ordered selection slots, including intentional
+  repetitions and empty slots. The authenticated temporary viewer pins revision
+  UUIDs and uses the existing safe PDF.js canvas; its PDF endpoint is no-store,
+  sandboxed attachment-only and generates no database/approval changes.
+  Focused preview/editor checks: 23 passed; Ruff (418 files), formatting and
+  requirement checks passed. Added browser navigation/duplicate-slot page-count
+   assertions; native execution is pending. Independent backend/endpoint review
+   found no concrete blocker. Focused final review of the browser interaction
+   delta and manual availability correction also found no concrete blocker;
+   exact-candidate native browser/CI verification remains required.
+
 ## Explicit region-editor foundation — in progress
 
 - Exact post-merge Main CI for PR #96 is verified: Main

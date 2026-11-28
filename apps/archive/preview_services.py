@@ -133,3 +133,84 @@ def ocr_excerpt(file, evidence_id):
             ],
         )
         return processor.render(logical, 0, dpi=100)
+
+
+def region_excerpt(file, revision_id):
+    """Preview an exact saved revision without making unconfirmed music usable."""
+    from django.shortcuts import get_object_or_404
+
+    from apps.archive.models import PageRegionRevision
+
+    if file.kind != "BASE":
+        raise Http404
+    revision = get_object_or_404(
+        PageRegionRevision.objects.select_related("region__source_page"),
+        pk=revision_id,
+        region__source_page__source_version_id=file.source_version_id,
+    )
+    page = revision.region.source_page
+    if page.original_crop_box is None or revision.page_fingerprint != page.geometry_fingerprint:
+        raise Http404
+    root = Path(settings.DIAGNOSTIC_LOG_DIR).parent
+    with ProcessLock(root / "preview-render.lock"):
+        scratch = root / "preview-scratch"
+        scratch.mkdir(mode=0o700, exist_ok=True)
+        processor = Processor(
+            scratch,
+            limits=Limits(
+                max_bytes=min(settings.PDF_MAX_BYTES, 104_857_600),
+                max_pixels=min(settings.PDF_MAX_RENDER_PIXELS, 4_000_000),
+                max_output_bytes=4_194_304,
+                timeout_seconds=15,
+                cpu_seconds=10,
+            ),
+        )
+        logical = processor.logical_pages(
+            [preview_bytes(file)],
+            [{"input": 0, "page": page.page_index, "bounds": revision.bounds_points, "orientation": 0}],
+        )
+        return processor.render(logical, 0, dpi=100)
+
+
+def region_sequence(file, revision_ids):
+    """Build a temporary ordered inspection preview, not an approved export."""
+    from uuid import UUID
+
+    from apps.archive.models import PageRegionRevision
+
+    if file.kind != "BASE" or not isinstance(revision_ids, list) or not 1 <= len(revision_ids) <= 16:
+        raise Http404
+    try:
+        identifiers = [UUID(str(value)) for value in revision_ids]
+    except (ValueError, TypeError, AttributeError):
+        raise Http404 from None
+    revisions = {
+        item.pk: item
+        for item in PageRegionRevision.objects.select_related("region__source_page").filter(
+            pk__in=identifiers,
+            region__source_page__source_version_id=file.source_version_id,
+        )
+    }
+    selections = []
+    for identifier in identifiers:
+        revision = revisions.get(identifier)
+        if revision is None:
+            raise Http404
+        page = revision.region.source_page
+        if page.original_crop_box is None or revision.page_fingerprint != page.geometry_fingerprint:
+            raise Http404
+        selections.append({"input": 0, "page": page.page_index, "bounds": revision.bounds_points, "orientation": 0})
+    root = Path(settings.DIAGNOSTIC_LOG_DIR).parent
+    with ProcessLock(root / "preview-render.lock"):
+        scratch = root / "preview-scratch"
+        scratch.mkdir(mode=0o700, exist_ok=True)
+        processor = Processor(
+            scratch,
+            limits=Limits(
+                max_bytes=min(settings.PDF_MAX_BYTES, 104_857_600),
+                max_output_bytes=16_777_216,
+                timeout_seconds=15,
+                cpu_seconds=10,
+            ),
+        )
+        return processor.logical_pages([preview_bytes(file)], selections)

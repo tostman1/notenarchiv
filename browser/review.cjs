@@ -49,6 +49,26 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             await page.getByRole("button", { name: "Bereich als neue unbestätigte Region speichern", exact: true }).click();
             await page.locator('[data-region-number="2"]').waitFor();
             assert.equal(await page.locator('[data-region-number="1"]').count(), 0);
+            // Settle the lazy OCR render before requesting another
+            // native preview: the application deliberately has one nonblocking slot.
+            const precedingImage = page.locator('img[src*="/ocr/"]');
+            await precedingImage.scrollIntoViewIfNeeded();
+            await precedingImage.evaluate(element => element.decode());
+            assert.ok(await precedingImage.evaluate(element => element.naturalWidth > 0));
+            await page.getByText("Unbestätigten Regionsauszug ansehen", { exact: false }).click();
+            const regionImage = page.locator('img[src*="/region/"]');
+            await regionImage.scrollIntoViewIfNeeded();
+            await regionImage.evaluate(element => element.decode());
+            assert.ok(await regionImage.evaluate(element => element.naturalWidth > 0));
+            const sequence = page.locator('form[action$="/regions/"]');
+            const revision = await sequence.locator('select').first().locator('option').nth(1).getAttribute('value');
+            await sequence.locator('select').nth(0).selectOption(revision);
+            await sequence.locator('select').nth(1).selectOption(revision);
+            await page.getByRole('button', { name: 'Unbestätigte Folge vorschauen', exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+            assert.equal(await page.locator('#pdf-count').innerText(), '2');
+            await page.getByRole('link', { name: 'Zurück zur Quellprüfung', exact: true }).click();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
             await page.locator('[data-region-number="2"]').click();
             await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
             await page.getByRole("button", { name: "Neue Region statt ausgewählter Region", exact: true }).click();
