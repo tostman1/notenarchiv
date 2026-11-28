@@ -32,6 +32,43 @@ async function check(mode, origin, id, arrangement, instrument, parts) {
             }
             await page.getByRole("button", { name: "Ausgewählten Bereich lokal analysieren", exact: true }).click();
             await page.getByText("Wartend", { exact: true }).waitFor();
+        } else if (mode === "region") {
+            const selection = page.locator("#ocr-selection");
+            for (const [name, value] of Object.entries({ page: "2", left: "10", top: "20", right: "80", bottom: "90" })) {
+                await selection.locator(`[name="${name}"]`).fill(value);
+            }
+            await page.getByRole("button", { name: "Bereich als neue unbestätigte Region speichern", exact: true }).click();
+            const saved = page.locator("[data-region-id]");
+            await saved.waitFor();
+            assert.equal(await saved.getAttribute("data-region-number"), "1");
+            await saved.click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            assert.equal(await selection.locator('[name="expected_region_number"]').inputValue(), "1");
+            assert.ok(Math.abs(Number(await selection.locator('[name="right"]').inputValue()) - 80) < 0.01);
+            await selection.locator('[name="right"]').fill("70");
+            await page.getByRole("button", { name: "Bereich als neue unbestätigte Region speichern", exact: true }).click();
+            await page.locator('[data-region-number="2"]').waitFor();
+            assert.equal(await page.locator('[data-region-number="1"]').count(), 0);
+            await page.locator('[data-region-number="2"]').click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            await page.getByRole("button", { name: "Neue Region statt ausgewählter Region", exact: true }).click();
+            assert.equal(await selection.locator('[name="region_id"]').inputValue(), "");
+            assert.equal(await selection.locator('[name="expected_region_number"]').inputValue(), "0");
+            let releaseDocument;
+            const heldDocument = new Promise(resolve => { releaseDocument = resolve; });
+            await page.route("**/archive/preview/**/document/", async route => {
+                await heldDocument;
+                await route.continue();
+            });
+            await page.reload({ waitUntil: "domcontentloaded" });
+            const pendingRegion = page.locator('[data-region-number="2"]');
+            assert.equal(await pendingRegion.isDisabled(), true);
+            assert.equal(await page.locator('#ocr-selection [name="region_id"]').inputValue(), "");
+            releaseDocument();
+            await page.locator('#pdf-preview[data-rendered="true"]').waitFor();
+            await pendingRegion.click();
+            await page.locator('#pdf-preview[data-rendered="true"][data-page="2"]').waitFor();
+            assert.equal(await page.locator('#ocr-selection [name="page"]').inputValue(), "2");
         } else if (mode === "inspect") {
             const selection = page.locator("#ocr-selection");
             await selection.locator('[name="left"]').fill("10");

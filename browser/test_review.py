@@ -12,7 +12,7 @@ from django.db import connections
 
 from apps.archive import models as m
 from apps.archive.recognition import build_rule_set, record_candidate
-from apps.archive.services import observe_version, register_base
+from apps.archive.services import observe_version, record_validation, register_base
 from apps.catalog import models as c
 from apps.jobs.models import Job, WorkerLease
 from apps.jobs.services.worker import run_worker
@@ -51,6 +51,12 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
         pdf_state="VALID",
         page_info=[PAGE, PAGE],
     )
+    record_validation(
+        version.pk,
+        expected_revision=version.revision,
+        pdf_state="UNCHECKED",
+        original_crop_boxes=[PAGE["crop_box"], PAGE["crop_box"]],
+    )
     file, _ = receipt(register_base(version.pk, "_Ungeprueft/review.pdf"))
     record_candidate(
         version.pk, filename="Synthetic review Posaune 1.pdf", text_lines=["Synthetic review", "Posaune 2"]
@@ -85,6 +91,13 @@ def test_explicit_review_and_canonical_publication_in_browser(settings, tmp_path
     assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
     # This browser case verifies enqueue, not native OCR execution (container smoke).
     Job.objects.filter(pk=job.pk).delete()
+    subprocess.run(["node", script, "region", *arguments], check=True, timeout=90)
+    revisions = list(m.PageRegionRevision.objects.order_by("number"))
+    assert [revision.number for revision in revisions] == [1, 2]
+    assert revisions[0].region_id == revisions[1].region_id
+    assert revisions[0].bounds_points != revisions[1].bounds_points
+    assert not m.ContentInspection.objects.exists() and not m.ContentConfirmation.objects.exists()
+    assert not m.ReviewInspection.objects.exists() and not m.ArchiveProposal.objects.exists()
     subprocess.run(["node", script, "inspect", *arguments], check=True, timeout=90)
     file.refresh_from_db()
     assert file.current_proposal.parts.count() == 2 and file.current_proposal.inspections.get().reviewer_id == actor.pk

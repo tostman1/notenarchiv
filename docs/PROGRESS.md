@@ -32,6 +32,11 @@
   revision pins when saving edits. An explicit new-region control clears the pin.
   Focused UI/history/selection checks: 57 passed. Browser execution and independent
   cumulative review of these editing controls remain pending; no manual pass.
+- Review identified an initialization/render race in saved-region selection.
+  Region controls now start disabled and remain disabled during PDF rendering,
+  with handlers rejecting early selection. Added pending-document and multi-page
+  browser assertions plus real region create/revise/history checks. Node remains
+  unavailable locally; these browser additions require final batch CI execution.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
