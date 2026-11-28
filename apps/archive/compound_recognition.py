@@ -56,7 +56,7 @@ def headings(evidence, rules):
             or not isinstance(box, list)
             or len(box) != 4
             or any(
-                type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100000 for value in box
+                type(value) not in (int, float) or not 0 <= value <= 100000 or not math.isfinite(value) for value in box
             )
             or box[0] >= box[2]
             or box[1] >= box[3]

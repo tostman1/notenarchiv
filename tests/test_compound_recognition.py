@@ -23,6 +23,13 @@ def test_side_by_side_headings_preserve_identity_and_locations():
     assert all(entry.page == 2 for entry in result)
 
 
+def test_oversized_json_integer_is_rejected_without_native_float_conversion():
+    evidence = {"page": 0, "words": [word("March", 1)]}
+    evidence["words"][0]["box"][0] = 10**400
+    with pytest.raises(ValueError, match="geometry"):
+        headings(evidence, RuleSet("test", works={"march": [uuid4()]}))
+
+
 def test_repeated_titles_remain_separate_and_unknown_lines_are_not_boundaries():
     work = uuid4()
     rules = RuleSet("test", works={"march": [work]})
