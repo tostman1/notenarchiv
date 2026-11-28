@@ -1,5 +1,20 @@
 # Progress record
 
+## PR #99 native preview failure follow-up
+
+- Corrected head `a1b2afbe61e5a45669f560357d9d65a17a8804a3` failed
+  Foundation browser checks in run `46144320284`: 31 browser cases passed;
+  the saved-region image returned sanitized HTTP 404 and could not decode.
+  Python checks completed, but this is not successful integration verification.
+- OCR and region previews share one nonblocking native-processing slot. Contention
+  is a plausible, not proven, explanation for the sanitized response. The browser
+  fixture now explicitly settles the source-specific OCR image before opening the
+  region excerpt, preserving both decode assertions and all application guards.
+  Independent review caught and corrected a locator matching both image types.
+- A deterministic lock-contention regression verifies refusal while occupied,
+  successful exact PNG rendering after release and no source/approval mutation.
+  Focused region-preview checks: 12 passed. Corrected exact-head CI remains required.
+
 ## Preview candidate CI correction — 2026-11-28
 
 - PR #99 exact candidate `068b1a22cf165a3427cc0b27f55debc881868548`

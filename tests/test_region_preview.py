@@ -71,6 +71,24 @@ def test_saved_revision_preview_renders_historical_selection_without_approval(re
 
 
 @pytest.mark.django_db
+def test_saved_region_preview_fails_closed_while_native_slot_is_busy_then_recovers(region_preview, client, settings):
+    from core.locking import ProcessLock
+
+    file, revisions, target = region_preview
+    original = target.read_bytes()
+    url = reverse("archive_preview:region_excerpt", args=[file.pk, revisions[0].pk])
+    with ProcessLock(settings.DIAGNOSTIC_LOG_DIR.parent / "preview-render.lock"):
+        response = client.get(url)
+        assert response.status_code == 404
+        assert response["Cache-Control"] == "private, no-store"
+    response = client.get(url)
+    assert response.status_code == 200
+    assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+    assert target.read_bytes() == original
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_saved_revision_preview_requires_authentication_and_verified_source(region_preview, client):
     file, revisions, target = region_preview
     url = reverse("archive_preview:region_excerpt", args=[file.pk, revisions[0].pk])
