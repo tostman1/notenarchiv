@@ -80,6 +80,34 @@ def detail(request, file_id):
             else:
                 messages.success(request, _("Inhaltsvorschlag gespeichert – noch nicht inspiziert oder freigegeben."))
             return redirect("archive_review_detail", file_id=file.pk)
+        if action == "region_split":
+            from apps.archive.region_editor_services import split_rectangle
+
+            selection_form = forms.OcrSelectionForm(request.POST)
+            revision_form = forms.RegionRevisionForm(request.POST)
+            split_form = forms.RegionSplitForm(request.POST)
+            try:
+                if not all(form.is_valid() for form in (selection_form, revision_form, split_form)):
+                    raise ValidationError("Invalid explicit region split.")
+                values = selection_form.cleaned_data
+                split_rectangle(
+                    file.pk,
+                    expected_file_revision=revision_form.cleaned_data["expected_file_revision"],
+                    source_version_id=revision_form.cleaned_data["source_version_id"],
+                    selection={
+                        "page": values["page"] - 1,
+                        "box": [values[name] / 100 for name in ("left", "top", "right", "bottom")],
+                    },
+                    axis=split_form.cleaned_data["split_axis"],
+                    fraction=split_form.cleaned_data["split_percent"] / 100,
+                )
+            except (ValidationError, DatabaseError, ValueError, OSError, Http404):
+                messages.error(request, _("Bereich nicht geteilt. Quellstand, Grenzen und Teilungsposition prüfen."))
+            else:
+                messages.success(
+                    request, _("Zwei neue Bereiche gespeichert – bestehende Bereiche und Freigaben unverändert.")
+                )
+            return redirect("archive_review_detail", file_id=file.pk)
         if action == "region_save":
             from apps.archive.region_editor_services import save_rectangle
 
@@ -270,6 +298,7 @@ def detail(request, file_id):
             "parts": parts,
             "candidates": candidates,
             "ocr_selection": forms.OcrSelectionForm(),
+            "region_split": forms.RegionSplitForm(),
             "region_revision": forms.RegionRevisionForm(
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),

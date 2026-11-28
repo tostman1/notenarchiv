@@ -96,7 +96,20 @@ des Vorschlags; sie ersetzen weder die vollständige Sichtprüfung noch die
 gesonderte Freigabe. Ein unbekannter oder widersprüchlicher Titel beziehungsweise
 eine unklare Stimme muss weiterhin manuell geklärt werden.
 
-### Rechteck ausdrücklich als unbestätigte Region speichern
+### Ausgewählten Bereich ausdrücklich teilen
+
+Im Abschnitt **Ausgewählten Bereich ausdrücklich in zwei neue Bereiche teilen**
+wählen Sie horizontal (oben/unten) oder vertikal (links/rechts). Die Prozentposition
+gilt innerhalb des ausgewählten sichtbaren Rechtecks; `50` teilt mittig.
+Bestätigen Sie ausdrücklich, dass zwei neue Bereiche entstehen, und speichern Sie.
+Beide Bereiche werden gemeinsam angelegt oder bei einem Konflikt gar nicht.
+Bestehende Regionen, frühere Inhaltsfolgen und Freigaben bleiben unverändert.
+Das ist keine automatische Segmentierung oder musikalische Freigabe. Wählen Sie
+die gewünschten Bereiche anschließend ausdrücklich für Vorschau beziehungsweise
+einen neuen Inhaltsvorschlag aus. Diese neue Bedienfunktion wartet noch auf ihre
+native Browser- und Integrationsverifikation.
+
+### Rechteck speichern und bearbeiten
 
 Im nachfolgenden Editor-Inkrement kann derselbe Bereich mit **Region unbestätigt
 speichern** dauerhaft erfasst werden. Diese Funktion ist von der OCR-Analyse

@@ -1,5 +1,77 @@
 # Progress record
 
+## Split native-browser correction — verification pending
+
+- PR #102 head `ba0ebb61f72e7e5b04296149d341ef30cc294b3b` failed
+  run `46162955532`: Foundation Python passed, but the split browser scenario
+  read zero revision-1 region buttons immediately after the successful-save message.
+  The observed message does not prove the full response DOM was ready; the cause
+  of the original failure remains unproven. Captured image 404s are not established
+  as its cause.
+- The fixture now waits at most 15 seconds per wait for the expected region buttons to be
+  attached before retaining the exact two-new/one-historical count assertions.
+  Application code, approval boundaries and history assertions are unchanged.
+  Corrected exact-head full CI and native browser execution remain required.
+- Fixes-only independent review found no blocker; 25 targeted split/review checks
+  passed. These checks do not establish native browser success.
+
+## Split batch combined verification
+
+- Combined local verification at `265404475773b5ee8c8f36445673a8521f11ea6e`:
+  1502 passed, 161 skipped, five failed in 1767.76 seconds. Ruff check/format
+  (424 files), requirements consistency, Django checks and migration drift passed.
+  This is not an all-green local result.
+- Two failures remain the known Windows symlink-fixture privilege errors
+  (`WinError 1314`, source-reader lines 77/221). Three additional failures occurred
+  in batch-review preparation and content integrity verification. Captured output
+  includes review HTTP 409 responses; it does not establish the underlying cause.
+  A targeted diagnostic rerun passed all three, followed by 55 passing combined
+  batch-review, content-input, split/editor and review-UI tests. Do not infer that
+  the original failures were harmless or that their cause is resolved.
+- No security checks, integrity guards or tests were weakened. The complete suite
+  was not restarted. Independent split review has no remaining concrete finding;
+  exact-head full integration CI, including native split-browser execution, remains
+  required before merge. Any repeated failure must be investigated before integration.
+
+## Content inspection integration checkpoint
+
+- PR #101 merged at Main `c83e4985a11097f1ba6e84d4c41556f7f3cdf06c`
+  after exact head `0a6b3433c07c5ae8d3067c4f6e42fb29a13ebfab` passed
+  Foundation, Container and Windows, including native content review. Exact
+  post-merge run `46159881771` passed Foundation, Container and Windows at
+  that exact Main SHA. Manual acceptance remains unexecuted.
+- After incorporating the reviewed correction, 36 targeted split, proposal-preview
+  and review checks passed. Independent follow-up confirmed split validation
+  isolation is resolved, with no remaining concrete blocker in the reviewed batch.
+  Native split-browser execution and combined integration checks remain open.
+
+## Explicit rectangle split foundation — in progress
+
+- PR #101 freezes the independently reviewed inspection/confirmation batch at
+  `32a2762916b0fd52de14415c6c917a2c4745a382` for exact full CI. Its candidate
+  is unchanged while independent work proceeds on `feat/region-split-editor`.
+- Added explicit horizontal/vertical display-space splitting into two new region
+  identities, after one verified source read and within one rollback boundary.
+  Existing regions, logical pins, musical assignments and approvals are unchanged.
+  Targeted split/editor checks: 22 passed. The UI, independent review and final
+  integration/native verification of this follow-up remain open.
+- Bounded independent split-service review found no concrete blocker. Added
+  authenticated, CSRF-protected UI controls with a separate explicit split
+  acknowledgement, axis and percentage. The focused action regression passed;
+  the other 36 split/editor/review checks passed during the fixture correction.
+  Native browser coverage and cumulative integration remain pending.
+- Exact post-merge Main verification for PR #100 succeeded at
+  `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`, run `46154228410`:
+  Foundation, Container and Windows passed. Added a bounded native-browser split
+  scenario after content confirmation, retaining the original region pins and
+  confirming that new geometry does not alter existing content approval.
+- Independent split UI review found that a browser-required acknowledgement in
+  the shared form would block unrelated OCR/save actions. Suppress native required
+  attributes only on the split-only fields; server-side acknowledgement remains
+  required. The regression checks both rendered attributes and rejected absent
+  acknowledgement. PR #101 independently failed its original candidate on a
+  content-document preview 404; its correction is handled on that frozen branch.
+
 ## PR #101 native preview correction
 
 - Exact candidate `32a2762916b0fd52de14415c6c917a2c4745a382` failed run
@@ -23,7 +95,7 @@
 - PR #100 merged at Main `7ad8e30ebf9f0db416fbd8cccaff5606ff8160fe`
   after corrected exact head `4020beb421f4241dbf348d9af70b8cba76c80e0a`
   passed Foundation, Container and Windows, including corrected native browser
-  harnesses. Exact post-merge run `46154228410` is pending; no Main success claimed.
+   harnesses. Exact post-merge run `46154228410` passed Foundation, Container and Windows.
 
 ## Pinned content inspection workflow — in progress
 

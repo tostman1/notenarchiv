@@ -22,6 +22,11 @@
 <button type="button" id="ocr-reset">{% translate "Ganze ausgewählte Seite" %}</button>
 <button>{% translate "Ausgewählten Bereich lokal analysieren" %}</button>
 <button name="action" value="region_save">{% translate "Bereich als neue unbestätigte Region speichern" %}</button>
+<details><summary>{% translate "Ausgewählten Bereich ausdrücklich in zwei neue Bereiche teilen" %}</summary>
+<p>{% translate "Die Position bezieht sich auf den ausgewählten sichtbaren Bereich. Bestehende Regionen werden nicht ersetzt; Reihenfolge und musikalische Verwendung werden getrennt festgelegt." %}</p>
+{{ region_split.as_p }}
+<button name="action" value="region_split">{% translate "Zwei neue unbestätigte Bereiche speichern" %}</button>
+</details>
 <button type="button" id="region-new">{% translate "Neue Region statt ausgewählter Region" %}</button>
 <p>{% translate "Speichern erhält eine geometrische Region separat von OCR. Es teilt nicht die Quelle, ordnet kein Werk zu und bestätigt keine Musik. Ganze Originalseiten bleiben erhalten." %}</p>
 </form>

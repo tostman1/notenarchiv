@@ -1,5 +1,15 @@
 # Implemented acceptance traceability
 
+## Explicit rectangle split follow-up (local implementation; integration pending)
+
+- AR-20/21, SC-05: `tests/test_region_split.py` covers explicit display-space
+  horizontal/vertical subdivision, retained region identities/history, atomic
+  rollback, invalid/degenerate fractions, CSRF and required acknowledgement.
+  Split-only controls do not impose native required attributes on unrelated OCR
+  and save actions. `browser/test_review.py` adds an ordered split scenario after
+  content confirmation, preserving confirmed occurrence pins and legacy isolation;
+  native execution of this new scenario remains pending. No manual pass is claimed.
+
 ## Pinned content sight review and confirmation — pending integration
 
 - AR-12/13/20/21, CAT-05/06, SC-05: `tests/test_content_proposal_preview.py`
