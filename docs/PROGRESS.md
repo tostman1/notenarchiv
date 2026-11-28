@@ -1,5 +1,19 @@
 # Progress record
 
+## Saved-region preview follow-up — in progress
+
+- Independent branch `feat/region-sequence-preview` keeps PR #98 frozen at
+  `1fa9a781c13a757691e13a9e2769e09bcdb9a8c9` during exact CI.
+- Added authenticated, no-store, bounded PNG preview of an explicitly pinned
+  saved region revision. Historical revisions remain previewable; foreign source
+  versions are rejected even when their bytes/hash match. Source bytes are
+  reverified, and preview never creates musical approval or export eligibility.
+- Review exposes each latest saved region's excerpt separately from the original
+  viewer. This is not yet ordered logical-document preview or sequence editing.
+- Focused preview/editor/source checks: 37 passed, one platform-specific skip;
+  real isolated rendering, authentication, corruption and source-version isolation
+  are exercised. No native browser or full integration result for this follow-up.
+
 ## Explicit region-editor foundation — in progress
 
 - Exact post-merge Main CI for PR #96 is verified: Main

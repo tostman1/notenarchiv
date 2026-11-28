@@ -64,3 +64,8 @@ def thumbnail(request, file, page):
 @protected_preview
 def ocr_excerpt(request, file, evidence_id):
     return HttpResponse(services.ocr_excerpt(file, evidence_id), content_type="image/png")
+
+
+@protected_preview
+def region_excerpt(request, file, revision_id):
+    return HttpResponse(services.region_excerpt(file, revision_id), content_type="image/png")
