@@ -1,5 +1,20 @@
 # Progress record
 
+## Conservative region merge foundation — in progress
+
+- PR #102 freezes split candidate `ba0ebb61f72e7e5b04296149d341ef30cc294b3b`
+  for exact Foundation/Container/Windows verification. Independent follow-up work
+  proceeds on `feat/region-merge-editor` without modifying that candidate.
+- Added explicit merging of two current, exactly adjacent rectangles on the same
+  exact source page into a new identity. Reject gaps, overlap and nonrectangular
+  unions; retain existing revisions, content pins and approvals.
+- Independent bounded review identified coordinate round-trip precision loss and
+  malformed UUID-type handling. Persist the exact canonical union directly under
+  the writer fence, recheck publication health/file pins, and normalize UUIDs before
+  lookup. Focused merge/split/editor tests: 37 passed, including all four rotations,
+  offset CropBox/UserUnit, decimal-edge preservation and malformed input rejection.
+  Follow-up review is pending. UI/native integration and manual acceptance remain open.
+
 ## Split batch combined verification
 
 - Combined local verification at `265404475773b5ee8c8f36445673a8521f11ea6e`:

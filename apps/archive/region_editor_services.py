@@ -1,5 +1,7 @@
 """Persist explicit user-drawn geometry without musical association or approval."""
 
+from uuid import UUID
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F
@@ -111,3 +113,75 @@ def split_rectangle(
             child = validate({"file_id": str(file.pk), "selection": {"page": selection["page"], "box": box}})
             revisions.append(_save_verified(file, child, expected_file_revision, source_version_id, None, 0, using))
         return tuple(revisions)
+
+
+def merge_adjacent_regions(
+    file_id,
+    *,
+    expected_file_revision,
+    source_version_id,
+    region_revision_ids,
+    using="default",
+):
+    """Create one new rectangle from two current adjacent exact-page revisions.
+
+    Gaps, overlap, cross-page inputs and nonrectangular unions are rejected rather
+    than silently including additional music. Existing identities and pins remain.
+    """
+    if not isinstance(region_revision_ids, (list, tuple)) or len(region_revision_ids) != 2:
+        raise ValidationError("Select exactly two distinct current region revisions.")
+    try:
+        identifiers = [value if isinstance(value, UUID) else UUID(value) for value in region_revision_ids]
+    except (TypeError, ValueError, AttributeError):
+        raise ValidationError("Region revision identifiers must be UUIDs.") from None
+    file = preview_file(file_id, using=using)
+    if file.kind != "BASE":
+        raise ValidationError("Regions require the exact unchanged source publication.")
+    preview_bytes(file)
+    with transaction.atomic(using=using):
+        if not m.ArchiveFile.objects.using(using).filter(pk=file.pk).update(revision=F("revision")):
+            raise ArchiveConflict()
+        file.refresh_from_db(using=using)
+        if file.publication_state != "AVAILABLE":
+            raise ValidationError("Source publication became unavailable before geometry was saved.")
+        if (
+            type(expected_file_revision) is not int
+            or expected_file_revision != file.revision
+            or str(source_version_id) != str(file.source_version_id)
+        ):
+            raise ArchiveConflict()
+        revisions = list(
+            m.PageRegionRevision.objects.using(using)
+            .filter(pk__in=identifiers, region__source_page__source_version_id=file.source_version_id)
+            .select_related("region__source_page")
+        )
+        if len(revisions) != 2 or revisions[0].region.source_page_id != revisions[1].region.source_page_id:
+            raise ValidationError("Merge requires two distinct regions on the same exact source page.")
+        for revision in revisions:
+            latest = (
+                m.PageRegionRevision.objects.using(using)
+                .filter(region_id=revision.region_id)
+                .order_by("-number")
+                .values_list("pk", flat=True)
+                .first()
+            )
+            if latest != revision.pk:
+                raise ArchiveConflict()
+        first, second = (revision.bounds_points for revision in revisions)
+        vertical = first[1] == second[1] and first[3] == second[3] and (first[2] == second[0] or second[2] == first[0])
+        horizontal = (
+            first[0] == second[0] and first[2] == second[2] and (first[3] == second[1] or second[3] == first[1])
+        )
+        if not (vertical or horizontal):
+            raise ValidationError("Only exactly adjacent rectangles with a rectangular union can be merged.")
+        page = revisions[0].region.source_page
+        if page.original_crop_box is None:
+            raise ValidationError("Inspected original source geometry is required for regions.")
+        bounds = [
+            min(first[0], second[0]),
+            min(first[1], second[1]),
+            max(first[2], second[2]),
+            max(first[3], second[3]),
+        ]
+        region = m.PageRegion.objects.using(using).create(source_page=page)
+        return append_region(region.pk, expected_number=0, bounds_points=bounds, using=using)
