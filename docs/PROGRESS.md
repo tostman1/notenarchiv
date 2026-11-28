@@ -27,6 +27,10 @@
   The container smoke now also requires two distinct native OCR lines and their
   ordered locations on a synthetic image-only multi-work page; not run locally
   (Docker unavailable), reserved for the final combined integration gate.
+- Independent follow-up review of the cumulative compound diff against Main
+  `f32ccbe7` confirmed the overflow fix and found no unresolved confirmed blockers.
+  Native smoke was inspected, not executed locally. Combined local verification
+  and final exact-head CI remain outstanding; checkpoint results are not delivery.
 
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 
