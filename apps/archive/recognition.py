@@ -81,12 +81,15 @@ def build_rule_set(using="default") -> RuleSet:
     part_by_alias = {key: part_id for key, part_id, _instrument in alias_rows if part_id is not None}
     instrument_by_alias = {key: instrument_id for key, _part, instrument_id in alias_rows if instrument_id is not None}
     snapshot = {
-        "works": sorted(works),
-        "work_aliases": sorted(work_aliases),
-        "variants": sorted((variant["name_key"], variant["pitch_key"]) for variant in variants),
+        "works": sorted((key, sorted(str(identifier) for identifier in ids)) for key, ids in works.items()),
+        "work_aliases": sorted((key, str(identifier)) for key, identifier in work_aliases.items()),
+        "variants": sorted((str(variant["id"]), variant["name_key"], variant["pitch_key"]) for variant in variants),
         "parts": sorted((str(part["id"]), part["code"]) for group in parts_by_instrument.values() for part in group),
-        "part_aliases": sorted(part_by_alias),
-        "instrument_aliases": sorted(instrument_by_alias),
+        "part_instruments": sorted(
+            (str(part_id), str(instrument_id)) for part_id, instrument_id in part_instrument.items()
+        ),
+        "part_aliases": sorted((key, str(identifier)) for key, identifier in part_by_alias.items()),
+        "instrument_aliases": sorted((key, str(identifier)) for key, identifier in instrument_by_alias.items()),
     }
     digest = hashlib.sha256(json.dumps(snapshot, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
     return RuleSet(
