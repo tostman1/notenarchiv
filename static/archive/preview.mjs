@@ -44,6 +44,21 @@ if (selection) {
     overlay.setAttribute("aria-hidden", "true");
     wrapper.append(overlay);
     selection.addEventListener("input", paintSelection);
+    document.getElementById("region-new")?.addEventListener("click", () => {
+        selection.elements.namedItem("region_id").value = "";
+        selection.elements.namedItem("expected_region_number").value = "0";
+    });
+    document.querySelectorAll("[data-region-id]").forEach(button => {
+        button.addEventListener("click", () => {
+            selection.elements.namedItem("region_id").value = button.dataset.regionId;
+            selection.elements.namedItem("expected_region_number").value = button.dataset.regionNumber;
+            for (const name of ["page", "left", "top", "right", "bottom"]) {
+                selectionFields[name].value = button.dataset["region" + name[0].toUpperCase() + name.slice(1)];
+            }
+            selectionFields.page.dispatchEvent(new Event("change"));
+            paintSelection();
+        });
+    });
     selectionFields.page.addEventListener("change", () => {
         const value = Number(selectionFields.page.value);
         if (pdf && Number.isInteger(value) && value >= 1 && value <= pdf.numPages) {

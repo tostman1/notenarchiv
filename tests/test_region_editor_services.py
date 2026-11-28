@@ -188,3 +188,36 @@ def test_region_save_handles_raw_unavailable_read(preview, client, monkeypatch, 
     assert "Bereich nicht gespeichert" in response.content.decode()
     assert m.PageRegion.objects.count() == m.PageRegionRevision.objects.count() == 0
     assert m.ReviewInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+def test_review_lists_latest_region_only_without_workflow_mutation(preview, client):  # noqa: F811
+    from django.urls import reverse
+
+    from core.page_geometry import PageGeometry
+
+    file, _data, _target = preview
+    source = file.source_version.pages.get()
+    # The synthetic preview fixture intentionally stores legacy page metadata;
+    # use existing exact-geometry fixture for an independent source publication.
+    exact = page()
+    other = register_base(exact.source_version_id, "exact.pdf")
+    region = m.PageRegion.objects.create(source_page=exact)
+    first = m.PageRegionRevision.objects.create(
+        region=region,
+        number=1,
+        bounds_points=PageGeometry(exact.media_box, exact.original_crop_box).effective_points,
+        page_fingerprint=exact.geometry_fingerprint,
+    )
+    second = m.PageRegionRevision.objects.create(
+        region=region,
+        number=2,
+        bounds_points=[0, 0, 100, 200],
+        page_fingerprint=exact.geometry_fingerprint,
+    )
+    response = client.get(reverse("archive_review_detail", args=[other.pk]))
+    assert response.status_code == 200
+    assert [item.pk for item in response.context["regions"]] == [second.pk]
+    assert f'data-region-id="{region.pk}"' in response.content.decode()
+    assert 'data-region-number="2"' in response.content.decode()
+    assert first.pk != second.pk and source.source_version_id == file.source_version_id
+    assert m.ReviewInspection.objects.count() == m.ContentConfirmation.objects.count() == 0

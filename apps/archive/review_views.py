@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
@@ -118,6 +118,31 @@ def detail(request, file_id):
             status = 400
         file = services.review_file(file.pk)
     proposal = file.current_proposal
+    from core.page_geometry import DisplayTransform, PageGeometry
+
+    latest_region = m.PageRegionRevision.objects.filter(region_id=OuterRef("region_id")).order_by("-number")
+    regions = list(
+        m.PageRegionRevision.objects.filter(
+            region__source_page__source_version_id=file.source_version_id,
+            pk=Subquery(latest_region.values("pk")[:1]),
+        )
+        .select_related("region__source_page")
+        .order_by("region__source_page__page_index", "region_id")[:20]
+    )
+    for region in regions:
+        page = region.region.source_page
+        geometry = PageGeometry(page.media_box, page.original_crop_box, page.rotation, page.user_unit)
+        transform = DisplayTransform(geometry, 1)
+        width, height = geometry.display_points
+        left, bottom, right, top = region.bounds_points
+        corners = [transform.to_pixels([x, y]) for x in (left, right) for y in (bottom, top)]
+        region.display_box = [
+            min(p[0] for p in corners) / width * 100,
+            min(p[1] for p in corners) / height * 100,
+            max(p[0] for p in corners) / width * 100,
+            max(p[1] for p in corners) / height * 100,
+        ]
+        region.page_number = page.page_index + 1
     initial = {
         "expected_revision": file.revision,
         "source_version": file.source_version_id,
@@ -196,6 +221,7 @@ def detail(request, file_id):
             "region_revision": forms.RegionRevisionForm(
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),
+            "regions": regions,
             "inspected": inspected,
             "jobs": jobs,
             "failed_form": failed_form,

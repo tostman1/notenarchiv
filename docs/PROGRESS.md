@@ -2,6 +2,10 @@
 
 ## Explicit region-editor foundation — in progress
 
+- Exact post-merge Main CI for PR #96 is verified: Main
+  `f32ccbe7f9c48ee8c4069fff65dbde04564d77a4`, run `46131431978`,
+  Foundation/Container/Windows success. No repeated wait is needed for this SHA.
+
 - Independent follow-up branch `feat/compound-region-editor` continues while
   PR #97 is frozen at `5c947d44aed1a33c7023c64638d58122fad16366` under exact CI.
 - Added explicit rectangle save/revision service using existing PageRegion history,
@@ -23,6 +27,11 @@
   The authenticated action now handles OSError without exposing paths or writing
   geometry; FileNotFoundError/PermissionError regressions cover message/redirect
   and unchanged inspection/confirmation. Updated focused checks: 56 passed.
+- Saved-region controls load only the latest revision (bounded to 20 regions),
+  convert retained canonical geometry back into displayed percentages and preserve
+  revision pins when saving edits. An explicit new-region control clears the pin.
+  Focused UI/history/selection checks: 57 passed. Browser execution and independent
+  cumulative review of these editing controls remain pending; no manual pass.
 
 ## Compound recognition follow-up batch — 2026-11-28 (in progress)
 
