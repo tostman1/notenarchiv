@@ -15,6 +15,7 @@ COPY scripts/collect_static.py ./collect_static.py
 RUN /opt/venv/bin/python collect_static.py
 
 FROM python-base
+RUN apk add --no-cache tesseract-ocr=5.5.2-r0 tesseract-ocr-data-deu=5.5.2-r0 tesseract-ocr-data-eng=5.5.2-r0
 ARG APP_VERSION=unpublished-ci
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.source="https://github.com/tostman1/notenarchiv" \

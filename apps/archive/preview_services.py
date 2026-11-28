@@ -12,14 +12,15 @@ from core.pdf.types import Limits
 from core.preview import snapshot
 
 
-def preview_file(file_id):
+def preview_file(file_id, *, using="default"):
     derivative = (
-        ArchiveFile.objects.usable()
+        ArchiveFile.objects.using(using)
+        .usable()
         .filter(
             pk=file_id,
             kind="DERIVATIVE",
             root_kind="PROCESSED",
-            assignments__in=ArchiveAssignment.objects.usable(),
+            assignments__in=ArchiveAssignment.objects.using(using).usable(),
         )
         .select_related("source_version", "publication_operation__intent")
         .first()
@@ -31,7 +32,8 @@ def preview_file(file_id):
             raise Http404
         return derivative
     file = (
-        ArchiveFile.objects.select_related("source_version", "publication_operation__intent")
+        ArchiveFile.objects.using(using)
+        .select_related("source_version__source_file", "publication_operation__intent")
         .filter(
             pk=file_id,
             root_kind="CLEAN",

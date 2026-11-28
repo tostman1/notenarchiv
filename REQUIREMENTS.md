@@ -82,6 +82,10 @@ OCR installation or service management is required.
 - **AR-08:** Analyze filenames and extract relevant text from PDF content on every new/changed version. For scans or insufficient/unreliable text use local OCR of the heading and, where necessary, additional regions/pages. OCR must not be skipped merely because the filename is clear. The early manual-only workflow must still show the actual PDF for mandatory human inspection.
 - **AR-09:** Indexing and OCR are independently startable functions. The index workflow can request OCR for appropriate files; OCR can also be launched explicitly for chosen unreviewed files or after a rule change. Explicit reanalysis of a confirmed unchanged file does not silently revoke its approval or replace its assignment; changed proposals require review.
 - **AR-10:** Detect title, instrument, part numbers, transposition and notation, including aliases, Roman numerals, abbreviations and combined labels. Arrangeur recognition is useful when evidence is available, but advanced automatic arranger recognition is not necessary for first delivery. Example: `Trombone II/III` is one PDF assigned to both Posaune 2 and Posaune 3; keep the entire PDF for either part. No splitting of a combined part is required.
+  Where reliable, also propose alternative titles, composer, arranger, clef,
+  collection/booklet, movement/section and publisher/printed identifiers. Retain
+  ambiguous abbreviations (`Pos. 2`, `Trb. 2`, `B. Bass`) as uncertain evidence.
+  Mixed or misleading partial text layers must not prevent necessary local OCR.
 - **AR-11:** Compare filename evidence and actual content. Agreement yields a plausible proposal; disagreement is a prominently marked conflict; missing/illegible evidence is uncertain. OCR confidence is not musical correctness. Maintain editable aliases/recognition rules, rule versions and provenance. A fuzzy match alone must not confirm an assignment.
 - **AR-12:** Review queue: show source filename, actual PDF with navigation/zoom, relevant recognized region or text excerpt, proposed work/arrangement/parts, method, confidence and conflict reasons. Provide quick previous/next navigation and direct correction using master-data selections. Confirm only after visual inspection. Support multiple assignments to one PDF. Never make unreviewed music automatically available for generation.
 - **AR-13:** Support a review workflow that records an explicit per-file-version inspected action for the current reviewer, followed by individual or batch confirmation. Opening a thumbnail, high confidence or selecting all is not proof of inspection. Batch confirmation may only include inspected, valid, unchanged versions. Editing proposed assignments or changing file version invalidates the relevant inspection as necessary. Track reviewer, timestamp and approved assignments in the local audit record.
@@ -89,7 +93,24 @@ OCR installation or service management is required.
 
 ### 4.3 Search, completeness and editions
 
-- **AR-15:** Live library search matches case-insensitive substrings anywhere in titles (e.g. `ab` finds `ABBA Medley` and `Abel Tasman`, and interior matches such as `Fuchsgraben Polka`). Support aliases and reasonable Unicode normalization; use filtering by instrument, part, arrangement and review/completeness status.
+- **AR-15:** Core library search uses normalized case-insensitive substrings in titles,
+  alternative titles, composer/arranger, classifications, collection/movement context,
+  publisher and implemented identifiers; retain Unicode normalization and approved
+  typo tolerance. Preserve distinct equal-title identities and existing edition resolution.
+  Combine implemented categorical facets using AND across dimensions and OR within
+  a dimension, with optional all-selected-tags matching. Ranges are inclusive and
+  support either bound and explicit unknown values. Arrangement/edition attributes
+  must match the same applicable arrangement/edition, not unrelated siblings.
+  Show counts, pagination, implemented sorting, removable active chips, reset and
+  predictable empty results; retain search/filter state across detail navigation.
+  Expose only implemented facets, grouped by classification, work metadata,
+  instrumentation/editions, archive status, document properties and hierarchy.
+  Primary view shows search, count, sorting, chips and access to `Weitere Filter`.
+  Its collapsible panel shows each authenticated user's persisted preferred facets;
+  `Alle Filter anzeigen` temporarily exposes all available grouped facets. Defaults
+  can be restored. Hiding/collapsing controls never deactivates values; temporary
+  all-facet access never overwrites preferences. Reuse settings and search services,
+  bounded database queries and responsive layout, not a competing search subsystem.
 - **AR-16:** Show an arrangement × part completeness view distinguishing confirmed available, unreviewed, missing, not required and unknown expectation. Expected parts are configurable per arrangement, required or optional; allow reusable instrumentation templates to accelerate setup. Do not assume all association instruments are required for all arrangements. Without expectation data, completeness is unknown. The project preflight is an additional independent, participant-specific completeness check.
 - **AR-17:** Several confirmed playable versions of one arrangement/part can coexist (e.g. older/newer scans, different editions or approved enhanced derivative). Allow one archive-wide preferred version per arrangement and compatible instrument part. Explicit project/position/participant choices override the preference. A changed preference never silently replaces a pinned choice or old output; identify affected outputs as stale where relevant. If no unambiguous suitable version exists, prompt for selection or use the missing-note workflow rather than guessing.
 - **AR-18:** Directly from the library select a work, arrangement, one or more confirmed parts and concrete versions where necessary, preview, download or print the selected PDF(s), without creating a project or member. Shared combined-part PDFs are not split. If the same physical PDF is selected more than once, clearly show how many copies will be exported/printed; avoid accidental duplicates.
@@ -138,6 +159,10 @@ OCR installation or service management is required.
   song number, even when pages and coordinates differ across instrumental booklets.
   Support multiple titles/numbers on a page, cover-only instrument evidence and
   incremental correction. Page-number equality is never musical identity.
+  Segmentation is optional: retain and use an intact booklet (approximately 125
+  short works) in its original page sequence, with or without an individual-work
+  index. Indexing several works on one page never forces splitting for reading or
+  export. Whole-booklet and explicitly selected confirmed-content workflows coexist.
 - **AR-26:** A compound source keeps one byte-identical CLEAN base copy with a
   neutral human-readable source/collection identity and collision-safe path.
   Do not imply that a logical excerpt is that unchanged original. Work/part
@@ -170,6 +195,9 @@ OCR installation or service management is required.
   multiple works or editions. Avoid cycles and accidental merging by title.
   Deutsche Messe must support both complete composition and individually searchable,
   selectable and exportable movements, including shared pages and continuations.
+  Display parent context and intended movement order, including identical movement
+  titles. A confirmed movement does not confirm its parent; a complete-work edition
+  does not establish independently confirmed movement editions.
 - **CAT-06:** Collection metadata includes title, publisher, publication/edition,
   instrument, collection identifier and physical format. Work/component metadata
   includes titles, original song number, composer/arranger, section, collection
@@ -182,13 +210,24 @@ OCR installation or service management is required.
   availability are independent. Printable/exportable inventory reports should cover
   complete inventory, locations, missing/damaged parts, absent digital copies,
   digital incompleteness and acquisition history.
-- **CAT-08:** Secondary metadata/search should extend existing titles, aliases and
-  instrument/edition filters with publisher/year, genre, difficulty, duration,
-  article/external IDs, tags, custom fields, notes, related arrangements,
-  collection/movement/location filters and reference recording/audio links.
-  Support exact/partial/case-insensitive matching, accent normalization,
-  spelling variants, reasonable typo tolerance and combined filters. Local
-  recognition aliases improve proposals without overriding confirmed identity.
+- **CAT-08:** Required core metadata/search extends existing identities and fields,
+  without duplication: optional alternative titles, composer, arranger, publisher/
+  year, difficulty, instrumentation, article/external ID, reference recording URL,
+  notes and supported archive location. Categories, genres and tags are distinct,
+  optional reusable multi-value classifications. User-managed categories organize
+  music, genres describe style/type and tags provide flexible labels; none moves,
+  renames or duplicates PDFs or implies collection, hierarchy or project membership.
+  Support normalized case/whitespace uniqueness, autocomplete, safe rename/removal
+  and appropriate bulk assignment/removal. Similar spelling alone never merges
+  meanings. Removing a classification never deletes music or sources. Reuse simple
+  management patterns and existing metadata inheritance with explicit overrides.
+  Optional duration is a non-negative integer number of seconds; unknown is distinct
+  from zero. Provide convenient MM:SS editing/display and longer-work handling,
+  work duration and arrangement override, inclusive min/max and unknown filters.
+  All metadata remains optional for ordinary archival/confirmation. Combined faceted
+  search and visibility/state behavior are AR-15. Advanced custom fields, reusable
+  saved searches and external integration remain secondary/deferred. Local recognition
+  aliases improve proposals without overriding confirmed identity.
 - **CAT-09:** Deferred lending may track parts/sets, borrower, lending/return dates,
   outstanding items and condition changes. It must not block digitization or printing.
 
@@ -201,6 +240,10 @@ OCR installation or service management is required.
 - **PR-05:** Persist project name, participant assignments, shared positions and reserves, arrangement references, ensemble mappings, part and edition overrides, replacement rules, cover/layout options and revision. Project duplication creates new identities for project/positions/participants and remaps its overrides. Project edits do not modify association master data or archive assignments.
 - **PR-06:** No personal selection, skip, additional pieces or individualized numbering in full folders. A participant may have a different playable part for any piece; if unavailable, that position remains represented by a placeholder.
 - **PR-07:** Protect against concurrent lost updates. Show a clear conflict and refresh/retry rather than silently overwriting another archivist's changes. Save and display project revision; outputs remain available after edits, with relevant stale indicators.
+  Show estimated duration using effective arrangement/work metadata, counting
+  repeated music positions but not reserves. Distinguish complete known total,
+  partial known total and count with unknown duration. Never invent values or
+  implicitly include announcements, breaks or transitions.
 
 - **PR-08:** Secondary productivity should extend project duplication/order/ensemble
   configuration and part/edition assignment with reusable project templates,
@@ -280,6 +323,9 @@ OCR installation or service management is required.
   work/part assignments, drawing/editing regions, marking continuations/blanks,
   excluding irrelevant output pages, rotation/orientation, non-destructive crop
   and restoring prior interpretation. Proposals remain distinct from confirmation.
+  Support movable/resizable rectangles, work/movement/edition assignment and logical
+  document preview. Reject all automatic proposals and retain original pages without
+  repairing each region. Confirmed edits follow existing revision/inspection rules.
 - **SC-06:** OCR/segmentation operates on versioned pages and regions, expands
   beyond headings when needed and supports cover-level instrument evidence,
   multiple small titles/numbers and continuations. Cache keys include exact
@@ -315,6 +361,10 @@ OCR installation or service management is required.
   applicable folded booklets. A5 examples shall yield 2/4 logical pages per A4
   sheet and 4/8 per A3 sheet for simplex/duplex respectively. Mixed source formats
   and genuine A3 remain supported. Existing regular exports stay available.
+  Intact booklet sequences remain valid with several indexed works per A5 page.
+  No individual extraction is required. A5 on A4 is two pages per side; A5 on A3
+  four; A4 on A3 two; native A3 on A3 stays intact. Sequential, cut-stack and
+  folded-booklet modes remain distinct.
 - **PT-07:** Users shall create, duplicate, edit, rename, save and reuse persistent
   print templates, with built-in defaults. Applicable properties include explicit
   millimeter physical/final dimensions, orientation, rows/columns/placement areas,

@@ -72,6 +72,18 @@ def test_get_and_preview_never_count_as_inspection(review_ui):
     assert not m.ArchiveFile.objects.usable().exists()
 
 
+def test_authenticated_explicit_ocr_launch_is_not_inspection(review_ui):
+    client, file, *_ = review_ui
+    url = reverse("archive_review_detail", args=[file.pk])
+    assert "Alle Seiten lokal mit OCR analysieren" in client.get(url).content.decode()
+    response = client.post(url, {"action": "ocr"})
+    assert response.status_code == 302 and "/jobs/" in response.url
+    assert Job.objects.get(kind="OCR").payload == {"file_id": str(file.pk)}
+    assert not m.ReviewInspection.objects.exists()
+    assert not m.ArchiveProposal.objects.exists()
+    assert Client(enforce_csrf_checks=True).post(url, {"action": "ocr"}).status_code == 403
+
+
 def test_combined_corrected_assignment_inspection_and_approval_are_separate_durable_steps(review_ui):
     client, file, actor, arrangement, _variant, parts, path = review_ui
     before = path.read_bytes()

@@ -29,7 +29,7 @@ jobs:
     outputs:
       docs-only: ${{ steps.classify.outputs.docs-only }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - id: classify
@@ -47,10 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           python-version: "3.12"
           version: "0.13.1"
@@ -82,7 +82,7 @@ jobs:
           uv export --locked --no-dev --no-emit-project --no-hashes -o "$RUNNER_TEMP/runtime-requirements.txt"
           uv tool run --from pip-audit==2.10.1 pip-audit --disable-pip --no-deps -r "$RUNNER_TEMP/runtime-requirements.txt"
 
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.npm
           key: browser-npm-${{ runner.os }}-playwright-1.62.1
@@ -96,8 +96,8 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           python-version: "3.12"
           version: "0.13.1"
@@ -116,9 +116,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             /tmp/notenarchiv-build-cache
@@ -144,6 +144,12 @@ jobs:
         run: sudo python3 scripts/container_smoke.py --image notenarchiv-ci:verified
       - name: Exercise actual archive worker publication
         run: sudo python3 -m scripts.publication_smoke --image notenarchiv-ci:verified
+      - name: Exercise pinned local OCR with generated synthetic pages
+        run: |
+          docker run --rm --read-only --network none --memory 768m --cpus 2 --env PYTHONPATH=/app \
+            --tmpfs /scratch:rw,mode=700,uid=65532,gid=65532,size=128m \
+            --mount type=bind,source="$PWD/scripts/ocr_smoke.py",target=/ocr_smoke.py,readonly \
+            --entrypoint python notenarchiv-ci:verified /ocr_smoke.py
       - name: Exercise standalone Synology installation with the published digest
         run: sudo python3 -m scripts.simple_install_smoke --candidate-image notenarchiv-ci:verified
       - name: Install pinned browser driver for full-stack acceptance
@@ -169,18 +175,20 @@ jobs:
         run: docker save notenarchiv-ci:verified -o verified-image.tar
       - name: Upload verified release candidate
         if: inputs.export-image == true
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verified-container
+          archive: true # Release recovery verifies the complete ZIP archive digest.
           path: |
             verified-image.tar
             image-sbom.cdx.json
             image-metadata.json
           retention-days: 7
       - name: Upload SBOM and image metadata
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: container-evidence
+          archive: true
           path: |
             image-sbom.cdx.json
             image-metadata.json

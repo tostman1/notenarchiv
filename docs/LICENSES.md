@@ -47,6 +47,17 @@ package.json). This test-only Node dependency runs outside the application.
 
 ## Policy
 
+### Local OCR runtime (WP-24 increment, 2026-11-27)
+
+The Alpine 3.24 runtime adds `tesseract-ocr`, `tesseract-ocr-data-deu` and
+`tesseract-ocr-data-eng`, each pinned to `5.5.2-r0`. The reviewed
+[Alpine APKBUILD](https://github.com/alpinelinux/aports/blob/88850a34f2f6651da71b267289f38cfdad477505/community/tesseract-ocr/APKBUILD)
+records Apache-2.0, Tesseract 5.5.2 and tessdata 4.1.0 (not tessdata_fast).
+Upstream Tesseract's 5.5.2 LICENSE was inspected. Package signatures verify
+OS downloads; installed package metadata and the existing generated image
+SBOM cover the native dependency closure. No new Python wrapper is shipped.
+Full distribution-notice finalization remains WP-51; this is not a release.
+
 WP-37a generated German pages use the unmodified `reportlab/fonts/Vera.ttf`
 distributed in the pinned ReportLab wheel. Its installed
 `bitstream-vera-license.txt` was inspected: Bitstream copyright/trademark and

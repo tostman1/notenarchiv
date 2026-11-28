@@ -38,6 +38,17 @@ def detail(request, file_id):
     failed_form, status = None, 200
     if request.method == "POST":
         action = request.POST.get("action")
+        if action == "ocr":
+            from apps.archive.ocr_services import request as request_ocr
+
+            try:
+                job = request_ocr(file.pk)
+            except (ValidationError, DatabaseError, ValueError, Http404):
+                messages.error(
+                    request, _("OCR-Auftrag nicht möglich. Dateistatus prüfen und bewusst erneut versuchen.")
+                )
+                return redirect("archive_review_detail", file_id=file.pk)
+            return redirect("job_detail", job_id=job.pk)
         if action not in FORMS:
             raise Http404
         failed_form = FORMS[action](request.POST, auto_id=action + "_%s")

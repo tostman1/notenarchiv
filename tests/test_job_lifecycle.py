@@ -1,6 +1,8 @@
 """Recovery, durable intent reconciliation, bounded retries and cancellation."""
 
+import os
 from datetime import timedelta
+from uuid import uuid4
 
 import pytest
 from django.utils import timezone
@@ -17,6 +19,31 @@ queue_db = _queue_fixture
 
 def ready(job):
     Job.objects.filter(pk=job.pk).update(available_at=timezone.now() - timedelta(seconds=1))
+
+
+@pytest.mark.skipif(os.name != "posix", reason="OCR recovery uses server filesystem ownership")
+@pytest.mark.parametrize("active", [False, True])
+def test_interrupted_ocr_recovery_respects_process_marker(queue_db, settings, tmp_path, active):
+    from apps.archive import ocr_services
+
+    settings.DIAGNOSTIC_LOG_DIR = tmp_path / "logs"
+    stage = tmp_path / "ocr-scratch" / "pdf-interrupted"
+    stage.mkdir(parents=True, mode=0o700)
+    (stage / "input.png").write_bytes(b"synthetic image")
+    if active:
+        (stage / "parser-active").write_bytes(b"")
+    ocr_services.register()
+    job = queue.enqueue(Job.Kind.OCR, {"file_id": str(uuid4())})
+    with ProcessLock(tmp_path / "worker.lock") as authority:
+        predecessor = lifecycle.acquire_owned(authority)
+        assert queue.claim_next(predecessor).job_id == job.pk
+    with ProcessLock(tmp_path / "worker.lock") as authority:
+        successor = lifecycle.acquire_owned(authority)
+        monitor = worker.Heartbeats(successor, "default", authority=authority)
+        lifecycle.recover_interrupted(monitor, authority)
+    job.refresh_from_db()
+    assert job.status == ("REVIEW_REQUIRED" if active else "QUEUED")
+    assert stage.exists() is active
 
 
 def test_receipt_and_domain_ack_rollback_together_then_recover_even_when_cancelled(queue_db, monkeypatch, tmp_path):

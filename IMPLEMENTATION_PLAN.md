@@ -401,6 +401,17 @@ Record evidence in docs/PROGRESS.md and docs/RELEASES.md, then stop this package
 
 ## M2 — OCR and version reconciliation
 
+Owner priority amendment (2026-11-27): requirements and permanent German manual
+scenarios, bounded Actions runtime maintenance, then cohesive WP-24/25/26/27 and
+WP-56 increments on verified WP-54/55. WP-28 synthetic bounds accompany OCR;
+private quality/DS224+ measurements remain open. No preliminary NAS deployment
+or native Windows writable acceptance blocks platform-independent product work.
+Next are core WP-60a metadata/faceted search, WP-57 universal printing, marchbook/
+targeted reprints, enhancement and usability acceptance. Physical deployment,
+Windows writable/packaging and deferred extensions retain separate gates. Small
+additive metadata foundations may accompany OCR; full administration must not delay
+it. Maintain availability and manual status in `docs/MANUAL_ACCEPTANCE_TESTS.md`.
+
 Before WP-24, integrate the shared-runtime portability foundation. New processing
 packages must take validated roots and executable locations from the runtime,
 preserve both platforms' cancellation/resource limits, and exercise synthetic
@@ -918,6 +929,8 @@ classification, ordering, rotation and recoverable page/region analysis.
 **Acceptance:** REF-01–08 and REF-11–16; no dimension-only native-A3 split, no
 automatic deletion/approval, exact input/source history preserved. OCR integration
 is coordinated with WP-24/25; region review with WP-20a/b/26.
+Segmentation is optional: original booklet sequences remain selectable/printable
+despite work indexing. Support rejecting all proposals and logical-content preview.
 
 ### WP-57 — Reusable print-template configuration
 
@@ -929,6 +942,8 @@ Extend the same planner/composer. Template import/export is should-level.
 **Acceptance:** A5 two-up A4/four-up A3, custom target sizes, invalid geometry,
 maximum proportional fit, mixed source formats and unchanged historical output
 after shared-template edits. Full duplex/cut/fold acceptance extends WP-42.
+Include intact multi-work A5 pages on A4/A3, native A3 and explicit front/back
+order, orientation and odd-count padding. Indexing never forces extraction.
 
 ### WP-40d — Advanced scan assessment and visual duplicates
 
@@ -956,10 +971,16 @@ ingestion works with watching disabled. No direct scanner integration.
 
 ### WP-60a — Extended musical metadata and search
 
-**Requirements:** CAT-08. **Priority:** Secondary/should.
-Extend existing catalog/library services. Test all new fields, normalization,
-aliases, typo tolerance and combined collection/movement/location filters with
-equal-title identities. External metadata services remain deferred WP-61h.
+**Requirements:** CAT-08, AR-15, PR-07. **Priority:** Required core.
+Extend catalog/library/settings services with optional categories, genres, tags,
+effective work/arrangement duration and other metadata without duplication. Test
+safe classification CRUD/bulk operations, normalization, inclusive ranges/unknowns,
+same-arrangement facets, AND/OR/all-tags, counts/pagination/sorting/chips/reset and
+navigation. Persist independent user facet visibility without changing active values;
+temporary all-filter access does not save preferences. Test repeated-position known/
+partial project duration and reserves. Preserve equal-title identities/inheritance.
+Advanced custom metadata and saved searches remain secondary; external metadata
+remains deferred WP-61h. Expose only implemented controls.
 
 ### WP-60b — Project templates and revision-difference productivity
 

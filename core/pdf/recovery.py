@@ -21,7 +21,7 @@ def prune_disposable(root, directory):
         logger.warning("Could not safely prune disposable PDF processing workspaces")
 
 
-def prune(root, directory):
+def prune(root, directory, *, ocr=False):
     """Caller must hold the worker lifetime lock; children must have stopped."""
     with root.parent(directory + "/placeholder") as (parent, _):
         with os.scandir(parent) as entries:
@@ -37,6 +37,8 @@ def prune(root, directory):
                 except FileNotFoundError:
                     pass
                 else:
+                    if ocr:
+                        raise files.FileError("PROCESS_OWNERSHIP_UNPROVEN")
                     continue
                 with os.scandir(child) as entries:
                     children = []
@@ -44,7 +46,11 @@ def prune(root, directory):
                         info = entry.stat(follow_symlinks=False)
                         if (
                             len(children) >= 1004
-                            or not re.fullmatch(r"[0-9]+\.pdf|request\.json|response\.json|output", entry.name)
+                            or not re.fullmatch(
+                                r"[0-9]+\.pdf|request\.json|response\.json|output"
+                                + (r"|input\.png|result\.tsv" if ocr else ""),
+                                entry.name,
+                            )
                             or not stat.S_ISREG(info.st_mode)
                             or info.st_uid != os.geteuid()
                             or info.st_nlink != 1

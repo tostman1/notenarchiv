@@ -13,3 +13,6 @@ class ArchiveConfig(AppConfig):
         from apps.archive.indexing import register as register_indexing
 
         register_indexing()
+        from apps.archive.ocr_services import register as register_ocr
+
+        register_ocr()

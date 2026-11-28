@@ -1,5 +1,54 @@
 # Progress record
 
+## Approved OCR product phase — 2026-11-27 (in progress)
+
+- Verified clean Main baseline `b536d8d286e13b1f10a2a872baf999aec01d0b76`
+  and successful exact Main run 46060645008 (Foundation, Container, Windows).
+  WP-54/55 are complete within their verified software scope; their earlier
+  investigations and successful acceptance are not reopened.
+- On `feat/ocr-product-phase`, integrated the owner's DEC-16 requirements and
+  priority amendment: optional intact booklets/segmentation, OCR evidence, core
+  optional classification/duration, faceted search and per-user filter visibility.
+  Advanced custom metadata/saved searches/external integrations remain secondary.
+- German permanent manual plan `docs/MANUAL_ACCEPTANCE_TESTS.md` now contains
+  61 stable scenarios with availability, concrete actions, expected results and
+  execution/defect fields. Coordinator review corrected stale OCR availability,
+  invalid references and independent whole-work/movement approval semantics.
+  Independent documentation review confirmed scenario coverage; its three findings
+  (cache retention, explicit correction rather than automatic review tasks, and
+  independent hardware prerequisites/synthetic fixtures) were corrected.
+  All physical/manual results remain unexecuted.
+- Audited both workflows and upgraded supported full-SHA Node 24 actions,
+  preserving ZIP recovery, permissions and all checks. Local Node/npm are absent;
+  browser verification stays required in CI. PR #95's first exact-head CI is green;
+  final manual-plan documentation and final-head integration checks remain pending.
+- Implemented the first partial WP-24/25 OCR increment: all-page local Tesseract,
+  exact verified CLEAN input, bounded owned subprocesses, per-page immutable
+  runtime/profile/geometry/rule cache, persistent progress/cancellation and explicit
+  launch from review. OCR proposals never change approval or assignments.
+  Targeted local OCR/services/PDF/review/process tests pass. Independent Sol review
+  and focused fix review found no unresolved blockers after correcting container
+  imports, fenced scratch recovery and native package cache identity.
+  Exact commit `a2e178fd90f0a276e54e5ed932f048303c7c1910` passed run
+  [46073430077](https://github.com/tostman1/notenarchiv/actions/runs/46073430077):
+  Foundation (including browser), Container (including native text/image-only OCR
+  smoke and POSIX recovery) and Windows. Review evidence is recorded on PR #95.
+  This establishes synthetic software verification, not recognition accuracy or
+  manual/physical acceptance. Full WP-24/26/56 is not done.
+- Local full-suite execution exceeded the 1,200-second tool deadline and was
+  terminated (exit 143); this is unverified, not a regression or a pass. A later
+  full run completed: 1,368 passed, 158 skipped and the same two local
+  WinError 1314 symlink fixture failures (1,162.45 seconds). Focused checks cover
+  the subsequent recovery/cache and confirmed-reanalysis changes.
+  The Windows shared-runtime diagnostic completed:
+  374 passed, 6 skipped, 2 failed at synthetic symlink creation with WinError 1314
+  (local account lacks the required privilege), before application assertions.
+  No security settings or tests were weakened; exact Windows CI remains required.
+  Successful targeted evidence is retained; required full CI gates are unchanged.
+- Next: integrate this reviewed increment, then region evidence, compound
+  recognition and visual correction. No real
+  archive access, NAS deployment or native Windows writes are authorized here.
+
 ## Consolidated WP-54/55 acceptance — 2026-11-27
 
 - The existing #75–90 backlog is integrated with exact post-merge Main verification.

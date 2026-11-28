@@ -81,6 +81,24 @@ def test_invalid_resource_limits_fail_before_launch(limits):
         run_process([sys.executable, "-c", "pass"], timeout=1, **limits)
 
 
+def test_bounded_environment_reaches_owned_child(tmp_path):
+    target = tmp_path / "environment"
+    run_process(
+        [
+            sys.executable,
+            "-c",
+            "import os,pathlib,sys; pathlib.Path(sys.argv[1]).write_text(os.environ['OMP_THREAD_LIMIT'])",
+            str(target),
+        ],
+        timeout=10,
+        env={"OMP_THREAD_LIMIT": "2"},
+    )
+    assert target.read_text() == "2"
+    for env in ({"bad\0key": "x"}, {"x": 2}, {"x": "x" * 32769}):
+        with pytest.raises(ValueError):
+            run_process([sys.executable, "-c", "pass"], timeout=1, env=env)
+
+
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux parent-death binding")
 def test_resource_limited_child_stops_when_owning_worker_process_dies(tmp_path):
     import subprocess

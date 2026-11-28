@@ -1,5 +1,22 @@
 # Implemented acceptance traceability
 
+- Owner amendment (2026-11-27): AR-15/CAT-08 core classification, duration,
+  facets/preferences and PR-07 duration are required but not yet implemented.
+  WP-24–28/56/57 workflow acceptance follows the completed WP-54/55 foundation;
+  no synthetic foundation result establishes OCR accuracy or physical acceptance.
+  `docs/MANUAL_ACCEPTANCE_TESTS.md` records separate German manual scenarios.
+- `tests/test_ci_workflow.py` checks supported reviewed full-SHA action pins,
+  explicit ZIP artifact recovery compatibility and retained required check policy.
+  Runtime/source review is recorded in `docs/actions-runtime-maintenance.md`;
+  actual Node/browser/action execution still requires exact-head CI.
+- `tests/test_ocr.py`, `tests/test_ocr_services.py`, `tests/test_processes.py` —
+  partial AR-08/09/11 and SC-06: local per-page OCR even with partial text,
+  verified isolated selection geometry, runtime/profile/rule/revision cache,
+  owned-process limits/uncertain cleanup, immutable evidence/restart reuse,
+  queue launch and no automatic approval. `scripts/ocr_smoke.py` is the generated
+  text-layer and image-only native container check; it is not musical accuracy/manual acceptance.
+  Compound proposals, region evidence UI, full OCR acceptance and WP-56 remain open.
+
 - `tests/test_content_integrity.py` — OP-08: read-only, bounded SQLite/history
   integrity report; missing source-page mappings fail without repair, stale confirmed
   history remains valid, and machine-readable output excludes private values.
