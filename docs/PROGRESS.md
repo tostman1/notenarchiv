@@ -2,6 +2,14 @@
 
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 
+- Exact PR #96 head `b99732d145857b5978b919e5508bad23f8b21df9`, run
+  46127825275, failed Foundation's browser gate (31 browser tests passed, one
+  failed). Container and Windows passed. The drag overlay's inactive CSS selector
+  outranked the active selector, blocking pointer events. Corrected selector
+  specificity; the browser regression now checks computed pointer acceptance and
+  all four drawn bounds. This is an application UI defect, not a CI interruption.
+  No merge or green claim; a corrected exact-head gate is required.
+
 - PR #95 merged at `3766fe389be7cc66489e8446858a8e7a462b449a` after final-head
   `cb896134a2bbbed123131ce3935c5b9030f26112` passed Foundation, Container and
   Windows. Exact post-merge run 46118104077 passed Foundation, Container and
