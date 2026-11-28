@@ -3,6 +3,7 @@
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -22,7 +23,7 @@ def protected_preview(view):
         try:
             file = services.preview_file(file_id)
             response = view(request, file, **kwargs)
-        except (Http404, FileError, PdfError, OSError, ValueError):
+        except (Http404, FileError, PdfError, OSError, ValueError, ValidationError):
             response = HttpResponse(_("Die PDF-Vorschau ist nicht verfügbar."), status=404, content_type="text/plain")
         response["Cache-Control"] = "private, no-store"
         response["X-Content-Type-Options"] = "nosniff"
@@ -109,6 +110,33 @@ def region_sequence_viewer(request, file):
             "sequence_count": len(values),
         },
     )
+
+
+@protected_preview
+def content_proposal_viewer(request, file, revision_id):
+    from apps.archive.content_preview_services import proposal_context
+
+    revision, identifiers = proposal_context(file, revision_id)
+    return render(
+        request,
+        "archive/content_proposal_preview.html",
+        {
+            "file": file,
+            "proposal": revision,
+            "sequence_count": len(identifiers),
+            "export_document_url": reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk]),
+        },
+    )
+
+
+@protected_preview
+def content_proposal_document(request, file, revision_id):
+    from apps.archive.content_preview_services import proposal_preview
+
+    response = HttpResponse(proposal_preview(file, revision_id), content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="unconfirmed-content-inspection.pdf"'
+    response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+    return response
 
 
 @protected_preview

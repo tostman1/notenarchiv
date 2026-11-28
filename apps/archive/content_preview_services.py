@@ -7,8 +7,10 @@ from apps.archive.content_manifest import manifest_fingerprint
 from apps.archive.preview_services import region_sequence
 
 
-def proposal_preview(file, revision_id):
-    """Render the stored occurrence order, never a newly submitted selection."""
+def proposal_context(file, revision_id):
+    """Validate the persisted single-publication region manifest without rendering."""
+    if file.kind != "BASE":
+        raise Http404
     revision = m.ContentEditionRevision.objects.filter(pk=revision_id).first()
     if revision is None or revision.fingerprint != manifest_fingerprint(revision.manifest):
         raise Http404
@@ -30,4 +32,10 @@ def proposal_preview(file, revision_id):
         ):
             raise Http404
         identifiers.append(logical.region_revision_id)
+    return revision, identifiers
+
+
+def proposal_preview(file, revision_id):
+    """Render the stored occurrence order, never a newly submitted selection."""
+    _, identifiers = proposal_context(file, revision_id)
     return region_sequence(file, identifiers)

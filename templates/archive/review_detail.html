@@ -59,6 +59,9 @@
 </article>{% empty %}<p>{% translate "Keine Erkennungsevidenz vorhanden. Zuordnung manuell prüfen." %}</p>{% endfor %}
 <h2>{% translate "Gespeicherte Zuordnung" %}</h2>
 <p>{{ proposal.arrangement|default:"—" }}</p><ul>{% for entry in parts %}<li>{{ entry.part }}</li>{% empty %}<li>{% translate "Noch keine kontrollierten Stimmen gespeichert." %}</li>{% endfor %}</ul>
+<section><h2>{% translate "Gespeicherte Inhaltsvorschläge ansehen" %}</h2>
+<p>{% translate "Die Vorschau verwendet gespeicherte Vorkommen, nicht die aktuelle Regionsauswahl. Öffnen bestätigt keine Sichtprüfung oder musikalische Freigabe." %}</p>
+{% for content in content_proposals %}<p><a href="{% url 'archive_preview:content_proposal_viewer' file.pk content.pk %}">{% translate "Inhaltsvorschlag ansehen – Revision" %} {{ content.number }}</a> · <code>{{ content.fingerprint }}</code></p>{% empty %}<p>{% translate "Keine passende gespeicherte Regionsfolge verfügbar." %}</p>{% endfor %}</section>
 <form method="post" class="record-form">{% csrf_token %}<input type="hidden" name="action" value="save">{{ correction.as_p }}<button>{% translate "Zuordnung speichern" %}</button></form>
 </section></div>
 {% if proposal and proposal.state == 'DRAFT' %}

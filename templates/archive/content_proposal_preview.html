@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% translate "Gespeicherter Inhaltsvorschlag – Sichtprüfung" %} — Notenarchiv{% endblock %}
+{% block content %}
+<h1>{% translate "Gespeicherter Inhaltsvorschlag – Sichtprüfung" %}</h1>
+<p>{% translate "Diese Vorschau zeigt die gespeicherte Reihenfolge und exakten Regionsrevisionen. Öffnen erzeugt weder Sichtprüfungsnachweis noch musikalische Freigabe." %}</p>
+<p>{% translate "Revision" %}: {{ proposal.number }} · {% translate "Vorkommen" %}: {{ sequence_count }}</p>
+<p>{% translate "Kontextfingerabdruck" %}: <code>{{ proposal.fingerprint }}</code></p>
+{% include "archive/_pdf_viewer.html" %}
+<p><a href="{% url 'archive_review_detail' file.pk %}">{% translate "Zurück zur Quellprüfung" %}</a></p>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'archive/preview.mjs' %}"></script>{% endblock %}

@@ -2,6 +2,7 @@
 
 import pytest
 from django.http import Http404
+from django.urls import reverse
 
 from apps.archive import models as m
 from apps.archive.content_geometry_services import append_region
@@ -35,3 +36,51 @@ def test_proposal_preview_rejects_wrong_publication_pin(region_preview):  # noqa
     file.revision += 1
     with pytest.raises(Http404):
         proposal_preview(file, revision.pk)
+
+
+@pytest.mark.django_db
+def test_saved_proposal_endpoints_are_private_and_do_not_attest_review(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    revision = propose(file, [regions[1], regions[1]])
+    viewer = reverse("archive_preview:content_proposal_viewer", args=[file.pk, revision.pk])
+    document = reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk])
+    response = client.get(viewer)
+    assert response.status_code == 200
+    assert revision.fingerprint in response.content.decode()
+    assert response.context["sequence_count"] == 2
+    assert response.context["export_document_url"] == document
+    response = client.get(document)
+    assert response.status_code == 200 and response.content.startswith(b"%PDF-")
+    assert response["Cache-Control"] == "private, no-store"
+    assert response["Content-Security-Policy"] == "sandbox; default-src 'none'"
+    assert response["Content-Disposition"].startswith("attachment;")
+    assert client.post(document).status_code == 405
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+    client.logout()
+    assert client.get(viewer).status_code == client.get(document).status_code == 302
+
+
+@pytest.mark.django_db
+def test_saved_proposal_document_rejects_changed_bytes(region_preview, client):  # noqa: F811
+    file, regions, target = region_preview
+    revision = propose(file, [regions[1]])
+    target.write_bytes(b"synthetic-corruption")
+    response = client.get(reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk]))
+    assert response.status_code == 404
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_review_lists_only_pinned_compatible_saved_proposals(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    revision = propose(file, [regions[1], regions[1]])
+    response = client.get(reverse("archive_review_detail", args=[file.pk]))
+    assert response.status_code == 200
+    assert [item.pk for item in response.context["content_proposals"]] == [revision.pk]
+    url = reverse("archive_preview:content_proposal_viewer", args=[file.pk, revision.pk])
+    assert url in response.content.decode()
+    file.revision += 1
+    file.save(update_fields=["revision"])
+    response = client.get(reverse("archive_review_detail", args=[file.pk]))
+    assert response.context["content_proposals"] == []
+    assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0

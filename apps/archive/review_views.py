@@ -233,6 +233,18 @@ def detail(request, file_id):
             for reason in candidate.reasons
         ]
     audit = list(file.auditevent_set.select_related("actor").order_by("-created_at")[:25])
+    from apps.archive.content_preview_services import proposal_context
+    from apps.archive.models import ContentEditionRevision
+
+    content_proposals = []
+    for revision in (
+        ContentEditionRevision.objects.filter(references__archive_file=file)
+        .distinct()
+        .order_by("-created_at", "-pk")[:20]
+    ):
+        with suppress(Http404, ValidationError, ValueError):
+            proposal_context(file, revision.pk)
+            content_proposals.append(revision)
     for event in audit:
         event.event_label = EVENTS.get(event.event, _("Archivstatus aktualisiert"))
     inspected = bool(
@@ -262,6 +274,7 @@ def detail(request, file_id):
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
             ),
             "regions": regions,
+            "content_proposals": content_proposals,
             "content_edition_creation": forms.ContentEditionCreationForm(auto_id="content_edition_%s"),
             "region_content": forms.RegionContentForm(
                 initial={"expected_file_revision": file.revision, "source_version_id": file.source_version_id}
