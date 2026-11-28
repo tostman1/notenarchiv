@@ -20,6 +20,13 @@
   exposes a known exact title/alias. Exact complete numeric titles win; equal song
   numbers never merge works or disambiguate duplicate titles. No index association
   or segmentation is automatically created.
+- Independent cumulative compound review found one malformed-coordinate overflow:
+  bounded integer rejection now precedes floating-point finiteness conversion.
+  Helper and authenticated review-page regressions cover `10**400`; focused
+  compound/selection checks passed 52 tests. No approval/inspection changes.
+  The container smoke now also requires two distinct native OCR lines and their
+  ordered locations on a synthetic image-only multi-work page; not run locally
+  (Docker unavailable), reserved for the final combined integration gate.
 
 ## OCR region/review integration batch — 2026-11-28 (in progress)
 
