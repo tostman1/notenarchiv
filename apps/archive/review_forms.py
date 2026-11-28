@@ -6,6 +6,22 @@ from django.utils.translation import gettext_lazy as _
 from apps.catalog.models import Arrangement, InstrumentVariant, Part
 
 
+class RegionSplitForm(forms.Form):
+    split_axis = forms.ChoiceField(
+        label=_("Teilungsrichtung"),
+        choices=(("horizontal", _("Horizontal: oben / unten")), ("vertical", _("Vertikal: links / rechts"))),
+    )
+    split_percent = forms.FloatField(
+        label=_("Teilungsposition innerhalb des ausgewählten Bereichs (%)"),
+        min_value=0.01,
+        max_value=99.99,
+        initial=50,
+    )
+    split_acknowledged = forms.BooleanField(
+        label=_("Zwei neue Bereiche anlegen; bestehende Bereiche und musikalische Zuordnungen bleiben unverändert."),
+    )
+
+
 class VersionForm(forms.Form):
     expected_revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
     source_version = forms.UUIDField(widget=forms.HiddenInput)

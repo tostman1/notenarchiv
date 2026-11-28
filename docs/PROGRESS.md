@@ -10,6 +10,11 @@
   Existing regions, logical pins, musical assignments and approvals are unchanged.
   Targeted split/editor checks: 22 passed. The UI, independent review and final
   integration/native verification of this follow-up remain open.
+- Bounded independent split-service review found no concrete blocker. Added
+  authenticated, CSRF-protected UI controls with a separate explicit split
+  acknowledgement, axis and percentage. The focused action regression passed;
+  the other 36 split/editor/review checks passed during the fixture correction.
+  Native browser coverage and cumulative integration remain pending.
 
 ## Region proposal integration checkpoint
 
