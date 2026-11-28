@@ -10,3 +10,11 @@ class ContentInspectionForm(forms.Form):
         label=_("Ich habe jedes Vorkommen dieser gespeicherten Folge einschließlich Fortsetzungen visuell geprüft."),
         required=True,
     )
+
+
+class ContentConfirmationForm(forms.Form):
+    inspection_id = forms.UUIDField(widget=forms.HiddenInput)
+    confirm = forms.BooleanField(
+        label=_("Ich gebe genau diese geprüfte Inhaltsrevision für neue musikalische Verwendung frei."),
+        required=True,
+    )

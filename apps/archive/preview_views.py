@@ -115,9 +115,10 @@ def region_sequence_viewer(request, file):
 @protected_preview
 def content_proposal_viewer(request, file, revision_id):
     from apps.archive.content_preview_services import proposal_context
-    from apps.archive.content_review_forms import ContentInspectionForm
+    from apps.archive.content_review_forms import ContentConfirmationForm, ContentInspectionForm
 
     revision, identifiers = proposal_context(file, revision_id)
+    inspection = revision.inspections.filter(reviewer=request.user).order_by("-created_at", "-pk").first()
     return render(
         request,
         "archive/content_proposal_preview.html",
@@ -126,6 +127,10 @@ def content_proposal_viewer(request, file, revision_id):
             "proposal": revision,
             "sequence_count": len(identifiers),
             "inspection_form": ContentInspectionForm(initial={"fingerprint": revision.fingerprint}),
+            "content_inspection": inspection,
+            "confirmation_form": ContentConfirmationForm(initial={"inspection_id": inspection.pk})
+            if inspection
+            else None,
             "export_document_url": reverse("archive_preview:content_proposal_document", args=[file.pk, revision.pk]),
         },
     )
@@ -160,6 +165,36 @@ def content_proposal_inspect(request, file_id, revision_id):
         messages.success(
             request, _("Sichtprüfung dieser Inhaltsrevision gespeichert; noch keine musikalische Freigabe.")
         )
+    response = redirect("archive_preview:content_proposal_viewer", file_id=file_id, revision_id=revision_id)
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+@login_required
+@require_POST
+def content_proposal_confirm(request, file_id, revision_id):
+    from django.contrib import messages
+
+    from apps.archive.content_preview_services import proposal_context
+    from apps.archive.content_review_forms import ContentConfirmationForm
+    from apps.archive.content_services import confirm_content
+
+    form = ContentConfirmationForm(request.POST)
+    try:
+        file = services.preview_file(file_id)
+        revision, identifiers = proposal_context(file, revision_id)
+        if not form.is_valid():
+            raise ValidationError("Explicit confirmation is required.")
+        inspection = revision.inspections.filter(pk=form.cleaned_data["inspection_id"], reviewer=request.user).first()
+        if inspection is None:
+            raise ValidationError("Inspection does not belong to this revision and reviewer.")
+        confirm_content(inspection.pk, actor=request.user)
+    except (Http404, FileError, PdfError, OSError, ValueError, ValidationError):
+        messages.error(
+            request, _("Inhaltsfreigabe nicht gespeichert. Eigene Sichtprüfung, Quelle und Revision prüfen.")
+        )
+    else:
+        messages.success(request, _("Genau diese geprüfte Inhaltsrevision ist musikalisch freigegeben."))
     response = redirect("archive_preview:content_proposal_viewer", file_id=file_id, revision_id=revision_id)
     response["Cache-Control"] = "private, no-store"
     return response

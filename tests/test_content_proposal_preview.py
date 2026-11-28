@@ -136,3 +136,49 @@ def test_inspection_verifies_bytes_for_current_region_proposal(region_preview, c
     response = client.post(action, {"fingerprint": revision.fingerprint, "visually_reviewed": "on"})
     assert response.status_code == 302
     assert m.ContentInspection.objects.count() == m.ContentConfirmation.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_confirmation_is_separate_explicit_and_same_reviewer_revision(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    revision = propose(file, [regions[1]])
+    inspect_url = reverse("archive_preview:content_proposal_inspect", args=[file.pk, revision.pk])
+    confirm_url = reverse("archive_preview:content_proposal_confirm", args=[file.pk, revision.pk])
+    client.post(inspect_url, {"fingerprint": revision.fingerprint, "visually_reviewed": "on"})
+    inspection = m.ContentInspection.objects.get()
+    assert m.ContentConfirmation.objects.count() == 0
+    assert client.get(confirm_url).status_code == 405
+    assert client.post(confirm_url, {"inspection_id": inspection.pk}).status_code == 302
+    assert m.ContentConfirmation.objects.count() == 0
+    other = get_user_model().objects.create_user(username="other-content-reviewer", password="synthetic-password")
+    client.force_login(other)
+    payload = {"inspection_id": inspection.pk, "confirm": "on"}
+    client.post(confirm_url, payload)
+    assert m.ContentConfirmation.objects.count() == 0
+    client.force_login(inspection.reviewer)
+    strict = Client(enforce_csrf_checks=True)
+    strict.force_login(inspection.reviewer)
+    assert strict.post(confirm_url, payload).status_code == 403
+    client.post(confirm_url, payload)
+    confirmation = m.ContentConfirmation.objects.get()
+    assert confirmation.inspection_id == inspection.pk and confirmation.actor_id == inspection.reviewer_id
+    client.post(confirm_url, payload)
+    assert m.ContentConfirmation.objects.count() == 1
+    assert m.ReviewInspection.objects.count() == m.ArchiveProposal.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_confirmation_rejects_region_changed_after_inspection(region_preview, client):  # noqa: F811
+    file, regions, _ = region_preview
+    revision = propose(file, [regions[1]])
+    client.post(
+        reverse("archive_preview:content_proposal_inspect", args=[file.pk, revision.pk]),
+        {"fingerprint": revision.fingerprint, "visually_reviewed": "on"},
+    )
+    inspection = m.ContentInspection.objects.get()
+    append_region(regions[1].region_id, expected_number=2, bounds_points=[100, 0, 180, 180])
+    client.post(
+        reverse("archive_preview:content_proposal_confirm", args=[file.pk, revision.pk]),
+        {"inspection_id": inspection.pk, "confirm": "on"},
+    )
+    assert m.ContentInspection.objects.count() == 1 and m.ContentConfirmation.objects.count() == 0
